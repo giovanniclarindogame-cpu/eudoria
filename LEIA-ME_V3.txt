@@ -1,0 +1,54 @@
+ELDORIA — ARENA HORIZONTAL · V3
+
+INSTALAÇÃO
+1. Extraia ELDORIA_V3_JOGO.zip e ELDORIA_V3_SPRITES.zip na MESMA pasta.
+   Os dois ZIPs contêm a pasta ELDORIA_V3 e devem ser mesclados.
+2. Confirme que ELDORIA_V3/assets/sprites contém os arquivos arte_*.webp.
+3. Abra ELDORIA_V3/index.html no Chrome ou Edge.
+4. Se o navegador restringir os arquivos locais, execute
+   INICIAR_JOGO_WINDOWS.bat (requer Python 3).
+5. PREVIA_4_CAMPEOES.html permite inspecionar os quatro campeões,
+   seus movimentos, defesa, reação de dano e seis habilidades.
+
+CONTROLES
+WASD ou setas: mover. Mouse: mirar. J: atacar. K: defender.
+Espaço: esquivar. 1–6: habilidades. No celular, use o aparelho
+na horizontal, o analógico esquerdo e os botões à direita.
+
+ALTERAÇÕES DESTA VERSÃO
+- Controlador de animação compartilhado entre jogo e prévia.
+- Passadas acompanham deslocamento real e sua direção, inclusive ao
+  mirar em outra direção; não continuam caminhando contra uma parede.
+- Defesa usa a pose de braços cruzados, não a preparação de soco.
+- Respiração mais lenta; golpes com preparação, contato e recuperação.
+- Habilidades mantêm a direção escolhida durante a execução.
+- Reação de dano termina em 0,30 s, com retorno ao estado atual.
+- As artes existentes foram preservadas. Esta revisão refaz a sequência
+  e o movimento das animações; não cria sprites desenhados do zero.
+- Arena horizontal com câmera fixa mostrando o campo inteiro.
+- Pátio de pedra, cerejeiras, fachada de templo e lanternas nas posições
+  dos obstáculos. Cenário desenhado em Canvas, inspirado na referência.
+- Retratos e barras no topo, analógico esquerdo, habilidades em grade 3x2.
+
+VALIDAÇÃO AUTOMÁTICA NO CHROMIUM
+- 24/24 habilidades dos quatro campeões: ativação e conclusão.
+- Primeira habilidade ofensiva dos quatro campeões: dano confirmado.
+- Reação a dano: recuperação confirmada nos quatro campeões.
+- Movimento por teclado, direção das passadas e pose de defesa.
+- Campo inteiro visível e nove botões acessíveis em 1366x768,
+  844x390 e 390x844 (nesta última, orientação para girar o aparelho).
+- Prévia: defesa e retorno da ultimate ao repouso.
+- Nenhum erro JavaScript ou recurso HTTP ausente nesses testes.
+
+Não foi realizado teste em um aparelho Windows físico ou multiplayer.
+Os testes cobrem comportamento e carregamento; a avaliação artística
+final pode ser feita na prévia e no treino.
+
+PARA DESENVOLVIMENTO
+python -m http.server 8000 --bind 127.0.0.1
+node tests/motion.cjs
+node tests/browser.cjs
+O teste de navegador precisa de Playwright e Chromium instalados.
+CHROMIUM_PATH permite indicar outro executável Chromium.
+Os arquivos LEIA-ME.txt e ALTERACOES_E_TESTES_V2.txt registram a versão
+anterior; use este documento para as instruções da V3.

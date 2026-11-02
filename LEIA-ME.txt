@@ -1,0 +1,60 @@
+ELDORIA — ARENA DOS CAMPEÕES — PROJETO PC (CORREÇÃO DE INICIALIZAÇÃO)
+
+INSTRUÇÕES
+1. Extraia o ZIP inteiro. Não mova o index.html para fora da pasta.
+2. Abra index.html no Chrome ou Edge.
+3. Se o navegador bloquear algum recurso local, execute INICIAR_JOGO_WINDOWS.bat (requer Python 3).
+4. Se ocorrer novo erro, abra F12 > Console e envie a PRIMEIRA mensagem vermelha.
+
+CAUSA DO CONGELAMENTO IDENTIFICADA NO CONSOLE
+Em js/jogo.js, a rotina de configuração dos 10 campeões tentava acessar descrições de técnicas inexistentes e atualizar entradas SKINS[6] a SKINS[9], apesar de haver apenas seis visuais no catálogo SKINS. Isso lançava um TypeError antes que a entrada fosse finalizada.
+
+CORREÇÕES
+- Impede acesso a descrições inexistentes e preserva as habilidades dos seis campeões originais.
+- Evita acesso inválido ao cadastro SKINS para os quatro novos campeões.
+- Evita que os quatro novos campeões sobrescrevam metadados compartilhados dos seis originais.
+- Libera e lista os 10 campeões; remove limites de seleção ainda fixados em seis.
+- Usa portraits individuais para os quatro campeões adicionados.
+- Mantém HTML, CSS, JavaScript e imagens em pastas separadas.
+
+TESTES REALIZADOS
+- node --check: sintaxe JS validada.
+- Chromium headless, executando DOM e JavaScript em memória: inicialização concluída, seleção com 10 campeões, abertura do detalhe do Alquimista de Aço, seleção e entrada em luta de treino (estado fight).
+- Não foi possível verificar integralmente o carregamento via file:// com recursos externos no navegador de teste; use o launcher Windows caso haja bloqueios locais.
+
+ESTRUTURA
+index.html: página principal
+css/: estilos e layout horizontal
+js/jogo.js: lógica do jogo
+js/diagnostico.js: exibição de falhas no console e tela
+assets/: imagens individuais
+
+AVISO: as habilidades dos quatro novos campeões ainda compartilham IDs de técnicas existentes nesta versão. A presente correção trata a inicialização e o acesso aos 10 campeões, não uma remodelação completa dessas habilidades.
+
+
+QUATRO CAMPEÕES REINTEGRADOS (v2):
+Herdeiro, Corsário, Cavaleiro e Alquimista usam 24 habilidades próprias, 24 spritesheets de técnicas, quatro spritesheets base, quatro folhas de VFX e atlas de ícones do Dojo original.
+As imagens estão em assets/dojo4. O script próprio está em js/novos_campeoes.js.
+Carregamento das artes sob demanda para evitar travar o início.
+
+
+VERSÃO 2 — QUATRO CAMPEÕES: ANIMAÇÕES RECONSTRUÍDAS
+--------------------------------------------------
+Causa do bug: hitReact era atribuído ao receber dano, mas não estava na lista
+de contadores que decrescem a cada frame. Por isso a pose 21 ficava permanente.
+
+Correção: agora hitReact dura 0,30s, depois volta a cast, dodge, guard,
+punch, walk ou idle conforme a ação atual. Dano repetido reinicia a breve
+reação; não bloqueia o movimento nem fica permanente.
+
+Sprites: quatro novos atlas de estados 6x6 (36 quadros cada), com animações
+de parado, caminhada lateral, frontal, costas, golpes e seis fases de dano
+e recuperação. Os 24 atlas de habilidades foram remontados com quadros
+finais de recuperação para garantir retorno natural à pose neutra.
+As artes e a identidade visual originais foram preservadas como base;
+não houve redesenho artístico integral a partir do zero.
+Arquivos: assets/dojo4/*-states.webp e assets/dojo4/sprite_states_v2.json.
+
+Teste rápido no Chrome: F12 > Console, digite:
+window.dojo4QA.motion(window.arenaQA.player)
+(dentro do combate) para consultar a animação atual.

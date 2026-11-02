@@ -1,0 +1,56 @@
+.imported-champion-art{display:block;width:100%;height:100%;min-height:180px;max-height:280px;object-fit:contain;object-position:center;filter:drop-shadow(0 10px 12px #0008)}.champ-portrait{overflow:hidden}
+/* The world is landscape at every size; portrait phones get a rotation hint. */
+#battle{background:#191b2b}
+#battle #arena{inset:0;width:100%;height:100%;touch-action:none}
+#battle .hud{inset:12px 24px auto;padding:8px 12px;gap:24px;background:linear-gradient(180deg,#131b30f2,#182035b8);border:1px solid #8c829a;border-radius:12px;box-shadow:0 4px 24px #0006;z-index:5;min-height:90px}
+#battle .fighterhud{position:relative;flex:1;width:auto;max-width:520px;min-width:0;padding-left:78px}
+#battle .fighterhud.enemy{padding-left:0;padding-right:78px}
+#battle .arena-portrait{position:absolute;left:0;top:-8px;width:68px;height:76px;object-fit:cover;object-position:50% 20%;border:2px solid #a4a6bf;clip-path:polygon(20% 0,80% 0,100% 28%,100% 74%,80% 100%,20% 100%,0 74%,0 28%);background:#273650}
+#battle .enemy .arena-portrait{left:auto;right:0;transform:scaleX(-1)}
+#battle .fighterhud .title{font-size:11px;letter-spacing:.5px;white-space:nowrap;gap:8px}
+#battle .fighterhud .title b{overflow:hidden;text-overflow:ellipsis}
+#battle .bar{height:16px;border:1px solid #b3a6b0;background:#281c31;transform:skewX(-12deg);border-radius:2px}
+#battle .bar i,#battle .enemy .bar i{background:linear-gradient(#ff797d,#db2e4c 55%,#a41939)}
+#battle .resources{gap:6px}#battle .resources .bar{height:9px;border:1px solid #5f8199}
+#battle .resources .mp i{background:linear-gradient(#80ecff,#188dcf)}#battle .resources .st i{background:linear-gradient(#fbe5ab,#c19a58)}
+#battle .mid-hud{flex:0 0 100px}#battle .mid-hud:before{content:'VS';display:block;font:italic 900 24px Georgia;color:#ffc486;text-shadow:2px 2px #813b5d}
+#battle .mid-hud strong{font:800 24px system-ui;color:#f4f2fc}#battle .mid-hud small{font-size:7px;letter-spacing:1px}
+#battle .botkit{display:none}#battle .hud-menu{position:absolute;right:-15px;top:77px;background:#152338ed;color:#eee;z-index:8}
+#battle .arena-caption{top:113px;left:50%;transform:translateX(-50%);color:#ead6df;font-size:9px;letter-spacing:3px;z-index:2;white-space:nowrap}
+#battle #controls{position:absolute;inset:0;padding:0;height:100%;background:none;border:0;pointer-events:none;z-index:6;display:block}
+#battle #controls button,#battle #stick{pointer-events:auto}
+#battle #stick{position:absolute;left:36px;bottom:24px;width:126px;height:126px;margin:0;border:3px solid #9aaac3;background:radial-gradient(circle,#254f7866,#171f3b99);box-shadow:inset 0 0 24px #123563,0 4px 20px #0006}
+#battle #knob{background:radial-gradient(circle at 38% 30%,#86e9ff,#27b5f0 55%,#1c61ac);border:2px solid #b3f4ff;box-shadow:0 0 16px #39caff99}
+#battle .control-center{position:absolute;right:28px;bottom:22px;width:auto;max-width:none;min-width:0;transform:none}
+#battle .equipped{display:grid;grid-template-columns:repeat(3,64px);gap:12px}
+#battle .skill{position:relative;width:64px;height:64px;max-width:none;min-width:0;margin:0;padding:4px;border-radius:50%;border:3px solid #97aec9;background:#111a31;box-shadow:0 3px 0 #080e22,0 0 0 2px #3a4c6c;overflow:visible}
+#battle .skill>span:first-child{display:block;width:100%;height:100%;border-radius:50%;overflow:hidden}
+#battle .skill .hotkey{position:absolute;top:-8px;left:1px;right:auto;width:20px;height:20px;display:grid;place-items:center;background:#111a2c;color:#fff;font-size:12px;border:1px solid #a6b6d0;border-radius:5px}
+#battle .skill .cool{inset:0;border-radius:50%}#battle .control-tip{display:none}
+#battle .action-group{position:absolute;bottom:26px;right:272px;display:flex;gap:10px;align-items:end;margin:0;width:auto}
+#battle .action-group #attack{width:66px;height:66px}#battle .action-group #defend,#battle .action-group #dodge{width:50px;height:50px}
+#battle .action{background:#18283de8;border:2px solid #8ea4c1;box-shadow:0 4px 14px #0007}
+#battle #practiceMeter{top:110px;left:16px;bottom:auto;max-width:210px;font-size:10px;background:#172135bb}
+#battle #toast{top:130px;bottom:auto;pointer-events:none}#battle #modeObjective{top:105px;z-index:7}
+#battle .teamhud{top:108px;bottom:auto}#battle #riftCombatToggle{position:absolute;top:100px;right:28px}
+@media(max-height:520px){
+ #battle .hud{inset:5px 14px auto;min-height:58px;padding:5px 10px;gap:14px}
+ #battle .fighterhud{padding-left:48px}#battle .fighterhud.enemy{padding-right:48px}
+ #battle .arena-portrait{width:40px;height:48px;top:0}#battle .fighterhud .title{font-size:9px;margin-bottom:3px}
+ #battle .bar{height:11px}#battle .resources .bar{height:6px}#battle #resText{display:none}
+ #battle .mid-hud{flex-basis:70px}#battle .mid-hud:before{font-size:14px}#battle .mid-hud strong{font-size:18px}#battle .mid-hud small{display:none}
+ #battle .hud-menu{top:58px;right:0;padding:6px}#battle .arena-caption{top:67px;font-size:7px}
+ #battle #stick{left:20px;bottom:12px;width:86px;height:86px}
+ #battle .control-center{right:16px;bottom:12px}#battle .equipped{grid-template-columns:repeat(3,44px);gap:8px}
+ #battle .skill{width:44px;height:44px;border-width:2px;padding:2px}#battle .skill .hotkey{width:16px;height:16px;font-size:10px}
+ #battle .action-group{right:185px;bottom:14px;gap:6px}#battle .action-group #attack{width:46px;height:46px}#battle .action-group #defend,#battle .action-group #dodge{width:38px;height:38px}
+ #battle .action small{font-size:7px}#battle #practiceMeter{top:82px;font-size:8px;max-width:150px;padding:5px}#battle #toast{top:78px}#battle #modeObjective{top:67px;font-size:9px}#battle .teamhud{top:70px}
+}
+@media(orientation:portrait) and (max-width:700px){
+ #battle:after{content:'↻ Gire o dispositivo para jogar na horizontal';position:absolute;top:44%;left:10%;width:80%;text-align:center;padding:14px;background:#111b30ef;border:1px solid #bda2bd;border-radius:12px;z-index:8;pointer-events:none;color:#fff}
+ #battle .hud{left:5px;right:5px;gap:8px}#battle .fighterhud{padding-left:0}#battle .fighterhud.enemy{padding-right:0}#battle .arena-portrait{display:none}#battle .mid-hud{flex-basis:60px}
+ #battle #stick{width:90px;height:90px;left:16px}#battle .equipped{grid-template-columns:repeat(3,45px)}#battle .skill{width:45px;height:45px}#battle .control-center{right:16px}#battle .action-group{right:16px;bottom:158px}
+}
+#battle .hud #pauseBtn{position:absolute;left:auto;right:0;top:96px;transform:none;width:32px;height:32px;padding:5px}
+#battle .arena-caption{top:107px}
+@media(max-height:520px){#battle .hud #pauseBtn{top:60px}#battle .arena-caption{top:65px}}

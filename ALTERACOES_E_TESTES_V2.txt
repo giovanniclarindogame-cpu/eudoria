@@ -1,0 +1,45 @@
+ELDORIA — QUATRO CAMPEÕES: REVISÃO DE ANIMAÇÕES V2
+
+VERSÃO CORRIGIDA DO PROJETO PC COM 10 CAMPEÕES.
+
+CAUSA DO BUG
+- O motor original atribuía hitReact=0.16 ao lutador ao receber dano.
+- Esse valor NÃO era reduzido no loop step().
+- O renderizador dos quatro campeões usava hitReact>0 para selecionar
+  permanentemente o quadro 21 de dor.
+
+CORREÇÕES
+- hitReact agora é inicializado no ator e é reduzido a cada step.
+- Hit dura 0,30 s para os 4 novos campeões; não é estado permanente.
+- Novo controlador com prioridade: dor -> habilidade -> esquiva ->
+  defesa -> soco -> andar -> parado.
+- Criei 4 novos atlas de estado com 36 quadros cada a partir das artes
+  existentes (parado, 3 direções de caminhada, soco, dano/recuperação).
+- Remontei 24 atlas de habilidades com transições finais para pose neutra.
+- Mantive os efeitos especiais, descrições e 24 habilidades exclusivas.
+- Novos arquivos: assets/dojo4/*-states.webp e sprite_states_v2.json.
+- Adicionado PREVIA_4_CAMPEOES.html para visualizar sem entrar no jogo.
+
+TESTES EXECUTADOS
+- Sintaxe de jogo.js e novos_campeoes.js: OK.
+- Inicialização em Chromium com scripts injetados na página: OK.
+- Dano em 4 novos campeões: animação termina e volta ao estado idle: OK.
+- Caminhada e soco após dano: OK (4/4).
+- Técnicas individuais: 24/24 executaram e retornaram ao idle: OK.
+- Leitura dos 28 atlas: 4 de 768x768 e 24 de 768x512: OK.
+
+OBSERVAÇÕES
+As imagens dos personagens não foram desenhadas inteiramente do zero:
+reaproveitei o traço e poses originais, remontei os sprites e refiz a
+sequência/temporização dos estados. A qualidade artística de novas poses
+inteiramente inéditas exigiria um trabalho de arte separado.
+
+O teste automatizado inicializou a aplicação com scripts incorporados
+em uma página de teste, não simula a abertura direta de todos os arquivos
+pelo Windows e não confirma todos os cenários de PvP. Teste também no seu PC.
+
+COMO USAR
+1. Extraia o ZIP em uma pasta NOVA e completa.
+2. Abra index.html no navegador, ou INICIAR_JOGO_WINDOWS.bat.
+3. Para ver as animações sem entrar na Arena, abra PREVIA_4_CAMPEOES.html.
+4. Entre no treino, escolha um dos 4 novos campeões e leve dano.

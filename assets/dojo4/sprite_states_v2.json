@@ -1,0 +1,90 @@
+{
+  "revision": "v2-animation-controller",
+  "cell": 128,
+  "state_grid": [
+    6,
+    6
+  ],
+  "keys": {
+    "spark": {
+      "states": "spark-states.webp",
+      "skills": [
+        "spark-bolt.webp",
+        "spark-whip.webp",
+        "spark-dash.webp",
+        "spark-float.webp",
+        "spark-power.webp",
+        "spark-legacy.webp"
+      ],
+      "walk_rows": {
+        "side": 1,
+        "front": 2,
+        "back": 3
+      },
+      "idle_row": 0,
+      "punch_row": 4,
+      "hurt_row": 5,
+      "hurt_duration": 0.3
+    },
+    "tide": {
+      "states": "tide-states.webp",
+      "skills": [
+        "tide-stretch.webp",
+        "tide-barrage.webp",
+        "tide-sling.webp",
+        "tide-armor.webp",
+        "tide-steam.webp",
+        "tide-king.webp"
+      ],
+      "walk_rows": {
+        "side": 1,
+        "front": 2,
+        "back": 3
+      },
+      "idle_row": 0,
+      "punch_row": 4,
+      "hurt_row": 5,
+      "hurt_duration": 0.3
+    },
+    "star": {
+      "states": "star-states.webp",
+      "skills": [
+        "star-meteors.webp",
+        "star-comet.webp",
+        "star-wings.webp",
+        "star-aegis.webp",
+        "star-cosmos.webp",
+        "star-pegasus.webp"
+      ],
+      "walk_rows": {
+        "side": 1,
+        "front": 2,
+        "back": 3
+      },
+      "idle_row": 0,
+      "punch_row": 4,
+      "hurt_row": 5,
+      "hurt_duration": 0.3
+    },
+    "steel": {
+      "states": "steel-states.webp",
+      "skills": [
+        "steel-lance.webp",
+        "steel-wall.webp",
+        "steel-spikes.webp",
+        "steel-blade.webp",
+        "steel-repair.webp",
+        "steel-cathedral.webp"
+      ],
+      "walk_rows": {
+        "side": 1,
+        "front": 2,
+        "back": 3
+      },
+      "idle_row": 0,
+      "punch_row": 4,
+      "hurt_row": 5,
+      "hurt_duration": 0.3
+    }
+  }
+}
