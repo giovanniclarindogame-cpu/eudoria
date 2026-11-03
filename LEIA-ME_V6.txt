@@ -1,0 +1,31 @@
+ELDORIA V6 — MENUS SIMPLIFICADOS
+
+Campeões, Coleção, Dojo, Liga e Arenas seguem as cores verde e dourado
+da página inicial, com navegação lateral em tela horizontal.
+
+- Campeões: busca, arte e nome; detalhes focados nas seis habilidades.
+- Coleção: campeão selecionado e lista compacta dos dez personagens.
+- Dojo: campeão, comportamento do adversário e botão de começar.
+- Liga: divisão, pontos, próximo adversário e botão de jogar.
+- Arenas: objetivo curto e botão de jogar para cada modo.
+- Escolha de Campeão: escolha direta do personagem para a partida.
+- Perfil, configurações e pausa com textos mais curtos.
+
+Regras e recompensas ficam em seções expansíveis. Foram removidos
+avisos antigos de compra/desbloqueio, contadores repetidos e informações
+que já aparecem em outras partes da interface. As descrições das
+habilidades, seus custos, recargas e condição da ultimate permanecem.
+
+TESTES
+Servidor: python -m http.server 8000 --bind 127.0.0.1
+Com Node, Playwright e Chromium:
+node tests/simple-menus.cjs
+node tests/royal-lobby.cjs
+node tests/landscape.cjs
+node tests/browser.cjs
+
+Verificação de menus em 1280x720, 844x390 e 667x375, além de retrato.
+Busca, seleção, detalhes, treino, pausa, Liga, escolha para duelo,
+perfil e configurações exercitados no navegador automatizado.
+Testes de regressão da página inicial e do combate também passaram.
+Não foi realizado teste em aparelho físico.
