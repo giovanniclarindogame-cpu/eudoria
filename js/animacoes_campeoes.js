@@ -53,6 +53,13 @@ const EldoriaMotion = (() => {
   else if(a.dodgeTime>0)m.facing=a.dodgeA;
   else if(a.hitReact<=0)m.facing=a.a;
  }
- return {sample,track,keys};
+ function castFrame(q){
+  const age=q.age,release=q.skill.release,total=q.skill.duration;
+  if(age<release)return Math.min(2,Math.floor(age/release*3));
+  if(age<release+.12)return 3;
+  if(age<release+(total-release)*.64)return 4;
+  return 5;
+ }
+ return {sample,track,keys,castFrame};
 })();
 if(typeof module!=='undefined')module.exports=EldoriaMotion;

@@ -633,7 +633,7 @@ function vfxDrawAuras(front){
 function vfxDrawProjectiles(){
   for(const s of shots){const id=s.art,c=vcolor(id),an=Math.atan2(s.vy,s.vx),t=s.vfxAge||0;
     ctx.save();const tr=s.trail||[];for(let i=1;i<tr.length;i++){ctx.globalAlpha=i/tr.length*.45;vline(tr[i-1].x,tr[i-1].y,tr[i].x,tr[i].y,c,Math.max(1,s.r*.6*i/tr.length))}ctx.restore();
-    ctx.save();ctx.translate(s.x,s.y);ctx.rotate(an);ctx.lineCap='round';
+    ctx.save();ctx.translate(s.x,s.y);orientSkillSprite(ctx,an);ctx.lineCap='round';
     if(!drawProjectileArt(id,t))switch(id){
       case 13:for(let i=0;i<3;i++){ctx.strokeStyle=i===1?'#ded2ff':c;ctx.lineWidth=3-i*.5;ctx.beginPath();ctx.moveTo(-35,i*4-4);ctx.quadraticCurveTo(-16,Math.sin(t*18+i)*14,12,0);ctx.stroke()}vdiamond(10,0,10,c);break;
       case 18:ctx.fillStyle=c;ctx.beginPath();ctx.moveTo(12,-25);ctx.quadraticCurveTo(-20,0,12,25);ctx.quadraticCurveTo(4,0,12,-25);ctx.fill();varc(25,'#e4f5ff',-1.2,1.2,2);break;
@@ -1565,7 +1565,7 @@ renderBuildSlots=function(){};
 renderCollectionProgress=function(){};
 loadBuildSlot=function(){return false};
 saveBuildSlot=function(){return false};
-journeyMarkup=function(){const j=account.journey;return `<section class="journey-card"><span class="eyebrow">PRIMEIROS PASSOS</span><h2>Conheça seu campeão.</h2><div class="journey-tasks">${[['training','Cause 300 de dano no Dojo','training'],['duel','Conclua um duelo','home'],['build','Selecione um campeão na coleção','library']].map(([k,t,nav])=>`<div><span>${j[k]?'✓':'○'} ${t}</span>${!j[k]?`<button class="ghost" data-nav="${nav}">Ir ↗</button>`:''}</div>`).join('')}</div>${j.claimed?'<p>Recompensa recebida.</p>':journeyReady()?'<button class="gold" data-journey-claim="-1">Receber 125 cristais</button>':'<p>Conclua os três objetivos para receber 125 cristais.</p>'}</section>`};
+journeyMarkup=function(){const j=account.journey;return `<section class="journey-card"><span class="eyebrow">PRIMEIROS PASSOS</span><h2>Conheça seu campeão.</h2><div class="journey-tasks">${[['training','Cause 300 de dano no Dojo','training'],['duel','Conclua um duelo','home'],['build','Selecione um campeão','library']].map(([k,t,nav])=>`<div><span>${j[k]?'✓':'○'} ${t}</span>${!j[k]?`<button class="ghost" data-nav="${nav}">Ir ↗</button>`:''}</div>`).join('')}</div>${j.claimed?'<p>Recompensa recebida.</p>':journeyReady()?'<button class="gold" data-journey-claim="-1">Receber 125 cristais</button>':'<p>Conclua os três objetivos para receber 125 cristais.</p>'}</section>`};
 wishMarkup=function(){return ''};
 claimJourney=function(id){if(id!==-1||!journeyReady()||account.journey.claimed)return false;const old=JSON.stringify(account);account.journey.claimed=true;account.crystals+=125;if(!saveAccount()){account=JSON.parse(old);return false}renderHome();return true};
 renderTraining=function(){const c=currentChampion();$('#trainingScreen').innerHTML=appHeader()+`<div class="section-head"><button class="ghost" data-nav="home">← Início</button><span class="eyebrow">PRATIQUE CADA MOVIMENTO</span><h1>Dojo dos Campeões.</h1><p>${c.name} · Kit fixo de seis habilidades.</p></div><div class="progression-grid"><section class="panel">${championSkillsMarkup(c)}<button class="ghost" data-nav="library">Trocar campeão</button></section><section class="panel"><h2>Fantoche de madeira.</h2>${practiceSettingsMarkup('setup')}<p>O treino não dá moedas. A ultimate mantém a regra de 20% de HP; use o botão de teste na pausa para reduzir seu HP ao limite.</p><button class="gold" data-progression="training">Entrar no treinamento ↗</button></section></div>`;hydrateSkillIcons()};
@@ -1966,7 +1966,7 @@ function revisionTeleport(a,angle,range){
 }
 function revisionSprite(g,im,x,y,size,frame,angle=0,height=size,anchor='center'){
  if(!im?.naturalWidth)return;const n=clamp(Math.floor(frame),0,7),w=im.naturalWidth/4,h=im.naturalHeight/2;
- g.save();g.translate(x,y);g.rotate(angle);g.imageSmoothingEnabled=true;
+ g.save();g.translate(x,y);orientSkillSprite(g,angle);g.imageSmoothingEnabled=true;
  g.drawImage(im,n%4*w,Math.floor(n/4)*h,w,h,-size/2,anchor==='bottom'?-height*0.92:-height/2,size,height);g.restore();
 }
 const integratedNinjaCast=castCore,integratedNinjaPaint=drawAnimatedFighter;
@@ -2015,7 +2015,7 @@ castCore=function(a,id,manual){const index=ASTRAL_IDS.indexOf(id),s=skills[id];i
 function astralBurst(kind,x,y,size,angle=0){astralEffects.push({kind:'burst',art:kind,x,y,size,angle,age:0,life:.55,maxLife:.55});}
 function astralProjectile(a,kind,angle,dmg,speed,range,r){const e={kind,owner:a,x:a.x+Math.cos(angle)*28,y:a.y+Math.sin(angle)*28,angle,dmg,speed,r,travel:0,range,age:0,life:range/speed,maxLife:range/speed};astralEffects.push(e);return e;}
 function astralExplode(e){if(e.exploded)return;e.exploded=true;astralBurst('sphere',e.x,e.y,250);combatImpact(2);for(const a of opponents(e.owner))if(dist(a,e)<110+a.r&&lineClear(e,a))hit(a,e.dmg,e.owner,18,Math.atan2(a.y-e.y,a.x-e.x),28);e.life=0;}
-function astralEffect(g,name,x,y,size,frame,angle=0,height=size){const im=astralImages[name];if(!im?.naturalWidth)return;frame=clamp(Math.floor(frame),0,23);const w=im.naturalWidth/4,h=im.naturalHeight/6;g.save();g.translate(x,y);g.rotate(angle);g.imageSmoothingEnabled=false;g.drawImage(im,frame%4*w,Math.floor(frame/4)*h,w,h,-size/2,-height/2,size,height);g.restore();}
+function astralEffect(g,name,x,y,size,frame,angle=0,height=size){const im=astralImages[name];if(!im?.naturalWidth)return;frame=clamp(Math.floor(frame),0,23);const w=im.naturalWidth/4,h=im.naturalHeight/6;g.save();g.translate(x,y);orientSkillSprite(g,angle);g.imageSmoothingEnabled=false;g.drawImage(im,frame%4*w,Math.floor(frame/4)*h,w,h,-size/2,-height/2,size,height);g.restore();}
 function astralBloodAdd(x,y,strong=false,angle=0){astralBlood.push({x,y,strong,angle,age:0,life:strong?.42:12,pose:Math.floor(Math.random()*4)});if(astralBlood.length>84)astralBlood.shift();}
 function astralDrawBlood(e){const im=astralImages.blood,w=im.naturalWidth/4,h=im.naturalHeight/2,f=e.strong?Math.min(3,Math.floor(e.age/.42*4)):e.pose,size=e.strong?64:16;ctx.save();ctx.translate(e.x,e.y-(e.strong?24:0));ctx.rotate(e.angle);ctx.globalAlpha=e.strong?1:.75*Math.min(1,e.life/3);ctx.drawImage(im,f*w,e.strong?0:h,w,h,-size/2,-size/2,size,size);ctx.restore();}
 const astralBaseHit=hit;
@@ -2146,7 +2146,7 @@ castCore=function(a,id,manual){const index=ECLIPSE_IDS.indexOf(id),s=skills[id];
  a.a=a.eclipseFacing=angle;a.guard=false;a.mp-=s.cost;a.cd[id]=s.cd;a.cast=a.skillLock=ECLIPSE_SKILLS[index][5];a.champAction=null;a.eclipseCast={index,id,angle,age:0,duration:a.cast,released:false,target:eclipseTarget(a,angle,manual,260)};fighterEchoStates.delete(a);toast(s.name);return true;};
 function eclipseBurst(art,x,y,size,angle=0){eclipseEffects.push({kind:'burst',art,x,y,size,angle,age:0,life:.55,maxLife:.55});}
 function eclipseProjectile(a,kind,angle,dmg,speed,range,r){const e={kind,owner:a,x:a.x+Math.cos(angle)*28,y:a.y+Math.sin(angle)*28,angle,dmg,speed,r,travel:0,range,age:0,life:range/speed,maxLife:range/speed,hit:new Set()};eclipseEffects.push(e);return e;}
-function eclipseEffect(g,name,x,y,size,frame,angle=0,height=size){const im=eclipseImages[name];if(!im?.naturalWidth)return;frame=clamp(Math.floor(frame),0,23);const w=im.naturalWidth/4,h=im.naturalHeight/6;g.save();g.translate(x,y);g.rotate(angle);g.imageSmoothingEnabled=false;g.drawImage(im,frame%4*w,Math.floor(frame/4)*h,w,h,-size/2,-height/2,size,height);g.restore();}
+function eclipseEffect(g,name,x,y,size,frame,angle=0,height=size){const im=eclipseImages[name];if(!im?.naturalWidth)return;frame=clamp(Math.floor(frame),0,23);const w=im.naturalWidth/4,h=im.naturalHeight/6;g.save();g.translate(x,y);orientSkillSprite(g,angle);g.imageSmoothingEnabled=false;g.drawImage(im,frame%4*w,Math.floor(frame/4)*h,w,h,-size/2,-height/2,size,height);g.restore();}
 function eclipseBloodAdd(x,y,strong=false,angle=0){eclipseBlood.push({x,y,strong,angle,age:0,life:strong?.42:12,pose:Math.floor(Math.random()*4)});if(eclipseBlood.length>84)eclipseBlood.shift();}
 function eclipseDrawBlood(e){const im=eclipseImages.blood,w=im.naturalWidth/4,h=im.naturalHeight/2,f=e.strong?Math.min(3,Math.floor(e.age/.42*4)):e.pose,size=e.strong?64:16;ctx.save();ctx.translate(e.x,e.y-(e.strong?24:0));ctx.rotate(e.angle);ctx.globalAlpha=e.strong?1:.75*Math.min(1,e.life/3);ctx.drawImage(im,f*w,e.strong?0:h,w,h,-size/2,-size/2,size,size);ctx.restore();}
 let eclipseBasicOwner=null;
@@ -2251,7 +2251,7 @@ function rpPaint(g,a,size=72,override=null){const d=rpDirection(override?.angle?
 }
 function rpRay(x,y,angle,max,r=0){let length=0;for(let d=4;d<=max;d+=4){if(blocked(x+Math.cos(angle)*d,y+Math.sin(angle)*d,r))break;length=d;}return length;}
 function rpBlinkPlan(a,angle,range=160){let target={x:a.x,y:a.y};for(let d=4;d<=range;d+=4){const x=a.x+Math.cos(angle)*d,y=a.y+Math.sin(angle)*d;if(blocked(x,y,a.r)||actors.some(b=>b!==a&&b.hp>0&&Math.hypot(x-b.x,y-b.y)<a.r+b.r+4))break;target={x,y};}return target;}
-function rpEffect(g,owner,index,x,y,size,frame,angle=0,height=size){const im=rpImages[rpKey(owner)+'-fx'];if(!im?.naturalWidth)return;const f=clamp(Math.floor(frame),0,7),w=im.naturalWidth/8,h=im.naturalHeight/6;g.save();g.translate(x,y);g.rotate(angle);g.imageSmoothingEnabled=false;g.drawImage(im,f*w,index*h,w,h,-size/2,-height/2,size,height);g.restore();}
+function rpEffect(g,owner,index,x,y,size,frame,angle=0,height=size){const im=rpImages[rpKey(owner)+'-fx'];if(!im?.naturalWidth)return;const f=clamp(Math.floor(frame),0,7),w=im.naturalWidth/8,h=im.naturalHeight/6;g.save();g.translate(x,y);orientSkillSprite(g,angle);g.imageSmoothingEnabled=false;g.drawImage(im,f*w,index*h,w,h,-size/2,-height/2,size,height);g.restore();}
 function rpBloodAdd(x,y,strong=false,angle=0){rpBlood.push({x,y,strong,angle,age:0,life:strong?.42:12,pose:Math.floor(Math.random()*4)});if(rpBlood.length>84)rpBlood.shift();}
 function rpDrawBlood(e){const im=rpImages.blood,w=im.naturalWidth/4,h=im.naturalHeight/2,f=e.strong?Math.min(3,Math.floor(e.age/.42*4)):e.pose,size=e.strong?64:16;ctx.save();ctx.translate(e.x,e.y-(e.strong?24:0));ctx.rotate(e.angle);ctx.globalAlpha=e.strong?1:.75*Math.min(1,e.life/3);ctx.drawImage(im,f*w,e.strong?0:h,w,h,-size/2,-size/2,size,size);ctx.restore();}
 castCore=function(a,id,manual){const c=RP_CONFIG[a?.skin],index=c?.ids.indexOf(id)??-1,s=skills[id];if(!c||index<0||!a.kit.includes(id)||state!=='fight'||a.hp<=0||a.rpCast||a.cast>0||a.skillLock>0||a.actionRecovery>0||a.punchTime>0||a.dodgeTime>0||a.guard||a.cd[id]>0||a.mp<s.cost||a.root>0)return false;if(index===5&&!canUseUltimate(a)){toast('Ultimate: HP de 20% ou menos');return false;}

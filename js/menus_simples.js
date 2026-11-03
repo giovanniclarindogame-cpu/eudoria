@@ -4,13 +4,12 @@ function simpleHeader(title,subtitle=''){
 }
 const simpleRoyalNav=renderLobbyNav;
 renderLobbyNav=function(){
- $('#lobbyNav').classList.remove('simple-nav');
+ const nav=$('#lobbyNav');nav.classList.remove('simple-nav');
  if(appScreen==='home')return simpleRoyalNav();
- const nav=$('#lobbyNav');nav.classList.remove('royal-nav');nav.classList.add('simple-nav');nav.hidden=!account.profile;if(nav.hidden)return;
- nav.innerHTML=[['home','Início','home'],['library','Campeões','crest'],['shop','Coleção','shop'],['training','Dojo','swords'],['arenas','Arenas','compass'],['league','Liga','crown']].map(([screen,name,art])=>`<button ${screen==='arenas'?'data-open-modes':`data-nav="${screen}"`} class="${appScreen===screen?'current':''}" ${appScreen===screen?'aria-current="page"':''}>${royalIcon(art)}<span>${name}</span></button>`).join('');
+ nav.hidden=true;nav.innerHTML='';nav.classList.remove('royal-nav');
 };
 const simpleShowScreen=showScreen;
-showScreen=function(name){$('#lobbyNav').classList.remove('simple-nav');return simpleShowScreen(name);};
+showScreen=function(name){$('#lobbyNav').classList.remove('simple-nav');return simpleShowScreen(name==='shop'?'library':name);};
 rosterCard=function(c){return `<button class="hero-card ${account.activeChampion===c.id?'selected':''}" data-hero-open="${c.id}" style="--hero:${c.color}" aria-label="Conhecer ${escapeHTML(c.name)}"><span class="hero-card-art"><img src="${championArt(c)}" alt="" draggable="false"></span><span class="hero-card-copy"><strong>${escapeHTML(c.name)}</strong>${account.activeChampion===c.id?'<span>✓ Selecionado</span>':''}</span></button>`;};
 renderSelection=function(){
  normalizeChampions();$('#selection').innerHTML=`<div class="roster-page simple-roster"><header class="roster-head"><button class="icon-back" data-nav="home" aria-label="Voltar ao início">←</button><div><span class="eyebrow">ELDORIA</span><h1>Campeões</h1></div></header><label class="hero-search"><span aria-hidden="true">⌕</span><input id="heroSearch" type="search" placeholder="Buscar campeão" value="${escapeHTML(rosterQuery)}" aria-label="Buscar campeão"></label><div class="hero-grid" id="heroGrid"></div></div>`;

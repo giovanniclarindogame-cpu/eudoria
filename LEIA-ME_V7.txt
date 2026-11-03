@@ -1,0 +1,38 @@
+ELDORIA V7 — ARTES E COMBATE
+
+- Dez novas artes chibi para a seleção, com poses individuais.
+- Novas poses para as 24 habilidades dos quatro últimos campeões:
+  Herdeiro da Centelha, Corsário da Maré, Cavaleiro do Firmamento
+  e Alquimista de Aço. São seis quadros por habilidade.
+- Novos efeitos ilustrados para todas essas habilidades, também com
+  seis quadros por efeito. Projéteis acompanham o golpe em movimento;
+  auras acompanham o lutador e estruturas mantêm orientação vertical.
+- Golpes para a esquerda espelham a arte horizontalmente em vez de
+  girá-la de cabeça para baixo, inclusive nos campeões anteriores.
+- Os primeiros seis lutadores foram ampliados para a altura dos novos.
+  A câmera de combate ficou aproximadamente 13% mais afastada.
+- Coleção removida da navegação. Atalhos aparecem apenas no início.
+  As outras telas usam toda a largura e têm botão de voltar.
+
+As artes finais ficam em assets/champions_v7 e assets/skills_v7.
+Os PNGs de geração permanecem em /workspace/generated_images no ambiente
+de criação. scripts/import-art-v7.cjs e scripts/import-effects-v7.cjs
+registram os recortes dos atlas; o jogo usa os WebPs prontos e não precisa
+desses scripts. ELDORIA_GENERATED_DIR permite escolher outra pasta de
+originais ao executar os importadores com Node e Sharp.
+
+A prévia PREVIA_4_CAMPEOES.html também mostra as animações V7.
+
+VALIDAÇÃO
+Com servidor local na porta 8000, Node, Playwright e Chromium:
+node tests/motion.cjs
+node tests/art-v7.cjs
+node tests/browser.cjs
+node tests/landscape.cjs
+node tests/royal-lobby.cjs
+node tests/simple-menus.cjs
+
+O teste de arte verifica as 24 habilidades para direita e esquerda,
+com seis poses, alturas equivalentes, transparência entre células,
+carregamento dos dez retratos e navegação apenas no início.
+A verificação é feita em navegador automatizado; não em celular físico.

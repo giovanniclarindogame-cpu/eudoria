@@ -19,7 +19,7 @@ const assert=require('node:assert/strict');
   assert.ok(await accessible('#lobbyPlay'),'play clipped '+JSON.stringify(viewport));
   await page.evaluate(()=>{arenaQA.progression.begin('training');arenaQA.begin();});await page.waitForTimeout(100);
   const projection=await page.evaluate(()=>({...arenaQA.projection,...arenaQA.dimensions}));
-  if(viewport.width<900)assert.ok(projection.scale>.69,'camera still distant');
+  if(viewport.width<900)assert.ok(projection.scale>.58&&projection.scale<1.1,'moderate camera zoom outside expected range');
   const controls='#equipped button,#attack,#defend,#dodge,#stick,#pauseBtn,#arenaZoom,#fullscreenToggle';
   const boxes=await page.locator(controls).evaluateAll(els=>els.map(el=>{const r=el.getBoundingClientRect();return {id:el.id||el.dataset.index,x:r.x,y:r.y,w:r.width,h:r.height,hit:el.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2))};}));
   for(const box of boxes){assert.ok(box.hit,'covered control '+box.id);assert.ok(box.x>=0&&box.y>=0&&box.x+box.w<=viewport.width+1&&box.y+box.h<=viewport.height+1,'clipped control '+box.id);}

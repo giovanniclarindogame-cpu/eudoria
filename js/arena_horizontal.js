@@ -12,7 +12,7 @@ updateArenaCamera=function(){
   scale=Math.min((cw-20)/W,(ch-top-24)/H);ox=(cw-W*scale)/2;oy=top+(ch-top-H*scale)/2;return;
  }
  // Follow the fighter at a readable scale. Controls overlay the outer corners.
- scale=Math.min(1.6,Math.max(cw/960,(ch-top)/510));
+ scale=Math.min(1.38,Math.max(cw/1100,(ch-top)/585));
  const focus=p?.hp>0?p:actors.find(a=>a.team===p?.team&&a.hp>0)||p;
  const x=focus?.x??W/2,y=focus?.y??H/2;
  ox=cw*.43-x*scale;oy=top+(ch-top)*.43-y*scale;
