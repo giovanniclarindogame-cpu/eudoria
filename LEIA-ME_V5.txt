@@ -1,0 +1,32 @@
+ELDORIA V5 — SANTUÁRIO ILUSTRADO
+
+A tela inicial foi refeita a partir da referência visual:
+- Santuário e cidadela com novas artes geradas para o projeto.
+- Painéis em verde-escuro com detalhes dourados.
+- Campeão animado, identidade, liga e habilidades à esquerda.
+- Seis cartões de modos, botão JOGAR, arenas e missões à direita.
+- Navegação para Início, Campeões, Coleção, Dojo, Arenas, Missões e Liga.
+- Moedas, cristais, configurações e tela cheia no cabeçalho.
+
+Liga offline, Duelo livre e Equipes iniciam partidas reais. Explorar abre
+os oito modos existentes. Os cartões online continuam desabilitados,
+pois o jogo ainda não possui multiplayer online.
+
+As missões usam o progresso salvo e a recompensa existente de 125
+cristais. Nenhuma contagem de jogadores ou conexão online é simulada.
+Em telas horizontais pequenas, o resumo da arena é abreviado; listas de
+missões permitem rolagem. Em retrato, os painéis se empilham.
+
+As imagens estão em assets/lobby, em WebP, com cerca de 630 KiB somados.
+Os PNGs originais de geração foram preservados fora do repositório no
+ambiente de desenvolvimento. As imagens não incluem texto ou controles;
+toda a interface é HTML e os botões executam ações do jogo.
+
+TESTES
+node tests/royal-lobby.cjs
+Com Playwright, Chromium e servidor Python local na porta 8000.
+Verificado em 1280x720, 844x390, 740x360 e 667x375, com fallback retrato:
+cartões e botões sem sobreposição, modos 1v1/2v2, arenas, configurações,
+recompensa de missão, troca de campeão e entrada/saída de tela cheia.
+Também passaram os testes anteriores de combate e layout horizontal.
+A validação foi feita em navegador automatizado; não em celular físico.

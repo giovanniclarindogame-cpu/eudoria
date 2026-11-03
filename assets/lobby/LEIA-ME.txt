@@ -1,0 +1,4 @@
+Artes geradas para Eldoria com a ferramenta de geração de imagens.
+sanctuary.webp: salão do santuário, sem personagens ou interface.
+citadel.webp: cidadela ao anoitecer, usada no cabeçalho e cartão de arenas.
+Exportação WebP em qualidade 86, preservando as dimensões originais.
