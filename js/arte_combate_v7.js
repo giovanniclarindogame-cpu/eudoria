@@ -8,7 +8,7 @@ function orientSkillSprite(g,angle=0){
 const V7_KEYS=['spark','tide','star','steel'];
 const V7_ART=new Map();
 function v7Image(file){if(!V7_ART.has(file)){const im=new Image();im.src=file;V7_ART.set(file,im);}return V7_ART.get(file);}
-function v7Preload(skin){if(skin<6||skin>9)return;const key=V7_KEYS[skin-6];v7Image(`assets/skills_v7/${key}-fx.webp`);v7Image(`assets/skills_v7/${key}-cast.webp`);}
+function v7Preload(skin){if(skin<6||skin>9)return;const key=V7_KEYS[skin-6];dojo4Image(key+'-states');v7Image(`assets/skills_v7/${key}-fx.webp`);v7Image(`assets/skills_v7/${key}-cast.webp`);}
 dojo4Preload=function(skin){if(skin<6||skin>9)return;dojo4Image(V7_KEYS[skin-6]+'-states');v7Preload(skin);};
 championArt=c=>`assets/champions_v7/${String(c.id+1).padStart(2,'0')}.webp`;
 const V7_PREVIOUS_FIGHTER=drawAnimatedFighter;
@@ -19,13 +19,11 @@ drawAnimatedFighter=function(g,a,size=72,t=vfxTime){
  if(a.skin<6){g.save();g.translate(0,-3.5*size/72);const result=V7_PREVIOUS_FIGHTER(g,a,size*V7_SIZE_FACTORS[a.skin],t);g.restore();return result;}
  v7Preload(a.skin);
  const im=v7Image(`assets/skills_v7/${V7_KEYS[a.skin-6]}-cast.webp`),q=a.dojo4Cast;
- const idle=!a.moving&&!a.dodgeTime&&!a.dash&&!a.guard&&!(a.hitReact>0);
- if(im.naturalWidth&&(q&&!(a.hitReact>0)||idle)){
-  let row=q?.slot??0,f=q?v7CastFrame(q):a.guard?3:a.punchTime>0?3:0;
-  if(!q&&a.guard)row=3;
+ if(im.naturalWidth&&q&&!(a.hitReact>0)){
+  const row=q.slot,f=v7CastFrame(q);
   const factor=size/85,facing=q?.angle??a.dojoMotion?.facing??a.a??0;
   g.save();if(Math.cos(facing)<0)g.scale(-1,1);g.imageSmoothingEnabled=false;
-  g.translate(0,q?0:-Math.sin(t*2.5)*.5);
+
   g.drawImage(im,f*128,row*128,128,128,-64*factor,9-118*factor,128*factor,128*factor);g.restore();return true;
  }
  return V7_PREVIOUS_FIGHTER(g,q?{...a,dojo4Cast:null}:a,size*V7_SIZE_FACTORS[a.skin],t);

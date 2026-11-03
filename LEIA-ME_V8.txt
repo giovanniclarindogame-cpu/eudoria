@@ -1,0 +1,23 @@
+ELDORIA V8 — PIXEL ART UNIFORME NA ARENA
+
+A posição parada e os ataques básicos dos quatro novos campeões voltaram
+a usar as artes de combate originais, junto das poses de movimento,
+defesa e dano. As novas sequências de habilidades da V7 permanecem.
+
+Todos os dez lutadores agora passam pela mesma grade de pixels, com
+altura nativa de 56 pixels e ampliação sem interpolação. Isso aproxima
+a densidade de detalhe das novas poses da escala dos seis lutadores
+originais e evita misturar sprites suaves com pixels grandes na arena.
+O mesmo processo é usado na prévia das animações.
+
+Os retratos detalhados da seleção continuam separados das artes de luta.
+Zoom, dimensões visuais e novos efeitos de habilidade da V7 permanecem.
+
+VALIDAÇÃO
+node tests/pixel-style.cjs
+node tests/art-v7.cjs
+node tests/browser.cjs
+
+Foram verificados os dez campeões parados, andando, defendendo, socando
+e lançando uma habilidade na mesma grade de pixels, além das 24 novas
+habilidades para ambos os lados e a prévia de animações.
