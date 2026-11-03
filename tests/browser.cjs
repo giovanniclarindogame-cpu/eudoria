@@ -38,11 +38,11 @@ const assert=require('node:assert/strict');
   await page.setViewportSize(viewport);await page.waitForTimeout(150);
   const layout=await page.evaluate(()=>{
    const {cw,ch,scale,ox,oy}=arenaQA.projection,{W,H}=arenaQA.dimensions;
-   return {visible:ox>=0&&oy>=0&&ox+W*scale<=cw+.1&&oy+H*scale<=ch+.1,
+   const a=arenaQA.player;return {visible:a.x*scale+ox>0&&a.x*scale+ox<cw&&a.y*scale+oy>50&&a.y*scale+oy<ch,
     buttons:[...document.querySelectorAll('#equipped button,#attack,#defend,#dodge')].map(el=>{const r=el.getBoundingClientRect();return {visible:r.left>=0&&r.top>=0&&r.right<=innerWidth&&r.bottom<=innerHeight,hit:document.elementFromPoint(r.x+r.width/2,r.y+r.height/2)?.closest('button')===el};})};
   });
   assert.ok(layout.visible,JSON.stringify({viewport,layout}));assert.ok(layout.buttons.every(b=>b.visible&&b.hit),JSON.stringify({viewport,layout}));
-  console.log('Viewport '+viewport.width+'x'+viewport.height+': field visible, 9 controls accessible');
+  console.log('Viewport '+viewport.width+'x'+viewport.height+': player visible, 9 controls accessible');
  }
  await page.evaluate(()=>{
   for(let skin=0;skin<6;skin++){arenaQA.champions.equip(skin,false);arenaQA.progression.begin('training');arenaQA.begin();for(let i=0;i<5;i++)dojo4QA.advance(1/60);draw();}

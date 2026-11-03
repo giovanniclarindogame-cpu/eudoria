@@ -4,12 +4,26 @@ configureArenaSize=function(){
  W=matchMode==='2v2'?1440:1280;H=matchMode==='2v2'?630:560;
  pillars=[{x:88,y:130,r:23},{x:W-88,y:130,r:23},{x:88,y:H-130,r:23},{x:W-88,y:H-130,r:23}];
 };
+let courtyardWide=false;
 updateArenaCamera=function(){
  if(!cw||!ch)return;
- const compact=ch<520,top=compact?70:110,bottom=compact?75:140;
- scale=Math.min((cw-28)/W,Math.max(100,ch-top-bottom)/H);
- ox=(cw-W*scale)/2;oy=top+(ch-top-bottom-H*scale)/2;
+ const top=ch<520?58:88;
+ if(courtyardWide||cw<ch){
+  scale=Math.min((cw-20)/W,(ch-top-24)/H);ox=(cw-W*scale)/2;oy=top+(ch-top-H*scale)/2;return;
+ }
+ // Follow the fighter at a readable scale. Controls overlay the outer corners.
+ scale=Math.min(1.6,Math.max(cw/960,(ch-top)/510));
+ const focus=p?.hp>0?p:actors.find(a=>a.team===p?.team&&a.hp>0)||p;
+ const x=focus?.x??W/2,y=focus?.y??H/2;
+ ox=cw*.43-x*scale;oy=top+(ch-top)*.43-y*scale;
 };
+// The HUD already displays names and HP; no duplicate overlays on the sprites.
+drawActorStatus=function(){};
+const cameraButton=document.createElement('button');
+cameraButton.id='arenaZoom';cameraButton.type='button';cameraButton.textContent='−';
+cameraButton.setAttribute('aria-label','Ver arena inteira');cameraButton.setAttribute('aria-pressed','false');
+cameraButton.onclick=()=>{courtyardWide=!courtyardWide;cameraButton.textContent=courtyardWide?'+':'−';cameraButton.setAttribute('aria-pressed',String(courtyardWide));cameraButton.setAttribute('aria-label',courtyardWide?'Aproximar câmera':'Ver arena inteira');resize();};
+document.querySelector('#battle').appendChild(cameraButton);
 function courtyardRandom(seed){return()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};}
 function courtyardTree(g,x,y,size,seed){
  const rand=courtyardRandom(seed);
@@ -70,8 +84,15 @@ buildArenaBackground=function(){
  for(const o of pillars){pg.fillStyle='#24243766';pg.beginPath();pg.ellipse(o.x+6,o.y+8,o.r+8,o.r*.6,0,0,TAU);pg.fill();courtyardLantern(pg,o.x,o.y,1);}
  const shade=g.createLinearGradient(0,0,0,H);shade.addColorStop(0,'#22284022');shade.addColorStop(.45,'#ffffff00');shade.addColorStop(1,'#24233833');g.fillStyle=shade;g.fillRect(30,30,W-60,H-60);
 };
-// A minimap adds no information when the whole stage is visible.
-drawArenaMap=function(){};
+// Point toward an opponent outside the close camera without labelling the sprite.
+drawArenaMap=function(){
+ if(!p||courtyardWide||p.hp<=0)return;
+ const target=enemy(p);if(!target||target===p)return;
+ const x=target.x*scale+ox,y=target.y*scale+oy;
+ if(x>=24&&x<=cw-24&&y>=80&&y<=ch-20)return;
+ const tx=Math.max(26,Math.min(cw-26,x)),ty=Math.max(ch<520?92:120,Math.min(ch-210,y));
+ ctx.save();ctx.translate(tx,ty);ctx.rotate(Math.atan2(y-ty,x-tx));ctx.fillStyle='#ffd496';ctx.strokeStyle='#172338';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(10,0);ctx.lineTo(-8,-8);ctx.lineTo(-8,8);ctx.closePath();ctx.stroke();ctx.fill();ctx.restore();
+};
 const courtyardUpdate=updateUI;
 updateUI=function(){
  courtyardUpdate();if(!p||!b)return;

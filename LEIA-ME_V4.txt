@@ -1,0 +1,37 @@
+ELDORIA V4 — INTERFACE HORIZONTAL E TELA CHEIA
+
+Abra index.html ou o site do jogo. O botão ⛶ entra/sai da tela cheia.
+Em celulares compatíveis, também tenta orientar a tela na horizontal.
+Navegadores sem essa função exibem a alternativa de adicionar o jogo à
+Tela de Início. A disponibilidade depende do navegador e do aparelho.
+
+A câmera começa aproximada e acompanha o jogador, deixando os lutadores
+maiores. O botão − muda para visão ampla, mostrando os limites completos
+da arena. Use + para voltar à câmera próxima. Uma seta indica o rival
+quando ele está fora do enquadramento próximo.
+
+Os controles ficam agrupados nos cantos: analógico à esquerda, seis
+habilidades à direita, com esquiva, defesa e ataque logo abaixo.
+Nomes e barras flutuantes foram removidos; as informações ficam no HUD.
+
+Menus de cadastro, seleção, detalhes de campeão, início, coleção,
+treinamento, liga e modos usam o espaço horizontal. A seleção mostra
+até cinco campeões por linha. Os detalhes mostram a arte ao lado das
+habilidades e ações. Listas maiores podem ser roladas dentro do painel.
+
+VALIDAÇÃO
+Testes automatizados em Chromium:
+- 24 habilidades dos quatro campeões e recuperação após dano.
+- Menus e combate em 844x390, 740x360, 667x375 e 1366x768.
+- Botões de combate sem sobreposição e dentro da tela.
+- Câmera próxima, visão ampla com todas as bordas, ausência de nomes/HP
+  sobre os personagens.
+- Entrada e saída de tela cheia e mensagem quando a solicitação falha.
+- Seleção de campeão, habilidades, início do treino e analógico.
+Não foi realizado teste físico em Android ou iPhone.
+
+Com servidor Python local na porta 8000:
+node tests/motion.cjs
+node tests/browser.cjs
+node tests/landscape.cjs
+Os testes de navegador exigem Playwright e Chromium.
