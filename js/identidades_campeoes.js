@@ -43,7 +43,9 @@ for(const kit of REWORK_KITS){
   skills.push(s);RANK_IDS[rank].push(id);champ.kit.push(id);return s;
  });
 }
-function reworkKit(a){return REWORK_KITS[a?.skin-6];}
+const IDENTITY_KITS=Object.fromEntries(REWORK_KITS.map(k=>[k.skin,k]));
+function identityKit(skin){return IDENTITY_KITS[skin];}
+function reworkKit(a){return identityKit(a?.skin);}
 function reworkState(a){return a.identity||(a.identity={value:0,lastGain:0,arm:0,finger:0,empowered:false,turbo:0,tired:0,iron:0,cosmic:0,cosmicPower:0,combo:0,comboTime:0,air:0,exposed:0,charge:null});}
 function reworkMaterials(a=null){return objects.filter(o=>o.material&&o.life>0&&o.hp>0&&(!a||o.owner===a));}
 function reworkResource(a){const k=reworkKit(a);return k?{label:k.resource,value:a.skin===9?reworkMaterials(a).length:reworkState(a).value,max:a.skin===9?10:100,color:k.color}:null;}

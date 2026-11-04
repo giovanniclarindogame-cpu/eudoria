@@ -100,15 +100,15 @@ function rwCommit(a,q){
  }else if(a.skin===7){if(slot===0||slot===1)rwGain(a,4);if(slot===2){q.spent=s.value/2;s.value-=q.spent;}if(slot===5)s.value=0;}
  a.cd[q.id]=skill.cd;a.a=q.angle;
 }
-function rwBeginCharge(a,angle=aim(a)){
- const id=a.kit[0];if(!rwReady(a,id))return false;
- const q={id,slot:0,angle,age:0,holding:true,charge:0,duration:skills[id].duration,release:skills[id].release};
+function rwBeginCharge(a,angle=aim(a),slot=0){
+ const id=a.kit[slot];if(!rwReady(a,id))return false;
+ const q={id,slot,angle,age:0,holding:true,charge:0,duration:skills[id].duration,release:skills[id].release};
  a.rwCast=q;reworkState(a).charge=q;a.cast=99;a.skillLock=99;return true;
 }
 function rwCancelCharge(a){if(!a?.rwCast?.holding)return;a.rwCast=null;reworkState(a).charge=null;a.cast=0;a.skillLock=0;}
 function rwReleaseCharge(a,angle){
  const q=a?.rwCast;if(!q?.holding)return false;
- q.charge=clamp(q.age/1.4,0,1);q.age=0;q.holding=false;if(Number.isFinite(angle))q.angle=angle;
+ q.charge=clamp(q.age/(skills[q.id].holdMax||1.4),0,1);q.age=0;q.holding=false;if(Number.isFinite(angle))q.angle=angle;
  reworkState(a).charge=null;rwCommit(a,q);a.cast=q.duration;a.skillLock=q.duration;return true;
 }
 function rwCast(a,id,manual){
@@ -184,10 +184,10 @@ function rwAdvanceProjectile(e,dt){
   for(const target of opponents(e.owner)){
    if(target.hp<=0||e.hit.has(target)||dist(target,e)>=target.r+e.r)continue;
    if(!e.reflected&&(target.buff.reverse>0||target.buff.mirror>0&&target.reflect>0)){const previous=e.owner;e.owner=target;e.reflected=true;e.angle=Math.atan2(previous.y-target.y,previous.x-target.x);e.x=target.x+Math.cos(e.angle)*45;e.y=target.y+Math.sin(e.angle)*45;e.hit.clear();if(target.reflect>0)target.reflect--;break;}
-   e.hit.add(target);if(e.splash)rwArea(e.owner,e.x,e.y,e.splash,e.damage,e.slot,e.knock||0);else hit(target,e.damage,e.owner,e.knock||8,e.angle,REWORK_KITS[e.skin-6].skills[e.slot].id);e.life=0;break;
+   e.hit.add(target);if(e.splash)rwArea(e.owner,e.x,e.y,e.splash,e.damage,e.slot,e.knock||0);else hit(target,e.damage,e.owner,e.knock||8,e.angle,identityKit(e.skin).skills[e.slot].id);if(!e.piercing)e.life=0;break;
   }
  }if(e.travel>=e.range)e.life=0;
- if(e.life<=0)rwFx({skin:e.skin,a:e.angle},e.slot,e.x,e.y,'impact',.5,{size:e.splash?e.splash*1.7:75});
+ if(e.life<=0)rwFx({skin:e.skin,a:e.angle},e.slot,e.x,e.y,'impact',.5,{size:e.splash?e.splash*1.7:75,stage:e.stage});
 }
 function rwInterceptExisting(dt){
  const existing=[...shots,...integratedCustomProjectiles()];
@@ -217,7 +217,7 @@ step=function(dt){
   if(!s.comboTime)s.combo=0;
   if(kit){const dx=a.x-pos.x,dy=a.y-pos.y;if(!a.rwCast&&!a.guard&&a.hitReact<=0){a.moving=Math.hypot(dx,dy)>.02;if(a.moving){a.rwFacing=Math.atan2(dy,dx);a.rwStride=((a.rwStride||0)+Math.hypot(dx,dy)/16)%6;}}}
   const q=a.rwCast;if(!q)continue;q.age+=dt;
-  if(q.holding){q.charge=Math.min(1,q.age/1.4);if(q.age>=1.4)rwReleaseCharge(a);continue;}
+  if(q.holding){if(typeof originalChargeTick==='function'&&originalChargeTick(a,q,dt))continue;q.charge=Math.min(1,q.age/(skills[q.id].holdMax||1.4));if(q.age>=(skills[q.id].holdMax||1.4))rwReleaseCharge(a);continue;}
   if(!q.released&&q.age>=q.release){q.released=true;rwRelease(a,q);}
   if(q.age>=q.duration){a.rwCast=null;a.cast=0;a.skillLock=0;}
  }

@@ -1,0 +1,67 @@
+'use strict';
+const originalBody=rwPaintBody;
+const ORIGINAL_BODY_ROWS={0:[1,3,0,2,4,5],2:[1,1,0,2,4,5],3:[1,0,0,2,4,5],4:[0,1,2,4,0,5],5:[0,1,2,2,3,5]};
+rwPaintBody=function(g,a,size=72,t=vfxTime){
+ if(a.skin>=6)return originalBody(g,a,size,t);
+ const s=reworkState(a),q=a.rwCast,dash=Reforged.dashes.find(d=>d.owner===a&&!d.finished),angle=q?.angle??(a.moving?a.rwFacing:a.a)??0;
+ let frame=q?clamp(q.age<q.release?Math.floor(q.age/q.release*12):12+Math.floor((q.age-q.release)/(q.duration-q.release)*12),0,23):0;
+ if(q?.holding)frame=q.slot===4?4+Math.floor(t*8)%4:Math.min(9,Math.floor(q.charge*9));
+ g.save();g.translate(0,-3.5*size/72);
+ const scalar=size*rwSizeFactors[a.skin];
+ if(a.skin===5&&(q?.slot===5||s.pactAdult>0)){
+  const im=rwImage('assets/reforged_v10/hunter-adult.webp');if(im.naturalWidth){const f=q?.slot===5?frame:22,k=size/72;g.scale(Math.cos(angle)<0?-1:1,1);g.imageSmoothingEnabled=false;g.drawImage(im,f%6*128,Math.floor(f/6)*128,128,128,-64*k,12-118*k,128*k,128*k);g.restore();return true;}
+ }
+ if(a.skin===0&&s.stage>0)g.filter=s.stage===1?'brightness(1.12) saturate(1.25)':'brightness(1.24) saturate(1.4)';
+ if(s.spiritForm>0)g.filter='contrast(1.15) saturate(1.6)';
+ if(dash?.leap)g.translate(0,-Math.sin(clamp(dash.age/dash.duration,0,1)*Math.PI)*28*size/72);
+ if(q?.holding)g.translate(Math.sin(t*40)*.5*size/72,Math.cos(t*30)*.35*size/72);
+ const paintActor={...a,astralFacing:angle,eclipseFacing:angle,rpFacing:angle,dojoFacingAngle:angle};
+ let result;
+ if(q){
+  const pose={index:ORIGINAL_BODY_ROWS[a.skin]?.[q.slot]||0,age:q.age,duration:q.duration,frame,angle};
+  if(a.skin===0)result=astralPaint(g,paintActor,scalar,pose);
+  else if(a.skin===4)result=eclipsePaint(g,paintActor,scalar,pose);
+  else if(a.skin===1){const before=dojoWornContext;dojoWornContext=dojoIsWorn(a);try{if(q.slot===0||q.slot===5)result=dojoPaintStrike(g,frame,scalar,angle);else{dojoGestureFrame(g,[31,27,37,35,35,48][q.slot],frame,scalar,angle);result=true;}}finally{dojoWornContext=before;}}
+  else if(a.skin===5&&q.slot===2){const orbit=frame/24*TAU;result=rpPaint(g,{...paintActor,rpFacing:orbit,punchTime:.2,punchSide:1},scalar);}
+  else result=rpPaint(g,paintActor,scalar,pose);
+ }else result=rwOldFighter(g,paintActor,scalar,t);
+ if(a.skin===2&&(s.value>=60||s.spiritForm>0)){g.save();g.globalAlpha=.6;g.translate(Math.cos(angle)<0?-19:19,-24);if(Math.cos(angle)<0)g.scale(-1,1);g.strokeStyle=s.spiritForm>0?'#ff3a70':'#c4dcff';g.lineWidth=s.spiritForm>0?5:3;g.beginPath();g.moveTo(-3,12);g.lineTo(12,-23);g.stroke();g.restore();}
+ g.restore();return result;
+};
+const originalFX=rwPaintFX;
+rwPaintFX=function(e){if(e.skin>=6)return originalFX(e);const u=clamp(e.age/e.duration,0,.999),x=e.follow?e.owner.x:e.x,y=e.follow?e.owner.y:e.y;
+ if(e.kind==='warning'){ctx.save();ctx.strokeStyle=identityKit(e.skin).color;ctx.fillStyle=e.skin===4?'#20274c44':'#e5b75622';ctx.lineWidth=2;ctx.setLineDash([6,5]);ctx.beginPath();ctx.ellipse(x,y,e.radius,e.radius*.6,0,0,TAU);ctx.fill();ctx.stroke();ctx.restore();return;}
+ if(e.kind==='beam'){
+  const im=rwImage('assets/reforged_v10/astral-2.webp');if(!im.naturalWidth)return;const length=dist(e.from,e),f=Math.floor(u*24);ctx.save();ctx.translate((e.from.x+x)/2,(e.from.y+y)/2-27);orientSkillSprite(ctx,e.angle);ctx.imageSmoothingEnabled=false;
+  ctx.globalAlpha=Math.sin(Math.PI*u)*.75;ctx.strokeStyle='#49bfff';ctx.lineWidth=e.size*.2;ctx.beginPath();ctx.moveTo(-length/2+15,0);ctx.lineTo(-length*.15,0);ctx.stroke();ctx.strokeStyle='#eaffff';ctx.lineWidth=e.size*.065;ctx.stroke();ctx.globalAlpha=1;if(e.stage===1)ctx.filter='sepia(.5) saturate(1.4)';if(e.stage===2)ctx.filter='brightness(1.3)';ctx.drawImage(im,f%6*128,Math.floor(f/6)*128,128,128,-length/2,-e.size/2,length,e.size);ctx.restore();return;
+ }
+ const size=e.size||(e.kind==='sky'?200:115),ground=['sky','trap-fire','seal','domain'].includes(e.kind)||e.skin===3&&e.slot===2;
+ const offset=e.kind==='cast'&&![4,5].includes(e.slot)?35:0;
+ rwSprite(ctx,e.skin,e.slot,x+Math.cos(e.angle||0)*offset,y-(ground?size*.3:32),size,u,e.angle||0,e.kind==='dash',1,e.stage??e.owner?.identity?.stage);
+};
+const originalSprite=rwSprite;
+rwSprite=function(g,skin,slot,x,y,size,phase,angle=0,directional=false,alpha=1,stage=0){g.save();if(skin===0){if(stage===1)g.filter='sepia(.55) saturate(1.5)';if(stage===2)g.filter='brightness(1.25) saturate(1.4)';}originalSprite(g,skin,slot,x,y,size,phase,angle,directional,alpha);g.restore();};
+const originalDepth=integratedDepth;
+integratedDepth=function(){const all=objects;let list;objects=all.filter(o=>!o.v10Clone&&!o.v10Trap&&!o.v10Domain);try{list=originalDepth();}finally{objects=all;}
+ for(const o of objects){if(o.life<=0||o.hp===0)continue;
+  if(o.v10Clone)list.push({kind:'clone',y:o.y,priority:1,paint:()=>{ctx.save();ctx.translate(o.x,o.y);ctx.globalAlpha=.65*Math.min(1,o.age/.15,o.life/.3);drawAnimatedFighter(ctx,o,72);ctx.restore();}});
+  if(o.v10Trap)list.push({kind:'seal',y:o.y-1,priority:0,paint:()=>rwSprite(ctx,1,2,o.x,o.y-18,85,.28+(o.age*.4%1)*.2)});
+  if(o.v10Domain)list.push({kind:'domain',y:o.y-180,priority:-1,paint:()=>{ctx.save();ctx.fillStyle='#050a26aa';ctx.beginPath();ctx.ellipse(o.x,o.y,o.r,o.r*.65,0,0,TAU);ctx.fill();rwSprite(ctx,4,5,o.x,o.y-50,o.r*2.3,.28+(o.age*.4%1)*.4,0,false,.85);ctx.restore();}});
+ }
+ for(const a of actors){if(a.hp<=0||a.skin>=6)continue;const s=reworkState(a),q=a.rwCast;
+  if(a.skin===0&&(s.stage>0||q?.holding&&q.slot===4))list.push({y:a.y-.5,priority:0,paint:()=>rwSprite(ctx,0,4,a.x,a.y-33,105+s.stage*20,.25+(vfxTime*.5%1)*.45,0,false,.55,s.stage)});
+  if(q?.holding&&!(a.skin===0&&q.slot===4))list.push({y:a.y+.5,priority:3,paint:()=>rwSprite(ctx,a.skin,q.slot,a.x+Math.cos(q.angle)*27,a.y-30,60+q.charge*60,.08+q.charge*.25,q.angle,true)});
+  if(s.spiritForm>0||s.breathing>0||s.instinct>0)list.push({y:a.y-.3,priority:0,paint:()=>rwSprite(ctx,a.skin,4,a.x,a.y-32,115,.25+(vfxTime*.5%1)*.4,0,false,.55)});
+  if(a.skin===1&&(s.eye>0||s.copy))list.push({y:a.y+.2,priority:3,paint:()=>rwSprite(ctx,1,4,a.x+27,a.y-49,48,.3+(vfxTime*.3%1)*.25)});
+  if(s.barrier)list.push({y:a.y+.3,priority:3,paint:()=>rwSprite(ctx,4,4,a.x,a.y-28,135,.27+(vfxTime*.25%1)*.3,0,false,.38)});
+ }
+ for(const e of OriginalCombat.burns)if(e.remaining>0&&e.target.hp>0)list.push({y:e.target.y+.4,priority:4,paint:()=>rwSprite(ctx,3,0,e.target.x,e.target.y-12,38+e.stacks*4,.35+(vfxTime*.9%1)*.2,0,false,.75)});
+ return list.sort((a,b)=>a.y-b.y||(a.priority||0)-(b.priority||0)||(a.serial||0)-(b.serial||0));
+};
+const originalArtPreload=reworkPreload;
+reworkPreload=function(skin){originalArtPreload(skin);if(skin===5)rwImage('assets/reforged_v10/hunter-adult.webp');};
+reworkPreload(account.activeChampion);
+if(window.arenaQA)Object.assign(arenaQA,{step,hit,drawAnimatedFighter});
+
+
+const originalWorld=drawModeWorld;drawModeWorld=function(){originalWorld();if(objects.some(o=>o.v10Domain&&o.life>0)){ctx.save();ctx.fillStyle='#03082038';ctx.fillRect(0,0,W,H);ctx.restore();}};

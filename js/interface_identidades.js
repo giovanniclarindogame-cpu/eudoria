@@ -25,11 +25,11 @@ const rwPriorInputs=clearInputs;clearInputs=function(){rwKeyHeld=false;if(p)rwCa
 addEventListener('blur',()=>{rwKeyHeld=false;if(p)rwCancelCharge(p);});
 document.addEventListener('visibilitychange',()=>{if(document.hidden){rwKeyHeld=false;if(p)rwCancelCharge(p);}});
 const rwPriorDetail=detailSkillText;
-detailSkillText=function(c,i){const s=skills[c.kit[i]],k=REWORK_KITS[c.id-6];if(!k)return rwPriorDetail(c,i);return `<b>${i===5?'ULT · ':''}${escapeHTML(s.name)}</b><p>${escapeHTML(s.desc)}</p><span>${i===5?rwUltText[c.id-6]:k.resource}${s.cd?' · '+s.cd+'s de recarga':' · sem recarga'}</span>`;};
+detailSkillText=function(c,i){const s=skills[c.kit[i]],k=identityKit(c.id);if(!k)return rwPriorDetail(c,i);return `<b>${i===5?'ULT · ':''}${escapeHTML(s.name)}</b><p>${escapeHTML(s.desc)}</p><span>${i===5?rwUltText[c.id-6]:k.resource}${s.cd?' · '+s.cd+'s de recarga':' · sem recarga'}</span>`;};
 const rwPriorDetails=openChampionDetails;
-openChampionDetails=function(id){rwPriorDetails(id);const k=REWORK_KITS[id-6];if(!k)return;const heading=$('#heroDetail .simple-kit-heading');if(heading)heading.textContent=k.resource+' · '+k.style;};
+openChampionDetails=function(id){rwPriorDetails(id);const k=identityKit(id);if(!k)return;const heading=$('#heroDetail .simple-kit-heading');if(heading)heading.textContent=k.resource+' · '+k.style;};
 const rwPriorBuild=renderLobbyBuild;
-renderLobbyBuild=function(){rwPriorBuild();const c=currentChampion();if(c?.id<6)return;const foot=$('#lobbyBuild .lobby-build-foot>span');if(foot)foot.textContent=REWORK_KITS[c.id-6].resource+' · ULT: '+rwUltText[c.id-6];};
+renderLobbyBuild=function(){rwPriorBuild();const c=currentChampion();if(c?.id<6)return;const foot=$('#lobbyBuild .lobby-build-foot>span');if(foot)foot.textContent=identityKit(c.id).resource+' · ULT: '+rwUltText[c.id-6];};
 const rwPriorUI=updateUI;
 updateUI=function(){rwPriorUI();if(!p)return;
  for(const [prefix,a]of [['p',p],['b',b]]){const r=a&&reworkResource(a),bar=$('#'+prefix+'mbar');if(!bar)continue;bar.style.background=r?r.color:'';bar.parentElement.setAttribute('aria-label',r?`${r.label}: ${Math.floor(r.value)} de ${r.max}`:'Mana');if(r){bar.style.width=100*r.value/r.max+'%';bar.parentElement.title=r.label;}}

@@ -2,11 +2,11 @@
 // 24 individually drawn cells per technique, shared isometric ground plane.
 const REWORK_ART=new Map();
 function rwImage(file){if(!REWORK_ART.has(file)){const im=new Image();im.src=file;REWORK_ART.set(file,im);}return REWORK_ART.get(file);}
-function reworkPreload(skin){const k=REWORK_KITS[skin-6];if(!k)return;rwImage(`assets/dojo4/${k.key}-states.webp`);for(let i=0;i<6;i++){rwImage(`assets/reforged_v9/${k.key}-${i}.webp`);rwImage(`assets/reforged_v9/${k.key}-${i}-icon.webp`);}}
+function reworkPreload(skin){const k=identityKit(skin);if(!k)return;if(skin>=6)rwImage(`assets/dojo4/${k.key}-states.webp`);for(let i=0;i<6;i++){rwImage(`assets/${k.assets||'reforged_v9'}/${k.key}-${i}.webp`);rwImage(`assets/${k.assets||'reforged_v9'}/${k.key}-${i}-icon.webp`);}}
 function orientSkillSprite(g,angle=0){const left=Math.cos(angle)<0;g.rotate(left?Math.atan2(-Math.sin(angle),-Math.cos(angle)):angle);if(left)g.scale(-1,1);}
 championArt=c=>`assets/champions_v7/${String(c.id+1).padStart(2,'0')}.webp`;
 const rwOldIcon=icon;
-icon=function(id){const s=skills[id];return s?.reworked?`<span class="skill-art reforged-icon" aria-hidden="true" style="background-image:url('assets/reforged_v9/${REWORK_KITS[s.champion-6].key}-${s.slot}-icon.webp')"></span>`:rwOldIcon(id);};
+icon=function(id){const s=skills[id];return s?.reworked?`<span class="skill-art reforged-icon" aria-hidden="true" style="background-image:url('assets/${identityKit(s.champion).assets||'reforged_v9'}/${identityKit(s.champion).key}-${s.slot}-icon.webp')"></span>`:rwOldIcon(id);};
 const rwOldFighter=drawAnimatedFighter;
 const rwSizeFactors=[73/65,73/65,73/66,73/66,73/66,73/66,1,1,73/71,73/64];
 function rwBodyPose(a,t){
@@ -41,7 +41,7 @@ function rwPaintBody(g,a,size=72,t=vfxTime){
 }
 drawAnimatedFighter=function(g,a,size=72,t=vfxTime){if(!a)return false;return EldoriaPixels.paint(g,(ink,native)=>rwPaintBody(ink,a,native,t),size);};
 function rwSprite(g,skin,slot,x,y,size,phase,angle=0,directional=false,alpha=1){
- const k=REWORK_KITS[skin-6];if(!k)return;const im=rwImage(`assets/reforged_v9/${k.key}-${slot}.webp`);if(!im.naturalWidth)return;
+ const k=identityKit(skin);if(!k)return;const im=rwImage(`assets/${k.assets||'reforged_v9'}/${k.key}-${slot}.webp`);if(!im.naturalWidth)return;
  const f=clamp(Math.floor(phase*24),0,23);g.save();g.translate(Math.round(x),Math.round(y));if(directional)orientSkillSprite(g,angle);else if(Math.cos(angle)<0)g.scale(-1,1);g.globalAlpha*=alpha;g.imageSmoothingEnabled=false;
  g.drawImage(im,f%6*128,Math.floor(f/6)*128,128,128,-size/2,-size/2,size,size);g.restore();
 }
@@ -72,7 +72,7 @@ integratedDepth=function(){
  const all=objects;let list;objects=all.filter(o=>!o.material&&!o.colossus);try{list=rwOldDepth();}finally{objects=all;}
  for(const o of objects)if((o.material||o.colossus)&&o.hp>0&&o.life>0)list.push({kind:'reforged-object',y:o.y,priority:1,paint:()=>rwPaintConstruct(o)});
  for(const e of Reforged.effects)list.push({kind:'reforged-fx',y:e.follow?e.owner.y+.5:e.y+.5,priority:3,serial:e.id,paint:()=>rwPaintFX(e)});
- for(const e of Reforged.projectiles)list.push({kind:'reforged-projectile',y:e.y,priority:3,paint:()=>rwSprite(ctx,e.skin,e.slot,e.x,e.y-28,e.size||88,.3+(e.age*1.7%1)*.35,e.angle,true)});
+ for(const e of Reforged.projectiles)list.push({kind:'reforged-projectile',y:e.y,priority:3,paint:()=>rwSprite(ctx,e.skin,e.slot,e.x,e.y-28,e.size||88,.3+(e.age*1.7%1)*.35,e.angle,true,1,e.stage)});
  for(const a of actors){if(a.hp<=0||!reworkKit(a))continue;const s=reworkState(a),q=a.rwCast;
   if(q?.holding)list.push({y:a.y+.7,priority:4,paint:()=>rwSprite(ctx,6,0,a.x+Math.cos(q.angle)*25,a.y-30,65+q.charge*25,.12+q.charge*.24,q.angle,true)});
   const active=s.empowered||s.turbo>0||s.cosmic>0||s.iron>0||a.skin===8&&s.value>=100;

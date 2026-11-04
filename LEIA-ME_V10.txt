@@ -1,0 +1,73 @@
+ELDORIA V10 — OS SEIS CAMPEÕES ORIGINAIS REFORMULADOS
+
+36 habilidades novas, 36 ícones e 36 sequências isométricas de 24 quadros
+(864 quadros de efeitos distintos). Os modelos originais são mantidos, com
+poses canônicas remapeadas para os novos golpes e sincronizadas ao impacto.
+O Caçador tem uma sequência adicional de 24 desenhos de corpo para crescer,
+atacar em sua forma adulta e voltar ao normal durante Pacto Total.
+As habilidades e a arte aprovadas dos quatro campeões da V9 permanecem.
+
+GUERREIRO ASTRAL — KI
+Começa com 35 Ki, em Base. Com 40 desperta; com 80 chega ao Supremo.
+Trocar golpes e segurar 5 recupera Ki. Desperto drena 7/s e Supremo 12/s;
+quando zera, cai um estágio. Estágios mudam aura, coloração, velocidade,
+número de esferas/golpes, largura do raio, alcance do passo e tamanho da ULT.
+Segure 3 para carregar a Onda. Soltar dispara; 4 cancela qualquer animação.
+Carregar Aura deixa parado e aumenta em 20% o dano recebido.
+
+NINJA DAS BRUMAS — CÓPIA
+A tecla 5 abre o olho por 6s; o próximo especial que causar dano é guardado.
+Com cópia, 5 executa o efeito original uma vez com 75% do dano e metade da
+recarga original, sem consumir o recurso do campeão copiado. Custos de vida
+instantâneos da cópia são reduzidos à metade. Ataques básicos e queimaduras
+não geram cópia. Golpe Trovão consome a cópia para lançar seu efeito ao final.
+Sem barra própria. Clone tem 80 HP, dura 3s e pode atrair a mira dos bots.
+Selo paralisa por 1,2s. Troca de Lugar usa clone ou projétil inimigo como alvo.
+
+RONIN CARMESIM — PRESSÃO ESPIRITUAL
+Cortes acertados acumulam 14 de Pressão. A espada ganha alcance e brilho.
+Onda exige 15 e consome tudo; a Lua exige 70 e também consome tudo.
+Liberar Poder gasta 40: forma única por 7s, +45% de dano e +15% de velocidade.
+Corte em Cruz desgasta a guarda; a Lua atravessa lutadores, mas não paredes.
+
+GUARDIÃO SOLAR — CHAMA VIVA
+Acertos aplicam até cinco queimaduras de 4s, com 6 de dano por segundo por
+marca. Respiração dura 7s, aumenta dano de fogo e prolonga novas marcas a 7s.
+As marcas existentes aumentam a força do próximo especial lançado.
+A Chama é alimentada por acertos; começa a esfriar após 2,5s sem acertar.
+Fênix exige 50 de Chama, cruza o campo e deixa quatro marcas por alvo.
+
+LUTADOR DO ECLIPSE — BARREIRA
+A barreira de 240 pontos protege de projéteis e especiais distantes.
+Ativa, reduz velocidade em 28%. Corpo a corpo continua sendo uma fraqueza.
+Quebrar a barreira causa 4s de exposição; o dano excedente atinge a vida.
+Desligada, recarrega 24 pontos/s após os intervalos de quebra e de absorção.
+Domínio avisa antes de surgir, escurece a arena e paralisa quem fica na zona
+por até 3s. Cooldowns altos e quebra da barreira limitam sua defesa.
+
+CAÇADOR ESPECTRAL — PACTO DE PODER
+Segure 1 por até 1,8s. Dano e empurrão crescem; qualquer dano recebido perde
+a carga. Instinto melhora custo, recarga e invulnerabilidade da esquiva.
+Pacto Total transforma o corpo, dá um soco que escala com a vida atual e
+consome 80% dessa vida, preservando ao menos 1 HP. Balanceamento inicial.
+
+CONTROLES E TREINO
+Teclado 1–6 ou botões na tela. Carregar: segure, mire e solte.
+Guerreiro: 3 e 5 são seguráveis; Caçador: 1. O Herdeiro mantém sua carga V9.
+O Dojo permite preparar recursos, uma cópia ou restaurar vida para testar.
+Energia infinita/sem recarga não remove os requisitos próprios dos campeões.
+PREVIA_6_CAMPEOES.html permite revisar as 36 animações quadro a quadro.
+
+VALIDAÇÃO
+Servidor HTTP local na porta 8000; Node, Playwright, Sharp e Chromium.
+node tests/six-identities.cjs
+node tests/six-art-controls.cjs
+node tests/identities.cjs
+node tests/reforged-art.cjs
+node tests/pixel-style.cjs
+node tests/simple-menus.cjs
+node tests/landscape.cjs
+node tests/royal-lobby.cjs
+
+Os testes móveis usam Chromium com toque e dimensões de celular emulados.
+Os valores de dano, tempo e custo podem ser refinados após jogar.

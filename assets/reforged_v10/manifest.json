@@ -1,0 +1,153 @@
+{
+  "version": 10,
+  "columns": 6,
+  "rows": 4,
+  "frames": 24,
+  "cell": 128,
+  "sheets": {
+    "astral-0": {
+      "file": "astral-0.webp",
+      "frames": 24
+    },
+    "astral-5": {
+      "file": "astral-5.webp",
+      "frames": 24
+    },
+    "astral-1": {
+      "file": "astral-1.webp",
+      "frames": 24
+    },
+    "ninja-0": {
+      "file": "ninja-0.webp",
+      "frames": 24
+    },
+    "astral-4": {
+      "file": "astral-4.webp",
+      "frames": 24
+    },
+    "ninja-1": {
+      "file": "ninja-1.webp",
+      "frames": 24
+    },
+    "astral-3": {
+      "file": "astral-3.webp",
+      "frames": 24
+    },
+    "ninja-2": {
+      "file": "ninja-2.webp",
+      "frames": 24
+    },
+    "astral-2": {
+      "file": "astral-2.webp",
+      "frames": 24
+    },
+    "ninja-3": {
+      "file": "ninja-3.webp",
+      "frames": 24
+    },
+    "ronin-1": {
+      "file": "ronin-1.webp",
+      "frames": 24
+    },
+    "ninja-4": {
+      "file": "ninja-4.webp",
+      "frames": 24
+    },
+    "ronin-3": {
+      "file": "ronin-3.webp",
+      "frames": 24
+    },
+    "ronin-2": {
+      "file": "ronin-2.webp",
+      "frames": 24
+    },
+    "ninja-5": {
+      "file": "ninja-5.webp",
+      "frames": 24
+    },
+    "ronin-4": {
+      "file": "ronin-4.webp",
+      "frames": 24
+    },
+    "ronin-0": {
+      "file": "ronin-0.webp",
+      "frames": 24
+    },
+    "ronin-5": {
+      "file": "ronin-5.webp",
+      "frames": 24
+    },
+    "solar-3": {
+      "file": "solar-3.webp",
+      "frames": 24
+    },
+    "solar-0": {
+      "file": "solar-0.webp",
+      "frames": 24
+    },
+    "solar-5": {
+      "file": "solar-5.webp",
+      "frames": 24
+    },
+    "solar-4": {
+      "file": "solar-4.webp",
+      "frames": 24
+    },
+    "solar-1": {
+      "file": "solar-1.webp",
+      "frames": 24
+    },
+    "eclipse-1": {
+      "file": "eclipse-1.webp",
+      "frames": 24
+    },
+    "eclipse-0": {
+      "file": "eclipse-0.webp",
+      "frames": 24
+    },
+    "solar-2": {
+      "file": "solar-2.webp",
+      "frames": 24
+    },
+    "eclipse-3": {
+      "file": "eclipse-3.webp",
+      "frames": 24
+    },
+    "eclipse-2": {
+      "file": "eclipse-2.webp",
+      "frames": 24
+    },
+    "eclipse-4": {
+      "file": "eclipse-4.webp",
+      "frames": 24
+    },
+    "eclipse-5": {
+      "file": "eclipse-5.webp",
+      "frames": 24
+    },
+    "hunter-0": {
+      "file": "hunter-0.webp",
+      "frames": 24
+    },
+    "hunter-4": {
+      "file": "hunter-4.webp",
+      "frames": 24
+    },
+    "hunter-1": {
+      "file": "hunter-1.webp",
+      "frames": 24
+    },
+    "hunter-5": {
+      "file": "hunter-5.webp",
+      "frames": 24
+    },
+    "hunter-2": {
+      "file": "hunter-2.webp",
+      "frames": 24
+    },
+    "hunter-3": {
+      "file": "hunter-3.webp",
+      "frames": 24
+    }
+  }
+}
