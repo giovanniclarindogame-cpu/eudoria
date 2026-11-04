@@ -1,0 +1,105 @@
+{
+  "version": 9,
+  "columns": 6,
+  "rows": 4,
+  "frames": 24,
+  "cell": 128,
+  "sheets": {
+    "steel-0": {
+      "file": "steel-0.webp",
+      "frames": 24
+    },
+    "steel-1": {
+      "file": "steel-1.webp",
+      "frames": 24
+    },
+    "steel-5": {
+      "file": "steel-5.webp",
+      "frames": 24
+    },
+    "steel-4": {
+      "file": "steel-4.webp",
+      "frames": 24
+    },
+    "spark-1": {
+      "file": "spark-1.webp",
+      "frames": 24
+    },
+    "spark-0": {
+      "file": "spark-0.webp",
+      "frames": 24
+    },
+    "spark-2": {
+      "file": "spark-2.webp",
+      "frames": 24
+    },
+    "steel-3": {
+      "file": "steel-3.webp",
+      "frames": 24
+    },
+    "spark-3": {
+      "file": "spark-3.webp",
+      "frames": 24
+    },
+    "steel-2": {
+      "file": "steel-2.webp",
+      "frames": 24
+    },
+    "spark-4": {
+      "file": "spark-4.webp",
+      "frames": 24
+    },
+    "star-1": {
+      "file": "star-1.webp",
+      "frames": 24
+    },
+    "spark-5": {
+      "file": "spark-5.webp",
+      "frames": 24
+    },
+    "star-2": {
+      "file": "star-2.webp",
+      "frames": 24
+    },
+    "star-0": {
+      "file": "star-0.webp",
+      "frames": 24
+    },
+    "star-5": {
+      "file": "star-5.webp",
+      "frames": 24
+    },
+    "star-3": {
+      "file": "star-3.webp",
+      "frames": 24
+    },
+    "tide-1": {
+      "file": "tide-1.webp",
+      "frames": 24
+    },
+    "star-4": {
+      "file": "star-4.webp",
+      "frames": 24
+    },
+    "tide-0": {
+      "file": "tide-0.webp",
+      "frames": 24
+    },
+    "tide-2": {
+      "file": "tide-2.webp",
+      "frames": 24
+    },
+    "tide-3": {
+      "file": "tide-3.webp",
+      "frames": 24
+    },
+    "tide-4": {
+      "file": "tide-4.webp",
+      "frames": 24
+    },
+    "tide-5": {
+      "file": "tide-5.webp",
+      "frames": 24
+    }
+  }
+}

@@ -20,7 +20,7 @@ const assert=require('node:assert/strict');
  }
  await nav('library');await page.locator('#heroSearch').fill('Maré');assert.equal(await page.locator('.hero-card').count(),1);
  await page.locator('#heroSearch').fill('xyz');assert.equal(await page.locator('.hero-card').count(),0);assert.ok(await page.locator('.empty-roster').isVisible());
- await page.locator('#heroSearch').fill('');await page.locator('#heroGrid [data-hero-open="8"]').click();await page.locator('[data-hero-skill="5"]').click();assert.ok((await page.locator('#heroSkillCopy').textContent()).includes('20%'));
+ await page.locator('#heroSearch').fill('');await page.locator('#heroGrid [data-hero-open="8"]').click();await page.locator('[data-hero-skill="5"]').click();assert.ok((await page.locator('#heroSkillCopy').textContent()).includes('Cosmo'));
  await page.locator('[data-hero-confirm]').click();assert.equal(await page.evaluate(()=>arenaQA.account.activeChampion),8);
  await nav('library');await page.locator('#heroGrid [data-hero-open="9"]').click();assert.ok((await page.locator('#heroDetail h1').textContent()).includes('Alquimista'));await page.locator('[data-hero-back]').click();
  await nav('training');await page.locator('#setupDummy').selectOption('guard');await page.locator('[data-practice-free]').check();await page.locator('[data-progression="training"]').click();

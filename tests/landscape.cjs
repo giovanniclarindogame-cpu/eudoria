@@ -14,7 +14,7 @@ const assert=require('node:assert/strict');
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'horizontal overflow in roster');
   await page.locator('#selection .hero-card').nth(6).click();await page.waitForTimeout(100);
   assert.ok(await accessible('[data-hero-confirm]'),'select clipped '+JSON.stringify(viewport));assert.ok(await accessible('[data-hero-test]'),'dojo clipped');
-  await page.locator('[data-hero-skill="5"]').click();assert.ok((await page.locator('#heroSkillCopy').textContent()).includes('Legado'));
+  await page.locator('[data-hero-skill="5"]').click();assert.ok((await page.locator('#heroSkillCopy').textContent()).includes('Limite Rompido'));
   await page.locator('[data-hero-confirm]').click();
   assert.ok(await accessible('#lobbyPlay'),'play clipped '+JSON.stringify(viewport));
   await page.evaluate(()=>{arenaQA.progression.begin('training');arenaQA.begin();});await page.waitForTimeout(100);

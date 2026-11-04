@@ -1,0 +1,63 @@
+ELDORIA V9 — QUATRO IDENTIDADES DE COMBATE
+
+As 24 habilidades dos quatro últimos campeões foram substituídas.
+Os efeitos antigos e os respectivos controladores foram removidos.
+
+ARTE
+24 spritesheets novos, um por habilidade, com 24 quadros distintos cada
+(576 quadros). Perspectiva elevada/isométrica, contornos e pixels visíveis.
+24 ícones temáticos novos. Projéteis para a esquerda são espelhados sem
+virar de cabeça para baixo. Construções mantêm o plano do chão.
+Os modelos dos lutadores foram preservados: o controlador usa as poses
+canônicas de cada personagem em uma linha de movimento de 24 fases.
+Os efeitos têm 24 imagens distintas; não são 24 desenhos novos do corpo.
+Todos os dez personagens continuam na mesma grade nativa de 56 pixels.
+Retratos, tela horizontal, zoom e menus existentes foram preservados.
+
+MECÂNICAS
+Alquimista de Aço: até 10 materiais próprios; pilares com 180 HP,
+muralhas com 320 HP. Duram 24s, bloqueiam deslocamento e projéteis.
+Palma recicla, Braço Lâmina destrói, Espinhos detonam blocos próprios.
+Muralhas podem ser empurradas; Punho de Ferro reduz a mobilidade.
+Colosso consome os materiais de ambos os lados, dura 8s, persegue e
+ataca; sua vida, tamanho e dano crescem com a quantidade consumida.
+
+Herdeiro da Centelha: segure 1 ou o primeiro botão de habilidade e solte
+para carregar Impacto Esmeralda (até 1,4s). Sobrecarga alta aumenta dano
+e cobra vida; ultrapassar 100 lesiona o braço. Chute reduz a barra e
+permanece disponível. Estalo bloqueia o dedo por 5s. Corpo Energizado
+é alternável, acumula Sobrecarga e drena vida. Limite Rompido exige 100,
+consome a barra e deixa no máximo 5% de HP. Pausa/perda de foco cancelam
+uma carga ainda segurada. O alcance dos dois saltos respeita paredes.
+
+Cavaleiro do Firmamento: ganha Cosmo ao acertar e sofrer dano. A sequência
+de socos acelera enquanto acerta e reinicia ao errar ou parar. As demais
+habilidades gastam Cosmo, sem recarga fixa. Chute lança; investida atravessa
+o alvo e o deixa exposto. Cosmo Desperto converte a reserva em buff.
+Constelação exige 35 ou mais e cria de 5 a 11 impactos conforme a reserva.
+
+Corsário da Maré: golpes esticados acumulam Elasticidade, que decai com
+o tempo. A barra aumenta alcance/velocidade; a partir de 60, aumenta dano
+e empurrão recebidos. Rajada ganha hits; Estouro consome metade. Catapulta
+usa uma âncora do cenário e devolve recurso se acertar. Turbo drena vida
+e deixa cansaço ao terminar. Punho Titã exige 40+, consome a barra e escala
+alcance, tamanho da área e dano. Valores são um balanceamento inicial.
+
+CONTROLES E TREINO
+A barra superior mostra o recurso próprio desses campeões, no lugar de MP.
+Os atalhos indicam requisitos, lesões e recargas. As quatro novas ultimates
+usam recursos, sem a antiga exigência de HP baixo.
+No Dojo, a pausa inclui "Encher recurso do campeão"; para o Alquimista,
+cria até três materiais. Energia infinita não remove os requisitos próprios.
+PREVIA_4_CAMPEOES.html permite inspecionar todos os efeitos, quadro a quadro.
+
+VALIDAÇÃO (servidor local na porta 8000; Node com Playwright e Sharp)
+node tests/identities.cjs       — 144 verificações de combate e recursos
+node tests/reforged-art.cjs     — 576 células distintas, 24 ícones, controles
+node tests/pixel-style.cjs      — 10 campeões em 5 estados, mesma grade
+node tests/simple-menus.cjs     — menus, seleção, treino e liga
+node tests/landscape.cjs        — telas horizontais, toque e tela cheia
+node tests/royal-lobby.cjs       — início, modos e navegação
+
+As verificações móveis usam Chromium com dimensões/toque emulados.
+O acabamento visual e o balanceamento ainda podem ser refinados após jogar.
