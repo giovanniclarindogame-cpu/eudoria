@@ -9,7 +9,7 @@ reworkResource=function(a){if(a.skin>=6)return originalResource(a);const s=rewor
  if(a.skin===5)return{label:a.rwCast?.holding?'Carga '+Math.round(a.rwCast.charge*100)+'%':s.instinct>0?'Instinto '+Math.ceil(s.instinct)+'s':'Pacto · segure 1',value:a.rwCast?.charge*100||0,max:100,color:k.color,textOnly:!a.rwCast?.holding};
  return{label:a.skin===0?'Ki · '+['Base','Desperto','Supremo'][s.stage]:k.resource,value:s.value,max:100,color:k.color};
 };
-function originalGainKi(a,n){const s=reworkState(a);s.value=clamp(s.value+n,0,100);if(s.stage===0&&s.value>=40)s.stage=1;if(s.stage===1&&s.value>=80)s.stage=2;}
+function originalGainKi(a,n){const s=reworkState(a),before=s.stage;s.value=clamp(s.value+n,0,100);if(s.stage===0&&s.value>=40)s.stage=1;if(s.stage===1&&s.value>=80)s.stage=2;if(s.stage>before)rwFx(a,4,a.x,a.y,'astral-awaken',.42,{stage:s.stage,follow:true});}
 const originalSpeed=identitySpeed;
 identitySpeed=function(a){const s=reworkState(a);return originalSpeed(a)*(a.skin===0?1+s.stage*.12:1)*(s.spiritForm>0?1.15:1)*(s.barrier?.72:1);};
 function originalClone(a){return objects.find(o=>o.v10Clone&&o.owner===a&&o.life>0&&o.hp>0);}
@@ -44,25 +44,29 @@ rwCommit=function(a,q){if(a.skin>=6)return originalCommit(a,q);const s=reworkSta
 const originalCast=rwCast;
 rwCast=function(a,id,manual){const sk=skills[id];if(!sk||a.skin>=6)return originalCast(a,id,manual);
  if(a.skin===4&&sk.slot===4&&reworkState(a).barrier){reworkState(a).barrier=false;a.cd[id]=.7;return true;}
- if(a.skin===0&&sk.slot===3&&rwReady(a,id)){rwCancelCharge(a);a.rwCast=null;a.cast=a.skillLock=a.actionRecovery=a.punchTime=a.root=a.dodgeTime=a.dash=0;Reforged.dashes=Reforged.dashes.filter(d=>d.owner!==a);Reforged.tasks=Reforged.tasks.filter(t=>t.owner!==a);a.guard=false;}
- const result=originalCast(a,id,manual);if(result&&a.rwCast)a.rwCast.action=++OriginalCombat.serial;return result;
+ if(a.skin===0&&sk.slot===3&&rwReady(a,id)){rwCancelCharge(a);a.rwCast=null;a.cast=a.skillLock=a.actionRecovery=a.punchTime=a.root=a.dodgeTime=a.dash=0;Reforged.dashes=Reforged.dashes.filter(d=>d.owner!==a);Reforged.tasks=Reforged.tasks.filter(t=>t.owner!==a||t.detached);a.guard=false;}
+ const result=originalCast(a,id,manual);if(result&&a.rwCast){const q=a.rwCast;q.action=++OriginalCombat.serial;
+  if(a.skin===0&&q.slot===1){q.comboCount=4+q.stage*2;q.comboInterval=.15-q.stage*.015;q.comboStart=q.release+.14;q.comboTimes=Array.from({length:q.comboCount},(_,i)=>q.comboStart+i*q.comboInterval+(i===q.comboCount-1?.09:0));q.duration=q.comboTimes.at(-1)+.2;a.cast=a.skillLock=q.duration;}
+ }return result;
 };
 function originalChargeTick(a,q,dt){if(a.skin>=6)return false;q.charge=clamp(q.age/(skills[q.id].holdMax||1.6),0,1);
  if(a.skin===0&&q.slot===4){originalGainKi(a,30*dt);if(q.age>=6)rwReleaseCharge(a);return true;}
  if(q.age>=skills[q.id].holdMax)rwReleaseCharge(a);return true;
 }
 const originalChargeRelease=rwReleaseCharge;
-rwReleaseCharge=function(a,angle){if(a?.skin===0&&a.rwCast?.holding&&a.rwCast.slot===4){a.cd[a.kit[4]]=1;rwCancelCharge(a);return true;}return originalChargeRelease(a,angle);};
+rwReleaseCharge=function(a,angle){if(a?.skin===0&&a.rwCast?.holding&&a.rwCast.slot===4){a.cd[a.kit[4]]=1;rwFx(a,4,a.x,a.y,'astral-aura-end',.28,{stage:reworkState(a).stage});rwCancelCharge(a);return true;}return originalChargeRelease(a,angle);};
 function originalFreePoint(a,x,y){return !rwObstacle(x,y,a.r)&&!actors.some(t=>t!==a&&t.hp>0&&dist(t,{x,y})<a.r+t.r+3);}
 function originalBlink(a,angle,range,beside=false){const from={x:a.x,y:a.y};let target;
  if(beside){const foe=enemy(a);if(!foe||dist(a,foe)>range+50||!rwVisible(a,foe))return false;for(const off of [Math.PI/2,-Math.PI/2,Math.PI,0]){const x=foe.x+Math.cos(angle+off)*48,y=foe.y+Math.sin(angle+off)*48;if(dist(a,{x,y})<=range&&originalFreePoint(a,x,y)){target={x,y};break;}}}
  else{for(let d=4;d<=range;d+=4){const x=from.x+Math.cos(angle)*d,y=from.y+Math.sin(angle)*d;if(rwObstacle(x,y,a.r))break;if(originalFreePoint(a,x,y))target={x,y};}}
- if(!target)return false;a.x=target.x;a.y=target.y;a.inv=Math.max(a.inv,.22);rwFx(a,3,from.x,from.y,'departure',.55,{size:105,angle});rwFx(a,3,a.x,a.y,'arrival',.55,{size:95,angle});return true;
+ if(!target)return false;a.x=target.x;a.y=target.y;a.inv=Math.max(a.inv,a.skin===0?.16:.22);
+ if(a.skin===0){rwFx(a,3,from.x,from.y,'astral-depart',.18,{size:75,angle});rwFx(a,3,a.x,a.y,'astral-arrive',.16,{size:65,angle});}
+ else{rwFx(a,3,from.x,from.y,'departure',.55,{size:105,angle});rwFx(a,3,a.x,a.y,'arrival',.55,{size:95,angle});}return true;
 }
 function originalComboBlink(a,angle,range){
  const from={x:a.x,y:a.y},foe=enemy(a);if(!foe||dist(a,foe)>range+50||!rwVisible(a,foe))return false;
  let target;for(const off of [Math.PI,Math.PI/2,-Math.PI/2,0]){const x=foe.x+Math.cos(angle+off)*48,y=foe.y+Math.sin(angle+off)*48;if(dist(a,{x,y})<=range&&originalFreePoint(a,x,y)){target={x,y};break;}}
- if(!target)return false;rwFx(a,1,from.x,from.y,'combo-teleport',.34,{size:92,angle});a.x=target.x;a.y=target.y;a.inv=Math.max(a.inv,.22);rwFx(a,1,a.x,a.y,'combo-teleport',.34,{size:92,angle});return true;
+ if(!target)return false;rwFx(a,1,from.x,from.y,'astral-depart',.22,{size:80,angle});a.x=target.x;a.y=target.y;a.inv=Math.max(a.inv,.18);rwFx(a,1,a.x,a.y,'astral-arrive',.18,{size:70,angle});return true;
 }
 function originalSwapShot(a){return [...Reforged.projectiles,...shots,...integratedCustomProjectiles()].filter(e=>e.life>0&&e.owner&&e.owner.team!==a.team&&dist(a,e)<=340&&originalFreePoint(a,e.x,e.y)).sort((u,v)=>dist(a,u)-dist(a,v))[0];}
 function originalCopy(a,copy,angle){if(!copy||!skills[copy.id]?.reworked)return false;
@@ -99,9 +103,9 @@ rwRelease=function(a,q){if(a.skin>=6)return originalRelease(a,q);const s=reworkS
   }
   if(slot===1){
    if(!originalComboBlink(a,angle,260))return;const target=enemy(a),hits=4+stage*2;
-   for(let i=0;i<hits;i++)rwLater(a,.11+i*.085,()=>{
-    if(!target||target.hp<=0)return;const an=Math.atan2(target.y-a.y,target.x-a.x);q.angle=an;q.comboFrame=i;a.a=an;a.astralFacing=an;a.punchTime=.12;a.punchSide=i%2?-1:1;
-    rwArc(a,an,100,15+stage*3,slot,2.8,2);rwFx(a,slot,target.x,target.y,'combo-impact',.22,{size:58+stage*7,angle:an,hitIndex:i});
+   for(let i=0;i<hits;i++)rwLater(a,q.comboTimes?q.comboTimes[i]-q.release:.14+i*.12,()=>{
+    if(!a.copySource&&a.rwCast!==q||!target||target.hp<=0)return;const an=Math.atan2(target.y-a.y,target.x-a.x),last=i===hits-1;q.angle=an;q.comboFrame=i;a.a=an;a.astralFacing=an;
+    if(dist(a,target)<=95+target.r&&rwVisible(a,target)&&hit(target,15+stage*3,a,last?35:1,an,a.kit[slot]))rwFx(a,slot,target.x,target.y,'wave-impact',last?.28:.13,{size:last?68:36,angle:an,hitIndex:i});
    });
   }
   if(slot===2){
@@ -117,8 +121,13 @@ rwRelease=function(a,q){if(a.skin>=6)return originalRelease(a,q);const s=reworkS
    });
   }
   if(slot===3)originalBlink(a,angle,150+stage*30);
-  if(slot===4){originalGainKi(a,28);fx('cast',.8,{stage});}
-  if(slot===5){const target=q.target,r=80+stage*35;rwFx(a,slot,target.x,target.y,'warning',.65,{radius:r});rwFx(a,slot,target.x,target.y,'sky',1.15,{size:r*2.1,stage});rwLater(a,.65,()=>area(target.x,target.y,r,220+stage*70,35));}
+  if(slot===4){originalGainKi(a,28);rwFx(a,slot,a.x,a.y,'astral-awaken',.42,{stage:reworkState(a).stage,follow:true});}
+  if(slot===5){
+   const target=q.target,r=80+stage*35;
+   rwFx(a,slot,target.x,target.y,'astral-solar-flight',.55,{from:{x:a.x,y:a.y-105},stage,radius:r});
+   rwLater(a,.55,()=>{rwFx(a,slot,target.x,target.y,'astral-solar-contact',.08,{stage,radius:r});},{detached:true});
+   rwLater(a,.63,()=>{area(target.x,target.y,r,220+stage*70,35);rwFx(a,slot,target.x,target.y,'astral-solar-blast',1.8,{radius:r});},{detached:true});
+  }
  }else if(a.skin===1){
   if(slot===0){rwArc(a,angle,95,60,slot,1.8,5);fx('cast',.45,{size:95});}
   if(slot===1){const old=originalClone(a);if(old)old.life=0;const clone=actor(a.x,a.y,[...a.kit],a.color);Object.assign(clone,{kind:'v10clone',v10Clone:true,owner:a,skin:1,team:a.team,label:'Clone',hp:80,max:80,life:3,age:0,cd:.35,attacks:0,inv:0,kit:[...a.kit]});objects.push(clone);move(a,-Math.cos(angle)*42,-Math.sin(angle)*42);rwFx(a,slot,clone.x,clone.y,'smoke',.8,{size:115});}

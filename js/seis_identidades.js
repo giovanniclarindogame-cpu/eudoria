@@ -4,9 +4,9 @@ const ORIGINAL_REWORK_KITS=[
 ['Rajada de Ki','De 3 a 7 esferas conforme o estágio. Gasta 10 Ki. No Supremo, as últimas esferas explodem em uma pequena área.',3,470,.18,.8,'volley'],
 ['Combo Relâmpago','Teleporta ao lado do alvo e desfere de 4 a 8 golpes conforme o estágio. Gasta 18 Ki; obstáculos impedem o teleporte.',6,260,.15,.95,'combo'],
 ['Onda Concentrada','Segure 3 por até 1,5s e solte: feixe de 90 a 240 de dano, mais forte e largo nos estágios altos. Gasta 20 Ki; alcance de 380 a 500.',7,500,.2,1.05,'beam'],
-['Passo Instantâneo','Teleporte curto de 150 a 210 conforme o estágio. Gasta 8 Ki e cancela a animação atual, inclusive cargas. Breve invulnerabilidade na saída.',5,210,.04,.25,'teleport'],
+['Passo Instantâneo','Teleporte curto de 150 a 210 conforme o estágio. Gasta 8 Ki e cancela a animação atual, inclusive cargas. Breve invulnerabilidade na saída.',5,210,.075,.25,'teleport'],
 ['Carregar Aura','Segure 5 para recuperar 30 Ki por segundo. Com 40 Ki desperta; com 80 chega ao Supremo. Fica parado e recebe 20% mais dano durante a carga.',1,0,.1,.4,'aura'],
-['Esfera Solar','Gasta 35 Ki. Após preparar, a esfera cai do céu na área escolhida. O estágio aumenta seu raio de 80 a 150 e o dano de 220 a 360.',25,420,.65,1.5,'sky']
+['Esfera Solar','Gasta 35 Ki. Após preparar, a esfera cai do céu na área escolhida. O estágio aumenta seu raio de 80 a 150 e o dano de 220 a 360.',25,420,1,1.95,'sky']
 ]},
 {skin:1,key:'ninja',resource:'Cópia',style:'Adaptação e armadilha',color:'#8ccfff',summary:'Prepare o olho para guardar o próximo golpe especial recebido. Use a tecla 5 outra vez para devolver uma cópia.',skills:[
 ['Lâmina Rápida','Corte veloz de 60 de dano, alcance 95. Recuperação curta para iniciar uma sequência.',2,95,.12,.4,'slash'],

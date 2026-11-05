@@ -1,6 +1,6 @@
 'use strict';
 const Reforged={effects:[],projectiles:[],tasks:[],dashes:[],serial:0,generation:0};
-function rwLater(owner,seconds,fn){Reforged.tasks.push({owner,remaining:seconds,fn});}
+function rwLater(owner,seconds,fn,{detached=false}={}){Reforged.tasks.push({owner,remaining:seconds,fn,detached});}
 function rwFx(a,slot,x=a.x,y=a.y,kind='impact',duration=.8,extra={}){
  Reforged.effects.push({id:++Reforged.serial,skin:a.skin,slot,owner:a,x,y,angle:a.a,kind,age:0,duration,...extra});
  if(Reforged.effects.length>100)Reforged.effects.splice(0,Reforged.effects.length-100);
