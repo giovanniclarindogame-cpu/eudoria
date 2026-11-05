@@ -3,7 +3,7 @@ const ORIGINAL_REWORK_KITS=[
 {skin:0,key:'astral',resource:'Ki',style:'Ki e transformação',color:'#ffd76c',summary:'Carregue energia e troque golpes para passar de Base a Desperto e Supremo. Os efeitos evoluem com o estágio.',skills:[
 ['Rajada de Ki','De 3 a 7 esferas conforme o estágio. Gasta 10 Ki. No Supremo, as últimas esferas explodem em uma pequena área.',3,470,.18,.8,'volley'],
 ['Combo Relâmpago','Teleporta ao lado do alvo e desfere de 4 a 8 golpes conforme o estágio. Gasta 18 Ki; obstáculos impedem o teleporte.',6,260,.15,.95,'combo'],
-['Onda Concentrada','Segure 3 e solte: feixe de 90 a 240 de dano, mais forte e largo nos estágios altos. Gasta 20 Ki; alcance de 380 a 500.',7,500,.2,1.05,'beam'],
+['Onda Concentrada','Segure 3 por até 1,5s e solte: feixe de 90 a 240 de dano, mais forte e largo nos estágios altos. Gasta 20 Ki; alcance de 380 a 500.',7,500,.2,1.05,'beam'],
 ['Passo Instantâneo','Teleporte curto de 150 a 210 conforme o estágio. Gasta 8 Ki e cancela a animação atual, inclusive cargas. Breve invulnerabilidade na saída.',5,210,.04,.25,'teleport'],
 ['Carregar Aura','Segure 5 para recuperar 30 Ki por segundo. Com 40 Ki desperta; com 80 chega ao Supremo. Fica parado e recebe 20% mais dano durante a carga.',1,0,.1,.4,'aura'],
 ['Esfera Solar','Gasta 35 Ki. Após preparar, a esfera cai do céu na área escolhida. O estágio aumenta seu raio de 80 a 150 e o dano de 220 a 360.',25,420,.65,1.5,'sky']
@@ -49,6 +49,6 @@ const ORIGINAL_REWORK_KITS=[
 ['Pacto Total','Transforma-se por um instante em uma forma adulta. Soco de 80 + 70% da vida atual; depois consome 80% da própria vida, preservando ao menos 1 HP.',30,165,.9,1.65,'adult']
 ]}
 ];
-for(const kit of ORIGINAL_REWORK_KITS){kit.assets='reforged_v10';const c=CHAMPIONS[kit.skin];c.kit=[];c.style=kit.style;c.summary=kit.summary;c.ult=kit.skills[5][0];kit.skills=kit.skills.map((row,slot)=>{const[name,desc,cd,range,release,duration,pose]=row,id=skills.length,rank=slot===5?'S':slot>=3?'A':'B';const s={id,name,desc,cd,range,release,duration,pose,slot,champion:kit.skin,rank,color:kit.color,cost:0,ultimate:slot===5,reworked:true,type:slot===5?'Ultimate':slot===4?'Defesa':'Ataque'};if(kit.skin===0&&[2,4].includes(slot)||kit.skin===5&&slot===0)s.holdMax=kit.skin===5?1.8:slot===4?6:1.6;skills.push(s);RANK_IDS[rank].push(id);c.kit.push(id);return s;});IDENTITY_KITS[kit.skin]=kit;}
+for(const kit of ORIGINAL_REWORK_KITS){kit.assets='reforged_v10';const c=CHAMPIONS[kit.skin];c.kit=[];c.style=kit.style;c.summary=kit.summary;c.ult=kit.skills[5][0];kit.skills=kit.skills.map((row,slot)=>{const[name,desc,cd,range,release,duration,pose]=row,id=skills.length,rank=slot===5?'S':slot>=3?'A':'B';const s={id,name,desc,cd,range,release,duration,pose,slot,champion:kit.skin,rank,color:kit.color,cost:0,ultimate:slot===5,reworked:true,type:slot===5?'Ultimate':slot===4?'Defesa':'Ataque'};if(kit.skin===0&&[2,4].includes(slot)||kit.skin===5&&slot===0)s.holdMax=kit.skin===5?1.8:slot===4?6:1.5;skills.push(s);RANK_IDS[rank].push(id);c.kit.push(id);return s;});IDENTITY_KITS[kit.skin]=kit;}
 // Existing league entries must use the new fixed kits too.
 for(let i=0;i<LEAGUE_RIVALS.length;i++)LEAGUE_RIVALS[i].kit=[...CHAMPIONS[i%6].kit];

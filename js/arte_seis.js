@@ -1,6 +1,41 @@
 'use strict';
 const KI_ORB_IMAGE=rwImage('assets/reforged_v10/ki-orb.webp');
 const ASTRAL_COMBO_VFX=rwImage('assets/reforged_v10/astral-combo-vfx.webp');
+const ASTRAL_WAVE_ART=Object.fromEntries(['charge','beam','impact'].map(k=>[k,rwImage('assets/reforged_v10/wave-'+k+'.webp')]));
+function waveCell(g,key,frame,x,y,w,h=w){
+ const im=ASTRAL_WAVE_ART[key];if(!im.naturalWidth)return;
+ const f=clamp(Math.floor(frame),0,23);g.drawImage(im,f%6*128,Math.floor(f/6)*128,128,128,x,y,w,h);
+}
+function paintWaveCharge(g,a,q){
+ const d=astralDirection(q.angle),charge=q.charge||0;
+ const x=a.x+(d.name==='side'?-7*d.flip:0),y=a.y+(d.name==='back'?-27:-17);
+ const frame=charge<.8?Math.floor(charge/.8*18):18+Math.floor(q.age*18)%6;
+ g.save();g.imageSmoothingEnabled=false;
+ const size=32+charge*14;waveCell(g,'charge',frame,x-size/2,y-size/2,size);g.restore();
+}
+function paintConcentratedWave(g,e){
+ if(e.owner.hp<=0||!e.owner.copySource&&e.owner.rwCast!==e.cast)return;
+ const {from,to}=astralWavePath(e.owner,e.angle,e.range),length=dist(from,to);if(length<1)return;
+ const u=clamp(e.age/e.duration,0,1),envelope=Math.min(1,e.age/.06,(1-u)/.18);
+ const height=(72+e.charge*44+e.stage*14)*Math.max(0,envelope),travel=Math.min(length,length*e.age/.05),frame=Math.floor(u*24);
+ g.save();g.translate(from.x,from.y-35);orientSkillSprite(g,e.angle);g.imageSmoothingEnabled=false;
+ // Repeat square texture tiles, cropping the last tile to the actual reach.
+ const tile=72;for(let x=0;x<travel;x+=tile){
+  const w=Math.min(tile,travel-x),im=ASTRAL_WAVE_ART.beam;if(!im.naturalWidth)break;
+  const f=frame%24;g.drawImage(im,f%6*128+2,Math.floor(f/6)*128+16,124*w/tile,112,x,-height/2,w,height);
+ }
+ waveCell(g,'charge',18+frame%6,-height*.225,-height*.225,height*.45);
+ waveCell(g,'impact',frame,travel-height*.32,-height*.4,height*.8);
+ g.restore();
+}
+function paintWaveBody(g,a,size,q){
+ const d=astralDirection(q.angle),im=astralImages[(astralWorn(a)?'worn-':'')+'cast-'+d.name];if(!im.naturalWidth)return false;
+ const beamAge=q.age-q.release;
+ const pose=q.holding?Math.min(3,1+Math.floor(q.charge*2)):q.age<q.release?3:beamAge<.7?4:7;
+ const k=size/64;g.save();g.scale(d.flip,1);g.imageSmoothingEnabled=false;
+ // Only the fighter region: the old sheet includes baked-in lines outside the hands.
+ g.drawImage(im,pose*160+48,50,64,66,-32*k,-64*k+12,64*k,66*k);g.restore();return true;
+}
 function paintKiOrb(g,e,impact=false){
  if(!KI_ORB_IMAGE.naturalWidth)return;
  const frame=Math.floor((e.age*28+(e.volleyIndex||0))%4),stage=e.stage||0,size=impact?e.size*(1+e.age*2.2):e.size;
@@ -37,7 +72,7 @@ rwPaintBody=function(g,a,size=72,t=vfxTime){
  let result;
  if(q){
   const pose={index:ORIGINAL_BODY_ROWS[a.skin]?.[q.slot]||0,age:q.age,duration:q.duration,frame,angle};
-  if(a.skin===0)result=astralPaint(g,paintActor,scalar,pose);
+  if(a.skin===0)result=q.slot===2?paintWaveBody(g,paintActor,scalar,q):astralPaint(g,paintActor,scalar,pose);
   else if(a.skin===4)result=eclipsePaint(g,paintActor,scalar,pose);
   else if(a.skin===1){const before=dojoWornContext;dojoWornContext=dojoIsWorn(a);try{if(q.slot===0||q.slot===5)result=dojoPaintStrike(g,frame,scalar,angle);else{dojoGestureFrame(g,[31,27,37,35,35,48][q.slot],frame,scalar,angle);result=true;}}finally{dojoWornContext=before;}}
   else if(a.skin===5&&q.slot===2){const orbit=frame/24*TAU;result=rpPaint(g,{...paintActor,rpFacing:orbit,punchTime:.2,punchSide:1},scalar);}
@@ -51,11 +86,12 @@ rwPaintFX=function(e){if(e.skin>=6)return originalFX(e);const u=clamp(e.age/e.du
  if(e.kiOrb){paintKiOrb(ctx,e,true);return;}
  if(e.kind==='combo-teleport'){paintAstralComboVFX(ctx,e,0);return;}
  if(e.kind==='combo-impact'){paintAstralComboVFX(ctx,e,1);return;}
- if(e.kind==='warning'){ctx.save();ctx.strokeStyle=identityKit(e.skin).color;ctx.fillStyle=e.skin===4?'#20274c44':'#e5b75622';ctx.lineWidth=2;ctx.setLineDash([6,5]);ctx.beginPath();ctx.ellipse(x,y,e.radius,e.radius*.6,0,0,TAU);ctx.fill();ctx.stroke();ctx.restore();return;}
- if(e.kind==='beam'){
-  const im=rwImage('assets/reforged_v10/astral-2.webp');if(!im.naturalWidth)return;const length=dist(e.from,e),f=Math.floor(u*24);ctx.save();ctx.translate((e.from.x+x)/2,(e.from.y+y)/2-27);orientSkillSprite(ctx,e.angle);ctx.imageSmoothingEnabled=false;
-  ctx.globalAlpha=Math.sin(Math.PI*u)*.75;ctx.strokeStyle='#49bfff';ctx.lineWidth=e.size*.2;ctx.beginPath();ctx.moveTo(-length/2+15,0);ctx.lineTo(-length*.15,0);ctx.stroke();ctx.strokeStyle='#eaffff';ctx.lineWidth=e.size*.065;ctx.stroke();ctx.globalAlpha=1;if(e.stage===1)ctx.filter='sepia(.5) saturate(1.4)';if(e.stage===2)ctx.filter='brightness(1.3)';ctx.drawImage(im,f%6*128,Math.floor(f/6)*128,128,128,-length/2,-e.size/2,length,e.size);ctx.restore();return;
+ if(e.kind==='concentrated-wave'){paintConcentratedWave(ctx,e);return;}
+ if(e.kind==='wave-impact'){
+  ctx.save();ctx.translate(e.x,e.y-35);orientSkillSprite(ctx,e.angle);ctx.imageSmoothingEnabled=false;
+  waveCell(ctx,'impact',u*24,-e.size/2,-e.size/2,e.size);ctx.restore();return;
  }
+ if(e.kind==='warning'){ctx.save();ctx.strokeStyle=identityKit(e.skin).color;ctx.fillStyle=e.skin===4?'#20274c44':'#e5b75622';ctx.lineWidth=2;ctx.setLineDash([6,5]);ctx.beginPath();ctx.ellipse(x,y,e.radius,e.radius*.6,0,0,TAU);ctx.fill();ctx.stroke();ctx.restore();return;}
  const size=e.size||(e.kind==='sky'?200:115),ground=['sky','trap-fire','seal','domain'].includes(e.kind)||e.skin===3&&e.slot===2;
  const offset=e.kind==='cast'&&![4,5].includes(e.slot)?35:0;
  rwSprite(ctx,e.skin,e.slot,x+Math.cos(e.angle||0)*offset,y-(ground?size*.3:32),size,u,e.angle||0,e.kind==='dash',1,e.stage??e.owner?.identity?.stage);
@@ -72,7 +108,8 @@ integratedDepth=function(){const all=objects;let list;objects=all.filter(o=>!o.v
  }
  for(const a of actors){if(a.hp<=0||a.skin>=6)continue;const s=reworkState(a),q=a.rwCast;
   if(a.skin===0&&(s.stage>0||q?.holding&&q.slot===4))list.push({y:a.y-.5,priority:0,paint:()=>rwSprite(ctx,0,4,a.x,a.y-33,105+s.stage*20,.25+(vfxTime*.5%1)*.45,0,false,.55,s.stage)});
-  if(q?.holding&&!(a.skin===0&&q.slot===4))list.push({y:a.y+.5,priority:3,paint:()=>rwSprite(ctx,a.skin,q.slot,a.x+Math.cos(q.angle)*27,a.y-30,60+q.charge*60,.08+q.charge*.25,q.angle,true)});
+  if(a.skin===0&&q?.slot===2&&(q.holding||q.age<q.release))list.push({y:a.y+.5,priority:3,paint:()=>paintWaveCharge(ctx,a,q)});
+  else if(q?.holding&&!(a.skin===0&&q.slot===4))list.push({y:a.y+.5,priority:3,paint:()=>rwSprite(ctx,a.skin,q.slot,a.x+Math.cos(q.angle)*27,a.y-30,60+q.charge*60,.08+q.charge*.25,q.angle,true)});
   if(s.spiritForm>0||s.breathing>0||s.instinct>0)list.push({y:a.y-.3,priority:0,paint:()=>rwSprite(ctx,a.skin,4,a.x,a.y-32,115,.25+(vfxTime*.5%1)*.4,0,false,.55)});
   if(a.skin===1&&(s.eye>0||s.copy))list.push({y:a.y+.2,priority:3,paint:()=>rwSprite(ctx,1,4,a.x+27,a.y-49,48,.3+(vfxTime*.3%1)*.25)});
   if(s.barrier)list.push({y:a.y+.3,priority:3,paint:()=>rwSprite(ctx,4,4,a.x,a.y-28,135,.27+(vfxTime*.25%1)*.3,0,false,.38)});

@@ -75,6 +75,17 @@ function originalCopy(a,copy,angle){if(!copy||!skills[copy.id]?.reworked)return 
 function originalBurn(target,owner,stacks=1){if(target.v10Clone)return;let burn=OriginalCombat.burns.find(e=>e.target===target&&e.owner===owner);if(!burn){burn={target,owner,stacks:0,remaining:0,tick:.5};OriginalCombat.burns.push(burn);}burn.stacks=Math.min(5,burn.stacks+stacks);burn.remaining=reworkState(owner).breathing>0?7:4;}
 const sixLaunch=rwLaunch;rwLaunch=function(a,slot,angle,range,speed,damage,r=12,extra={}){return sixLaunch(a,slot,angle,range,speed,damage,r,{stage:a.skin===0?reworkState(a).stage:undefined,...extra});};
 const originalRelease=rwRelease;
+// Shared by damage and rendering: the ray starts at the extended hands.
+function astralWaveOrigin(a,angle){
+ const d=astralDirection(angle);
+ return {x:a.x+(d.name==='side'?36*d.flip:0),y:a.y+(d.name==='front'?11:d.name==='back'?-5:0)};
+}
+function astralWavePath(a,angle,range){
+ const from=astralWaveOrigin(a,angle),to=rwEnd(from,angle,Math.max(0,range-dist(a,from)));
+ // A hand must not project the beam through a wall next to the caster.
+ if(!rwVisible(a,from)||rwObstacle(from.x,from.y,4))return {from:{x:a.x,y:a.y},to:{x:a.x,y:a.y}};
+ return {from,to};
+}
 rwRelease=function(a,q){if(a.skin>=6)return originalRelease(a,q);const s=reworkState(a),slot=q.slot,angle=q.angle,stage=q.stage||0,snapshot=q.snapshot||0,damage=n=>a.skin===3?n*(1+(q.burnStacks||0)*.1):n;
  const end=d=>rwEnd(a,angle,d),area=(x,y,r,n,k=10)=>rwArea(a,x,y,r,damage(n),slot,k);
  const fx=(kind='cast',duration=.8,extra={})=>rwFx(a,slot,a.x,a.y,kind,duration,{angle,stage,follow:kind==='cast',...extra});
@@ -93,7 +104,18 @@ rwRelease=function(a,q){if(a.skin>=6)return originalRelease(a,q);const s=reworkS
     rwArc(a,an,100,15+stage*3,slot,2.8,2);rwFx(a,slot,target.x,target.y,'combo-impact',.22,{size:58+stage*7,angle:an,hitIndex:i});
    });
   }
-  if(slot===2){const range=380+stage*60,to=end(range),ticks=6+stage*2,total=(90+150*(q.charge||0))*(1+stage*.2);rwFx(a,slot,to.x,to.y,'beam',.7,{from:{x:a.x,y:a.y},size:70+(q.charge||0)*55+stage*15,angle,stage});for(let i=0;i<ticks;i++)rwLater(a,i*.065,()=>rwLine(a,a,to,18+stage*8+(q.charge||0)*15,total/ticks,slot,3));}
+  if(slot===2){
+   const range=380+stage*60,ticks=6+stage*2,charge=q.charge||0,total=(90+150*charge)*(1+stage*.2),width=18+stage*8+charge*15;
+   rwFx(a,slot,a.x,a.y,'concentrated-wave',.7,{follow:true,angle,stage,charge,range,width,cast:q});
+   for(let i=0;i<ticks;i++)rwLater(a,.04+i*.54/(ticks-1),()=>{
+    if(!a.copySource&&a.rwCast!==q)return;
+    const {from,to}=astralWavePath(a,angle,range);
+    if(dist(from,to)<1)return;
+    for(const target of opponents(a))if(target.hp>0&&lineDistance(target.x,target.y,from.x,from.y,to.x,to.y)<width+target.r&&rwVisible(from,target)){
+     if(hit(target,total/ticks,a,3,angle,a.kit[slot]))rwFx(a,slot,target.x,target.y,'wave-impact',.22,{angle,size:45+charge*24+stage*7});
+    }
+   });
+  }
   if(slot===3)originalBlink(a,angle,150+stage*30);
   if(slot===4){originalGainKi(a,28);fx('cast',.8,{stage});}
   if(slot===5){const target=q.target,r=80+stage*35;rwFx(a,slot,target.x,target.y,'warning',.65,{radius:r});rwFx(a,slot,target.x,target.y,'sky',1.15,{size:r*2.1,stage});rwLater(a,.65,()=>area(target.x,target.y,r,220+stage*70,35));}
