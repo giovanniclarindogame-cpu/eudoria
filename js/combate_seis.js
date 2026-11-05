@@ -74,7 +74,13 @@ rwRelease=function(a,q){if(a.skin>=6)return originalRelease(a,q);const s=reworkS
  const end=d=>rwEnd(a,angle,d),area=(x,y,r,n,k=10)=>rwArea(a,x,y,r,damage(n),slot,k);
  const fx=(kind='cast',duration=.8,extra={})=>rwFx(a,slot,a.x,a.y,kind,duration,{angle,stage,follow:kind==='cast',...extra});
  if(a.skin===0){
-  if(slot===0){const count=3+stage*2;for(let i=0;i<count;i++)rwLater(a,i*.09,()=>{rwLaunch(a,slot,angle+(stage===2?(i%3-1)*.045:0),470,490+stage*70,18+stage*4,8,{size:48+stage*8,splash:stage===2&&i>=count-2?35:0,stage});});fx('cast',.7,{stage});}
+  if(slot===0){
+   const count=5+stage*2,spread=[-5,4,-2,5,0,-4,3,-1,4];
+   for(let i=0;i<count;i++)rwLater(a,i*.075,()=>{
+    const shotAngle=angle+spread[i]*.006,orb=rwLaunch(a,slot,shotAngle,470,520+stage*65,12+stage*3,8,{size:24+stage*3,splash:stage===2&&i>=count-2?28:0,stage,kiOrb:true,volleyIndex:i});
+    orb.x+=Math.cos(angle)*4-Math.sin(angle)*spread[i];orb.y+=Math.sin(angle)*4+Math.cos(angle)*spread[i];
+   });
+  }
   if(slot===1){if(!originalBlink(a,angle,260,true))return;const target=enemy(a),an=Math.atan2(target.y-a.y,target.x-a.x);for(let i=0;i<4+stage*2;i++)rwLater(a,i*.085,()=>{rwArc(a,an,100,15+stage*3,slot,2.8,2);rwFx(a,slot,target.x,target.y,'impact',.3,{size:70+stage*8,angle:an});});}
   if(slot===2){const range=380+stage*60,to=end(range),ticks=6+stage*2,total=(90+150*(q.charge||0))*(1+stage*.2);rwFx(a,slot,to.x,to.y,'beam',.7,{from:{x:a.x,y:a.y},size:70+(q.charge||0)*55+stage*15,angle,stage});for(let i=0;i<ticks;i++)rwLater(a,i*.065,()=>rwLine(a,a,to,18+stage*8+(q.charge||0)*15,total/ticks,slot,3));}
   if(slot===3)originalBlink(a,angle,150+stage*30);

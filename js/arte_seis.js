@@ -1,4 +1,14 @@
 'use strict';
+const KI_ORB_IMAGE=rwImage('assets/reforged_v10/ki-orb.webp');
+function paintKiOrb(g,e,impact=false){
+ if(!KI_ORB_IMAGE.naturalWidth)return;
+ const frame=Math.floor((e.age*28+(e.volleyIndex||0))%4),stage=e.stage||0,size=impact?e.size*(1+e.age*2.2):e.size;
+ g.save();g.translate(Math.round(e.x),Math.round(e.y-28));orientSkillSprite(g,e.angle||0);g.imageSmoothingEnabled=false;
+ if(stage===1)g.filter='sepia(.42) saturate(1.7)';if(stage===2)g.filter='brightness(1.35) saturate(1.4)';
+ if(!impact){g.globalAlpha=.42;g.fillStyle=stage===0?'#49cfff':'#ffe06d';g.fillRect(-size*.95,-2,size*.72,4);g.globalAlpha=1;}
+ else g.globalAlpha=Math.max(0,1-e.age/e.duration);
+ g.drawImage(KI_ORB_IMAGE,frame*32,0,32,32,-size/2,-size/2,size,size);g.restore();
+}
 const originalBody=rwPaintBody;
 const ORIGINAL_BODY_ROWS={0:[1,3,0,2,4,5],2:[1,1,0,2,4,5],3:[1,0,0,2,4,5],4:[0,1,2,4,0,5],5:[0,1,2,2,3,5]};
 rwPaintBody=function(g,a,size=72,t=vfxTime){
@@ -30,6 +40,7 @@ rwPaintBody=function(g,a,size=72,t=vfxTime){
 };
 const originalFX=rwPaintFX;
 rwPaintFX=function(e){if(e.skin>=6)return originalFX(e);const u=clamp(e.age/e.duration,0,.999),x=e.follow?e.owner.x:e.x,y=e.follow?e.owner.y:e.y;
+ if(e.kiOrb){paintKiOrb(ctx,e,true);return;}
  if(e.kind==='warning'){ctx.save();ctx.strokeStyle=identityKit(e.skin).color;ctx.fillStyle=e.skin===4?'#20274c44':'#e5b75622';ctx.lineWidth=2;ctx.setLineDash([6,5]);ctx.beginPath();ctx.ellipse(x,y,e.radius,e.radius*.6,0,0,TAU);ctx.fill();ctx.stroke();ctx.restore();return;}
  if(e.kind==='beam'){
   const im=rwImage('assets/reforged_v10/astral-2.webp');if(!im.naturalWidth)return;const length=dist(e.from,e),f=Math.floor(u*24);ctx.save();ctx.translate((e.from.x+x)/2,(e.from.y+y)/2-27);orientSkillSprite(ctx,e.angle);ctx.imageSmoothingEnabled=false;
@@ -43,6 +54,7 @@ const originalSprite=rwSprite;
 rwSprite=function(g,skin,slot,x,y,size,phase,angle=0,directional=false,alpha=1,stage=0){g.save();if(skin===0){if(stage===1)g.filter='sepia(.55) saturate(1.5)';if(stage===2)g.filter='brightness(1.25) saturate(1.4)';}originalSprite(g,skin,slot,x,y,size,phase,angle,directional,alpha);g.restore();};
 const originalDepth=integratedDepth;
 integratedDepth=function(){const all=objects;let list;objects=all.filter(o=>!o.v10Clone&&!o.v10Trap&&!o.v10Domain);try{list=originalDepth();}finally{objects=all;}
+ for(const e of Reforged.projectiles)if(e.kiOrb)list.push({kind:'ki-orb',y:e.y,priority:5,paint:()=>paintKiOrb(ctx,e)});
  for(const o of objects){if(o.life<=0||o.hp===0)continue;
   if(o.v10Clone)list.push({kind:'clone',y:o.y,priority:1,paint:()=>{ctx.save();ctx.translate(o.x,o.y);ctx.globalAlpha=.65*Math.min(1,o.age/.15,o.life/.3);drawAnimatedFighter(ctx,o,72);ctx.restore();}});
   if(o.v10Trap)list.push({kind:'seal',y:o.y-1,priority:0,paint:()=>rwSprite(ctx,1,2,o.x,o.y-18,85,.28+(o.age*.4%1)*.2)});

@@ -187,7 +187,7 @@ function rwAdvanceProjectile(e,dt){
    e.hit.add(target);if(e.splash)rwArea(e.owner,e.x,e.y,e.splash,e.damage,e.slot,e.knock||0);else hit(target,e.damage,e.owner,e.knock||8,e.angle,identityKit(e.skin).skills[e.slot].id);if(!e.piercing)e.life=0;break;
   }
  }if(e.travel>=e.range)e.life=0;
- if(e.life<=0)rwFx({skin:e.skin,a:e.angle},e.slot,e.x,e.y,'impact',.5,{size:e.splash?e.splash*1.7:75,stage:e.stage});
+ if(e.life<=0)rwFx({skin:e.skin,a:e.angle},e.slot,e.x,e.y,'impact',e.kiOrb?.24:.5,{size:e.kiOrb?34:e.splash?e.splash*1.7:75,stage:e.stage,kiOrb:e.kiOrb});
 }
 function rwInterceptExisting(dt){
  const existing=[...shots,...integratedCustomProjectiles()];
