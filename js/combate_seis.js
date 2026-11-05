@@ -59,6 +59,11 @@ function originalBlink(a,angle,range,beside=false){const from={x:a.x,y:a.y};let 
  else{for(let d=4;d<=range;d+=4){const x=from.x+Math.cos(angle)*d,y=from.y+Math.sin(angle)*d;if(rwObstacle(x,y,a.r))break;if(originalFreePoint(a,x,y))target={x,y};}}
  if(!target)return false;a.x=target.x;a.y=target.y;a.inv=Math.max(a.inv,.22);rwFx(a,3,from.x,from.y,'departure',.55,{size:105,angle});rwFx(a,3,a.x,a.y,'arrival',.55,{size:95,angle});return true;
 }
+function originalComboBlink(a,angle,range){
+ const from={x:a.x,y:a.y},foe=enemy(a);if(!foe||dist(a,foe)>range+50||!rwVisible(a,foe))return false;
+ let target;for(const off of [Math.PI,Math.PI/2,-Math.PI/2,0]){const x=foe.x+Math.cos(angle+off)*48,y=foe.y+Math.sin(angle+off)*48;if(dist(a,{x,y})<=range&&originalFreePoint(a,x,y)){target={x,y};break;}}
+ if(!target)return false;rwFx(a,1,from.x,from.y,'combo-teleport',.34,{size:92,angle});a.x=target.x;a.y=target.y;a.inv=Math.max(a.inv,.22);rwFx(a,1,a.x,a.y,'combo-teleport',.34,{size:92,angle});return true;
+}
 function originalSwapShot(a){return [...Reforged.projectiles,...shots,...integratedCustomProjectiles()].filter(e=>e.life>0&&e.owner&&e.owner.team!==a.team&&dist(a,e)<=340&&originalFreePoint(a,e.x,e.y)).sort((u,v)=>dist(a,u)-dist(a,v))[0];}
 function originalCopy(a,copy,angle){if(!copy||!skills[copy.id]?.reworked)return false;
  const source=skills[copy.id],proxy=Object.create(a);proxy.skin=source.champion;proxy.kit=[...CHAMPIONS[source.champion].kit];proxy.identity=undefined;proxy.copySource=a;proxy.copyScale=.75;proxy.rwCast=null;
@@ -81,7 +86,13 @@ rwRelease=function(a,q){if(a.skin>=6)return originalRelease(a,q);const s=reworkS
     orb.x+=Math.cos(angle)*4-Math.sin(angle)*spread[i];orb.y+=Math.sin(angle)*4+Math.cos(angle)*spread[i];
    });
   }
-  if(slot===1){if(!originalBlink(a,angle,260,true))return;const target=enemy(a),an=Math.atan2(target.y-a.y,target.x-a.x);for(let i=0;i<4+stage*2;i++)rwLater(a,i*.085,()=>{rwArc(a,an,100,15+stage*3,slot,2.8,2);rwFx(a,slot,target.x,target.y,'impact',.3,{size:70+stage*8,angle:an});});}
+  if(slot===1){
+   if(!originalComboBlink(a,angle,260))return;const target=enemy(a),hits=4+stage*2;
+   for(let i=0;i<hits;i++)rwLater(a,.11+i*.085,()=>{
+    if(!target||target.hp<=0)return;const an=Math.atan2(target.y-a.y,target.x-a.x);q.angle=an;q.comboFrame=i;a.a=an;a.astralFacing=an;a.punchTime=.12;a.punchSide=i%2?-1:1;
+    rwArc(a,an,100,15+stage*3,slot,2.8,2);rwFx(a,slot,target.x,target.y,'combo-impact',.22,{size:58+stage*7,angle:an,hitIndex:i});
+   });
+  }
   if(slot===2){const range=380+stage*60,to=end(range),ticks=6+stage*2,total=(90+150*(q.charge||0))*(1+stage*.2);rwFx(a,slot,to.x,to.y,'beam',.7,{from:{x:a.x,y:a.y},size:70+(q.charge||0)*55+stage*15,angle,stage});for(let i=0;i<ticks;i++)rwLater(a,i*.065,()=>rwLine(a,a,to,18+stage*8+(q.charge||0)*15,total/ticks,slot,3));}
   if(slot===3)originalBlink(a,angle,150+stage*30);
   if(slot===4){originalGainKi(a,28);fx('cast',.8,{stage});}
