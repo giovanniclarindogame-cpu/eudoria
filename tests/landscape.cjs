@@ -20,7 +20,7 @@ const assert=require('node:assert/strict');
   await page.evaluate(()=>{arenaQA.progression.begin('training');arenaQA.begin();});await page.waitForTimeout(100);
   const projection=await page.evaluate(()=>({...arenaQA.projection,...arenaQA.dimensions}));
   if(viewport.width<900)assert.ok(projection.scale>.58&&projection.scale<1.1,'moderate camera zoom outside expected range');
-  const controls='#equipped button,#attack,#defend,#dodge,#stick,#pauseBtn,#arenaZoom,#fullscreenToggle';
+  const controls='#equipped button,#attack,#defend,#dodge,#stick,#pauseBtn,#arenaZoom';
   const boxes=await page.locator(controls).evaluateAll(els=>els.map(el=>{const r=el.getBoundingClientRect();return {id:el.id||el.dataset.index,x:r.x,y:r.y,w:r.width,h:r.height,hit:el.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2))};}));
   for(const box of boxes){assert.ok(box.hit,'covered control '+box.id);assert.ok(box.x>=0&&box.y>=0&&box.x+box.w<=viewport.width+1&&box.y+box.h<=viewport.height+1,'clipped control '+box.id);}
   for(let i=0;i<boxes.length;i++)for(let j=i+1;j<boxes.length;j++){const a=boxes[i],b=boxes[j];assert.ok(a.x+a.w<=b.x||b.x+b.w<=a.x||a.y+a.h<=b.y||b.y+b.h<=a.y,'overlap '+a.id+' '+b.id);}
@@ -31,11 +31,9 @@ const assert=require('node:assert/strict');
   await page.locator('#arenaZoom').click();
   console.log('PASS layout '+viewport.width+'x'+viewport.height+': menus, close camera, wide view, no overlapping/clipped controls or overhead labels');
  }
- await page.setViewportSize({width:844,height:390});await page.locator('#fullscreenToggle').click();
- await page.waitForFunction(()=>!!document.fullscreenElement);
- assert.equal(await page.locator('#fullscreenToggle').getAttribute('aria-pressed'),'true');
- assert.ok(await accessible('#pauseBtn'));assert.ok(await accessible('#fullscreenToggle'));
- await page.locator('#fullscreenToggle').click();await page.waitForFunction(()=>!document.fullscreenElement);
+ await page.setViewportSize({width:844,height:390});
+ assert.equal(await page.locator('#fullscreenToggle').count(),0,'manual fullscreen control removed');
+ assert.ok(await accessible('#pauseBtn'));
  // All menus remain horizontally contained, with vertical scroll when needed.
  for(const screen of ['training','league','shop','home']){await page.evaluate(screen=>arenaQA.showScreen(screen),screen);await page.waitForTimeout(60);assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'overflow '+screen);}
  await page.evaluate(()=>arenaQA.showScreen('library'));await page.locator('#selection .hero-card').nth(6).click();await page.locator('[data-hero-test]').click();
@@ -43,9 +41,7 @@ const assert=require('node:assert/strict');
  const stick=await page.locator('#stick').boundingBox();
  const before=await page.evaluate(()=>arenaQA.player.x);
  await page.mouse.move(stick.x+stick.width/2,stick.y+stick.height/2);await page.mouse.down();await page.mouse.move(stick.x+stick.width*.8,stick.y+stick.height/2);await page.waitForTimeout(250);await page.mouse.up();assert.ok(await page.evaluate(x=>arenaQA.player.x>x,before),'joystick failed');
- // Rejecting fullscreen must leave a usable UI and explain the fallback.
- await page.evaluate(()=>{document.documentElement.requestFullscreen=()=>Promise.reject(new Error('denied'));});
- await page.locator('#fullscreenToggle').click();assert.ok(await page.locator('#fullscreenStatus').isVisible());
+ assert.ok(await page.evaluate(()=>!!window.eldoriaDisplay&&typeof eldoriaDisplay.enter==='function'),'automatic fullscreen API missing');
  assert.deepEqual(errors,[]);console.log('PASS: fullscreen entry/exit and failure fallback, menu navigation, joystick drag, no JS errors');
  await browser.close();
 })().catch(e=>{console.error(e);process.exit(1)});

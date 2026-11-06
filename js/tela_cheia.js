@@ -1,26 +1,19 @@
 'use strict';
 (() => {
- const button=document.createElement('button');button.id='fullscreenToggle';button.type='button';
- button.innerHTML='<span aria-hidden="true">⛶</span><span class="fullscreen-label">Tela cheia</span>';
- button.setAttribute('aria-label','Entrar em tela cheia');button.title='Entrar em tela cheia';
- const status=document.createElement('div');status.id='fullscreenStatus';status.setAttribute('role','status');status.hidden=true;
- document.body.append(button,status);
- const show=message=>{status.textContent=message;status.hidden=false;clearTimeout(show.timer);show.timer=setTimeout(()=>status.hidden=true,5500);};
+ const status=document.createElement('div');status.id='fullscreenStatus';status.setAttribute('role','status');status.hidden=true;document.body.append(status);
  const active=()=>document.fullscreenElement||document.webkitFullscreenElement;
- const sync=()=>{const on=!!active();button.setAttribute('aria-pressed',String(on));button.setAttribute('aria-label',on?'Sair da tela cheia':'Entrar em tela cheia');button.title=button.getAttribute('aria-label');button.querySelector('.fullscreen-label').textContent=on?'Sair da tela cheia':'Tela cheia';requestAnimationFrame(()=>{if(typeof resize==='function')resize();});};
- button.addEventListener('click',async()=>{
-  try{
-   if(active()){const exit=document.exitFullscreen||document.webkitExitFullscreen;await exit.call(document);}
-   else{
-    const root=document.documentElement,request=root.requestFullscreen||root.webkitRequestFullscreen;
-    if(!request){show('Este navegador não oferece tela cheia. Use “Adicionar à Tela de Início” no menu do navegador.');return;}
-    await request.call(root);
-    // Orientation locking is optional and unsupported on some phones.
-    if(screen.orientation?.lock)try{await screen.orientation.lock('landscape');}catch{}
-   }
-  }catch{show('Não foi possível ativar a tela cheia. Tente novamente pelo botão ou pelo menu do navegador.');}
-  sync();
- });
- document.addEventListener('fullscreenchange',sync);document.addEventListener('webkitfullscreenchange',sync);
- window.visualViewport?.addEventListener('resize',sync);window.addEventListener('orientationchange',sync);sync();
+ const show=message=>{status.textContent=message;status.hidden=false;clearTimeout(show.timer);show.timer=setTimeout(()=>status.hidden=true,4200);};
+ async function lockLandscape(){if(screen.orientation?.lock)try{await screen.orientation.lock('landscape');}catch{}}
+ async function enter(){
+  if(active()){await lockLandscape();return true;}
+  const root=document.documentElement,request=root.requestFullscreen||root.webkitRequestFullscreen;if(!request)return false;
+  try{await request.call(root);await lockLandscape();requestAnimationFrame(()=>typeof resize==='function'&&resize());return true;}catch{return false;}
+ }
+ const firstGesture=async()=>{const ok=await enter();if(!ok&&matchMedia('(pointer:coarse)').matches)show('Use a opção “Tela cheia” do navegador para aproveitar toda a arena.');};
+ document.addEventListener('pointerdown',firstGesture,{once:true,capture:true});
+ document.addEventListener('fullscreenchange',()=>requestAnimationFrame(()=>typeof resize==='function'&&resize()));
+ document.addEventListener('webkitfullscreenchange',()=>requestAnimationFrame(()=>typeof resize==='function'&&resize()));
+ window.visualViewport?.addEventListener('resize',()=>requestAnimationFrame(()=>typeof resize==='function'&&resize()));
+ window.addEventListener('orientationchange',()=>{lockLandscape();requestAnimationFrame(()=>typeof resize==='function'&&resize());});
+ window.eldoriaDisplay={enter,lockLandscape,get fullscreen(){return !!active();}};
 })();

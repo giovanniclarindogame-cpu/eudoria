@@ -22,7 +22,7 @@ const assert=require('node:assert/strict');
  await page.locator('#heroSearch').fill('xyz');assert.equal(await page.locator('.hero-card').count(),0);assert.ok(await page.locator('.empty-roster').isVisible());
  await page.locator('#heroSearch').fill('');await page.locator('#heroGrid [data-hero-open="8"]').click();await page.locator('[data-hero-skill="5"]').click();assert.ok((await page.locator('#heroSkillCopy').textContent()).includes('Cosmo'));
  await page.locator('[data-hero-confirm]').click();assert.equal(await page.evaluate(()=>arenaQA.account.activeChampion),8);
- await nav('library');await page.locator('#heroGrid [data-hero-open="9"]').click();assert.ok((await page.locator('#heroDetail h1').textContent()).includes('Alquimista'));await page.locator('[data-hero-back]').click();
+ await nav('library');await page.locator('#heroGrid [data-hero-open="9"]').click();assert.ok((await page.locator('#heroDetail h1').textContent()).includes('Alquimista'));await page.locator('#lobbyNav [data-nav="library"]').click();
  await nav('training');await page.locator('#setupDummy').selectOption('guard');await page.locator('[data-practice-free]').check();await page.locator('[data-progression="training"]').click();
  await page.waitForFunction(()=>['count','fight'].includes(arenaQA.state));assert.deepEqual(await page.evaluate(()=>({...arenaQA.progression.options})),{dummy:'guard',free:true});
  await page.evaluate(()=>arenaQA.begin());await page.locator('#pauseBtn').click();await page.locator('#pause .simple-extra summary').click();assert.ok(await page.locator('#pause .simple-extra p').isVisible());await page.locator('#pause .simple-extra summary').click();
@@ -31,7 +31,7 @@ const assert=require('node:assert/strict');
  await page.evaluate(()=>{arenaQA.leave();showScreen('home')});await page.locator('#lobbyNav [data-open-modes]').click();await page.locator('[data-arena-mode="draft"]').click();assert.equal(await page.locator('[data-draft-pick]').count(),10);await page.locator('[data-draft-pick="7"]').click();await page.waitForFunction(()=>['count','fight'].includes(arenaQA.state));assert.equal(await page.evaluate(()=>arenaQA.player.skin),7);
  await page.evaluate(()=>{arenaQA.leave();showScreen('home')});await page.locator('#openLobbySettings').click();assert.equal(await page.locator('#lobbySettings h2').textContent(),'Configurações');await page.locator('#doneLobbySettings').click();
  await page.evaluate(()=>openProfile());await page.locator('#profileName').fill('Novo nome');await page.locator('#profileForm button[type=submit]').click();assert.equal(await page.evaluate(()=>arenaQA.account.profile.name),'Novo nome');
- await page.setViewportSize({width:390,height:844});for(const screen of ['training','league','library']){await nav(screen);assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'portrait overflow '+screen);}
+ await page.setViewportSize({width:390,height:844});assert.equal(await page.locator('#landscapeGate').evaluate(el=>getComputedStyle(el).display),'grid');
  assert.deepEqual(errors,[]);console.log('PASS search, champion details/select, training options/pause, league, draft choice, settings, profile and portrait fallback');
  await browser.close();
 })().catch(e=>{console.error(e);process.exit(1)});
