@@ -21,6 +21,12 @@ body.hero-detail-open #heroDetail [data-hero-back]{display:none}body.hero-detail
 .royal-header{padding-right:max(12px,env(safe-area-inset-right))!important}.royal-header .royal-settings{flex-shrink:0;min-width:36px;min-height:36px}
 #pause .pause-fullscreen{width:44px;height:44px;padding:10px;margin:8px auto}.pause-fullscreen svg{width:100%;height:100%}
 #battle #toast{display:none!important}
+#heroDetail.ninja-detail{background:#071b26 url('../assets/ninja_v22/background.webp') center/cover no-repeat}
+.ninja-detail.simple-detail .hero-detail-inner{background:linear-gradient(90deg,#04111c22,#04111c99)}
+.ninja-detail.simple-detail .hero-stage{background:none}
+.ninja-detail .hero-halo{display:none}
+.ninja-detail .hero-heading,.ninja-detail .simple-kit-heading{text-shadow:0 2px 5px #000}
+.ninja-detail.simple-detail .hero-skill-copy{background:#041923e8;border-color:#8bb9d077}
 /* Training scenery belongs only to the content panel, outside the navigation rail. */
 body[data-screen=training] #trainingScreen.app-screen{background:linear-gradient(90deg,#03191440,#03191488),url('../assets/dojo_v21/interior.webp') center/cover no-repeat}
 #trainingScreen .simple-header{background:linear-gradient(90deg,#031914c9,#03191455);border-radius:10px;padding:12px 16px;text-shadow:0 2px 5px #000}

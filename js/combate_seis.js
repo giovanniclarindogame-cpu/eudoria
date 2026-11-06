@@ -20,7 +20,7 @@ enemy=function(a){const choices=originalOpponents(a);if(a!==p){const clone=objec
 const originalReason=rwResourceReason;
 rwResourceReason=function(a,slot){if(a.skin>=6)return originalReason(a,slot);const s=reworkState(a);
  if(a.skin===0){const cost=[10,18,20,8,0,35][slot];if(s.value<cost)return cost+' KI';}
- if(a.skin===1){if(slot===3&&!originalClone(a)&&!originalSwapShot(a))return 'Sem alvo';if(slot===4&&s.eye>0&&!s.copy)return 'Olho aberto';}
+ if(a.skin===1){if(slot===4&&s.eye>0&&!s.copy)return 'Olho aberto';}
  if(a.skin===2){const cost=[0,0,15,0,40,70][slot];if(s.value<cost)return cost+' PRE';if(slot===4&&s.spiritForm>0)return 'Ativo';}
  if(a.skin===3){if(slot===5&&s.value<50)return '50 CHA';if(slot===4&&s.breathing>0)return 'Ativo';}
  if(a.skin===4&&slot===4&&!s.barrier){if(s.barrierBroken>0)return 'Quebrada';if(s.barrierEnergy<50)return '50 BAR';}
@@ -195,7 +195,7 @@ hit=function(target,amount,owner,knock=0,angle=0,id=-1){
   if(target.skin===0)originalGainKi(target,Math.min(5,lost*.04));if(owner.skin===0)originalGainKi(owner,id<0?6:2);
   if(owner.skin===2&&(id<0||[0,1].includes(skills[id]?.slot)))os.value=Math.min(100,os.value+14);
   if(owner.skin===3){os.value=Math.min(100,os.value+15);os.lastGain=clock;originalBurn(target,owner,skills[id]?.slot===5?4:1);}
-  if(target.skin===1&&ts.eye>0&&special&&!owner.copySource){ts.copy={id};ts.eye=0;target.cd[target.kit[4]]=0;rwFx(target,4,target.x,target.y,'copied',.6,{size:80});if(target===p)toast('Copiado: '+skills[id].name+' · use 5');}
+  if(target.skin===1&&ts.eye>0&&special&&!skills[id].ultimate&&!owner.copySource){ts.copy={id};ts.eye=0;target.cd[target.kit[4]]=0;rwFx(target,4,target.x,target.y,'copied',.6,{size:80});if(target===p)toast('Copiado: '+skills[id].name+' · use 5');}
   if(target.skin===5&&target.rwCast?.holding){rwCancelCharge(target);target.cd[target.kit[0]]=1;if(target===p)toast('Carga interrompida');}
  }return result;
 };
@@ -214,8 +214,8 @@ step=function(dt){const active=state==='fight',generation=Reforged.generation;or
   if(a.skin===4&&!s.barrier&&s.barrierBroken<=0&&clock-s.barrierHit>3)s.barrierEnergy=Math.min(240,s.barrierEnergy+24*dt);
  }
  for(const o of objects){if(o.life<=0)continue;
-  if(o.v10Clone){o.age+=dt;o.cd-=dt;const t=opponents(o.owner).filter(e=>e.hp>0).sort((u,v)=>dist(o,u)-dist(o,v))[0];if(!t)continue;o.a=Math.atan2(t.y-o.y,t.x-o.x);o.moving=dist(o,t)>65;if(o.moving)move(o,Math.cos(o.a)*150*dt,Math.sin(o.a)*150*dt);if(o.cd<=0&&dist(o,t)<95&&o.attacks<3&&rwVisible(o,t)){o.attacks++;o.cd=.65;o.punchTime=.22;hit(t,22,o.owner,3,o.a,o.owner.kit[1]);rwFx(o.owner,0,t.x,t.y,'impact',.3,{size:65});}o.punchTime=Math.max(0,o.punchTime-dt);}
-  if(o.v10Trap){o.age+=dt;const t=opponents(o.owner).find(t=>t.hp>0&&dist(t,o)<o.r+t.r);if(t){if(hit(t,55,o.owner,0,0,o.owner.kit[2])){t.root=Math.max(t.root,1.2);rwCancelCharge(t);}rwFx(o.owner,2,o.x,o.y,'trap-fire',.85,{size:140});o.life=0;}}
+  if(o.v10Clone&&!o.ninja22){o.age+=dt;o.cd-=dt;const t=opponents(o.owner).filter(e=>e.hp>0).sort((u,v)=>dist(o,u)-dist(o,v))[0];if(!t)continue;o.a=Math.atan2(t.y-o.y,t.x-o.x);o.moving=dist(o,t)>65;if(o.moving)move(o,Math.cos(o.a)*150*dt,Math.sin(o.a)*150*dt);if(o.cd<=0&&dist(o,t)<95&&o.attacks<3&&rwVisible(o,t)){o.attacks++;o.cd=.65;o.punchTime=.22;hit(t,22,o.owner,3,o.a,o.owner.kit[1]);rwFx(o.owner,0,t.x,t.y,'impact',.3,{size:65});}o.punchTime=Math.max(0,o.punchTime-dt);}
+  if(o.v10Trap&&!o.ninja22){o.age+=dt;const t=opponents(o.owner).find(t=>t.hp>0&&dist(t,o)<o.r+t.r);if(t){if(hit(t,55,o.owner,0,0,o.owner.kit[2])){t.root=Math.max(t.root,1.2);rwCancelCharge(t);}rwFx(o.owner,2,o.x,o.y,'trap-fire',.85,{size:140});o.life=0;}}
   if(o.v10Domain){o.age+=dt;o.cd-=dt;for(const t of opponents(o.owner))if(t.hp>0&&dist(t,o)<=o.r&&rwVisible(o,t)){t.root=Math.max(t.root,.12);reworkState(t).domainLock=.15;rwCancelCharge(t);if(o.cd<=0)hit(t,20,o.owner,0,0,o.owner.kit[5]);}if(o.cd<=0)o.cd=1;}
  }
  for(const e of OriginalCombat.burns){e.remaining-=dt;e.tick-=dt;if(e.remaining>0&&e.target.hp>0&&e.owner.hp>0&&e.tick<=0){e.tick=.5;originalDot=true;try{hit(e.target,e.stacks*3,e.owner,0,0,e.owner.kit[0]);}finally{originalDot=false;}}}

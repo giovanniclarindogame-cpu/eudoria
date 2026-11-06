@@ -1,0 +1,22 @@
+const{chromium}=require('playwright'),assert=require('node:assert/strict');
+(async()=>{const browser=await chromium.launch({executablePath:'/usr/bin/chromium',args:['--no-sandbox']});try{const page=await browser.newPage({viewport:{width:844,height:390},hasTouch:true}),errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('http://127.0.0.1:8000');await page.waitForFunction(()=>window.arenaQA&&!document.querySelector('#integrationLoading'));await page.locator('#welcomeEnter').click();await page.locator('#profileName').fill('Ninja');await page.locator('#profileForm button[type=submit]').click();
+ await page.evaluate(async()=>{await Promise.all(Object.values(NINJA22_ART).map(i=>i.decode()));window.ninjaSetup=()=>{state='paused';equipChampion(1,false);beginProgression('training');arenaQA.begin();practiceOptions.free=false;practiceOptions.dummy='still';pillars=[];objects=[];p.x=400;p.y=300;b.x=470;b.y=300;p.inv=b.inv=0;b.hp=b.max=10000;};window.advance=t=>{for(let i=0;i<Math.ceil(t*240);i++)step(1/240);};});
+ await page.evaluate(()=>{const check=(x,m)=>{if(!x)throw Error(m)};
+ ninjaSetup();check(cast(p,p.kit[0],0),'first cut');advance(.2);check(p.hits===1,'first hit');check(cast(p,p.kit[0],0),'followup input');advance(.5);check(p.hits===2,'return cut');check(!cast(p,p.kit[0],0),'no third cut');
+ ninjaSetup();b.x=800;cast(p,p.kit[0],0);advance(.5);check(!cast(p,p.kit[0],0),'miss has no followup');
+ ninjaSetup();b.x=580;cast(p,p.kit[1],0);advance(.3);const clone=originalClone(p),x=clone.x;advance(.3);check(clone.x>x,'clone runs');advance(2);check(p.hits===1&&!originalClone(p),'clone hits once and vanishes');
+ ninjaSetup();cast(p,p.kit[2],0);advance(.4);check(p.hits===0,'trap needs arming');advance(.5);check(p.hits===1&&b.root>0,'trap fires and roots');
+ ninjaSetup();const start=p.x;cast(p,p.kit[3],0);advance(.5);check(p.x<start-70,'fallback dodge backward');
+ ninjaSetup();b.x=1000;cast(p,p.kit[1],0);advance(.7);const c=originalClone(p);const cx=c.x,px=p.x;cast(p,p.kit[3],0);advance(.09);check(Math.abs(p.x-cx)<20&&Math.abs(c.x-px)<10,'swap clone');
+ ninjaSetup();reworkState(p).eye=4;hit(p,20,b,0,0,CHAMPIONS[0].kit[5]);check(!reworkState(p).copy,'ultimate not copied');p.inv=0;hit(p,20,b,0,0,CHAMPIONS[0].kit[0]);check(reworkState(p).copy&&p.hp<p.max,'copy costs received damage');p.cd[p.kit[4]]=0;cast(p,p.kit[4],0);advance(.4);check(!reworkState(p).copy&&p.skin===1,'copy consumed, model preserved');
+ ninjaSetup();b.x=600;reworkState(p).copy={id:CHAMPIONS[0].kit[0]};cast(p,p.kit[5],0);advance(1.4);check(p.hits===1&&p.damage>=300&&!reworkState(p).copy,'ultimate contact bonus');
+ ninjaSetup();b.y=500;const before=p.x;cast(p,p.kit[5],0);advance(1.4);check(p.hits===0&&p.x>before,'ultimate misses off-axis target');
+ });
+ await page.evaluate(()=>{ninjaSetup();updateUI()});
+ await page.locator('#equipped button').nth(0).tap();
+ await page.waitForFunction(()=>p.hits===1);
+ await page.locator('#equipped button').nth(0).tap();
+ await page.waitForFunction(()=>p.hits===2);
+ await page.evaluate(()=>{state='paused';arenaQA.showScreen('library');openChampionDetails(1)});await page.waitForTimeout(300);await page.screenshot({path:'/tmp/ninja22-detail.png'});
+ for(const [slot,t]of [[0,.2],[1,.55],[2,.6],[3,.14],[4,.4],[5,.55]]){await page.evaluate(({slot,t})=>{closeHeroDetail();ninjaSetup();b.x=600;cast(p,p.kit[slot],0);advance(t);state='paused';draw()},{slot,t});await page.screenshot({path:`/tmp/ninja22-${slot}.png`});}
+ assert.deepEqual(errors,[]);console.log('PASS cuts hit/miss, clone run/single attack, trap arming, swap/fallback, copy exclusion/consumption, ultimate contact/miss, six renders');}finally{await browser.close()}})().catch(e=>{console.error(e);process.exit(1)});

@@ -207,7 +207,6 @@ integratedDepth=function(){const all=objects;let list;objects=all.filter(o=>!o.v
   if(a.skin===0&&q?.slot===2&&(q.holding||q.age<q.release))list.push({y:a.y+.5,priority:3,paint:()=>paintWaveCharge(ctx,a,q)});
   else if(q?.holding&&!(a.skin===0&&q.slot===4))list.push({y:a.y+.5,priority:3,paint:()=>rwSprite(ctx,a.skin,q.slot,a.x+Math.cos(q.angle)*27,a.y-30,60+q.charge*60,.08+q.charge*.25,q.angle,true)});
   if(s.spiritForm>0||s.breathing>0||s.instinct>0)list.push({y:a.y-.3,priority:0,paint:()=>rwSprite(ctx,a.skin,4,a.x,a.y-32,115,.25+(vfxTime*.5%1)*.4,0,false,.55)});
-  if(a.skin===1&&(s.eye>0||s.copy))list.push({y:a.y+.2,priority:3,paint:()=>rwSprite(ctx,1,4,a.x+27,a.y-49,48,.3+(vfxTime*.3%1)*.25)});
   if(s.barrier)list.push({y:a.y+.3,priority:3,paint:()=>rwSprite(ctx,4,4,a.x,a.y-28,135,.27+(vfxTime*.25%1)*.3,0,false,.38)});
  }
  for(const e of OriginalCombat.burns)if(e.remaining>0&&e.target.hp>0)list.push({y:e.target.y+.4,priority:4,paint:()=>rwSprite(ctx,3,0,e.target.x,e.target.y-12,38+e.stacks*4,.35+(vfxTime*.9%1)*.2,0,false,.75)});
