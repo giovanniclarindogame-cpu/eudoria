@@ -82,7 +82,7 @@ const originalRelease=rwRelease;
 // Shared by damage and rendering: the ray starts at the extended hands.
 function astralWaveOrigin(a,angle){
  const d=astralDirection(angle);
- return {x:a.x+(d.name==='side'?36*d.flip:0),y:a.y+(d.name==='front'?11:d.name==='back'?-5:0)};
+ return {x:a.x+(d.name==='side'?44*d.flip:0),y:a.y+(d.name==='front'?11:d.name==='back'?-5:0)};
 }
 function astralWavePath(a,angle,range){
  const from=astralWaveOrigin(a,angle),to=rwEnd(from,angle,Math.max(0,range-dist(a,from)));
@@ -102,11 +102,19 @@ rwRelease=function(a,q){if(a.skin>=6)return originalRelease(a,q);const s=reworkS
    });
   }
   if(slot===1){
-   if(!originalComboBlink(a,angle,260))return;const target=enemy(a),hits=4+stage*2;
-   for(let i=0;i<hits;i++)rwLater(a,q.comboTimes?q.comboTimes[i]-q.release:.14+i*.12,()=>{
+   const hits=4+stage*2;q.comboDashing=true;
+   rwDash(a,angle,260,.24,()=>{
+   q.comboDashing=false;const target=q.comboTarget;
+   if(!target){q.duration=q.age+.12;a.cast=a.skillLock=.12;return;}
+   q.comboStart=q.age+.06;q.comboTimes=Array.from({length:hits},(_,i)=>q.comboStart+i*(.15-stage*.015)+(i===hits-1?.09:0));q.duration=q.comboTimes.at(-1)+.2;a.cast=a.skillLock=q.duration-q.age;
+   for(let i=0;i<hits;i++)rwLater(a,q.comboTimes[i]-q.age,()=>{
     if(!a.copySource&&a.rwCast!==q||!target||target.hp<=0)return;const an=Math.atan2(target.y-a.y,target.x-a.x),last=i===hits-1;q.angle=an;q.comboFrame=i;a.a=an;a.astralFacing=an;
     if(dist(a,target)<=95+target.r&&rwVisible(a,target)&&hit(target,15+stage*3,a,last?35:1,an,a.kit[slot]))rwFx(a,slot,target.x,target.y,'wave-impact',last?.28:.13,{size:last?68:36,angle:an,hitIndex:i});
    });
+   },{slot,onStep(from){const dash=Reforged.dashes.find(d=>d.owner===a);if(!dash)return;
+    const target=opponents(a).find(t=>t.hp>0&&lineDistance(t.x,t.y,from.x,from.y,a.x+Math.cos(angle)*26,a.y+Math.sin(angle)*26)<a.r+t.r+4&&rwVisible(a,t));
+    if(target){q.comboTarget=target;dash.finished=true;}
+   }});
   }
   if(slot===2){
    const range=380+stage*60,ticks=6+stage*2,charge=q.charge||0,total=(90+150*charge)*(1+stage*.2),width=18+stage*8+charge*15;

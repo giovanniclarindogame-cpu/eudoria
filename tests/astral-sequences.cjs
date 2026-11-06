@@ -6,7 +6,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict');
   await page.goto('http://127.0.0.1:8000');await page.waitForFunction(()=>window.originalCombatQA&&!document.querySelector('#integrationLoading'));await page.locator('#welcomeEnter').click();
   await page.locator('#profileName').fill('Astral');await page.locator('#profileForm button[type=submit]').click();
   await page.evaluate(async()=>{
-   await Promise.all(Object.values(ASTRAL14_ART).map(im=>im.decode()));
+   await Promise.all([...Object.values(ASTRAL14_ART),ASTRAL18_SOLAR].map(im=>im.decode()));
    window.astralTestSetup=(stage=0,angle=0)=>{state='paused';equipChampion(0,false);beginProgression('training');arenaQA.begin();practiceOptions.dummy='still';practiceOptions.free=false;objects=[];pillars=[];p.x=500;p.y=340;p.a=angle;b.x=500+Math.cos(angle)*180;b.y=340+Math.sin(angle)*180;b.hp=b.max=10000;p.inv=b.inv=0;Object.assign(reworkState(p),{stage,value:[35,60,100][stage]});};
    window.astralTestAdvance=t=>{for(let i=0;i<Math.ceil(t*240);i++)step(1/240)};
   });
@@ -17,6 +17,10 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict');
     while(p.rwCast){step(1/240);poses.add(astral14Pose(q));}
     check(p.hits===4+stage*2,'one damage event per punch');check(poses.has(1)&&poses.has(4)&&poses.has(2)&&poses.has(5),'both arms extend and retract');check(Math.abs(b.x-p.x)>75,'last punch knocks away');counts.push(p.hits);
    }
+   astralTestSetup();b.x=950;const startX=p.x,ki=reworkState(p).value;cast(p,p.kit[1],0);astralTestAdvance(.2);check(p.x>startX&&p.x<startX+100,'dash travels continuously');astralTestAdvance(.6);check(p.hits===0&&!p.rwCast&&reworkState(p).value<ki-17,'miss spends Ki without combo');
+   astralTestSetup();b.y+=160;cast(p,p.kit[1],0);astralTestAdvance(1);check(p.hits===0,'dash never snaps to off-axis enemy');
+   astralTestSetup();pillars=[{x:570,y:340,r:20}];cast(p,p.kit[1],0);astralTestAdvance(1);check(p.x<550&&p.hits===0,'dash blocked by obstacle');
+   for(const slot of [1,3,4,5]){astralTestSetup();const calls=[],g={save(){},restore(){},scale(){},drawImage(...args){calls.push(args)}};astral14Body(g,p,72,{slot,angle:0,age:.2,release:1,comboTimes:[]});check(calls[0][0]===astralImages['cast-side'],'all techniques use canonical fighter source');check(calls[0][8]===66*72/64,'body scale stays consistent');}
    astralTestSetup(2);cast(p,p.kit[1],0);astralTestAdvance(.45);cast(p,p.kit[3],Math.PI);const damage=p.damage;astralTestAdvance(1.5);check(p.damage===damage,'step cancels combo hits');
    astralTestSetup();b.x=900;const x=p.x;cast(p,p.kit[3],0);astralTestAdvance(.05);check(p.x===x&&astral14Pose(p.rwCast)>=8,'forehead pose before moving');astralTestAdvance(.04);check(p.x>x+140,'instant movement');check(Reforged.effects.some(e=>e.kind==='astral-depart')&&Reforged.effects.some(e=>e.kind==='astral-arrive'),'distinct exit and arrival');astralTestAdvance(.2);check(!p.rwCast,'step finishes in quarter second');
    astralTestSetup();pillars=[{x:570,y:340,r:20}];cast(p,p.kit[3],0);astralTestAdvance(.3);check(p.x<550,'blink stops before wall');

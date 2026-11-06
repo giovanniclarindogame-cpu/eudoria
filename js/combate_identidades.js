@@ -224,7 +224,8 @@ step=function(dt){
  const due=[];for(const task of Reforged.tasks){task.remaining-=dt;if(task.remaining<=0)due.push(task);}Reforged.tasks=Reforged.tasks.filter(t=>t.remaining>0);for(const task of due)if(task.owner.hp>0)task.fn();
  for(const d of Reforged.dashes){if(d.owner.hp<=0){d.finished=true;continue;}d.age+=dt;const distance=Math.min(d.distance-d.travel,d.distance/d.duration*dt),from={x:d.owner.x,y:d.owner.y};const collided=move(d.owner,Math.cos(d.angle)*distance,Math.sin(d.angle)*distance);d.travel+=dist(from,d.owner);
   if(d.pierce)for(const target of opponents(d.owner))if(!d.hit.has(target)&&lineDistance(target.x,target.y,from.x,from.y,d.owner.x,d.owner.y)<38){d.hit.add(target);if(hit(target,d.damage,d.owner,0,d.angle,d.owner.kit[d.slot]))reworkState(target).exposed=d.exposed;}
-  if(collided||d.age>=d.duration||d.travel>=d.distance-1){d.finished=true;if(d.done)d.done();}
+  if(d.onStep)d.onStep(from);
+  if(d.finished||collided||d.age>=d.duration||d.travel>=d.distance-1){d.finished=true;if(d.done)d.done();}
  }
  Reforged.dashes=Reforged.dashes.filter(d=>!d.finished);
  for(const e of Reforged.projectiles)rwAdvanceProjectile(e,dt);Reforged.projectiles=Reforged.projectiles.filter(e=>e.life>0);

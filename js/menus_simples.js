@@ -20,6 +20,7 @@ renderSelection=function(){
 const simpleChampionDetail=openChampionDetails;
 openChampionDetails=function(id){
  simpleChampionDetail(id);const el=$('#heroDetail');if(!el)return;
+ el.classList.toggle('astral-detail',Number(id)===0);
  el.classList.add('simple-detail');el.querySelectorAll('.hero-info,.hero-story,.hero-unlocked,.hero-stage-label,.hero-sigil').forEach(e=>e.remove());
  const heading=document.createElement('h2');heading.className='simple-kit-heading';heading.textContent='Habilidades';el.querySelector('.hero-kit').before(heading);
  el.querySelector('.hero-detail-head>span').textContent='Campeão';

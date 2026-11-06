@@ -2,7 +2,7 @@
 const ORIGINAL_REWORK_KITS=[
 {skin:0,key:'astral',resource:'Ki',style:'Ki e transformação',color:'#ffd76c',summary:'Carregue energia e troque golpes para passar de Base a Desperto e Supremo. Os efeitos evoluem com o estágio.',skills:[
 ['Rajada de Ki','De 3 a 7 esferas conforme o estágio. Gasta 10 Ki. No Supremo, as últimas esferas explodem em uma pequena área.',3,470,.18,.8,'volley'],
-['Combo Relâmpago','Teleporta ao lado do alvo e desfere de 4 a 8 golpes conforme o estágio. Gasta 18 Ki; obstáculos impedem o teleporte.',6,260,.15,.95,'combo'],
+['Combo Relâmpago','Avança com o punho à frente. Ao alcançar um inimigo, desfere de 4 a 8 socos conforme o estágio. Se errar, perde os 18 Ki e encerra o avanço. Obstáculos bloqueiam o dash.',6,260,.15,.95,'combo'],
 ['Onda Concentrada','Segure 3 por até 1,5s e solte: feixe de 90 a 240 de dano, mais forte e largo nos estágios altos. Gasta 20 Ki; alcance de 380 a 500.',7,500,.2,1.05,'beam'],
 ['Passo Instantâneo','Teleporte curto de 150 a 210 conforme o estágio. Gasta 8 Ki e cancela a animação atual, inclusive cargas. Breve invulnerabilidade na saída.',5,210,.075,.25,'teleport'],
 ['Carregar Aura','Segure 5 para recuperar 30 Ki por segundo. Com 40 Ki desperta; com 80 chega ao Supremo. Fica parado e recebe 20% mais dano durante a carga.',1,0,.1,.4,'aura'],

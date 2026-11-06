@@ -60,3 +60,11 @@ body[data-screen=library]:not(.hero-detail-open) #fullscreenToggle{top:14px;left
 .simple-roster .hero-card-art img{width:100%;height:100%;left:0;top:0;object-fit:contain;padding:5px 3px 34px}
 @media(orientation:landscape){body[data-screen=library]:not(.hero-detail-open):not(:has(#battle[style*="display: block"])) #fullscreenToggle{top:14px!important;left:76px!important;right:auto!important}}
 @media(orientation:portrait){body[data-screen=home] #lobbyNav.royal-nav{grid-template-columns:repeat(6,1fr)}body[data-screen=home] #lobbyNav.royal-nav button:nth-of-type(n+5){display:flex}}
+/* Astral lookout fills the detail page; quiet panels preserve skill readability. */
+#heroDetail.astral-detail{background:#173b49 url('../assets/astral_v18/lookout.webp') center/cover no-repeat}
+.astral-detail.simple-detail .hero-detail-inner{background:linear-gradient(90deg,#03161a25,#03161a55 46%,#03161aa8)}
+.astral-detail.simple-detail .hero-stage{background:none;overflow:visible}
+.astral-detail .hero-halo{display:none}
+.astral-detail.simple-detail .hero-stage>img{height:98%;width:100%;image-rendering:auto;filter:drop-shadow(0 8px 8px #00182080)}
+.astral-detail .hero-heading,.astral-detail .simple-kit-heading{text-shadow:0 2px 5px #00171c}
+.astral-detail.simple-detail .hero-skill-copy{background:#03191fe8;border-color:#adcac866}
