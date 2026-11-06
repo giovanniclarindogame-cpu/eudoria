@@ -12,7 +12,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),shar
  try{
   const page=await browser.newPage({viewport:{width:1280,height:720}}),errors=[];
   page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.status()>=400&&!r.url().endsWith('favicon.ico'))errors.push(r.status()+' '+r.url())});
-  await page.goto('http://127.0.0.1:8000');await page.waitForFunction(()=>window.originalCombatQA&&!document.querySelector('#integrationLoading'));
+  await page.goto('http://127.0.0.1:8000');await page.waitForFunction(()=>window.originalCombatQA&&!document.querySelector('#integrationLoading'));await page.locator('#welcomeEnter').click();
   await page.locator('#profileName').fill('Onda');await page.locator('#profileForm button[type=submit]').click();
   await page.evaluate(async()=>{
    await Promise.all(Object.values(ASTRAL_WAVE_ART).map(im=>im.decode()));

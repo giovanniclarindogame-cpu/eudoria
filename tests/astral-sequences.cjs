@@ -3,7 +3,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict');
  const browser=await chromium.launch({executablePath:'/usr/bin/chromium',args:['--no-sandbox']});
  try{
   const page=await browser.newPage({viewport:{width:1280,height:720}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
-  await page.goto('http://127.0.0.1:8000');await page.waitForFunction(()=>window.originalCombatQA&&!document.querySelector('#integrationLoading'));
+  await page.goto('http://127.0.0.1:8000');await page.waitForFunction(()=>window.originalCombatQA&&!document.querySelector('#integrationLoading'));await page.locator('#welcomeEnter').click();
   await page.locator('#profileName').fill('Astral');await page.locator('#profileForm button[type=submit]').click();
   await page.evaluate(async()=>{
    await Promise.all(Object.values(ASTRAL14_ART).map(im=>im.decode()));

@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
  const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||'/usr/bin/chromium',args:['--no-sandbox']});
  const page=await browser.newPage({viewport:{width:1280,height:720}}),errors=[];
  page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.status()>=400)errors.push(r.status()+' '+r.url())});
- await page.goto('http://127.0.0.1:8000');await page.waitForFunction(()=>window.arenaQA&&!document.querySelector('#integrationLoading'));
+ await page.goto('http://127.0.0.1:8000');await page.waitForFunction(()=>window.arenaQA&&!document.querySelector('#integrationLoading'));await page.locator('#welcomeEnter').click();
  await page.locator('#profileName').fill('Giovanni');await page.locator('#profileForm button[type=submit]').click();
  await page.evaluate(()=>{arenaQA.champions.equip(1,false);arenaQA.showScreen('home');});
  for(const viewport of [{width:1280,height:720},{width:844,height:390},{width:740,height:360},{width:667,height:375}]){

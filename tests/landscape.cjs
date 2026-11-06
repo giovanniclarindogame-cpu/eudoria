@@ -5,6 +5,10 @@ const assert=require('node:assert/strict');
  const page=await browser.newPage({viewport:{width:844,height:390},hasTouch:true});
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto('http://127.0.0.1:8000');await page.waitForFunction(()=>window.arenaQA&&!document.querySelector('#integrationLoading'));
+ assert.equal(await page.locator('#welcomeScreen h1').textContent(),'Bem-vindo à Eldoria Arena');
+ assert.equal(await page.evaluate(()=>!!document.fullscreenElement),false,'fullscreen started before user gesture');
+ await page.locator('#welcomeEnter').click();await page.waitForFunction(()=>!document.querySelector('#welcomeScreen'));
+ assert.equal(await page.evaluate(()=>!!document.fullscreenElement),true,'enter did not activate fullscreen');
  async function accessible(selector){return page.locator(selector).evaluate(el=>{const r=el.getBoundingClientRect();return r.width>=30&&r.height>=30&&r.left>=0&&r.top>=0&&r.right<=innerWidth+1&&r.bottom<=innerHeight+1&&el.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));});}
  assert.ok(await accessible('#profileForm button[type=submit]'),'profile submit clipped');
  await page.locator('#profileName').fill('Teste horizontal');await page.locator('#profileForm button[type=submit]').click();

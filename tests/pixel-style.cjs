@@ -1,7 +1,7 @@
 const{chromium}=require('playwright');const assert=require('node:assert/strict');
 (async()=>{
  const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||'/usr/bin/chromium',args:['--no-sandbox']});const page=await browser.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
- await page.goto('http://127.0.0.1:8000');await page.waitForFunction(()=>window.arenaPixelQA&&!document.querySelector('#integrationLoading'));await page.locator('#profileName').fill('Pixel');await page.locator('#profileForm button[type=submit]').click();
+ await page.goto('http://127.0.0.1:8000');await page.waitForFunction(()=>window.arenaPixelQA&&!document.querySelector('#integrationLoading'));await page.locator('#welcomeEnter').click();await page.locator('#profileName').fill('Pixel');await page.locator('#profileForm button[type=submit]').click();
  await page.evaluate(async()=>{for(let skin=6;skin<10;skin++)reworkPreload(skin);await Promise.all([...REWORK_ART.values()].map(im=>im.decode()));});
  const result=await page.evaluate(()=>{
   const cv=document.createElement('canvas');cv.width=cv.height=320;const g=cv.getContext('2d'),reports=[];

@@ -9,8 +9,7 @@
   const root=document.documentElement,request=root.requestFullscreen||root.webkitRequestFullscreen;if(!request)return false;
   try{await request.call(root);await lockLandscape();requestAnimationFrame(()=>typeof resize==='function'&&resize());return true;}catch{return false;}
  }
- const firstGesture=async()=>{const ok=await enter();if(!ok&&matchMedia('(pointer:coarse)').matches)show('Use a opção “Tela cheia” do navegador para aproveitar toda a arena.');};
- document.addEventListener('pointerdown',firstGesture,{once:true,capture:true});
+ document.addEventListener('eldoria-fullscreen-fallback',()=>show('Use a opção “Tela cheia” do navegador para aproveitar toda a arena.'));
  document.addEventListener('fullscreenchange',()=>requestAnimationFrame(()=>typeof resize==='function'&&resize()));
  document.addEventListener('webkitfullscreenchange',()=>requestAnimationFrame(()=>typeof resize==='function'&&resize()));
  window.visualViewport?.addEventListener('resize',()=>requestAnimationFrame(()=>typeof resize==='function'&&resize()));

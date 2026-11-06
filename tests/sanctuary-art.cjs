@@ -6,7 +6,7 @@ const assert=require('node:assert/strict');
   const page=await browser.newPage({viewport:{width:1280,height:720}}),errors=[];
   page.on('pageerror',e=>errors.push(e.message));
   await page.goto('http://127.0.0.1:8000');
-  await page.waitForFunction(()=>window.arenaQA&&!document.querySelector('#integrationLoading'));
+  await page.waitForFunction(()=>window.arenaQA&&!document.querySelector('#integrationLoading'));await page.locator('#welcomeEnter').click();
   await page.locator('#profileName').fill('Santuário');
   await page.locator('#profileForm button[type=submit]').click();
   const results=await page.evaluate(async()=>{

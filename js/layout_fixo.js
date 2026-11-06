@@ -14,5 +14,16 @@ const fixedLayoutBoot=integrationBoot;
 integrationBoot=async function(){
  await fixedLayoutBoot();if(account.profile)showScreen('home');
  const form=$('#profileForm'),submit=form.onsubmit;form.onsubmit=event=>{submit(event);if(account.profile&&form.closest('#profileScreen').hidden)showScreen('home');};renderLobbyNav();
+ const enter=$('#welcomeEnter');if(enter){enter.disabled=false;enter.textContent='ENTRAR';}
 };
 const landscapeGate=document.createElement('div');landscapeGate.id='landscapeGate';landscapeGate.setAttribute('role','status');landscapeGate.innerHTML='<div><span aria-hidden="true">↻</span><strong>Gire o celular</strong><p>Eldoria foi criada para jogar na horizontal.</p></div>';document.body.appendChild(landscapeGate);
+const welcomeScreen=document.createElement('section');welcomeScreen.id='welcomeScreen';welcomeScreen.setAttribute('aria-label','Entrada de Eldoria');
+welcomeScreen.innerHTML=`<div class="welcome-panel"><div class="welcome-crest" aria-hidden="true">${royalIcon('crest')}</div><span class="welcome-eyebrow">ARENA DOS CAMPEÕES</span><h1>Bem-vindo à Eldoria Arena</h1><p>Seu próximo duelo começa aqui.</p><button id="welcomeEnter" type="button" disabled>CARREGANDO…</button></div>`;
+document.body.appendChild(welcomeScreen);
+$('#welcomeEnter').addEventListener('click',async event=>{
+ const button=event.currentTarget;button.disabled=true;button.textContent='ENTRANDO…';
+ const fullscreen=await window.eldoriaDisplay?.enter?.();
+ if(fullscreen===false&&matchMedia('(pointer:coarse)').matches)document.dispatchEvent(new CustomEvent('eldoria-fullscreen-fallback'));
+ welcomeScreen.classList.add('is-leaving');setTimeout(()=>welcomeScreen.remove(),450);
+ if(account.profile)showScreen('home');
+});
