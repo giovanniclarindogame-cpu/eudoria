@@ -7,10 +7,24 @@ CHAMPION_HEROES.astral='assets/astral_v18/portrait.webp';
 const astralPreviousChampionArt=championArt;
 championArt=c=>c.id===0?CHAMPION_HEROES.astral:astralPreviousChampionArt(c);
 const ASTRAL18_SOLAR=rwImage('assets/astral_v18/solar-fx.webp');
-function astralSolarFX(g,blast,phase,x,y,size){
- if(!ASTRAL18_SOLAR.naturalWidth)return;const f=(blast?12:0)+Math.min(11,Math.floor(phase*12));
- g.drawImage(ASTRAL18_SOLAR,f%6*256,Math.floor(f/6)*256,256,256,x-size/2,y-size/2,size,size);
+const ASTRAL19_BLAST=rwImage('assets/astral_v19/blast.webp');
+const astralEffectCells=new Map();
+function astralSoftCell(im,f){
+ const key=im.src+':'+f;if(astralEffectCells.has(key))return astralEffectCells.get(key);
+ const c=document.createElement('canvas');c.width=c.height=256;const g=c.getContext('2d');
+ g.drawImage(im,f%6*256,Math.floor(f/6)*256,256,256,0,0,256,256);
+ // Feather the transparent effect boundary, preventing atlas seams during scaling.
+ g.globalCompositeOperation='destination-in';const mask=g.createRadialGradient(128,128,86,128,128,128);mask.addColorStop(0,'#fff');mask.addColorStop(1,'#fff0');g.fillStyle=mask;g.fillRect(0,0,256,256);
+ astralEffectCells.set(key,c);return c;
 }
+function astralSolarFX(g,blast,phase,x,y,size){
+ const im=blast?ASTRAL19_BLAST:ASTRAL18_SOLAR;if(!im.naturalWidth)return;
+ const f=Math.min(blast?23:11,Math.floor(phase*(blast?24:12)));
+ g.drawImage(astralSoftCell(im,f),x-size/2,y-size/2,size,size);
+}
+const astral19PreviousIcon=icon;
+icon=function(id){const s=skills[id];return s?.reworked&&s.champion===0?`<span class="skill-art reforged-icon" aria-hidden="true" style="background-image:url('assets/astral_v19/icon-${s.slot}.webp')"></span>`:astral19PreviousIcon(id);};
+function astralAuraStyle(stage){return {filter:stage===0?'none':stage===1?'sepia(1) saturate(5) hue-rotate(350deg)':'brightness(1.5) saturate(.55)',size:[100,128,158][stage],alpha:[.5,.7,.85][stage]};}
 function astral14Cell(g,key,frame,x,y,w,h=w){
  const im=ASTRAL14_ART[key];if(!im.naturalWidth)return false;
  const f=clamp(Math.floor(frame),0,23);g.imageSmoothingEnabled=false;g.drawImage(im,f%6*128,Math.floor(f/6)*128,128,128,x,y,w,h);return true;
@@ -47,6 +61,7 @@ function paintAstral14FX(g,e){
   const size=e.size||75;
   astral14Cell(g,'blink',u*24,x-size/2,y-32-size/2,size);
  }else if(e.kind==='astral-awaken'||e.kind==='astral-aura-end'){
+  g.filter=astralAuraStyle(e.stage||0).filter;
   const ending=e.kind==='astral-aura-end',size=ending?94:80+Math.sin(u*Math.PI)*48;
   g.globalAlpha=ending?(1-u)*.55:Math.sin(u*Math.PI)*.65;
   astral14Cell(g,'aura',u*24,x-size/2,y-size*.78,size);
@@ -183,9 +198,10 @@ integratedDepth=function(){const all=objects;let list;objects=all.filter(o=>!o.v
  }
  for(const a of actors){if(a.hp<=0||a.skin>=6)continue;const s=reworkState(a),q=a.rwCast;
   if(a.skin===0&&(s.stage>0||q?.holding&&q.slot===4))list.push({y:a.y-.5,priority:0,paint:()=>{
-   const charging=q?.holding&&q.slot===4,size=charging?100+s.stage*12:82+s.stage*5;
-   ctx.save();ctx.globalAlpha=charging?.6:s.stage===2?.22:.12;
+   const charging=q?.holding&&q.slot===4,style=astralAuraStyle(s.stage),size=style.size*(charging?1:.82);
+   ctx.save();ctx.filter=style.filter;ctx.globalAlpha=charging?style.alpha:style.alpha*.6;
    astral14Cell(ctx,'aura',Math.floor(vfxTime*(charging?22:12))%24,a.x-size/2,a.y-size*.78,size);ctx.restore();
+   if(s.stage===2){ctx.save();ctx.globalAlpha=charging?.85:.5;astralSolarFX(ctx,false,(vfxTime*2)%1,a.x,a.y-45,size*.8);ctx.restore();}
   }});
   if(a.skin===0&&q?.slot===5&&q.age<q.release){list.push({y:a.y+.4,priority:4,paint:()=>paintSolarPreparation(ctx,a,q)});list.push({y:q.target.y-1,priority:0,paint:()=>paintSolarMarker(ctx,q.target.x,q.target.y,80+(q.stage||0)*35)});}
   if(a.skin===0&&q?.slot===2&&(q.holding||q.age<q.release))list.push({y:a.y+.5,priority:3,paint:()=>paintWaveCharge(ctx,a,q)});

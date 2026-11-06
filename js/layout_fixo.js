@@ -1,4 +1,9 @@
 'use strict';
+const fullscreenSymbol='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 3H3v6m12-6h6v6M3 15v6h6m12-6v6h-6"/></svg>';
+const fullscreenHomeRender=renderLobbyHome;
+renderLobbyHome=function(){fullscreenHomeRender();const settings=$('#openLobbySettings');if(settings&&!$('#restoreFullscreen'))settings.insertAdjacentHTML('afterend',`<button id="restoreFullscreen" class="royal-settings" data-enter-fullscreen aria-label="Tela cheia" title="Tela cheia">${fullscreenSymbol}</button>`);};
+const pauseFullscreen=document.createElement('button');pauseFullscreen.type='button';pauseFullscreen.dataset.enterFullscreen='';pauseFullscreen.className='pause-fullscreen';pauseFullscreen.setAttribute('aria-label','Tela cheia');pauseFullscreen.innerHTML=fullscreenSymbol;$('#pause .dialog')?.appendChild(pauseFullscreen);
+document.addEventListener('click',async event=>{if(event.target.closest('[data-enter-fullscreen]')&&!await window.eldoriaDisplay?.enter())document.dispatchEvent(new CustomEvent('eldoria-fullscreen-fallback'));});
 const fixedNavItems=[['home','Início','home'],['library','Campeões','crest'],['training','Dojo','swords'],['arenas','Arenas','compass'],['missions','Missões','quest'],['league','Liga','crown']];
 renderLobbyNav=function(){
  const nav=$('#lobbyNav');if(!account.profile||$('#battle').style.display==='block'){nav.hidden=true;return;}
