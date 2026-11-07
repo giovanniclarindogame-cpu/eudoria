@@ -1,37 +1,41 @@
-ELDORIA V11 — CAÇADA DO DIA · KAELTHAR, PRÍNCIPE DA BRASA VIOLETA
+ELDORIA V11 — CAÇADA DO DIA · ZORVATH, IMPERADOR CRISTALINO
 
 A antiga "Caçada ao Guardião" virou a Caçada do Dia: um chefe diferente a cada
 dia (troca à meia-noite do aparelho), enfrentado sozinho ou em dupla com um
 aliado bot. Em Arenas, o cartão agora abre um lobby próprio antes da luta.
 
 LOBBY
-Arte animada do chefe, história, sistema próprio, as 6 habilidades (toque para
-ler cada uma), golpe/defesa/esquiva, dicas, tira da semana, escolha Solo/Dupla,
-melhor tempo e vitórias. "Amigo online" aparece como Em breve (não há online).
-Por enquanto só existe 1 chefe; os outros dias aparecem como "Em breve".
+Arte animada do chefe (mostra as 3 formas), história, sistema próprio, as 6
+habilidades (toque para ler cada uma), golpe/defesa/esquiva, dicas, tira da
+semana, escolha Solo/Dupla, melhor tempo e vitórias. "Amigo online" aparece como
+Em breve (não há online). Por enquanto só existe 1 chefe; os outros dias aparecem
+como "Em breve".
 
-KAELTHAR (original, inspirado no arquétipo do grande rival)
-Vida 3200 (solo) / 4200 (dupla). Dificuldade fixa e alta. Duas fases.
-Sistema ORGULHO: golpes acertados e recebidos enchem a barra. Com 100 ele
-desperta a Ascensão Violeta (10s: mais rápido, mais forte, ataques ampliados).
-Ao fim fica Exausto 3s: sem defesa e recebendo 35% a mais de dano.
-Abaixo de 50% de vida entra em Fúria (ataques mais rápidos, ondas extras).
-Golpe: combo de 3 (4 ao ascender) · Defesa: guarda frontal com stamina que quebra
-Esquiva: passo relâmpago com invulnerabilidade
-1 Rajada Orgulhosa · 2 Investida Real · 3 Estrondo Real · 4 Chuva Estelar
-5 Ascensão Violeta · 6 Canhão do Príncipe (raio que quebra guarda; pilares bloqueiam)
+ZORVATH (original, no arquétipo do tirano que luta contido e libera formas)
+Vida 3600 (solo) / 4600 (dupla). Dificuldade fixa e alta. Ele flutua.
+Sistema PODER CONTIDO: 3 formas. Ao cair para 70% e 35% de vida ele se transforma
+(invulnerável por ~1,6s e libera uma onda de choque). Forma 1 resiste mais e luta
+de perto; forma 2 é mais rápida e ganha Raio e Explosão; forma 3 é veloz e frágil,
+dobra os golpes e libera a Supernova.
+Golpe: combo de cauda e punho (4 golpes na forma final) · Defesa: guarda frontal com
+stamina que quebra · Esquiva: Piscar, teleporte curto com invulnerabilidade
+1 Chicote de Cauda · 2 Disco Cortante (vai e volta) · 3 Pressão Psíquica (prende quem
+ficar no círculo) · 4 Raio Perfurante (forma 2+; 3 raios na forma final; pilares
+bloqueiam) · 5 Explosão de Poder (forma 2+) · 6 Supernova (forma 3): esfera gigante
+sobre uma área enorme; se o chefe receber 420 de dano durante a carga, a Supernova é
+interrompida e ele fica atordoado por ~3s (+35% de dano recebido).
 Todo ataque forte mostra um aviso no chão antes de acertar.
 Dois pilares extras no centro da arena servem de cobertura.
 
 ARTE
-Todo o sprite foi desenhado por código em pixel art (64x64 por quadro, ampliado 2x),
-com a mesma densidade dos campeões, e sem imagens externas: js/vilao_kaelthar.js.
+Todo o sprite foi desenhado por código em pixel art (64x64 por quadro, ampliado ~2,3x),
+sem imagens externas: js/vilao_zorvath.js, com 3 formas e 38 quadros por forma.
 Ícones, busto do HUD e arte do lobby também são gerados por código.
-PREVIA_VILAO.html mostra todas as animações e baixa a folha de sprites em PNG.
+PREVIA_VILAO.html mostra todas as animações (escolha a forma) e baixa a folha em PNG.
 
 PARA CRIAR O PRÓXIMO CHEFE
-Adicione uma definição em ROSTER (js/cacada_dia.js), um sprite no mesmo formato
-e as ações em ACT. A rotação usa o dia do calendário local.
+Adicione uma definição em ROSTER (js/cacada_dia.js), um sprite no mesmo formato e as
+ações em ACT. A rotação usa o dia do calendário local.
 
 TESTES
 node tests/cacada-dia.cjs (Playwright + servidor Python na porta 8000).

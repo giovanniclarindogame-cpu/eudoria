@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Prévia · Kaelthar</title>
+<title>Prévia · Zorvath</title>
 <style>
 body{margin:0;background:#061c18;color:#f1ead1;font:14px system-ui;padding:20px}
 h1{font:28px Georgia;color:#f4e5ba;margin:0 0 4px}p{color:#b5c8b6;margin:0 0 16px}
@@ -8,17 +8,17 @@ h1{font:28px Georgia;color:#f4e5ba;margin:0 0 4px}p{color:#b5c8b6;margin:0 0 16p
 .card{background:linear-gradient(130deg,#12372b,#08241c);border:1px solid #9aa47766;border-radius:12px;padding:10px;text-align:center}
 .card canvas{width:128px;height:128px;image-rendering:pixelated;background:radial-gradient(#2a4a3a,#0c2018)}
 .card b{display:block;font-size:12px;color:#e8c787;margin-top:6px}
-label{margin-right:16px}button{background:#e8c787;color:#173021;border:0;border-radius:8px;padding:10px 16px;font-weight:700;cursor:pointer}
+label{margin-right:16px}button,select{background:#e8c787;color:#173021;border:0;border-radius:8px;padding:10px 16px;font-weight:700;cursor:pointer}
 </style></head><body>
-<h1>Kaelthar · Príncipe da Brasa Violeta</h1>
-<p>Todas as animações do chefe, em loop. Pixel art de 64×64 por quadro, ampliada 2× no jogo.</p>
-<p><label><input type="checkbox" id="asc"> Forma Ascendida</label><label><input type="checkbox" id="flip"> Espelhar</label>
+<h1>Zorvath · Imperador Cristalino</h1>
+<p>Todas as animações do chefe, em loop. Pixel art de 64×64 por quadro, ampliada 2× no jogo. Ele flutua acima do chão.</p>
+<p><label>Forma <select id="form"><option value="1">1 · Contido</option><option value="2">2 · Liberto</option><option value="3">3 · Perfeito</option></select></label><label><input type="checkbox" id="flip"> Espelhar</label>
 <button id="dl">Baixar folha de sprites (PNG)</button></p>
 <div class="grid" id="grid"></div>
-<script src="js/vilao_kaelthar.js"></script>
+<script src="js/vilao_zorvath.js"></script>
 <script>
 const grid=document.getElementById('grid'),cards=[];
-for(const{name,frames,variants}of KaeltharSprite.layout()){
+for(const{name,frames,variants}of ZorvathSprite.layout()){
  for(let v=0;v<variants;v++){
   const d=document.createElement('div');d.className='card';
   const c=document.createElement('canvas');c.width=c.height=128;d.append(c);
@@ -28,17 +28,17 @@ for(const{name,frames,variants}of KaeltharSprite.layout()){
 }
 let t=0;
 function loop(){
- t++;const asc=document.getElementById('asc').checked,flip=document.getElementById('flip').checked;
+ t++;const form=+document.getElementById('form').value,flip=document.getElementById('flip').checked;
  for(const k of cards){
   const g=k.c.getContext('2d');g.clearRect(0,0,128,128);
-  const i=Math.floor(t/(k.name==='walk'?6:12))%k.frames;
-  KaeltharSprite.paint(g,k.name,i,{x:64,y:118,scale:2,flip,asc,side:k.v});
+  const i=Math.floor(t/(k.name==='glide'?8:12))%k.frames;
+  ZorvathSprite.paint(g,k.name,i,{x:64,y:118,scale:2,flip,form,side:k.v});
  }
  requestAnimationFrame(loop);
 }
 loop();
 document.getElementById('dl').onclick=()=>{
- const s=KaeltharSprite.sheet(8,document.getElementById('asc').checked);
- const a=document.createElement('a');a.download='kaelthar-folha.png';a.href=s.canvas.toDataURL('image/png');a.click();
+ const s=ZorvathSprite.sheet(8,+document.getElementById('form').value);
+ const a=document.createElement('a');a.download='zorvath-forma'+document.getElementById('form').value+'.png';a.href=s.canvas.toDataURL('image/png');a.click();
 };
 </script></body></html>
