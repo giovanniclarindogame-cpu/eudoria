@@ -1,0 +1,57 @@
+/* Caçada do Dia — lobby do chefe. Mesmo vocabulário verde-esmeralda e dourado dos menus. */
+body[data-screen=hunt] #modeScreen{padding:0!important;overflow:hidden!important;display:block;background:radial-gradient(ellipse at 20% 0%,#2a1647aa,transparent 60%),radial-gradient(ellipse at 90% 100%,#173d2b88,transparent 60%),#061c18}
+.hunt-page{display:flex;flex-direction:column;height:100dvh;color:#f1ead1;--boss:#c04bff}
+.hunt-top{display:flex;align-items:center;gap:16px;padding:12px max(18px,env(safe-area-inset-right)) 10px max(18px,env(safe-area-inset-left));border-bottom:1px solid #b39d5e55;flex:0 0 auto}
+.hunt-title{flex:1;min-width:0}.hunt-title h1{font:30px/1.05 Georgia,serif;margin:2px 0 0;color:#f4e5ba;letter-spacing:.5px}
+.hunt-title .eyebrow{font-size:10px;letter-spacing:3px;color:#d3b877}
+.hunt-timer{font-size:12px;color:#cdbfe6;background:#1a0f2e;border:1px solid #7a4fb0;border-radius:99px;padding:8px 14px;white-space:nowrap}.hunt-timer b{color:#ffd0ee;font-variant-numeric:tabular-nums;letter-spacing:1px}
+.hunt-top .ghost{flex-shrink:0}
+.hunt-body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(260px,42%) 1fr;gap:16px;padding:14px max(18px,env(safe-area-inset-right)) 8px max(18px,env(safe-area-inset-left))}
+.hunt-stage{position:relative;min-height:0;border:1px solid #9aa47766;border-radius:14px;overflow:hidden;background:#0a0714;box-shadow:inset 0 0 0 1px #0004,0 0 40px #c04bff22}
+.hunt-stage canvas{width:100%;height:100%;object-fit:contain;image-rendering:pixelated;display:block}
+.hunt-plate{position:absolute;left:0;right:0;bottom:0;padding:34px 16px 12px;text-align:center;background:linear-gradient(transparent,#0a0714f0 60%)}
+.hunt-plate strong{display:block;font:26px/1.1 Georgia,serif;color:#f4e5ba;text-shadow:0 2px 8px #000}
+.hunt-plate span{display:block;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#d8b8ff;margin:4px 0 6px}
+.hunt-plate em{font-style:normal;font-size:11px;color:#f1ead1}.hunt-plate em i{font-style:normal;color:#f2ca5c;letter-spacing:2px}
+.hunt-info{min-height:0;overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column;gap:12px;padding-right:4px;-webkit-overflow-scrolling:touch}
+.hunt-card{border:1px solid #9aa47766;border-radius:12px;background:linear-gradient(130deg,#12372b,#08241c);box-shadow:inset 0 0 0 1px #0003;padding:14px 16px;flex:0 0 auto}
+.hunt-card .eyebrow{display:block;font-size:9px;letter-spacing:2.4px;color:#d3b877;margin-bottom:8px}
+.hunt-card p{margin:0;font-size:13px;line-height:1.55;color:#c3d4c6}
+.hunt-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.hunt-chips span{font-size:11px;color:#f1ead1;border:1px solid #85977566;background:#092219;border-radius:99px;padding:5px 10px}
+.hunt-pride{display:flex;gap:14px;align-items:center}
+.hunt-ico{width:46px;height:46px;border-radius:50%;border:2px solid #cdb16a;background:radial-gradient(#3a2058,#150a26);image-rendering:pixelated;padding:5px;box-sizing:border-box;flex-shrink:0}
+.hunt-ico.big{width:58px;height:58px}
+.hunt-mini{width:100%;height:100%;image-rendering:pixelated;border-radius:50%;background:#150a26;display:block}
+.pride-demo{height:9px;border:1px solid #b39d5e88;border-radius:99px;background:#10061b;overflow:hidden;margin-bottom:8px}.pride-demo i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#c04bff,#ff4f86);transform-origin:left;animation:prideDemo 4s ease-in-out infinite}
+@keyframes prideDemo{0%{transform:scaleX(.08)}80%,100%{transform:scaleX(1)}}
+.hunt-skills{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.hunt-skill{display:flex;flex-direction:column;align-items:center;gap:6px;padding:9px 6px;min-height:44px;color:#e8dcb8;font-size:11px;line-height:1.2;text-align:center;border:1px solid #647755;border-radius:10px;background:#092219;cursor:pointer;touch-action:manipulation}
+.hunt-skill:hover,.hunt-skill.on{border-color:#f2ca5c;background:#12372b}.hunt-skill.on{box-shadow:0 0 14px #f2ca5c33}
+.hunt-skilldesc{margin-top:10px!important;min-height:40px;font-size:12px!important;color:#e8dcb8!important}.hunt-skilldesc b{color:#f2ca5c}.hunt-skilldesc i{font-style:normal;color:#b5c8b6}
+.hunt-tips{margin:0;padding-left:18px;font-size:13px;line-height:1.6;color:#c3d4c6}.hunt-tips li::marker{color:#f2ca5c}
+.hunt-week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.hunt-day{border:1px solid #647755;border-radius:9px;background:#092219;padding:8px 4px;text-align:center;min-width:0}.hunt-day small{display:block;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#b5c8b6}.hunt-day b{display:block;font-size:12px;color:#f1ead1;margin:3px 0;overflow:hidden;text-overflow:ellipsis}.hunt-day span{font-size:9px;color:#8fa391}
+.hunt-day.today{border-color:#c04bff;background:linear-gradient(#2a1647,#150a26);box-shadow:0 0 12px #c04bff44}.hunt-day.today b{color:#ffd0ee}.hunt-day.today span{color:#f2ca5c}
+.hunt-day.locked:not(.today){opacity:.55}
+.hunt-foot{flex:0 0 auto;display:flex;align-items:center;gap:14px;padding:10px max(18px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left));border-top:1px solid #b39d5e55;background:linear-gradient(#061c18,#04140f)}
+.hunt-team{display:flex;gap:6px}
+.hunt-team button{display:flex;flex-direction:column;align-items:center;gap:1px;min-width:86px;min-height:46px;padding:6px 12px;color:#dccb99;border:1px solid #647755;border-radius:9px;background:#092219;cursor:pointer;touch-action:manipulation}
+.hunt-team button b{font-size:13px}.hunt-team button small{font-size:9px;color:#9fb3a2}
+.hunt-team button.on{border-color:#f2ca5c;background:linear-gradient(120deg,#2a2a14,#12372b);color:#fff4c6;box-shadow:0 0 12px #f2ca5c2a}
+.hunt-team button.off,.hunt-team button:disabled{opacity:.45;cursor:not-allowed}
+.hunt-record{display:flex;flex-direction:column;gap:1px;flex:1;min-width:0}.hunt-record small{font-size:10px;color:#9fb3a2}.hunt-record b{font:20px Georgia,serif;color:#f4e5ba}
+.hunt-go{min-height:52px;padding:0 28px;font:700 15px Georgia,serif;letter-spacing:2px;white-space:nowrap;box-shadow:0 0 22px #f2ca5c33}
+.botkit span img.hunt-mini{display:block}
+.botkit span:has(.hunt-mini){border-radius:50%;overflow:hidden}
+@media (max-height:480px){
+ .hunt-top{padding-top:6px;padding-bottom:6px;gap:10px}.hunt-title h1{font-size:22px}.hunt-timer{padding:5px 10px;font-size:11px}
+ .hunt-body{gap:10px;padding-top:8px;padding-bottom:6px;grid-template-columns:minmax(210px,38%) 1fr}
+ .hunt-plate{padding-top:22px}.hunt-plate strong{font-size:19px}.hunt-plate span{font-size:9px;letter-spacing:2px}
+ .hunt-card{padding:10px 12px}.hunt-card p{font-size:12px}
+ .hunt-foot{padding-top:6px;padding-bottom:calc(6px + env(safe-area-inset-bottom));gap:10px}
+ .hunt-go{min-height:44px;padding:0 20px;font-size:13px}.hunt-team button{min-height:40px;min-width:70px;padding:4px 8px}.hunt-record b{font-size:16px}
+}
+@media (max-width:760px) and (orientation:portrait){
+ .hunt-body{grid-template-columns:1fr;grid-template-rows:230px 1fr}.hunt-foot{flex-wrap:wrap}.hunt-go{flex:1 1 100%}
+}
+@media (prefers-reduced-motion:reduce){.pride-demo i{animation:none;transform:scaleX(.7)}}

@@ -1,0 +1,38 @@
+ELDORIA V11 — CAÇADA DO DIA · KAELTHAR, PRÍNCIPE DA BRASA VIOLETA
+
+A antiga "Caçada ao Guardião" virou a Caçada do Dia: um chefe diferente a cada
+dia (troca à meia-noite do aparelho), enfrentado sozinho ou em dupla com um
+aliado bot. Em Arenas, o cartão agora abre um lobby próprio antes da luta.
+
+LOBBY
+Arte animada do chefe, história, sistema próprio, as 6 habilidades (toque para
+ler cada uma), golpe/defesa/esquiva, dicas, tira da semana, escolha Solo/Dupla,
+melhor tempo e vitórias. "Amigo online" aparece como Em breve (não há online).
+Por enquanto só existe 1 chefe; os outros dias aparecem como "Em breve".
+
+KAELTHAR (original, inspirado no arquétipo do grande rival)
+Vida 3200 (solo) / 4200 (dupla). Dificuldade fixa e alta. Duas fases.
+Sistema ORGULHO: golpes acertados e recebidos enchem a barra. Com 100 ele
+desperta a Ascensão Violeta (10s: mais rápido, mais forte, ataques ampliados).
+Ao fim fica Exausto 3s: sem defesa e recebendo 35% a mais de dano.
+Abaixo de 50% de vida entra em Fúria (ataques mais rápidos, ondas extras).
+Golpe: combo de 3 (4 ao ascender) · Defesa: guarda frontal com stamina que quebra
+Esquiva: passo relâmpago com invulnerabilidade
+1 Rajada Orgulhosa · 2 Investida Real · 3 Estrondo Real · 4 Chuva Estelar
+5 Ascensão Violeta · 6 Canhão do Príncipe (raio que quebra guarda; pilares bloqueiam)
+Todo ataque forte mostra um aviso no chão antes de acertar.
+Dois pilares extras no centro da arena servem de cobertura.
+
+ARTE
+Todo o sprite foi desenhado por código em pixel art (64x64 por quadro, ampliado 2x),
+com a mesma densidade dos campeões, e sem imagens externas: js/vilao_kaelthar.js.
+Ícones, busto do HUD e arte do lobby também são gerados por código.
+PREVIA_VILAO.html mostra todas as animações e baixa a folha de sprites em PNG.
+
+PARA CRIAR O PRÓXIMO CHEFE
+Adicione uma definição em ROSTER (js/cacada_dia.js), um sprite no mesmo formato
+e as ações em ACT. A rotação usa o dia do calendário local.
+
+TESTES
+node tests/cacada-dia.cjs (Playwright + servidor Python na porta 8000).
+Verificado em 1280x720 e 844x390. Não testado em celular físico.
