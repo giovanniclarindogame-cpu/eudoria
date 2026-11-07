@@ -7,7 +7,8 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
   const p=await b.newPage({viewport:vp});const errs=[];p.on('pageerror',e=>errs.push(e.message));
   await p.goto('http://localhost:8000/index.html');await p.waitForTimeout(1200);
   await p.getByText('ENTRAR',{exact:true}).click();await p.fill('input','Teste');await p.getByText('Continuar',{exact:true}).click();await p.waitForTimeout(1200);
-  await p.evaluate(()=>beginArenaMode('guardian'));await p.waitForTimeout(500);
+  ok(await p.locator('.hunt-home').count()===1,`${vp.width}x${vp.height}: cartão da Caçada aparece na tela inicial`);
+  await p.click('[data-hunt-home]');await p.waitForTimeout(500);
   ok(await p.locator('.hunt-page').count()===1,`${vp.width}x${vp.height}: lobby da caçada abre`);
   ok(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'sem rolagem horizontal');
   ok(await p.locator('.hunt-skill').count()===9,'6 habilidades + golpe, defesa e esquiva listados');

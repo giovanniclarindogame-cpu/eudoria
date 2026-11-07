@@ -701,6 +701,43 @@ endArenaMode=function(win,draw){
  $('#change').textContent='Trocar campeão';
 };
 
+/* ============================== cartão da Caçada na tela inicial ============================== */
+let homeRaf=0,homeTimer=0;
+function startHomeArt(){
+ cancelAnimationFrame(homeRaf);clearInterval(homeTimer);
+ const alive=()=>document.getElementById('huntHomeArt')&&appScreen==='home'&&!document.hidden;
+ homeTimer=setInterval(()=>{const el=document.getElementById('huntHomeTimer');if(!el){clearInterval(homeTimer);return}el.textContent=clock3(msToMidnight())},1000);
+ let last=0;
+ const loop=now=>{
+  const cv=document.getElementById('huntHomeArt');if(!cv){homeRaf=0;return}
+  if(alive()&&now-last>48){
+   last=now;const g=cv.getContext('2d'),t=now/1000;g.imageSmoothingEnabled=false;g.clearRect(0,0,200,200);
+   g.save();g.globalCompositeOperation='lighter';
+   const ag=g.createRadialGradient(100,100,6,100,100,95);ag.addColorStop(0,'rgba(255,98,168,.3)');ag.addColorStop(.6,'rgba(184,107,255,.2)');ag.addColorStop(1,'rgba(184,107,255,0)');g.fillStyle=ag;g.fillRect(0,0,200,200);
+   for(let i=0;i<10;i++){const k=(t*(.4+(i%4)*.08)+i/10)%1,x=100+Math.sin(i*5.3+t*1.6)*(26+k*14),y=176-k*140,sz=Math.max(2,Math.round(5*(1-k)));g.globalAlpha=(1-k)*.8;g.fillStyle=i%3?'#b86bff':'#ff62a8';g.fillRect(Math.round(x),Math.round(y),sz,sz)}
+   g.restore();
+   ZorvathSprite.paint(g,'idle',Math.floor(t*3)%4,{x:100,y:176,scale:2.7,form:3});
+  }
+  homeRaf=requestAnimationFrame(loop);
+ };
+ homeRaf=requestAnimationFrame(loop);
+}
+const prevHome=renderLobbyHome;
+renderLobbyHome=function(){
+ prevHome.apply(this,arguments);
+ const ex=document.querySelector('.royal-explore');if(!ex)return;
+ const def=bossOfDay(),sv=loadSave(),rec=sv.best[def.id],wins=sv.wins[def.id]||0;
+ const card=document.createElement('section');card.className='royal-panel hunt-home';card.setAttribute('aria-label','Caçada do Dia');
+ card.innerHTML=`<canvas class="hunt-home-art" id="huntHomeArt" width="200" height="200" aria-hidden="true"></canvas><div class="hunt-home-copy"><span class="royal-eyebrow">CAÇADA DO DIA</span><h2>${def.name}</h2><small class="hunt-home-title">${def.title}</small><div class="hunt-home-meta"><span>⏳ Troca em <b id="huntHomeTimer">${clock3(msToMidnight())}</b></span><span>${rec?'Melhor tempo '+mmss(rec):'Ainda sem recorde'}${wins?' · '+wins+' vitória'+(wins>1?'s':''):''}</span></div><button class="royal-small-gold" data-hunt-home>⚔ Caçar ↗</button></div>`;
+ ex.replaceWith(card);
+ if(account.journey&&account.journey.claimed){
+  const j=document.querySelector('#journeyHome');if(j)j.hidden=true;
+  document.querySelector('.royal-bottom')?.classList.add('single');
+ }
+ startHomeArt();
+};
+document.addEventListener('click',e=>{if(e.target.closest('[data-hunt-home]'))beginArenaMode('guardian')});
+
 /* ganchos de teste */
 window.huntQA={get state(){return modeRun?.hunt},bossOfDay,ROSTER,lobby:openHuntLobby,force(id){const R=hunt();if(!R)return;R.act=null;R.tele=[];R.nova=null;R.cannon=null;R.rest=0;startAct(R,id,{})},ACT};
 })();
