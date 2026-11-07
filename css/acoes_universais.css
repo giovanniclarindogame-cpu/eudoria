@@ -1,0 +1,13 @@
+#battle .action-group .action{overflow:hidden}
+#battle .action-group .universal-action-art{
+ position:absolute;inset:0;display:block;width:100%;height:100%;border-radius:inherit;
+ background-image:url('../assets/ui/actions-v26.webp');background-size:300% 100%;background-repeat:no-repeat;
+ pointer-events:none;
+}
+.universal-action-art.action-attack{background-position:0% 50%}
+.universal-action-art.action-dash{background-position:50% 50%}
+.universal-action-art.action-guard{background-position:100% 50%}
+#battle .action-group .action small{
+ z-index:1;left:0;right:0;bottom:0;padding:3px 0 4px;color:#fff4dd;
+ background:linear-gradient(transparent,#050d1ee8);text-shadow:0 1px 3px #000;pointer-events:none;
+}

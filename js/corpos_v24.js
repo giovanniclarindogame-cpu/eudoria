@@ -32,7 +32,8 @@ function body24Draw(g,a,size,t){
  else if(a.punchTime>0)frame=24+Math.min(5,Math.floor((1-a.punchTime/.27)*6));
  else if(a.moving){const row=Math.abs(Math.sin(angle))>.65?(Math.sin(angle)>0?2:3):1;frame=row*6+Math.floor(a.rwStride??a.gait??t*10)%6;}
  else{idle=true;frame=Math.floor(t*4)%6;}
- const reg=body24Register(key);if(!reg)return false;const f=reg.frames[frame],k=size/72*(a.skin===1?92:73)/reg.height;
+ // Both new bodies use the measured 73px standing height of the other fighters.
+ const reg=body24Register(key);if(!reg)return false;const f=reg.frames[frame],k=size/72*73/reg.height;
  g.save();g.imageSmoothingEnabled=false;g.scale(Math.cos(angle)<0?-1:1,1);
  // Breathing pivots at the feet; no vertical translation or levitation.
  const breath=idle?Math.sin(t*2.6+(a.skin||0))*.012:0;g.translate(0,9*size/72);g.scale(1-breath*.25,1+breath);

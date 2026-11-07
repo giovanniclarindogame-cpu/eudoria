@@ -200,7 +200,7 @@ hit=function(target,amount,owner,knock=0,angle=0,id=-1){
  }return result;
 };
 const originalHurtObjects=hurtConstructs;
-hurtConstructs=function(owner,x,y,r,damage,angle=0,arc=TAU){originalHurtObjects(owner,x,y,r,damage,angle,arc);for(const o of objects){if(!o.v10Trap||o.life<=0||sameTeam(owner,o.owner)||dist({x,y},o)>r+o.r)continue;const delta=Math.abs(Math.atan2(Math.sin(Math.atan2(o.y-y,o.x-x)-angle),Math.cos(Math.atan2(o.y-y,o.x-x)-angle)));if(delta<arc/2&&rwVisible({x,y},o)){o.hp-=damage;if(o.hp<=0)o.life=0;}}};
+hurtConstructs=function(owner,x,y,r,damage,angle=0,arc=TAU,contact=null){originalHurtObjects(owner,x,y,r,damage,angle,arc,contact);for(const o of objects){if(!o.v10Trap||o.life<=0||sameTeam(owner,o.owner)||dist({x,y},o)>r+o.r||contact&&!contact(o,o.r))continue;const delta=Math.abs(Math.atan2(Math.sin(Math.atan2(o.y-y,o.x-x)-angle),Math.cos(Math.atan2(o.y-y,o.x-x)-angle)));if(delta<arc/2&&rwVisible({x,y},o)){o.hp-=damage;if(o.hp<=0)o.life=0;}}};
 const originalDodge=dodge;
 dodge=function(a){const s=reworkState(a);if(s.domainLock>0)return false;if(a.skin!==5||s.instinct<=0)return originalDodge(a);const before=a.st;a.st+=10;const result=originalDodge(a);if(result){a.inv+=.12;a.dodgeCD*=.6;}else a.st=before;return result;};
 const originalClear=rwClear;

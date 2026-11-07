@@ -43,10 +43,10 @@ function rwPushBlock(o,angle,length){
  }return moved;
 }
 const rwPriorConstructs=hurtConstructs;
-hurtConstructs=function(owner,x,y,r,damage,angle=0,arc=TAU){
- rwPriorConstructs(owner,x,y,r,damage,angle,arc);
+hurtConstructs=function(owner,x,y,r,damage,angle=0,arc=TAU,contact=null){
+ rwPriorConstructs(owner,x,y,r,damage,angle,arc,contact);
  for(const o of objects){if(!(o.material||o.colossus)||o.hp<=0||o.life<=0||dist({x,y},o)>r+(o.material?Math.min(o.w,o.h)/2:35))continue;
-  const delta=Math.abs(Math.atan2(Math.sin(Math.atan2(o.y-y,o.x-x)-angle),Math.cos(Math.atan2(o.y-y,o.x-x)-angle)));if(delta>arc/2||!rwVisible({x,y},o,o))continue;
+  const delta=Math.abs(Math.atan2(Math.sin(Math.atan2(o.y-y,o.x-x)-angle),Math.cos(Math.atan2(o.y-y,o.x-x)-angle)));if(delta>arc/2||!rwVisible({x,y},o,o)||contact&&!contact(o,o.material?Math.min(o.w,o.h)/2:35))continue;
   if(o.owner===owner&&o.wall&&r<=70&&damage<=40){rwPushBlock(o,angle,24);continue;}
   rwDamageConstruct(o,damage,owner);
  }

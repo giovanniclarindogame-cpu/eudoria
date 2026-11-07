@@ -5,7 +5,7 @@ const ninja23ChampionArt=championArt;
 CHAMPION_HEROES.ninja='assets/ninja_v23/portrait.webp';
 championArt=c=>c.id===1?CHAMPION_HEROES.ninja:ninja23ChampionArt(c);
 const ninja22Descriptions=[
- 'Avança e corta por 60 de dano. Se acertar, toque novamente em 1 por até 0,7s para um corte de retorno de 40 de dano.',
+ 'Avança e corta por 60 de dano. Se acertar, toque novamente em 1 por até 0,7s para um único retorno de 40 de dano. Recarga de 4s; o retorno não reinicia nem remove a recarga.',
  'Cria um clone com 1 HP por até 3s e recua. Ele corre até o inimigo, desfere um corte de 35 de dano e desaparece em fumaça.',
  'Coloca um selo até 220 de distância. Arma após 0,45s e dura 8s: causa 55 de dano e paralisa por 1,2s. Até dois selos ativos.',
  'Troca de posição com o clone até 340 de distância. Sem clone, esquiva 90 para trás e deixa uma imagem residual. Destinos respeitam obstáculos.',
@@ -14,9 +14,16 @@ const ninja22Descriptions=[
 ];
 CHAMPIONS[1].kit.forEach((id,i)=>skills[id].desc=ninja22Descriptions[i]);
 skills[CHAMPIONS[1].kit[5]].release=.45;skills[CHAMPIONS[1].kit[5]].duration=1.25;
-function ninja22Follow(a,id){return a?.skin===1&&skills[id]?.slot===0&&(reworkState(a).ninjaFollowUntil||0)>clock&&a.hp>0&&state==='fight'&&a.root<=0&&!a.guard&&(!a.rwCast||a.rwCast.slot===0&&a.rwCast.released);}
+skills[CHAMPIONS[1].kit[0]].cd=4;
+function ninja22Follow(a,id){return a?.skin===1&&id===a.kit[0]&&(reworkState(a).ninjaFollowUntil||0)>clock&&a.hp>0&&state==='fight'&&a.root<=0&&!a.guard&&a.dodgeTime<=0&&(!a.rwCast||a.rwCast.slot===0&&a.rwCast.released);}
 const ninja22Ready=rwReady;rwReady=function(a,id){return ninja22Follow(a,id)||ninja22Ready(a,id);};
-const ninja22Cast=rwCast;rwCast=function(a,id,manual){const follow=ninja22Follow(a,id);if(follow){a.rwCast=null;a.cast=a.skillLock=a.actionRecovery=a.punchTime=0;a.cd[id]=0;reworkState(a).ninjaFollowUntil=0;}const ok=ninja22Cast(a,id,manual);if(ok&&a.skin===1&&a.rwCast)a.rwCast.returnCut=follow;return ok;};
+const ninja22Cast=rwCast;rwCast=function(a,id,manual){
+ const follow=ninja22Follow(a,id),cooldown=a?.cd[id]||0;
+ // Readiness permits exactly one return without clearing the original cooldown.
+ const ok=ninja22Cast(a,id,manual);
+ if(ok&&a.skin===1&&a.rwCast){a.rwCast.returnCut=follow;reworkState(a).ninjaFollowUntil=0;if(follow)a.cd[id]=cooldown;}
+ return ok;
+};
 function ninja22Smoke(a,x=a.x,y=a.y){rwFx(a,1,x,y,'ninja-smoke',.65,{size:100});}
 const ninja22Release=rwRelease;
 rwRelease=function(a,q){if(a.skin!==1)return ninja22Release(a,q);const s=reworkState(a),angle=q.angle,slot=q.slot;
