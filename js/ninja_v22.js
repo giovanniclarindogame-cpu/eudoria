@@ -116,9 +116,9 @@ const ninja22Depth=integratedDepth;integratedDepth=function(){const list=ninja22
    ctx.save();
    // A gold eye and a small diamond distinguish a stored copy from observation.
    if(s.copy)ctx.filter='hue-rotate(48deg) saturate(1.3)';
-   ninja23Sprite(ctx,'eye',frame,a.x,a.y-88,60);
+   ninja23Sprite(ctx,'eye',frame,a.x,a.y-108,60);
    ctx.restore();
-   if(s.copy){ctx.save();ctx.fillStyle='#ffe7a3';ctx.translate(a.x+27,a.y-88);ctx.rotate(Math.PI/4);ctx.fillRect(-3,-3,6,6);ctx.restore();}
+   if(s.copy){ctx.save();ctx.fillStyle='#ffe7a3';ctx.translate(a.x+27,a.y-108);ctx.rotate(Math.PI/4);ctx.fillRect(-3,-3,6,6);ctx.restore();}
   }});
  }
  return list.sort((a,b)=>a.y-b.y||(a.priority||0)-(b.priority||0));};

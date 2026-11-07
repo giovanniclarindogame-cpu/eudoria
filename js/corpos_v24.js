@@ -32,7 +32,7 @@ function body24Draw(g,a,size,t){
  else if(a.punchTime>0)frame=24+Math.min(5,Math.floor((1-a.punchTime/.27)*6));
  else if(a.moving){const row=Math.abs(Math.sin(angle))>.65?(Math.sin(angle)>0?2:3):1;frame=row*6+Math.floor(a.rwStride??a.gait??t*10)%6;}
  else{idle=true;frame=Math.floor(t*4)%6;}
- const reg=body24Register(key);if(!reg)return false;const f=reg.frames[frame],k=size/72*73/reg.height;
+ const reg=body24Register(key);if(!reg)return false;const f=reg.frames[frame],k=size/72*(a.skin===1?92:73)/reg.height;
  g.save();g.imageSmoothingEnabled=false;g.scale(Math.cos(angle)<0?-1:1,1);
  // Breathing pivots at the feet; no vertical translation or levitation.
  const breath=idle?Math.sin(t*2.6+(a.skin||0))*.012:0;g.translate(0,9*size/72);g.scale(1-breath*.25,1+breath);
@@ -49,6 +49,6 @@ const release24Charge=rwReleaseCharge;rwReleaseCharge=function(a,angle){const he
 const hit24=hit;hit=function(target,amount,owner,knock=0,angle=0,id=-1){if(owner?.skin===1&&id===owner.kit[5]&&owner.rwCast?.slot===5)amount+=Math.round(100*(owner.rwCast.charge||0));return hit24(target,amount,owner,knock,angle,id);};
 const release24=rwRelease;rwRelease=function(a,q){const result=release24(a,q);if(a.skin===1&&q.slot===5){const dash=Reforged.dashes.find(d=>d.owner===a&&!d.finished);if(dash){const prior=dash.onStep;let remaining=0;dash.onStep=function(from){prior?.(from);const length=dist(from,a);for(let n=32-remaining;n<=length;n+=32)rwFx(a,5,from.x+(a.x-from.x)*n/Math.max(1,length),from.y+(a.y-from.y)*n/Math.max(1,length),'thunder-ground',1.25,{size:72});remaining=(remaining+length)%32;};}}return result;};
 const depth24=integratedDepth;integratedDepth=function(){const list=depth24();for(const e of Reforged.effects)if(e.kind==='thunder-ground')list.push({y:e.y-1000,priority:-1,paint(){ctx.save();ctx.globalCompositeOperation='multiply';ctx.globalAlpha=Math.min(.8,(1-e.age/e.duration)*2);const im=BODY24.ground;if(im.naturalWidth)ctx.drawImage(astralSoftCell(im,Math.min(23,4+Math.floor(e.age/e.duration*20))),e.x-36,e.y-36,72,72);ctx.restore();}});
- for(const a of actors){const q=a.rwCast;if(a.skin===1&&q?.slot===5&&(q.holding||q.age<q.release))list.push({y:a.y+.5,priority:4,paint(){const power=q.charge||0;const frame=4+Math.floor(vfxTime*18)%8;ninja23Sprite(ctx,'impact',frame,a.x+Math.cos(q.angle)*10,a.y-12,22+power*25);}});}
+ for(const a of actors){const q=a.rwCast;if(a.skin===1&&q?.slot===5&&(q.holding||q.age<q.release))list.push({kind:'ninja-charge-24',y:a.y+.5,priority:4,paint(){const power=q.charge||0;const frame=4+Math.floor(vfxTime*18)%8;ninja23Sprite(ctx,'impact',frame,a.x+Math.cos(q.angle)*10,a.y-12,22+power*25);}});}
  return list.sort((a,b)=>a.y-b.y||(a.priority||0)-(b.priority||0));};
 const fx24=rwPaintFX;rwPaintFX=function(e){if(e.kind==='thunder-ground')return;if(e.skin===1&&e.kind==='ninja-afterimage'){ctx.save();ctx.translate(e.x,e.y);ctx.globalAlpha=(1-e.age/e.duration)*.4;body24Draw(ctx,{...e.owner,rwCast:null,moving:true,rwFacing:e.angle},72,vfxTime);ctx.restore();return;}return fx24(e);};
