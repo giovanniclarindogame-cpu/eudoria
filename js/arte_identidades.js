@@ -74,7 +74,7 @@ integratedDepth=function(){
  for(const e of Reforged.effects)list.push({kind:'reforged-fx',y:e.follow?e.owner.y+.5:e.y+.5,priority:3,serial:e.id,paint:()=>rwPaintFX(e)});
  for(const e of Reforged.projectiles)if(!e.kiOrb)list.push({kind:'reforged-projectile',y:e.y,priority:3,paint:()=>rwSprite(ctx,e.skin,e.slot,e.x,e.y-28,e.size||88,.3+(e.age*1.7%1)*.35,e.angle,true,1,e.stage)});
  for(const a of actors){if(a.hp<=0||!reworkKit(a))continue;const s=reworkState(a),q=a.rwCast;
-  if(q?.holding&&a.skin!==0)list.push({y:a.y+.7,priority:4,paint:()=>rwSprite(ctx,6,0,a.x+Math.cos(q.angle)*25,a.y-30,65+q.charge*25,.12+q.charge*.24,q.angle,true)});
+  if(q?.holding&&a.skin>=6)list.push({y:a.y+.7,priority:4,paint:()=>rwSprite(ctx,6,0,a.x+Math.cos(q.angle)*25,a.y-30,65+q.charge*25,.12+q.charge*.24,q.angle,true)});
   const active=s.empowered||s.turbo>0||s.cosmic>0||s.iron>0||a.skin===8&&s.value>=100;
   if(active)list.push({y:a.y-.2,priority:0,paint:()=>rwSprite(ctx,a.skin,4,a.x,a.y-24,94,.28+(vfxTime*.65%1)*.38,0,false,.65)});
  }

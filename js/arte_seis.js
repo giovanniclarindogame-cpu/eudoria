@@ -205,7 +205,7 @@ integratedDepth=function(){const all=objects;let list;objects=all.filter(o=>!o.v
   }});
   if(a.skin===0&&q?.slot===5&&q.age<q.release){list.push({y:a.y+.4,priority:4,paint:()=>paintSolarPreparation(ctx,a,q)});list.push({y:q.target.y-1,priority:0,paint:()=>paintSolarMarker(ctx,q.target.x,q.target.y,80+(q.stage||0)*35)});}
   if(a.skin===0&&q?.slot===2&&(q.holding||q.age<q.release))list.push({y:a.y+.5,priority:3,paint:()=>paintWaveCharge(ctx,a,q)});
-  else if(q?.holding&&!(a.skin===0&&q.slot===4))list.push({y:a.y+.5,priority:3,paint:()=>rwSprite(ctx,a.skin,q.slot,a.x+Math.cos(q.angle)*27,a.y-30,60+q.charge*60,.08+q.charge*.25,q.angle,true)});
+   else if(q?.holding&&!(a.skin===0&&q.slot===4)&&!(a.skin===1&&q.slot===5))list.push({y:a.y+.5,priority:3,paint:()=>rwSprite(ctx,a.skin,q.slot,a.x+Math.cos(q.angle)*27,a.y-30,60+q.charge*60,.08+q.charge*.25,q.angle,true)});
   if(s.spiritForm>0||s.breathing>0||s.instinct>0)list.push({y:a.y-.3,priority:0,paint:()=>rwSprite(ctx,a.skin,4,a.x,a.y-32,115,.25+(vfxTime*.5%1)*.4,0,false,.55)});
   if(s.barrier)list.push({y:a.y+.3,priority:3,paint:()=>rwSprite(ctx,4,4,a.x,a.y-28,135,.27+(vfxTime*.25%1)*.3,0,false,.38)});
  }
