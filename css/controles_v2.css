@@ -22,10 +22,17 @@ body #battle .team-mini .champion-avatar{width:26px;height:26px;flex:0 0 26px;bo
 body #battle .enemy-mini .champion-avatar{border-color:#ee8e8399}
 @media(max-height:520px){body #battle .team-mini .champion-avatar{width:20px;height:20px;flex-basis:20px}}
 
-/* Zoom e pausa descem abaixo da linha de equipe (2x2 e Caçada) para não cobrir o HP do rival. */
+/* Linha de equipe dentro da moldura do HUD: a moldura cresce para conter foto + barra de HP vermelha. */
 @media(orientation:landscape){
- body #battle[data-mode="2v2"] .hud #pauseBtn,body #battle[data-mode="2v2"] #arenaZoom{top:116px}
+ body #battle[data-mode="2v2"]:has(#teamHud:not([hidden])) .hud{min-height:108px}
+ body #battle .team-mini .team-mini-bar{height:9px;margin-top:3px;border-radius:99px;background:#1a0b14;border:1px solid #7283a0aa;overflow:hidden}
+ body #battle .team-mini .team-mini-bar i,body #battle .enemy-mini .team-mini-bar i{border-radius:99px;background:linear-gradient(#ff8a94,#e0344d 55%,#a81c33)}
+ body #battle .team-mini-title{font-size:10px;font-weight:600}
+ body #battle[data-mode="2v2"] .hud #pauseBtn,body #battle[data-mode="2v2"] #arenaZoom{top:124px}
 }
 @media(orientation:landscape) and (max-height:520px){
- body #battle[data-mode="2v2"] .hud #pauseBtn,body #battle[data-mode="2v2"] #arenaZoom{top:84px}
+ body #battle[data-mode="2v2"]:has(#teamHud:not([hidden])) .hud{min-height:82px}
+ body #battle .team-mini .team-mini-bar{height:7px}
+ body #battle .team-mini-title{font-size:8px}
+ body #battle[data-mode="2v2"] .hud #pauseBtn,body #battle[data-mode="2v2"] #arenaZoom{top:94px}
 }
