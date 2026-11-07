@@ -1,11 +1,15 @@
 'use strict';
 const NINJA22_ART={smoke:rwImage('assets/ninja_v22/smoke.webp'),electric:rwImage('assets/ninja_v22/electric.webp'),slash:rwImage('assets/ninja_v22/slash.webp')};
+const NINJA23_ART={eye:rwImage('assets/ninja_v23/copy-eye.webp'),impact:rwImage('assets/ninja_v23/thunder-impact.webp')};
+const ninja23ChampionArt=championArt;
+CHAMPION_HEROES.ninja='assets/ninja_v23/portrait.webp';
+championArt=c=>c.id===1?CHAMPION_HEROES.ninja:ninja23ChampionArt(c);
 const ninja22Descriptions=[
  'Avança e corta por 60 de dano. Se acertar, toque novamente em 1 por até 0,7s para um corte de retorno de 40 de dano.',
  'Cria um clone com 1 HP por até 3s e recua. Ele corre até o inimigo, desfere um corte de 35 de dano e desaparece em fumaça.',
  'Coloca um selo até 220 de distância. Arma após 0,45s e dura 8s: causa 55 de dano e paralisa por 1,2s. Até dois selos ativos.',
  'Troca de posição com o clone até 340 de distância. Sem clone, esquiva 90 para trás e deixa uma imagem residual. Destinos respeitam obstáculos.',
- 'Por 4s, observa o próximo especial que causar dano, exceto ultimates. Toque novamente para usar a cópia uma vez com 75% do dano. Não anula o dano recebido.',
+ 'Por 4s, observa o próximo especial que causar dano, exceto ultimates. Toque novamente para usar a cópia uma vez com 75% do dano. Não anula o dano recebido. O olho dourado indica uma cópia pronta.',
  'Carrega eletricidade na mão e avança até 340. Para no primeiro inimigo e descarrega 230 de dano. Uma cópia guardada é consumida no acerto para mais 70 de dano.'
 ];
 CHAMPIONS[1].kit.forEach((id,i)=>skills[id].desc=ninja22Descriptions[i]);
@@ -21,7 +25,21 @@ rwRelease=function(a,q){if(a.skin!==1)return ninja22Release(a,q);const s=reworkS
  if(slot===2){const own=objects.filter(o=>o.v10Trap&&o.owner===a&&o.life>0);if(own.length>=2)own[0].life=0;const pt=q.target;if(pt&&!rwObstacle(pt.x,pt.y,12))objects.push({ninja22:true,v10Trap:true,owner:a,x:pt.x,y:pt.y,r:30,hp:45,max:45,life:8,age:0});}
  if(slot===3){const clone=originalClone(a),from={x:a.x,y:a.y};if(clone){if(dist(a,clone)>340||!originalFreePoint(a,clone.x,clone.y)){a.cd[q.id]=1;return;}a.x=clone.x;a.y=clone.y;clone.x=from.x;clone.y=from.y;}else{rwDash(a,angle+Math.PI,90,.18,()=>{}, {slot});rwFx(a,3,from.x,from.y,'ninja-afterimage',.35,{angle});}a.inv=.25;ninja22Smoke(a,from.x,from.y);ninja22Smoke(a);}
  if(slot===4){if(s.copy){const copy=s.copy;s.copy=null;originalCopy(a,copy,angle);a.cd[q.id]=Math.max(1,skills[copy.id].cd*.5);}else s.eye=4;rwFx(a,4,a.x,a.y,'ninja-eye',.5,{follow:true});}
- if(slot===5){rwDash(a,angle,340,.42,()=>{}, {slot,onStep(from){const d=Reforged.dashes.find(d=>d.owner===a);if(!d||a.rwCast!==q){if(d)d.finished=true;return;}const target=opponents(a).find(t=>t.hp>0&&lineDistance(t.x,t.y,from.x,from.y,a.x+Math.cos(angle)*25,a.y+Math.sin(angle)*25)<a.r+t.r&&rwVisible(a,t));if(target){d.finished=true;const copied=!!s.copy;if(hit(target,230+(copied?70:0),a,22,angle,q.id)){if(copied)s.copy=null;rwFx(a,5,target.x,target.y,'ninja-electric',.55,{size:copied?135:100});}}}});}
+ if(slot===5){
+  rwDash(a,angle,340,.42,()=>{q.thunderEndAge=q.age;}, {slot,onStep(from){
+   const d=Reforged.dashes.find(d=>d.owner===a);
+   if(!d||a.rwCast!==q){if(d)d.finished=true;return;}
+   const target=opponents(a).find(t=>t.hp>0&&lineDistance(t.x,t.y,from.x,from.y,a.x+Math.cos(angle)*25,a.y+Math.sin(angle)*25)<a.r+t.r&&rwVisible(a,t));
+   if(!target)return;
+   d.finished=true;
+   const copied=!!s.copy,contact={x:target.x,y:target.y};
+   if(hit(target,230+(copied?70:0),a,22,angle,q.id)){
+    q.thunderHitAge=q.age;
+    if(copied)s.copy=null;
+    rwFx(a,5,contact.x,contact.y,'ninja-thunder-impact',.48,{size:copied?142:120});
+   }
+  }});
+ }
 };
 const ninja22Step=step;step=function(dt){const active=state==='fight';ninja22Step(dt);if(!active||state!=='fight')return;
  for(const o of objects){if(!o.ninja22||o.life<=0)continue;o.age+=dt;
@@ -33,12 +51,76 @@ function ninja22Effect(g,key,phase,x,y,size){const im=NINJA22_ART[key];if(!im.na
 const ninja22FX=rwPaintFX;rwPaintFX=function(e){if(e.skin!==1)return ninja22FX(e);const u=e.age/e.duration,x=e.follow?e.owner.x:e.x,y=e.follow?e.owner.y:e.y;ctx.save();
  if(e.kind==='ninja-afterimage'){ctx.translate(x,y);ctx.globalAlpha=(1-u)*.5;dojoPaintBody(ctx,6,72,e.angle);}
  else if(e.kind==='ninja-cut'){ctx.translate(x,y-24);orientSkillSprite(ctx,e.angle);if(e.reverse)ctx.scale(1,-1);ninja22Effect(ctx,'slash',u,32,0,100);}
- else if(e.kind==='ninja-eye'||e.kind==='copied'){ctx.globalAlpha=1-u;ctx.fillStyle='#ff5477';ctx.beginPath();ctx.arc(x+5,y-48,3+u*2,0,TAU);ctx.fill();}
+ // The persistent eye emblem handles activation/capture; never paint a dot on the face.
+ else if(e.kind==='ninja-eye'||e.kind==='copied'){}
+ else if(e.kind==='ninja-thunder-impact')ninja23Sprite(ctx,'impact',Math.min(23,Math.floor(u*24)),x,y-24,e.size);
  else if(e.kind.includes('smoke')||e.kind==='departure'||e.kind==='arrival')ninja22Effect(ctx,'smoke',u,x,y-24,e.size||100);
  else ninja22Effect(ctx,'electric',u,x,y-26,e.size||80);ctx.restore();};
-const ninja22Body=rwPaintBody;rwPaintBody=function(g,a,size,t){if(a.skin!==1)return ninja22Body(g,a,size,t);if(a.v10Clone&&a.attacks){g.save();g.translate(0,-3.5*size/72);const ok=dojoPaintStrike(g,Math.min(23,Math.floor(a.strikeAge/.28*24)),size*rwSizeFactors[1],a.a);g.restore();return ok;}if(a.rwCast?.slot===5){g.save();g.translate(0,-3.5*size/72);const q=a.rwCast,pose=q.age<q.release?5:[2,2,0,1,1,0][Math.floor(q.age*24)%6];const ok=dojoPaintBody(g,pose,size*rwSizeFactors[1],q.angle);g.restore();return ok;}return ninja22Body(g,a,size,t);};
+// Use the canonical directional lightning poses, with the registered foot anchors.
+// Charge, running, contact and recovery follow the actual collision, not a looping walk.
+function ninja23ThunderFrame(q){
+ if(q.age<q.release)return Math.min(7,Math.floor(q.age/q.release*8));
+ if(q.thunderHitAge!==undefined){
+  const elapsed=q.age-q.thunderHitAge;
+  if(elapsed<.21)return 13+Math.min(5,Math.floor(elapsed/.21*6));
+  return 19+Math.min(4,Math.floor((elapsed-.21)/.26*5));
+ }
+ if(q.thunderEndAge!==undefined)return 19+Math.min(4,Math.floor((q.age-q.thunderEndAge)/.26*5));
+ return 8+Math.floor((q.age-q.release)*24)%5;
+}
+function ninja23Sprite(g,key,frame,x,y,size){
+ const im=NINJA23_ART[key];if(!im.naturalWidth)return;
+ g.drawImage(astralSoftCell(im,frame),x-size/2,y-size/2,size,size);
+}
+const ninja23BodyCells=new Map();
+function ninja23Strike(g,frame,size,angle){
+ const d=dojoDirection(angle),im=dojoWornContext?dojoWoundImages['worn-strike-'+d.name]:DOJO_STRIKE_IMAGES[d.name];
+ if(!im.naturalWidth)return false;
+ const key=im.src+':'+frame;
+ if(!ninja23BodyCells.has(key)){
+  const cell=document.createElement('canvas');cell.width=cell.height=256;
+  const ink=cell.getContext('2d');
+  ink.drawImage(im,frame%4*256,Math.floor(frame/4)*256,256,256,0,0,256,256);
+  // Embedded lightning reaches some atlas edges. Fade only the side gutters,
+  // preserving the body/feet while removing straight rectangular cutoffs.
+  ink.globalCompositeOperation='destination-in';
+  const edge=ink.createLinearGradient(0,0,256,0);
+  edge.addColorStop(0,'#fff0');edge.addColorStop(.07,'#fff');edge.addColorStop(.93,'#fff');edge.addColorStop(1,'#fff0');
+  ink.fillStyle=edge;ink.fillRect(0,0,256,256);
+  ninja23BodyCells.set(key,cell);
+ }
+ const reg=(dojoWornContext?DOJO_WOUND_REG:DOJO_DIRECTIONAL_REG)[d.name],extent=size*reg.scale,anchor=reg.frames[frame].anchor;
+ g.save();g.scale(d.flip,1);g.imageSmoothingEnabled=false;
+ g.drawImage(ninja23BodyCells.get(key),-anchor[0]/256*extent,size/6-anchor[1]/256*extent,extent,extent);
+ g.restore();return true;
+}
+const ninja22Body=rwPaintBody;rwPaintBody=function(g,a,size=72,t=vfxTime){
+ if(a.skin!==1)return ninja22Body(g,a,size,t);
+ const q=a.rwCast;
+ if(a.v10Clone&&a.attacks||q?.slot===5){
+  const frame=q?.slot===5?ninja23ThunderFrame(q):Math.min(23,Math.floor(a.strikeAge/.28*24));
+  const previous=dojoWornContext;dojoWornContext=dojoIsWorn(a);
+  g.save();g.translate(0,-3.5*size/72);
+  try{return q?.slot===5?ninja23Strike(g,frame,size*rwSizeFactors[1],q.angle):dojoPaintStrike(g,frame,size*rwSizeFactors[1],a.a);}
+  finally{g.restore();dojoWornContext=previous;}
+ }
+ return ninja22Body(g,a,size,t);
+};
 const ninja22Depth=integratedDepth;integratedDepth=function(){const list=ninja22Depth().filter(e=>e.kind!=='seal');for(const o of objects)if(o.v10Trap&&o.life>0)list.push({kind:'ninja-seal',y:o.y-1,priority:0,paint(){const progress=clamp(o.age/.45,0,1);ctx.save();ctx.translate(o.x,o.y);ctx.scale(1,.5);ctx.strokeStyle=o.age<.45?'#8b9fa9':'#88dfff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,30,-Math.PI/2,-Math.PI/2+TAU*progress);ctx.stroke();for(let i=0;i<4;i++){ctx.rotate(Math.PI/2);ctx.strokeRect(14,-4,8,8);}ctx.restore();}});
- for(const a of actors){if(a.skin!==1||a.hp<=0)continue;const q=a.rwCast,s=reworkState(a);if(q?.slot===5)list.push({y:a.y+.5,priority:4,paint(){const phase=q.age<q.release?clamp(q.age/q.release*.35,0,.35):.25+(vfxTime*2%1)*.2;ninja22Effect(ctx,'electric',phase,a.x+Math.cos(q.angle)*23,a.y-28+Math.sin(q.angle)*10,45);}});if(s.eye>0||s.copy)list.push({y:a.y+.7,priority:4,paint(){ctx.save();ctx.fillStyle=s.copy?'#ffd786':'#ff4669';ctx.fillRect(a.x+4,a.y-48,4,3);ctx.restore();}});}
+ for(const a of actors){
+  if(a.skin!==1||a.hp<=0)continue;
+  const s=reworkState(a);
+  if(s.eye>0||s.copy)list.push({kind:'ninja-copy-eye',owner:a,y:a.y+.7,priority:4,paint(){
+   const opening=4-s.eye;
+   const frame=s.copy?20:s.eye>3.8?Math.min(3,Math.floor(opening/.2*4)):4+Math.floor(vfxTime*12)%16;
+   ctx.save();
+   // A gold eye and a small diamond distinguish a stored copy from observation.
+   if(s.copy)ctx.filter='hue-rotate(48deg) saturate(1.3)';
+   ninja23Sprite(ctx,'eye',frame,a.x,a.y-88,60);
+   ctx.restore();
+   if(s.copy){ctx.save();ctx.fillStyle='#ffe7a3';ctx.translate(a.x+27,a.y-88);ctx.rotate(Math.PI/4);ctx.fillRect(-3,-3,6,6);ctx.restore();}
+  }});
+ }
  return list.sort((a,b)=>a.y-b.y||(a.priority||0)-(b.priority||0));};
 const ninja22Icon=icon;icon=function(id){const s=skills[id];return s?.champion===1?`<span class="skill-art reforged-icon" aria-hidden="true" style="background-image:url('assets/ninja_v22/icon-${s.slot}.webp')"></span>`:ninja22Icon(id);};
 const ninja22UI=updateUI;updateUI=function(){ninja22UI();if(p?.skin!==1)return;const copy=reworkState(p).copy,button=$('#equipped')?.children[4],signature=copy?String(copy.id):'empty';if(button&&button.dataset.copyIcon!==signature){button.dataset.copyIcon=signature;const el=button.querySelector('.skill-art');if(el)el.outerHTML=copy?icon(copy.id):icon(p.kit[4]);}if(button)button.setAttribute('aria-label',copy?'Usar cópia: '+skills[copy.id].name:'Olho Copiador');};
