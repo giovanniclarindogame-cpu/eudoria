@@ -55,3 +55,18 @@ body[data-screen=hunt] #modeScreen{padding:0!important;overflow:hidden!important
  .hunt-body{grid-template-columns:1fr;grid-template-rows:230px 1fr}.hunt-foot{flex-wrap:wrap}.hunt-go{flex:1 1 100%}
 }
 @media (prefers-reduced-motion:reduce){.pride-demo i{animation:none;transform:scaleX(.7)}}
+
+/* Cartão da Caçada na tela inicial */
+.royal-bottom.single{grid-template-columns:1fr}
+.hunt-home{display:flex;flex-direction:row;align-items:stretch;gap:12px;padding:0;overflow:hidden;min-width:0;min-height:0;background:radial-gradient(ellipse at 20% 50%,#3b1b5c,#12091f 72%)!important;border-color:#7a4fb0aa!important;box-shadow:0 0 24px #b86bff22}
+.hunt-home-art{flex:0 0 40%;width:40%;height:100%;object-fit:contain;image-rendering:pixelated;display:block;align-self:flex-end}
+.hunt-home-copy{flex:1;display:flex;flex-direction:column;justify-content:center;gap:6px;padding:12px 16px 12px 0;min-width:0}
+.hunt-home h2{font:26px/1.05 Georgia,serif;margin:0;color:#f4e5ba}
+.hunt-home-title{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:#d8b8ff}
+.hunt-home-meta{display:flex;flex-direction:column;gap:2px;font-size:11px;color:#cdbfe6}.hunt-home-meta b{color:#ffd0ee;font-variant-numeric:tabular-nums}
+.hunt-home .royal-small-gold{align-self:flex-start;margin-top:4px}
+@media(max-height:560px){
+ .royal-sanctuary-title h1{display:none}
+ .royal-sanctuary-title{top:14px}
+ .hunt-home h2{font-size:17px}.hunt-home-title{font-size:7px;letter-spacing:1.5px}.hunt-home-meta{font-size:8px}.hunt-home-copy{gap:3px;padding:6px 10px 6px 0}.hunt-home{gap:6px}
+}
