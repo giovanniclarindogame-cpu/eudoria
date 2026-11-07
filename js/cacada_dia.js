@@ -206,16 +206,22 @@ configureArenaSize=function(){
 
 /* câmera: enquadra jogador e chefe juntos */
 const prevCam=updateArenaCamera;
+let camKey='',camL=150,camR=300;
 updateArenaCamera=function(){
  const R=modeRun&&modeRun.hunt;
  if(!R||courtyardWide||cw<ch||!p||!cw)return prevCam();
  const pts=actors.filter(a=>a.hp>0&&(a===p||a===R.a));if(pts.length<2)return prevCam();
+ // reserva as áreas dos controles (analógico à esquerda; habilidades e ações à direita)
+ const key=cw+'x'+ch;
+ if(key!==camKey){camKey=key;const st=document.querySelector('#stick'),cc=document.querySelector('.control-center');
+  if(st){const r=st.getBoundingClientRect();camL=Math.max(40,r.right+10)}
+  if(cc){const r=cc.getBoundingClientRect();camR=Math.max(120,cw-r.left+10)}}
  const top=ch<520?58:88,xs=pts.map(a=>a.x),ys=pts.map(a=>a.y);
  const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
- const fit=Math.min((cw-330)/(x1-x0+200),(ch-top-150)/(y1-y0+180));
+ const freeW=cw-camL-camR,fit=Math.min(freeW/(x1-x0+170),(ch-top-120)/(y1-y0+170));
  scale=clamp(fit,Math.min(.7,(cw-20)/W),1.38);
  const cx=(x0+x1)/2,cy=(y0+y1)/2;
- ox=cw*.5-cx*scale;oy=top+(ch-top)*.45-cy*scale;
+ ox=camL+freeW/2-cx*scale;oy=top+(ch-top)*.42-cy*scale;
  ox=W*scale>cw?clamp(ox,cw-W*scale,0):(cw-W*scale)/2;
  oy=H*scale>ch-top?clamp(oy,ch-H*scale,top):top+(ch-top-H*scale)/2;
 };

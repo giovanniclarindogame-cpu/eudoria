@@ -1,0 +1,18 @@
+/* Controles v2 (horizontal): ataque no canto, esquiva logo acima dele e defesa acima da esquiva;
+   as 6 habilidades ficam ao lado da coluna, alinhadas por baixo. Carregado por último. */
+@media(orientation:landscape){
+ body #battle{--atk:76px;--sm:54px}
+ body #battle .action-group{display:grid;grid-template-columns:auto;grid-auto-rows:auto;justify-items:center;align-items:end;gap:calc(var(--control-gap,10px) + 2px);right:var(--edge,18px);bottom:max(16px,env(safe-area-inset-bottom));left:auto;width:auto}
+ body #battle .action-group #attack{order:3;width:var(--atk);height:var(--atk)}
+ body #battle .action-group #dodge{order:2;width:var(--sm);height:var(--sm)}
+ body #battle .action-group #defend{order:1;width:var(--sm);height:var(--sm)}
+ body #battle .control-center{right:calc(var(--edge,18px) + var(--atk) + var(--control-gap,10px) + 8px);bottom:max(16px,env(safe-area-inset-bottom));left:auto;width:auto}
+}
+@media(orientation:landscape) and (max-height:520px){
+ body #battle{--atk:60px;--sm:46px}
+ body #battle .action-group{bottom:max(12px,env(safe-area-inset-bottom))}
+ body #battle .control-center{bottom:max(12px,env(safe-area-inset-bottom))}
+}
+@media(orientation:landscape) and (max-height:380px){
+ body #battle{--atk:56px;--sm:42px}
+}
