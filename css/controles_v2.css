@@ -36,3 +36,6 @@ body #battle .enemy-mini .champion-avatar{border-color:#ee8e8399}
  body #battle .team-mini-title{font-size:8px}
  body #battle[data-mode="2v2"] .hud #pauseBtn,body #battle[data-mode="2v2"] #arenaZoom{top:94px}
 }
+
+/* Rival espelhado: nome junto da foto (à direita) e HP na ponta oposta. */
+body #battle .enemy-mini .team-mini-title{flex-direction:row-reverse}
