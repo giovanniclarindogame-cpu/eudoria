@@ -16,3 +16,16 @@
 @media(orientation:landscape) and (max-height:380px){
  body #battle{--atk:56px;--sm:42px}
 }
+
+/* HUD de equipe: o avatar do aliado/rival usava o tamanho de menu (76px) e cobria o retrato do jogador. */
+body #battle .team-mini .champion-avatar{width:26px;height:26px;flex:0 0 26px;border:1px solid #64b9ed99;box-shadow:none}
+body #battle .enemy-mini .champion-avatar{border-color:#ee8e8399}
+@media(max-height:520px){body #battle .team-mini .champion-avatar{width:20px;height:20px;flex-basis:20px}}
+
+/* Zoom e pausa descem abaixo da linha de equipe (2x2 e Caçada) para não cobrir o HP do rival. */
+@media(orientation:landscape){
+ body #battle[data-mode="2v2"] .hud #pauseBtn,body #battle[data-mode="2v2"] #arenaZoom{top:116px}
+}
+@media(orientation:landscape) and (max-height:520px){
+ body #battle[data-mode="2v2"] .hud #pauseBtn,body #battle[data-mode="2v2"] #arenaZoom{top:84px}
+}
