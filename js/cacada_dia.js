@@ -296,7 +296,7 @@ function bossHit(t,dmg,knock,angle,opt={}){
  const n=dmg*DMG[R.form-1];
  if(opt.breakGuard&&t.guard&&t.inv<=0)breakGuard(t);
  const ok=hit(t,n,A,knock,angle,-1);
- if(ok)R.landed++;
+ if(ok){R.landed++;window.BossCopy?.landed(R,t)}
  return ok;
 }
 function addTele(o){const R=hunt();R.tele.push(Object.assign({t:0,dur:1,color:PK},o))}

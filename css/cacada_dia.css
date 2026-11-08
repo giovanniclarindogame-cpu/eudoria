@@ -110,3 +110,5 @@ body[data-screen=hunt] #modeScreen{padding:0!important;overflow:hidden!important
  .hunt-pane[data-hunt-pane=a] .hunt-card p{font-size:11px;line-height:1.35;-webkit-line-clamp:3}
  .hunt-pane[data-hunt-pane=a] .hunt-pride p{-webkit-line-clamp:2}
 }
+.boss-copy-art{display:inline-flex;align-items:center;justify-content:center}
+.boss-copy-art .boss-copy-ico{width:100%;height:100%;border:0;background:none;padding:0;border-radius:50%}
