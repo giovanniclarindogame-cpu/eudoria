@@ -18,7 +18,7 @@ function bossHit(R,t,dmg,knock,angle,opt={}){
  if(R.def.mech?.dmgMul)n*=R.def.mech.dmgMul(R);
  if(opt.breakGuard&&t.guard&&t.inv<=0)breakGuard(t);
  const ok=hit(t,n,A,knock,angle,-1);
- if(ok){R.landed++;R.def.mech?.onLanded?.(R,t,n,opt)}
+ if(ok){R.landed++;R.def.mech?.onLanded?.(R,t,n,opt);window.BossCopy?.landed(R,t)}
  return ok;
 }
 function addTele(R,o){R.tele.push(Object.assign({t:0,dur:1,color:col(R).b},o))}
