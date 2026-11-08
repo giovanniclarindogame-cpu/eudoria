@@ -98,4 +98,4 @@ O equilíbrio da dificuldade é estimado (testado só com IA e simulações): aj
 
 == TELAS NUMA VISÃO SÓ (css/telas_unicas.css) ==
 - Arenas: 8 modos em 4x2; Campeões/Loja: 10 cartas em 5x2; Configurações, Perfil, Dojo e Início compactados.
-- Teste: node tests/telas-unicas.cjs (9 telas x 6 tamanhos, sem rolagem). A tela da Caçada ainda rola a coluna de informações do chefe.
+- Teste: node tests/telas-unicas.cjs (9 telas x 6 tamanhos, sem rolagem). A Caçada tem 3 abas curtas (Chefe, Habilidades, Dicas e semana), cada uma sem rolagem.
