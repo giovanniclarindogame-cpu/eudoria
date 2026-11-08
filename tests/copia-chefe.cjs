@@ -33,6 +33,14 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
   }
   ok(after.copy===null,`${boss}: usar o 5 gasta a cópia`);
   ok(after.hp<hp0,`${boss}: a habilidade copiada causa dano no chefe (${Math.round(hp0-after.hp)})`);
+  // cópia sem apanhar: o ninja está invulnerável e a distância; só de VER a habilidade já copia
+  await p.evaluate(()=>{const R=huntQA.state;const s=reworkState(p);s.copy=null;s.eye=6;p.inv=99;p.hp=p.max=3000;const a=R.a;p.x=a.x-300;p.y=a.y;(R.def.generic?huntQA.forceG:huntQA.force)('s0');R.act&&0});
+  await p.waitForTimeout(400);
+  const seen=await p.evaluate(()=>{const c=reworkState(p).copy;return{c:c&&c.id,hp:p.hp,max:p.max}});
+  ok(seen.c&&seen.c.startsWith('boss:')&&seen.hp===seen.max,`${boss}: copia só de ver a habilidade, sem tomar dano`);
+  await p.evaluate(()=>{const R=huntQA.state;const s=reworkState(p);s.copy=null;s.eye=6;p.inv=99;const a=R.a;p.x=a.x-900;p.y=a.y;(R.def.generic?huntQA.forceG:huntQA.force)('s1')});
+  await p.waitForTimeout(400);
+  ok(await p.evaluate(()=>reworkState(p).copy===null),`${boss}: longe demais para ver, não copia`);
   ok(errs.length===0,`${boss}: sem erros de JavaScript ${errs.join('|')}`);
   await ctx.close();
  }
