@@ -74,3 +74,39 @@ body[data-screen=hunt] #modeScreen{padding:0!important;overflow:hidden!important
 /* nomes e títulos longos dos chefes não podem empurrar o botão para fora do cartão */
 .hunt-home h2,.hunt-home-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .hunt-home-copy{overflow:hidden}
+
+/* Lobby da Caçada numa visão só: duas abas curtas, sem rolagem interna */
+.hunt-tabs{display:flex;gap:6px;flex:0 0 auto}
+.hunt-tabs button{flex:1;min-height:32px;border:1px solid #647755;border-radius:9px;background:#092219;color:#c3d4c6;font:600 11px system-ui;letter-spacing:.4px;cursor:pointer}
+.hunt-tabs button.on{border-color:#f2ca5c;background:#12372b;color:#f4e5ba}
+.hunt-pane{display:flex;flex-direction:column;gap:8px;min-height:0;flex:1}
+.hunt-pane[hidden]{display:none}
+.hunt-skills.nine{display:flex;align-items:stretch;gap:5px}
+.hunt-skills.nine .hunt-skill{flex:1 1 0;min-width:0;padding:5px 2px;gap:0;min-height:40px}
+.hunt-skills.nine .hunt-skill span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.hunt-skills.nine .hunt-skill img,.hunt-skills.nine .hunt-skill canvas,.hunt-skills.nine .hunt-skill svg{width:34px;height:34px}
+.hunt-sep{flex:0 0 1px;background:#b39d5e66;margin:2px 3px}
+@media (orientation:landscape){
+ .hunt-info{overflow:hidden;gap:6px;padding-right:0}
+ .hunt-card{padding:8px 11px}.hunt-card .eyebrow{margin-bottom:5px;font-size:8.5px}
+ .hunt-card p{font-size:11.5px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+ .hunt-chips{margin-top:6px;gap:4px}.hunt-chips span{font-size:10px;padding:3px 8px}
+ .hunt-pride{gap:10px}.hunt-ico.big{width:44px;height:44px}.pride-demo{margin-bottom:5px}
+ .hunt-pride p{-webkit-line-clamp:3}
+ .hunt-skilldesc{margin-top:6px!important;min-height:0!important;font-size:11px!important;-webkit-line-clamp:3!important}
+ .hunt-tips{font-size:12px;line-height:1.45}
+}
+@media (orientation:landscape){
+ .hunt-week .hunt-day span{display:none}.hunt-day{padding:5px 3px}.hunt-day b{margin:2px 0;font-size:11px}
+ .hunt-skills.nine .hunt-skill{min-height:52px}.hunt-skills.nine .hunt-skill img,.hunt-skills.nine .hunt-skill canvas,.hunt-skills.nine .hunt-skill svg{width:40px;height:40px}
+}
+@media (orientation:landscape){
+ .hunt-pane[data-hunt-pane=b] .hunt-card:last-child .eyebrow{display:none}
+ .hunt-tips{font-size:10.5px;line-height:1.3;padding-left:14px}
+ .hunt-pane[data-hunt-pane=b] .hunt-card{padding:6px 10px}
+ .hunt-pane[data-hunt-pane=b] .hunt-card .eyebrow{margin-bottom:3px}
+ .hunt-day small{font-size:8px}.hunt-day b{font-size:10px;margin:1px 0}.hunt-day{padding:3px 2px}
+ .hunt-pane[data-hunt-pane=a] .hunt-card{padding:6px 10px}
+ .hunt-pane[data-hunt-pane=a] .hunt-card p{font-size:11px;line-height:1.35;-webkit-line-clamp:3}
+ .hunt-pane[data-hunt-pane=a] .hunt-pride p{-webkit-line-clamp:2}
+}

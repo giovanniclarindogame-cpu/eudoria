@@ -109,15 +109,21 @@ function lobbyMarkup(def){
   <section class="hunt-stage"><canvas id="huntArt" width="420" height="340" aria-label="${def.name}, ${def.title}"></canvas>
    <div class="hunt-plate"><strong>${def.name}</strong><span>${def.title}</span><em>Dificuldade ${def.difficulty} <i>${stars(def.stars)}</i></em></div></section>
   <section class="hunt-info">
+   <div class="hunt-tabs" role="tablist"><button role="tab" class="on" data-hunt-tab="a" aria-selected="true">Chefe</button><button role="tab" data-hunt-tab="s" aria-selected="false">Habilidades</button><button role="tab" data-hunt-tab="b" aria-selected="false">Dicas e semana</button></div>
+   <div class="hunt-pane" data-hunt-pane="a">
    <article class="hunt-card"><span class="eyebrow">CHEFE DE HOJE</span><p>${def.story}</p>
     <div class="hunt-chips"><span>${def.generic?'2 fases':'3 formas'}</span><span>${mmss(ARENA_MODES.guardian.seconds)} de limite</span><span>◉ até ${prize} moedas</span><span>Vida ${save.team==='solo'?def.hp:def.hpDuo}</span></div></article>
    <article class="hunt-card"><span class="eyebrow">SISTEMA PRÓPRIO · ${def.system[0].toUpperCase()}</span>
     <div class="hunt-pride">${iconImg(def.systemIcon||'forms','hunt-ico big')}<div><div class="pride-demo"><i></i></div><p>${def.system[1]}</p></div></div></article>
-   <article class="hunt-card"><span class="eyebrow">${def.generic?'6 HABILIDADES':'6 HABILIDADES · AS NOVAS VÊM COM AS FORMAS'}</span><div class="hunt-skills">${def.skills.map(skillBtn).join('')}</div>
-    <span class="eyebrow" style="margin-top:12px;display:block">GOLPE, DEFESA E ESQUIVA</span><div class="hunt-skills three">${def.basics.map(basic).join('')}</div>
+   </div>
+   <div class="hunt-pane" data-hunt-pane="s" hidden>
+   <article class="hunt-card"><span class="eyebrow">${def.generic?'6 HABILIDADES':'6 HABILIDADES · AS NOVAS VÊM COM AS FORMAS'} · GOLPE, DEFESA E ESQUIVA</span><div class="hunt-skills nine">${def.skills.map(skillBtn).join('')}<i class="hunt-sep"></i>${def.basics.map(basic).join('')}</div>
     <p class="hunt-skilldesc" id="huntSkillDesc" role="status">Toque em uma habilidade para ver como ela funciona.</p></article>
+   </div>
+   <div class="hunt-pane" data-hunt-pane="b" hidden>
    <article class="hunt-card"><span class="eyebrow">COMO VENCER</span><ul class="hunt-tips">${def.tips.map(t=>`<li>${t}</li>`).join('')}</ul></article>
    <article class="hunt-card"><span class="eyebrow">CHEFES DA SEMANA</span><div class="hunt-week">${weekStrip(def)}</div></article>
+   </div>
   </section>
  </div>
  <footer class="hunt-foot">
@@ -178,6 +184,7 @@ document.addEventListener('click',e=>{
  if(team&&appScreen==='hunt'){save.team=team.dataset.huntTeam;writeSave(save);
   document.querySelectorAll('[data-hunt-team]').forEach(b=>{const on=b===team;b.classList.toggle('on',on);b.setAttribute('aria-pressed',String(on))});
   const chip=document.querySelectorAll('.hunt-chips span')[3];if(chip)chip.textContent='Vida '+(save.team==='solo'?lobbyDef.hp:lobbyDef.hpDuo);return}
+ const tab=e.target.closest('[data-hunt-tab]');if(tab){for(const t of document.querySelectorAll('[data-hunt-tab]')){const on=t===tab;t.classList.toggle('on',on);t.setAttribute('aria-selected',String(on))}for(const pn of document.querySelectorAll('[data-hunt-pane]'))pn.hidden=pn.dataset.huntPane!==tab.dataset.huntTab;return}
  const sk=e.target.closest('[data-hunt-skill],[data-hunt-basic]');
  if(sk&&appScreen==='hunt'){const s=sk.dataset.huntSkill!==undefined?lobbyDef.skills[sk.dataset.huntSkill]:lobbyDef.basics[sk.dataset.huntBasic];
   document.querySelectorAll('.hunt-skill').forEach(b=>b.classList.toggle('on',b===sk));
