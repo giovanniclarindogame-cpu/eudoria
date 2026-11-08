@@ -40,3 +40,15 @@ ações em ACT. A rotação usa o dia do calendário local.
 TESTES
 node tests/cacada-dia.cjs (Playwright + servidor Python na porta 8000).
 Verificado em 1280x720 e 844x390. Não testado em celular físico.
+
+ESCALA ÚNICA DA INTERFACE
+Antes, cada tamanho de tela tinha medidas próprias espalhadas em vários arquivos de CSS. Agora a batalha
+e os menus são desenhados para UM tamanho de referência (celular na horizontal, 844x390) e crescem juntos
+por um fator contínuo --ui (1 a 1,8), calculado em js/ui_escala.js. Em telas maiores o layout é o mesmo,
+só proporcionalmente maior; os controles ficam ancorados nos cantos e a arena ganha espaço no meio.
+- css/controles_v2.css: HUD, equipe e controles de batalha (defesa/esquiva sobre o ataque, habilidades ao lado).
+- css/ui_menus.css: início, Campeões, Dojo, Liga, Arenas, Caçada e detalhe do campeão.
+- Dentro de um bloco ampliado, unidades dvh/vw também são multiplicadas; por isso os menus usam var(--dvh).
+- Menu lateral só na tela inicial; nas demais telas há um botão de voltar no canto superior direito.
+- Para mudar um tamanho, mude o valor no desenho de referência, não crie regra por tamanho de tela.
+Teste: node tests/ui-escala.cjs (7 tamanhos de tela, 98 verificações).

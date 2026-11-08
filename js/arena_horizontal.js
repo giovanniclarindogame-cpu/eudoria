@@ -7,7 +7,7 @@ configureArenaSize=function(){
 let courtyardWide=false;
 updateArenaCamera=function(){
  if(!cw||!ch)return;
- const top=ch<520?58:88;
+ const top=window.battleTop?battleTop():(ch<520?58:88);
  if(courtyardWide||cw<ch){
   scale=Math.min((cw-20)/W,(ch-top-24)/H);ox=(cw-W*scale)/2;oy=top+(ch-top-H*scale)/2;return;
  }

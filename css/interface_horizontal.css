@@ -2,13 +2,13 @@
 :root{--ui-panel:#152135;--ui-line:#43516b;--ui-ink:#f2eddf;--ui-muted:#adbad0;--ui-gold:#ecd09a;--rail:76px}
 body{background:#0e1727}
 [hidden]{display:none!important}
-#battle{--skill-size:clamp(46px,8.8dvh,64px);--control-gap:10px;--edge:max(18px,env(safe-area-inset-right));}
+#battle{--skill-size:clamp(46px,calc(8.8*var(--dvh,1dvh)),64px);--control-gap:10px;--edge:max(18px,env(safe-area-inset-right));}
 #battle .hud{inset:max(8px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) auto max(16px,env(safe-area-inset-left));min-height:70px;padding:8px 10px;gap:18px;border-color:#7283a0;background:linear-gradient(#131e30f0,#172238dc)}
 #battle .fighterhud{padding-left:60px;max-width:none}#battle .fighterhud.enemy{padding-right:60px}
 #battle .arena-portrait{width:50px;height:58px;top:-2px}
 #battle .mid-hud{flex-basis:84px}#battle .mid-hud:before{font-size:16px}#battle .mid-hud strong{font-size:22px}#battle .mid-hud small{display:none}
 #battle .arena-caption{display:none}
-#battle #stick{left:max(26px,env(safe-area-inset-left));bottom:max(24px,env(safe-area-inset-bottom));width:clamp(100px,23dvh,142px);height:clamp(100px,23dvh,142px);background:radial-gradient(circle,#254f7833,#171f3b99)}
+#battle #stick{left:max(26px,env(safe-area-inset-left));bottom:max(24px,env(safe-area-inset-bottom));width:clamp(100px,calc(23*var(--dvh,1dvh)),142px);height:clamp(100px,calc(23*var(--dvh,1dvh)),142px);background:radial-gradient(circle,#254f7833,#171f3b99)}
 #battle .control-center{right:var(--edge);bottom:max(96px,calc(env(safe-area-inset-bottom) + 96px));width:auto}
 #battle .equipped{grid-template-columns:repeat(3,var(--skill-size));gap:var(--control-gap)}
 #battle .skill{width:var(--skill-size);height:var(--skill-size);border-width:2px;padding:3px;background:#0c172dcc}
@@ -37,12 +37,12 @@ body{background:#0e1727}
 /* A landscape-first navigation rail leaves the full height to each panel. */
 @media(orientation:landscape){
  body{--bg:#0e1727;--panel:#17253b;--line:#40516b;--cream:#f2eddf;--muted:#a5b4cc;--gold:#ecd09a;--mint:#a9d9e6}
- body[data-screen] #lobbyNav{inset:0 auto 0 0;width:calc(var(--rail) + env(safe-area-inset-left));height:100dvh;padding:14px 6px 14px max(6px,env(safe-area-inset-left));display:flex;flex-direction:column;justify-content:center;gap:12px;border:0;border-right:1px solid #44557066;background:#0b1424f5}
+ body[data-screen] #lobbyNav{inset:0 auto 0 0;width:calc(var(--rail) + env(safe-area-inset-left));height:calc(100*var(--dvh,1dvh));padding:14px 6px 14px max(6px,env(safe-area-inset-left));display:flex;flex-direction:column;justify-content:center;gap:12px;border:0;border-right:1px solid #44557066;background:#0b1424f5}
  #lobbyNav button{flex:0 0 68px;width:100%;gap:6px;border-radius:12px;font-size:10px;color:#a5b4cc}
  #lobbyNav button.current{background:#e9c99019;color:#f2d39a;box-shadow:inset 3px 0 #ecd09a}
  #lobbyNav button.current:before{display:none}
  body.hero-detail-open #lobbyNav{visibility:hidden}
- .app-screen:not(#homeScreen),body[data-screen=library] #selection{max-width:none;width:auto;margin:0 0 0 calc(var(--rail) + env(safe-area-inset-left));padding:20px max(22px,env(safe-area-inset-right)) 20px 22px;height:100dvh;overflow-y:auto;overscroll-behavior:contain}
+ .app-screen:not(#homeScreen),body[data-screen=library] #selection{max-width:none;width:auto;margin:0 0 0 calc(var(--rail) + env(safe-area-inset-left));padding:20px max(22px,env(safe-area-inset-right)) 20px 22px;height:calc(100*var(--dvh,1dvh));overflow-y:auto;overscroll-behavior:contain}
  .app-top{padding:0 0 12px;margin-bottom:14px;min-height:48px;border-bottom:1px solid #44557066}
  .app-top .wordmark{font-size:18px}.app-top .wallet{font-size:11px}.app-top .avatar-mini{width:28px;height:28px}
  .section-head{margin:0 0 18px;padding:0}.section-head h1{font-size:32px;margin:8px 0}.section-head p{font-size:12px}.section-head>.ghost{float:right;margin-left:12px}
@@ -52,25 +52,25 @@ body{background:#0e1727}
  .mode-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.mode-card{min-width:0}.mode-card h2{font-size:23px}
  /* Roster: introduction on the left, ten portraits across two rows. */
  body[data-screen=library] #selection{padding:20px 22px}
- .roster-page{max-width:none;margin:0;padding:0;display:grid;grid-template-columns:180px minmax(0,1fr);grid-template-rows:auto auto auto 1fr;gap:14px 24px;min-height:calc(100dvh - 40px)}
+ .roster-page{max-width:none;margin:0;padding:0;display:grid;grid-template-columns:180px minmax(0,1fr);grid-template-rows:auto auto auto 1fr;gap:14px 24px;min-height:calc(calc(100*var(--dvh,1dvh)) - 40px)}
  .roster-head{grid-column:1;grid-row:1;display:flex;align-items:flex-start;flex-wrap:wrap;gap:14px}.roster-head>div{flex-basis:100%;order:2}.roster-head h1{font-size:32px;line-height:1.05;margin:12px 0}.roster-count{margin-left:auto;font-size:24px}
  .roster-intro{grid-column:1;grid-row:2;font-size:12px;margin:0;color:#a9b9cd;line-height:1.6}.hero-search{grid-column:1;grid-row:3;margin:0;background:#17253a;border-color:#526581}.hero-search input{font-size:12px}
- .hero-grid{grid-column:2;grid-row:1/5;grid-template-columns:repeat(5,minmax(0,1fr));grid-auto-rows:minmax(170px,1fr);gap:12px;align-content:start;min-width:0;max-height:calc(100dvh - 40px);overflow-y:auto;padding:3px 3px 7px;overscroll-behavior:contain}
+ .hero-grid{grid-column:2;grid-row:1/5;grid-template-columns:repeat(5,minmax(0,1fr));grid-auto-rows:minmax(170px,1fr);gap:12px;align-content:start;min-width:0;max-height:calc(calc(100*var(--dvh,1dvh)) - 40px);overflow-y:auto;padding:3px 3px 7px;overscroll-behavior:contain}
  .hero-card{aspect-ratio:auto;min-height:170px;border-radius:12px}.hero-card-art img{width:118%;height:100%;object-fit:cover;object-position:center top;top:0}
  .hero-card-copy{padding:28px 9px 12px}.hero-card-copy strong{font-size:clamp(15px,1.6vw,23px)}.hero-card-copy small{font-size:8px;letter-spacing:1px}.hero-card-copy>span{font-size:8px;letter-spacing:0}
  .roster-foot{grid-column:1;grid-row:4;text-align:left;margin:0;align-self:end;font-size:11px;color:#99acc6}
- #shopScreen .roster-page{min-height:calc(100dvh - 110px)}#shopScreen .hero-grid{max-height:calc(100dvh - 110px)}#shopScreen .section-head{grid-column:1;grid-row:1/5}#shopScreen .section-head>.ghost{float:none;margin:0 0 14px}#shopScreen .section-head h1{font-size:30px}
+ #shopScreen .roster-page{min-height:calc(calc(100*var(--dvh,1dvh)) - 110px)}#shopScreen .hero-grid{max-height:calc(calc(100*var(--dvh,1dvh)) - 110px)}#shopScreen .section-head{grid-column:1;grid-row:1/5}#shopScreen .section-head>.ghost{float:none;margin:0 0 14px}#shopScreen .section-head h1{font-size:30px}
  /* Champion details: art on the left; abilities and actions on the right. */
  #heroDetail{overflow:hidden;background:#0b1424}
- .hero-detail-inner{max-width:1400px;height:100dvh;min-height:0;margin:auto;padding:18px max(26px,env(safe-area-inset-right)) 18px max(26px,env(safe-area-inset-left));display:grid;grid-template-columns:minmax(240px,.9fr) minmax(340px,1.1fr);grid-template-rows:44px auto auto auto minmax(0,1fr) auto;gap:12px 32px;background:radial-gradient(ellipse at 23% 45%,color-mix(in srgb,var(--hero) 16%,#142138),#0d1728 65%);overflow:hidden}
+ .hero-detail-inner{max-width:1400px;height:calc(100*var(--dvh,1dvh));min-height:0;margin:auto;padding:18px max(26px,env(safe-area-inset-right)) 18px max(26px,env(safe-area-inset-left));display:grid;grid-template-columns:minmax(240px,.9fr) minmax(340px,1.1fr);grid-template-rows:44px auto auto auto minmax(0,1fr) auto;gap:12px 32px;background:radial-gradient(ellipse at 23% 45%,color-mix(in srgb,var(--hero) 16%,#142138),#0d1728 65%);overflow:hidden}
  .hero-detail-head{grid-column:1/-1;grid-row:1}.hero-heading{grid-column:1;grid-row:2;padding:0}.hero-heading h1{font-size:clamp(26px,3.3vw,46px);margin:6px 0}.hero-stage{grid-column:1;grid-row:3/7;height:auto;min-height:0}.hero-stage>img{height:100%;max-height:100%;object-fit:contain}.hero-stage-label{bottom:5px}
  .hero-info{grid-column:2;grid-row:2;padding:10px 0;align-self:center}.hero-story{grid-column:2;grid-row:3;margin:0;font-size:12px;line-height:1.5;max-height:64px;overflow-y:auto}
  .hero-kit{grid-column:2;grid-row:4;gap:12px;max-width:460px;width:100%;align-self:center}.hero-kit>button{max-height:62px;max-width:62px;min-width:0;width:100%}
  .hero-skill-copy{grid-column:2;grid-row:5;margin:0;min-height:0;overflow-y:auto;padding:12px;background:#0a1325a0;border-color:#60738c44}.hero-skill-copy p{font-size:12px}
  .hero-detail-actions{grid-column:2;grid-row:6;position:static;transform:none;width:100%;max-width:none;padding:0;background:none;gap:12px}.hero-detail-actions button{min-height:46px}
  /* Home: a hero panel beside the combat dashboard. Extra modes stay below. */
- #homeScreen{margin:0 0 0 calc(var(--rail) + env(safe-area-inset-left));padding:0;max-width:none;height:100dvh;overflow-y:auto;background:#0e1727}
- #homeScreen .lobby-shell{min-height:100dvh;max-width:1500px;margin:auto;padding:18px max(22px,env(safe-area-inset-right)) 18px 22px;display:flex;flex-direction:column}
+ #homeScreen{margin:0 0 0 calc(var(--rail) + env(safe-area-inset-left));padding:0;max-width:none;height:calc(100*var(--dvh,1dvh));overflow-y:auto;background:#0e1727}
+ #homeScreen .lobby-shell{min-height:calc(100*var(--dvh,1dvh));max-width:1500px;margin:auto;padding:18px max(22px,env(safe-area-inset-right)) 18px 22px;display:flex;flex-direction:column}
  .lobby-top{height:44px;min-height:44px;margin:0 0 14px;padding:0 0 10px}.lobby-brand{font-size:23px}.lobby-brand>span{font-size:7px}.lobby-wallet{margin-left:auto}.lobby-wallet>span{font-size:12px}
  .lobby-main{display:grid;grid-template-columns:1fr 1fr;gap:24px;flex:1;min-height:0}.lobby-stage{height:auto;min-height:300px;border:1px solid #49617b66;border-radius:16px;background:radial-gradient(ellipse at center,#264050,#142137 65%);overflow:hidden}
  .lobby-stage-title{top:20px;left:20px;right:20px}.lobby-stage-title h1{font-size:clamp(22px,2.6vw,34px)}.lobby-stage-title span{font-size:9px;letter-spacing:2px}.lobby-character{width:85%;height:70%;bottom:8%;left:50%;transform:translateX(-50%)}.lobby-character canvas{width:100%;height:100%;object-fit:contain}.lobby-identity{bottom:14px}
@@ -78,18 +78,18 @@ body{background:#0e1727}
  .arena-discover,#journeyHome{margin:20px 24px}.arena-discover{padding:22px;border:1px solid #4e6078;border-radius:14px;background:#17263a}.arena-discover h2{font-size:28px}
  /* Registration and dialogs use both halves of the display as well. */
  #profileScreen{padding:18px;align-items:center;background:radial-gradient(ellipse at 15% 30%,#263d54,#0c1525 70%)}
- #profileScreen .profile-box{width:min(980px,100%);max-width:none;max-height:calc(100dvh - 36px);overflow-y:auto;display:grid;grid-template-columns:1fr 1fr;gap:12px 30px;padding:24px;background:#142238;border-color:#4e617f}
+ #profileScreen .profile-box{width:min(980px,100%);max-width:none;max-height:calc(calc(100*var(--dvh,1dvh)) - 36px);overflow-y:auto;display:grid;grid-template-columns:1fr 1fr;gap:12px 30px;padding:24px;background:#142238;border-color:#4e617f}
  .profile-box>.eyebrow,.profile-box>h1,.profile-box>p{grid-column:1; margin:0}.profile-box h1{font-size:38px;align-self:center}.profile-box>p{font-size:13px;line-height:1.6}.profile-box>.profile-label,.profile-box>.profile-name,.profile-box>.avatar-grid{grid-column:2}.profile-box>.profile-label[for=profileName]{grid-row:1}.profile-box>.profile-name{grid-row:2;width:100%}.profile-box>.profile-label:not([for]){grid-row:3}.profile-box>.avatar-grid{grid-row:4;margin:0;grid-template-columns:repeat(6,1fr)!important}.profile-box>button{grid-column:2;min-height:44px;margin:0!important;padding:12px!important}.profile-box>.save-warning{grid-column:1/-1}
- #pause .dialog,#outcome .dialog{width:min(800px,92vw);max-height:90dvh;overflow:auto;padding:22px}#pause .dialog h2,#outcome .dialog h2{font-size:28px}#pause .dialog p{font-size:12px;line-height:1.5}#pause .dialog>button,#outcome .dialog>button{margin:10px 5px 0;padding:12px 18px;min-height:44px}
+ #pause .dialog,#outcome .dialog{width:min(800px,92vw);max-height:calc(90*var(--dvh,1dvh));overflow:auto;padding:22px}#pause .dialog h2,#outcome .dialog h2{font-size:28px}#pause .dialog p{font-size:12px;line-height:1.5}#pause .dialog>button,#outcome .dialog>button{margin:10px 5px 0;padding:12px 18px;min-height:44px}
 }
-@media(orientation:landscape) and (max-height:520px){
+@media(orientation:landscape){
  :root{--rail:62px}#lobbyNav button{flex-basis:56px;font-size:9px}#lobbyNav svg{width:20px;height:20px}body[data-screen] #lobbyNav{gap:5px;padding-top:8px;padding-bottom:8px}
- .app-screen:not(#homeScreen),body[data-screen=library] #selection{padding:12px 16px}.roster-page{grid-template-columns:146px minmax(0,1fr);gap:10px 16px;min-height:calc(100dvh - 24px)}
+ .app-screen:not(#homeScreen),body[data-screen=library] #selection{padding:12px 16px}.roster-page{grid-template-columns:146px minmax(0,1fr);gap:10px 16px;min-height:calc(calc(100*var(--dvh,1dvh)) - 24px)}
  .roster-head h1{font-size:26px;margin:6px 0}.roster-head{gap:8px}.roster-intro{font-size:11px}.roster-page .eyebrow{font-size:8px}.roster-count{font-size:20px}.icon-back{width:36px;height:36px}
- .hero-grid{max-height:calc(100dvh - 24px);grid-auto-rows:minmax(150px,1fr);gap:8px}.hero-card{min-height:150px}.hero-card-copy{padding:25px 7px 8px}.hero-card-copy strong{font-size:15px}.hero-card-copy small{font-size:7px}.hero-card-number{font-size:8px}.hero-search input{padding:9px 0;font-size:11px}.roster-foot{font-size:10px}
+ .hero-grid{max-height:calc(calc(100*var(--dvh,1dvh)) - 24px);grid-auto-rows:minmax(150px,1fr);gap:8px}.hero-card{min-height:150px}.hero-card-copy{padding:25px 7px 8px}.hero-card-copy strong{font-size:15px}.hero-card-copy small{font-size:7px}.hero-card-number{font-size:8px}.hero-search input{padding:9px 0;font-size:11px}.roster-foot{font-size:10px}
  .hero-detail-inner{padding:10px 18px;gap:7px 22px;grid-template-columns:minmax(190px,.8fr) minmax(320px,1.2fr);grid-template-rows:36px auto auto 44px minmax(0,1fr) 42px}
  .hero-heading h1{font-size:25px}.hero-heading .eyebrow{font-size:8px}.hero-info{padding:6px 0}.hero-stat>b{font-size:17px}.hero-story{font-size:10px;max-height:32px}.hero-kit{gap:10px;max-width:350px}.hero-kit>button{width:44px;height:44px}.hero-skill-copy{padding:8px 10px}.hero-skill-copy>b{font-size:16px}.hero-skill-copy p{font-size:11px;margin:4px 0;line-height:1.45}.hero-detail-actions button{min-height:42px;padding:8px;font-size:12px}
- #homeScreen .lobby-shell{padding:10px 16px;min-height:100dvh}.lobby-top{height:32px;min-height:32px;margin-bottom:8px;padding-bottom:6px}.lobby-brand{font-size:19px}.lobby-main{gap:16px;grid-template-columns:1fr 1.1fr}.lobby-stage{min-height:280px}.lobby-stage-title{top:12px;left:12px;right:12px}.lobby-stage-title h1{font-size:22px}.lobby-stage-title span{font-size:8px}.lobby-dashboard{gap:6px;justify-content:flex-start}.lobby-rank{min-height:46px;padding:5px 10px}.lobby-rank-emblem{width:26px;height:32px}.lobby-rank-line strong{font-size:17px}.lobby-rank-goal{display:none}.lobby-build{padding:3px 10px}.lobby-build-head{min-height:32px}.lobby-build-title strong{font-size:15px!important}.lobby-build-title small{font-size:7px}.lobby-build-icons{max-width:260px;gap:6px;padding:2px}.lobby-build-icons>span{max-width:32px;max-height:32px}.lobby-build-foot{min-height:22px}.lobby-build-foot button{min-height:24px}.lobby-mode-wrap{margin:4px 0}.lobby-mode-wrap select{height:36px;font-size:11px}.lobby-mode-wrap>svg{top:8px}.lobby-play{min-height:46px}.lobby-play strong{font-size:20px}.lobby-mode-copy{font-size:9px;margin:4px 0}.journey-link{min-height:26px;padding:4px;font-size:10px}.lobby-status{font-size:8px}
+ #homeScreen .lobby-shell{padding:10px 16px;min-height:calc(100*var(--dvh,1dvh))}.lobby-top{height:32px;min-height:32px;margin-bottom:8px;padding-bottom:6px}.lobby-brand{font-size:19px}.lobby-main{gap:16px;grid-template-columns:1fr 1.1fr}.lobby-stage{min-height:280px}.lobby-stage-title{top:12px;left:12px;right:12px}.lobby-stage-title h1{font-size:22px}.lobby-stage-title span{font-size:8px}.lobby-dashboard{gap:6px;justify-content:flex-start}.lobby-rank{min-height:46px;padding:5px 10px}.lobby-rank-emblem{width:26px;height:32px}.lobby-rank-line strong{font-size:17px}.lobby-rank-goal{display:none}.lobby-build{padding:3px 10px}.lobby-build-head{min-height:32px}.lobby-build-title strong{font-size:15px!important}.lobby-build-title small{font-size:7px}.lobby-build-icons{max-width:260px;gap:6px;padding:2px}.lobby-build-icons>span{max-width:32px;max-height:32px}.lobby-build-foot{min-height:22px}.lobby-build-foot button{min-height:24px}.lobby-mode-wrap{margin:4px 0}.lobby-mode-wrap select{height:36px;font-size:11px}.lobby-mode-wrap>svg{top:8px}.lobby-play{min-height:46px}.lobby-play strong{font-size:20px}.lobby-mode-copy{font-size:9px;margin:4px 0}.journey-link{min-height:26px;padding:4px;font-size:10px}.lobby-status{font-size:8px}
  .app-top{min-height:36px;margin-bottom:10px;padding-bottom:7px}.app-top .wordmark{font-size:16px}.app-top .wallet{font-size:10px}.section-head h1{font-size:25px;margin:5px 0}.section-head{margin-bottom:12px}.progression-grid{gap:12px}.panel{padding:14px}.panel h2{font-size:21px}.panel p{font-size:11px}.training-skill-list{gap:8px;font-size:10px}.mode-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.league-emblem{font-size:38px}.league-summary h2{font-size:25px}.league-ranks{margin:10px 0}
  #profileScreen .profile-box{padding:18px 22px;gap:8px 24px}.profile-box h1{font-size:32px}.profile-box>p{font-size:12px}#profileScreen .avatar-grid{gap:6px}.profile-box .profile-label{font-size:9px}
 }
@@ -113,7 +113,7 @@ body.hero-detail-open .hero-detail-head{padding-right:150px}
 @media(max-height:520px){body:has(#battle[style*="display: block"]) #fullscreenToggle{top:65px;right:calc(max(18px,env(safe-area-inset-right)) + 88px);width:34px;height:34px;min-height:34px;min-width:34px}}
 html:fullscreen,html:-webkit-full-screen{width:100%;height:100%;background:#0e1727}
 @media(orientation:landscape){
- #homeScreen .lobby-shell{height:100dvh;min-height:100dvh}
+ #homeScreen .lobby-shell{height:calc(100*var(--dvh,1dvh));min-height:calc(100*var(--dvh,1dvh))}
  #homeScreen .lobby-stage{min-height:0}
  #homeScreen .lobby-dashboard{min-height:0;overflow-y:auto;overscroll-behavior:contain;padding-right:2px}
  #homeScreen .lobby-settings{width:32px;height:32px;min-height:32px;padding:6px}

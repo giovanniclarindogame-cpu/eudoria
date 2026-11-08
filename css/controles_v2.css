@@ -1,41 +1,62 @@
-/* Controles v2 (horizontal): ataque no canto, esquiva logo acima dele e defesa acima da esquiva;
-   as 6 habilidades ficam ao lado da coluna, alinhadas por baixo. Carregado por último. */
+/*
+ * UI DE BATALHA UNIFICADA.
+ * Um único desenho de referência (celular na horizontal, 844×390) vale para todos os tamanhos.
+ * js/ui_escala.js calcula --ui (1 a 1.8) a partir do tamanho da tela e cada bloco do HUD/controles
+ * usa `zoom: var(--ui)`: as posições (ancoradas nos cantos) e os tamanhos crescem juntos, então o
+ * layout é idêntico em qualquer aparelho e a arena só ganha espaço no meio.
+ * As regras por tamanho de tela dos arquivos antigos continuam existindo, mas aqui os valores da
+ * batalha são fixados com !important para não dependerem delas.
+ */
 @media(orientation:landscape){
- body #battle{--atk:76px;--sm:54px}
- body #battle .action-group{display:grid;grid-template-columns:auto;grid-auto-rows:auto;justify-items:center;align-items:end;gap:calc(var(--control-gap,10px) + 2px);right:var(--edge,18px);bottom:max(16px,env(safe-area-inset-bottom));left:auto;width:auto}
- body #battle .action-group #attack{order:3;width:var(--atk);height:var(--atk)}
- body #battle .action-group #dodge{order:2;width:var(--sm);height:var(--sm)}
- body #battle .action-group #defend{order:1;width:var(--sm);height:var(--sm)}
- body #battle .control-center{right:calc(var(--edge,18px) + var(--atk) + var(--control-gap,10px) + 8px);bottom:max(16px,env(safe-area-inset-bottom));left:auto;width:auto}
-}
-@media(orientation:landscape) and (max-height:520px){
- body #battle{--atk:60px;--sm:46px}
- body #battle .action-group{bottom:max(12px,env(safe-area-inset-bottom))}
- body #battle .control-center{bottom:max(12px,env(safe-area-inset-bottom))}
-}
-@media(orientation:landscape) and (max-height:380px){
- body #battle{--atk:56px;--sm:42px}
-}
+ body #battle{--edge:max(18px,env(safe-area-inset-right));--skill-size:48px;--control-gap:9px;--atk:60px;--sm:46px;--hud-height:58px}
+ body #battle[data-mode="2v2"]:has(#teamHud:not([hidden])){--hud-height:82px}
+ body #battle #countdown{top:calc((var(--hud-height) + 17px)*var(--ui,1))!important}
 
-/* HUD de equipe: o avatar do aliado/rival usava o tamanho de menu (76px) e cobria o retrato do jogador. */
-body #battle .team-mini .champion-avatar{width:26px;height:26px;flex:0 0 26px;border:1px solid #64b9ed99;box-shadow:none}
-body #battle .enemy-mini .champion-avatar{border-color:#ee8e8399}
-@media(max-height:520px){body #battle .team-mini .champion-avatar{width:20px;height:20px;flex-basis:20px}}
+ /* ---------- HUD ---------- */
+ body #battle .hud{zoom:var(--ui,1);height:auto!important;inset:5px max(12px,env(safe-area-inset-right)) auto max(12px,env(safe-area-inset-left))!important;min-height:50px!important;padding:5px 8px!important;gap:10px!important}
+ body #battle[data-mode="2v2"]:has(#teamHud:not([hidden])) .hud{min-height:82px!important}
+ body #battle .fighterhud{padding-left:43px!important;max-width:none!important}
+ body #battle .fighterhud.enemy{padding-left:0!important;padding-right:43px!important}
+ body #battle .arena-portrait{width:36px!important;height:42px!important;top:0!important}
+ body #battle .fighterhud .title{font-size:10px!important;letter-spacing:0!important;margin-bottom:3px}
+ body #battle .bar{height:10px!important}
+ body #battle .resources{margin-top:4px!important}
+ body #battle .resources .bar{height:6px!important}
+ body #battle .mid-hud{flex-basis:62px!important}
+ body #battle .mid-hud:before{font-size:12px!important}
+ body #battle .mid-hud strong{font-size:18px!important}
+ body #battle .mid-hud small,body #battle #resText,body #battle .arena-caption{display:none!important}
 
-/* Linha de equipe dentro da moldura do HUD: a moldura cresce para conter foto + barra de HP vermelha. */
-@media(orientation:landscape){
- body #battle[data-mode="2v2"]:has(#teamHud:not([hidden])) .hud{min-height:108px}
- body #battle .team-mini .team-mini-bar{height:9px;margin-top:3px;border-radius:99px;background:#1a0b14;border:1px solid #7283a0aa;overflow:hidden}
+ /* ---------- Equipe (aliado e rival dentro da moldura) ---------- */
+ body #battle .teamhud{zoom:var(--ui,1);top:60px!important;height:20px}
+ body #battle .team-mini .champion-avatar{width:20px;height:20px;flex:0 0 20px;border:1px solid #64b9ed99;box-shadow:none}
+ body #battle .enemy-mini .champion-avatar{border-color:#ee8e8399}
+ body #battle .team-mini .team-mini-bar{height:7px;margin-top:3px;border-radius:99px;background:#1a0b14;border:1px solid #7283a0aa;overflow:hidden}
  body #battle .team-mini .team-mini-bar i,body #battle .enemy-mini .team-mini-bar i{border-radius:99px;background:linear-gradient(#ff8a94,#e0344d 55%,#a81c33)}
- body #battle .team-mini-title{font-size:10px;font-weight:600}
- body #battle[data-mode="2v2"] .hud #pauseBtn,body #battle[data-mode="2v2"] #arenaZoom{top:124px}
-}
-@media(orientation:landscape) and (max-height:520px){
- body #battle[data-mode="2v2"]:has(#teamHud:not([hidden])) .hud{min-height:82px}
- body #battle .team-mini .team-mini-bar{height:7px}
- body #battle .team-mini-title{font-size:8px}
- body #battle[data-mode="2v2"] .hud #pauseBtn,body #battle[data-mode="2v2"] #arenaZoom{top:94px}
-}
+ body #battle .team-mini-title{font-size:8px;font-weight:600}
+ body #battle .enemy-mini .team-mini-title{flex-direction:row-reverse}
 
-/* Rival espelhado: nome junto da foto (à direita) e HP na ponta oposta. */
-body #battle .enemy-mini .team-mini-title{flex-direction:row-reverse}
+ /* ---------- Zoom, pausa e avisos ---------- */
+ body #battle .hud #pauseBtn,body #battle #arenaZoom{top:65px!important;width:34px!important;height:34px!important;right:max(18px,env(safe-area-inset-right))!important}
+ body #battle #arenaZoom{zoom:var(--ui,1)}
+ body #battle #arenaZoom{right:calc(max(18px,env(safe-area-inset-right)) + 44px)!important}
+ body #battle[data-mode="2v2"]:has(#teamHud:not([hidden])) .hud #pauseBtn,body #battle[data-mode="2v2"]:has(#teamHud:not([hidden])) #arenaZoom{top:94px!important}
+ body #battle #practiceMeter{zoom:var(--ui,1);top:64px!important;font-size:9px;max-width:150px}
+ body #battle #toast{zoom:var(--ui,1);top:66px!important}
+ body #battle #modeObjective{zoom:var(--ui,1);top:60px!important;font-size:9px}
+ body #battle #riftCombatToggle{zoom:var(--ui,1);top:108px!important}
+
+ /* ---------- Controles ---------- */
+ body #battle #stick{zoom:var(--ui,1);left:max(26px,env(safe-area-inset-left))!important;bottom:max(24px,env(safe-area-inset-bottom))!important;width:100px!important;height:100px!important}
+ body #battle .control-center{zoom:var(--ui,1);right:calc(var(--edge) + var(--atk) + var(--control-gap) + 8px)!important;bottom:max(12px,env(safe-area-inset-bottom))!important;left:auto!important;width:auto!important}
+ body #battle .equipped{grid-template-columns:repeat(3,var(--skill-size))!important;gap:var(--control-gap)!important}
+ body #battle .skill{width:var(--skill-size)!important;height:var(--skill-size)!important;border-width:2px!important;padding:3px!important}
+ body #battle .skill .hotkey{width:16px!important;height:16px!important;font-size:10px!important}
+ /* ataque no canto; esquiva logo acima dele; defesa acima da esquiva */
+ body #battle .action-group{zoom:var(--ui,1);display:grid!important;grid-template-columns:auto;grid-auto-rows:auto;justify-items:center;align-items:end;gap:12px!important;right:var(--edge)!important;bottom:max(12px,env(safe-area-inset-bottom))!important;left:auto!important;width:auto!important}
+ body #battle .action-group #attack{order:3;width:var(--atk)!important;height:var(--atk)!important}
+ body #battle .action-group #dodge{order:2;width:var(--sm)!important;height:var(--sm)!important}
+ body #battle .action-group #defend{order:1;width:var(--sm)!important;height:var(--sm)!important}
+ body #battle .action small{font-size:8px!important}
+ body #battle .action svg{width:22px!important;height:22px!important}
+}

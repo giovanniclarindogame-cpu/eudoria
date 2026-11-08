@@ -13,7 +13,7 @@ body:not([data-screen=home]) :is(.simple-header,.roster-head,.hunt-top,.section-
 .royal-mode-copy .mode-info{margin-left:6px;padding:2px 10px;min-height:26px;font-size:11px;color:#dccb99;background:#092219;border:1px solid #85977566;border-radius:99px;cursor:pointer;touch-action:manipulation}
 .royal-mode-copy .mode-info:hover{border-color:#f2ca5c;color:#fff4cc}
 .royal-mode-copy .mode-more{display:block;margin-top:5px;font-size:11px;line-height:1.45;color:#b9cbbb}
-@media(max-height:560px){.royal-mode-copy .mode-short{font-size:10px}.royal-mode-copy .mode-info{min-height:20px;padding:1px 8px;font-size:9px}.royal-mode-copy .mode-more{font-size:9px}}
+@media(orientation:landscape){.royal-mode-copy .mode-short{font-size:10px}.royal-mode-copy .mode-info{min-height:20px;padding:1px 8px;font-size:9px}.royal-mode-copy .mode-more{font-size:9px}}
 /* Campeões: a grade começa abaixo do botão de voltar para ele não cobrir um cartão. */
 body[data-screen=library] .hero-grid,body[data-screen=library] .empty-roster{margin-top:54px}
 body[data-screen=library] .hero-search{position:relative;z-index:1}

@@ -1,0 +1,20 @@
+/*
+ * Menus na mesma escala única da batalha (ver controles_v2.css e js/ui_escala.js): cada tela é desenhada
+ * para 844x390 e cresce por --ui. O container ocupa 1/ui da janela (menos o que for fixo) para que,
+ * depois do zoom, preencha exatamente a tela.
+ * Unidades de janela (dvh) dentro de um bloco ampliado também são multiplicadas pela escala; por isso as
+ * regras usam var(--dvh), que vale 1dvh fora das telas ampliadas e 1dvh/ui dentro delas.
+ */
+@media(orientation:landscape){
+ html body[data-screen=home]{--eldoria-rail:90px}
+ html body[data-screen=home] #homeScreen{zoom:var(--ui,1);--dvh:calc(1dvh/var(--ui,1));width:calc(100vw/var(--ui,1) - var(--eldoria-rail) - var(--safe-left))!important;height:calc(100dvh/var(--ui,1))!important}
+ body[data-screen=home] .royal-lobby{height:100%!important;min-height:0!important}
+ html body[data-screen=home] #lobbyNav.royal-nav{zoom:var(--ui,1);height:calc(100dvh/var(--ui,1))!important}
+ body[data-screen=home] .royal-sanctuary-title h1{display:none}
+ body[data-screen=home] .royal-sanctuary-title{top:14px}
+
+ /* demais telas: sem menu lateral (ver menu_v2.css), ocupam a largura toda */
+ html body:not([data-screen=home]):not([data-screen=profile]) :is(.app-screen:not(#homeScreen),#selection){zoom:var(--ui,1);--dvh:calc(1dvh/var(--ui,1));width:calc(100vw/var(--ui,1) - var(--safe-left))!important;height:calc(100dvh/var(--ui,1))!important;margin-left:var(--safe-left)!important;max-width:none!important}
+ html body:not([data-screen=home]):not([data-screen=profile]) #modeScreen.app-screen{inset:0 auto auto var(--safe-left)!important;margin-left:0!important}
+ html body #heroDetail{zoom:var(--ui,1);--dvh:calc(1dvh/var(--ui,1));width:calc(100vw/var(--ui,1))!important;height:calc(100dvh/var(--ui,1))!important;max-width:none!important;inset:0 auto auto 0!important}
+}
