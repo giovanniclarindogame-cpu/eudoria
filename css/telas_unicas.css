@@ -1,0 +1,66 @@
+/*
+ * Telas "numa visão só": nada de rolar para achar as coisas.
+ * Cada tela é montada para caber em 844x390 (e cresce por --ui). Regras mais específicas só onde
+ * o conteúdo antes passava da altura.
+ */
+@media(orientation:landscape){
+ /* Arenas: 8 modos em 4 colunas x 2 linhas */
+ body:not([data-screen=hunt]) #modeScreen.app-screen:not([hidden]){display:flex!important;flex-direction:column;overflow:hidden!important;padding:10px 16px 10px!important}
+ body:not([data-screen=hunt]) #modeScreen .simple-header{flex:0 0 auto;min-height:0!important;margin:0 0 8px!important;padding:0 62px 6px 0!important}
+ body:not([data-screen=hunt]) #modeScreen .simple-header h1{font-size:24px!important;margin:0!important}
+ body:not([data-screen=hunt]) #modeScreen .simple-header p{display:none}
+ body:not([data-screen=hunt]) #modeScreen .simple-mode-grid{flex:1 1 0;min-height:0;grid-template-columns:repeat(4,minmax(0,1fr))!important;grid-template-rows:repeat(2,minmax(0,1fr));gap:8px!important}
+ body:not([data-screen=hunt]) #modeScreen .simple-mode{padding:10px 12px!important;gap:5px!important;overflow:hidden;justify-content:flex-start}
+ body:not([data-screen=hunt]) #modeScreen .simple-mode h2{font-size:17px!important;line-height:1.1}
+ body:not([data-screen=hunt]) #modeScreen .simple-mode p{font-size:10.5px!important;line-height:1.35!important}
+ body:not([data-screen=hunt]) #modeScreen .simple-mode .eyebrow{font-size:8px!important}
+ body:not([data-screen=hunt]) #modeScreen .simple-mode .gold{min-height:30px!important;padding:5px!important;font-size:12px!important;margin-top:auto}
+ /* regras completas: botão pequeno no rodapé; abre como painel sobre os cartões */
+ body:not([data-screen=hunt]) #modeScreen .simple-mode-rules{position:absolute;right:16px;top:calc(10px + 4px);margin:0!important;padding:0!important;min-height:0!important;border:0!important;background:none!important;z-index:5}
+ body:not([data-screen=hunt]) #modeScreen .simple-mode-rules{display:none!important}
+}
+@media(orientation:landscape) and (max-width:720px){
+ body:not([data-screen=hunt]) #modeScreen .simple-rule{display:none}
+}
+
+/* Campeões e Loja: 10 cartas em 5 colunas x 2 linhas, qualquer tamanho de celular */
+@media(orientation:landscape){
+ body[data-screen=library] .hero-grid,body[data-screen=shop] .hero-grid{grid-template-columns:repeat(5,minmax(0,1fr))!important;grid-auto-rows:calc((100*var(--dvh,1dvh) - 96px)/2)!important;gap:8px!important;max-height:none!important}
+ body[data-screen=library] .hero-card,body[data-screen=shop] .hero-card{min-height:0!important}
+}
+
+/* Home: o selo de cristais já diz a recompensa; o texto repetido empurrava o cartão para fora */
+@media(orientation:landscape){
+ body[data-screen=home] #journeyHome .journey-card>p{display:none}
+ body[data-screen=home] #journeyHome.royal-missions{overflow:hidden}
+ /* Dojo sem sobra de rolagem */
+ body[data-screen=training] #trainingScreen.app-screen{padding-bottom:4px!important;padding-top:8px!important}
+}
+/* Configurações: cabem em qualquer altura de celular */
+@media(orientation:landscape) and (max-height:430px){
+ #lobbySettings .lobby-settings-dialog{max-height:calc(100dvh - 12px)!important;overflow:hidden!important;padding:12px 18px!important;gap:6px!important;display:flex;flex-direction:column}
+ #lobbySettings .lobby-settings-heading{margin:0!important}
+ #lobbySettings .lobby-settings-dialog h2{font-size:24px!important;margin:0!important}
+ #lobbySettings .lobby-settings-heading button{width:36px!important;height:36px!important;min-height:0!important}
+ #lobbySettings .lobby-settings-dialog select{min-height:34px!important;padding:4px 10px!important;margin:0!important}
+ #lobbySettings .lobby-settings-dialog label{margin:0!important}
+ #lobbySettings .lobby-motion-option{gap:8px!important;padding:0!important;min-height:0!important}
+ #lobbySettings .lobby-motion-option small{font-size:10px!important;line-height:1.25!important}
+ #lobbySettings .lobby-settings-done{min-height:36px!important;margin-top:2px!important;padding:6px!important}
+}
+@media(orientation:landscape){
+ body[data-screen=home] #journeyHome .royal-reward{display:none!important}
+ body[data-screen=home] #journeyHome .journey-card>.eyebrow::after{content:"  ·  +125 ◆";color:#8fe3f0}
+}
+
+/* Perfil: formulário compacto, sem rolagem */
+@media(orientation:landscape) and (max-height:460px){
+ #profileScreen .profile-box{padding:12px 18px!important;gap:5px 24px!important}
+ #profileScreen #profileForm{gap:5px!important;overflow:visible!important;max-height:none!important}
+ #profileScreen .profile-name,#profileScreen input{min-height:34px!important;height:34px!important;padding:4px 10px!important}
+ #profileScreen .avatar-grid>button{height:58px!important;min-height:58px!important;padding:3px!important}
+ #profileScreen .avatar-grid svg{width:22px!important;height:22px!important;margin-bottom:2px!important}
+ #profileScreen .avatar-grid .avatar-choice span{font-size:8.5px!important;line-height:10px!important}
+ #profileScreen .profile-box button.gold,#profileScreen .profile-box button.ghost,#profileScreen .profile-box button[type=submit]{min-height:34px!important;height:34px!important;padding:4px!important}
+ #profileScreen .profile-label{margin:2px 0 0!important}
+}
