@@ -104,3 +104,8 @@ O equilíbrio da dificuldade é estimado (testado só com IA e simulações): aj
 - Ninja das Brumas: com o Olho Copiador aberto, a próxima habilidade do chefe (exceto ultimates) fica guardada assim que ele a lança (até 520 de distância, sem precisar ser atingido) ou quando o acertar.
 - Botão 5 usa a cópia: 75% do dano, metade da recarga. Funciona nos 10 chefes (leque, raio, avanço, chuva, explosões em área).
 - Teste: node tests/copia-chefe.cjs
+
+== KAKASHI NOS DUELOS + EQUILÍBRIO ==
+- Olho Copiador também copia ao VER o rival lançar uma habilidade (alcance de vista 520) e agora copia as ULTIMATES dos heróis (ao ver ou ao ser atingido).
+- Simulação IA x IA (tests/simulacao-duelo.cjs 1 0 150): Kakashi x Goku antes = 26% x 74%; depois = 48% x 52% (sementes extras: 53% e 50%).
+- Testes: node tests/copia-heroi.cjs, node tests/copia-chefe.cjs

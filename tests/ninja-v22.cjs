@@ -8,7 +8,7 @@ const{chromium}=require('playwright'),assert=require('node:assert/strict');
  ninjaSetup();cast(p,p.kit[2],0);advance(.4);check(p.hits===0,'trap needs arming');advance(.5);check(p.hits===1&&b.root>0,'trap fires and roots');
  ninjaSetup();const start=p.x;cast(p,p.kit[3],0);advance(.5);check(p.x<start-70,'fallback dodge backward');
  ninjaSetup();b.x=1000;cast(p,p.kit[1],0);advance(.7);const c=originalClone(p);const cx=c.x,px=p.x;cast(p,p.kit[3],0);advance(.09);check(Math.abs(p.x-cx)<20&&Math.abs(c.x-px)<10,'swap clone');
- ninjaSetup();reworkState(p).eye=4;hit(p,20,b,0,0,CHAMPIONS[0].kit[5]);check(!reworkState(p).copy,'ultimate not copied');p.inv=0;hit(p,20,b,0,0,CHAMPIONS[0].kit[0]);check(reworkState(p).copy&&p.hp<p.max,'copy costs received damage');p.cd[p.kit[4]]=0;cast(p,p.kit[4],0);advance(.4);check(!reworkState(p).copy&&p.skin===1,'copy consumed, model preserved');
+ ninjaSetup();reworkState(p).eye=4;hit(p,20,b,0,0,CHAMPIONS[0].kit[5]);check(reworkState(p).copy?.id===CHAMPIONS[0].kit[5],'ultimate is copied');reworkState(p).copy=null;reworkState(p).eye=4;p.inv=0;hit(p,20,b,0,0,CHAMPIONS[0].kit[0]);check(reworkState(p).copy&&p.hp<p.max,'copy costs received damage');p.cd[p.kit[4]]=0;cast(p,p.kit[4],0);advance(.4);check(!reworkState(p).copy&&p.skin===1,'copy consumed, model preserved');
  ninjaSetup();b.x=600;reworkState(p).copy={id:CHAMPIONS[0].kit[0]};cast(p,p.kit[5],0);advance(1.4);check(p.hits===1&&p.damage>=300&&!reworkState(p).copy,'ultimate contact bonus');
  ninjaSetup();b.y=500;const before=p.x;cast(p,p.kit[5],0);advance(1.4);check(p.hits===0&&p.x>before,'ultimate misses off-axis target');
  });

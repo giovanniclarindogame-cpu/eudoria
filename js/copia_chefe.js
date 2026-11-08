@@ -63,5 +63,25 @@
   if(typeof id==='string'&&id.startsWith('boss:')){const sk=skills[id]?.boss;return `<span class="skill-art boss-copy-art" aria-hidden="true">${sk&&window.HuntAPI?HuntAPI.iconImg(sk.icon,'hunt-ico boss-copy-ico'):''}</span>`}
   return oi(id);
  };
+
+ // Duelos: ao VER um campeão rival lançar uma habilidade (inclusive a ultimate), o olho aberto a copia.
+ function copyHero(t,id){
+  try{
+   if(typeof reworkState!=='function'||t.skin!==1||t.hp<=0||t.copySource)return false;
+   const ts=reworkState(t);if(!(ts.eye>0)||ts.copy)return false;
+   ts.copy={id};ts.eye=0;t.cd[t.kit[4]]=0;
+   try{rwFx(t,4,t.x,t.y,'copied',.6,{size:80})}catch{}
+   if(t===p)toast('Copiado: '+skills[id].name+' · use 5');
+   return true;
+  }catch(e){console.error('[Eldoria] cópia de herói',e);return false}
+ }
+ const prevCast=rwCast;
+ rwCast=function(a,id,manual){
+  const ok=prevCast(a,id,manual);
+  if(ok&&a&&!a.copySource&&skills[id]?.reworked&&a.skin!==undefined){
+   for(const t of actors){if(t.team===a.team||t.skin!==1||t.hp<=0||t===a)continue;if(Math.hypot(t.x-a.x,t.y-a.y)<=SIGHT)copyHero(t,id)}
+  }
+  return ok;
+ };
  window.BossCopy={landed,tryCopy,castBoss,key,SIGHT};
 })();
