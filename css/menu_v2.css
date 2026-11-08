@@ -23,3 +23,10 @@ body[data-screen=library] .hero-search{position:relative;z-index:1}
 .royal-mode[data-royal-mode="online"]{flex-direction:row;gap:8px}
 .royal-mode[data-royal-mode="online"] small{font-size:10px}
 .royal-mode[data-royal-mode="online"]{flex-direction:column;gap:1px}
+
+/* Ilustração grande do campeão no santuário (ocupa a altura disponível, acima da placa do nome) */
+body[data-screen=home] .royal-hero{top:11%!important;bottom:17%!important;left:18%!important;right:18%!important;width:auto!important;height:auto!important;transform:none!important}
+body[data-screen=home] .royal-hero-art{display:block;width:100%;height:100%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 6px 8px #000a);pointer-events:none;user-select:none}
+@media(prefers-reduced-motion:no-preference){body[data-screen=home] .royal-hero-art{animation:heroFloat 4s ease-in-out infinite}}
+@keyframes heroFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+body[data-screen=home] .royal-sanctuary-title{display:none!important}
