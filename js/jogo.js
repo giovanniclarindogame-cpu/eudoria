@@ -102,7 +102,7 @@ let W=1000,H=650,cw=0,ch=0,scale=1,ox=0,oy=0,actors=[],p,b,objects=[],shots=[],z
 let pillars=[];
 let spriteFX=[];
 let groundCache=null,pillarCache=null,backgroundBuilds=0;
-function resize(){let r=canvas.getBoundingClientRect();cw=r.width;ch=r.height;const d=Math.min(devicePixelRatio||1,2);canvas.width=cw*d;canvas.height=ch*d;ctx.setTransform(d,0,0,d,0,0);const trim=innerWidth<600?34:0;scale=Math.min(cw/(W-trim*2),ch/(H-trim*2));ox=(cw-W*scale)/2;oy=(ch-H*scale)/2;updateArenaCamera()}
+function resize(){let r=canvas.getBoundingClientRect();cw=r.width;ch=r.height;const d=Math.min(devicePixelRatio||1,window.renderCap||2);canvas.width=cw*d;canvas.height=ch*d;ctx.setTransform(d,0,0,d,0,0);const trim=innerWidth<600?34:0;scale=Math.min(cw/(W-trim*2),ch/(H-trim*2));ox=(cw-W*scale)/2;oy=(ch-H*scale)/2;updateArenaCamera()}
 addEventListener('resize',resize);
 function actor(x,y,kit,color){return {skin:0,champAction:null,ultActive:false,ultimateUntil:0,ultimateDashHits:null,x,y,r:17,a:0,hp:1000,max:1000,mp:120,st:100,kit,cd:Array(skills.length).fill(0),basic:0,inv:0,dodgeCD:0,dodgeTime:0,dodgeA:0,dash:0,dashA:0,dashDmg:0,dashHit:false,slow:0,root:0,cast:0,buff:{},color,damage:0,hits:0,moving:false,gait:0,swing:0,flash:0,absorbed:0,charges:0,marks:0,orbit:0,reverse:0,think:0,petTime:0,shieldHP:0,pullBudget:0,reflect:0,dots:[],guard:false,guardBreak:0,guardTimer:0,guardCD:0,guardPerfect:0,blockFlash:0,blockedDamage:0,hitReact:0,hitReactA:0,punchTime:0,punchSide:1,combo:0,comboTimer:0,hitChain:0,chainTarget:null,skillLock:0,actionRecovery:0,aiRest:0,aiSequence:0,aiBudget:2+Math.floor(Math.random()*2)}}
 function announce(t){$('#announce').textContent=t}
