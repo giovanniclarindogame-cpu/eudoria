@@ -19,6 +19,23 @@
   const more=b.parentElement.querySelector('.mode-more'),open=more.hidden;
   more.hidden=!open;b.setAttribute('aria-expanded',String(open));b.textContent=open?'Ocultar':'Regras';
  });
+
+ /*
+  * Santuário da tela inicial: usa a ilustração grande do campeão (a mesma de Campeões/Dojo) em vez do corpo
+  * pixelado de combate, que é pequeno. O corpo pixelado continua existindo só dentro da batalha.
+  */
+ function heroArtURL(){try{return championArt(currentChampion())}catch{return''}}
+ function paintHeroArt(){
+  const btn=document.querySelector('.royal-hero');if(!btn)return;
+  let img=btn.querySelector('.royal-hero-art');
+  if(!img){btn.innerHTML='<img class="royal-hero-art" alt="" draggable="false">';img=btn.firstElementChild}
+  const url=heroArtURL();if(img.getAttribute('src')!==url)img.setAttribute('src',url);
+  img.alt=currentChampion().name;
+ }
+ const prevHomeArt=renderLobbyHome;
+ renderLobbyHome=function(){prevHomeArt.apply(this,arguments);paintHeroArt()};
+ const prevBuild=renderLobbyBuild;
+ renderLobbyBuild=function(){prevBuild.apply(this,arguments);paintHeroArt()};
  const back=document.createElement('button');
  back.id='backHome';back.type='button';back.dataset.nav='home';
  back.setAttribute('aria-label','Voltar ao início');back.title='Voltar ao início';
