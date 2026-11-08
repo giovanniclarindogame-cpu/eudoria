@@ -2,7 +2,7 @@
 
 @media(max-width:850px){.grid{grid-template-columns:repeat(3,1fr)}.mode-card{display:none}#selection{padding:22px 22px 130px}.equipped{gap:6px}#controls{padding-left:20px;padding-right:20px}.control-tip{font-size:9px}.skill{padding:9px}}
 
-@media(max-height:520px) and (orientation:landscape){#arena{top:70px;height:calc(100% - 150px)}.hud{padding:8px 16px}.botkit{display:none}.arena-caption{top:65px}#controls{height:95px;padding:5px 25px}#stick{width:75px;height:75px}.control-center{max-width:350px}.skill{max-width:46px;padding:8px}.control-tip{display:none}.action{height:55px;width:55px}#dodge{height:45px;width:45px}#toast{top:85px}}
+
 
 /* Selection gestures must reach the page scroller; combat keeps independent multitouch. */
 html{scroll-behavior:smooth;overflow-y:auto}body{overscroll-behavior-y:contain}
@@ -28,7 +28,7 @@ html{scroll-behavior:smooth;overflow-y:auto}body{overscroll-behavior-y:contain}
 #attack{padding:16px 16px 20px}.action-group{gap:10px}
 
 
-@media(max-height:520px) and (orientation:landscape){#defend{width:45px;height:45px;padding:9px}.action small{font-size:7px}}
+
 .new-skill{display:inline-block;margin-left:7px;font:8px system-ui;letter-spacing:1px;color:#b1dcc8;vertical-align:middle}
 #attack.recovering{opacity:.65}#attack small{font-size:7px}
 
@@ -176,21 +176,9 @@ html{scroll-behavior:smooth;overflow-y:auto}body{overscroll-behavior-y:contain}
 #defend.guarding,#defend[aria-pressed="true"]{border:2px solid #c4ffe4;box-shadow:0 0 0 3px #68e5af40,inset 0 0 17px #9bf1c54d;background:#376c53}.action.no-resource{opacity:.45;filter:grayscale(.6)}#attack.punching{background:#687550;border-color:#fff0bf;box-shadow:0 0 0 3px #e8c78725}
 
 
-@media(max-height:520px) and (orientation:landscape){
- #battle{--hud-height:55px;--controls-height:102px}#battle[data-mode="2v2"]{--hud-height:68px}.hud{padding-top:6px}.botkit{display:none}.mid-hud strong{font-size:21px}.hud-menu{top:32px;width:30px;height:22px}.teamhud{top:46px;height:20px}.team-mini .skin-portrait{width:20px;height:20px}.team-mini-title{font-size:8px}#controls{padding:4px 20px}#stick{width:77px;height:77px;margin:0}.control-center{max-width:330px}.equipped{gap:7px}.skill{max-width:48px;padding:7px}.control-tip{display:none}.action-group{gap:8px}.action-group #attack{width:56px;height:56px}.action-group #defend,.action-group #dodge{width:45px;height:45px}#countdown{font-size:24px;height:38px;top:calc(var(--hud-height) + 8px)}
-}
-@media(max-height:520px) and (orientation:landscape){
- #controls{display:flex;align-items:center;gap:12px}
- #stick{position:relative;left:auto;bottom:auto}
- .control-center{position:static;min-width:0;width:auto}
- .equipped{grid-template-columns:repeat(6,minmax(0,1fr))}
- .action-group{position:static;flex-shrink:0;width:auto;margin:0}
-}
-@media(max-width:600px) and (max-height:520px) and (orientation:landscape){
- #controls{padding:4px 12px;gap:10px}#stick{width:64px;height:64px}
- .equipped{gap:5px}.action-group{gap:6px}
- .action-group #attack{width:50px;height:50px}.action-group #defend,.action-group #dodge{width:40px;height:40px}
-}
+
+
+
 
 /* COMBAT_HUD_V13_END */
 /* ECHO_SUMMON_V15_START */
@@ -233,7 +221,7 @@ html{scroll-behavior:smooth;overflow-y:auto}body{overscroll-behavior-y:contain}
 #practiceMeter{position:absolute;left:22px;top:calc(var(--hud-height) + 10px);z-index:3;pointer-events:none;display:flex;flex-direction:column;gap:4px;padding:8px 12px;color:#adc9b7;background:#0c211bbb;border-radius:9px;font-size:10px}#practiceMeter b{font-size:13px;color:#e2d3a9}#battle[data-activity="training"] .botkit{font-size:8px;color:#cbb67f}
 @media(max-width:700px){.saved-build-grid{grid-template-columns:1fr}.saved-build{padding:14px}.saved-build .build-icons{max-width:310px}.builds-heading{align-items:flex-start;flex-direction:column}.builds-heading h2{font-size:24px}#savedBuilds{padding:16px}.progression-grid{grid-template-columns:1fr;gap:16px}.league-ranks{grid-template-columns:repeat(3,minmax(0,1fr))}.training-skill-list{font-size:11px}}
 
-@media(max-height:520px) and (orientation:landscape){#practiceMeter{top:calc(var(--hud-height) + 5px);padding:5px 8px;font-size:9px}#practiceMeter b{font-size:11px}}
+
 
 
 
@@ -264,7 +252,7 @@ body[data-screen] .app-screen:not(#homeScreen){padding-bottom:calc(var(--lobby-n
 #lobbySettings{position:fixed;inset:0;z-index:100;background:#06140edb;display:grid;place-items:center;padding:22px;overflow-y:auto}.lobby-settings-dialog{width:min(400px,100%);max-height:calc(100dvh - 44px);overflow-y:auto;background:linear-gradient(135deg,#243b2c,#10261d);border:1px solid #7f9261;border-radius:16px;padding:24px;color:#dddcc2}.lobby-settings-heading{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:24px}.lobby-settings-heading h2{font:30px Georgia;margin-top:8px}.lobby-settings-heading button{width:44px;height:44px;border:1px solid #71876166;background:transparent;border-radius:50%;padding:12px;color:#c9d1ad}.lobby-settings-heading svg{width:18px;height:18px}.lobby-settings-dialog>label{display:block;font-size:12px;color:#b0c3a5}.lobby-settings-dialog select{width:100%;min-height:48px;padding:10px;background:#0c231a;color:#dfdfc1;border:1px solid #6f895c66;border-radius:6px;margin:8px 0 22px;color-scheme:dark}.lobby-settings-dialog .lobby-motion-option{display:flex;gap:12px;align-items:center;min-height:48px}.lobby-motion-option input{width:22px;height:22px;accent-color:#d2bb7c;flex-shrink:0}.lobby-motion-option small{display:block;font-size:10px;line-height:1.5;margin-top:4px;color:#91ac92}.lobby-settings-dialog>p{color:#8ba58e;font-size:11px;line-height:1.7;margin:18px 0}.lobby-settings-done{width:100%;min-height:48px;background:#d7bf85;border:0;border-radius:6px;color:#173526;font-weight:700}#lobbySettings button,#lobbySettings select,#lobbySettings input{touch-action:manipulation}
 @media(max-width:700px){#homeScreen{padding:0 16px var(--lobby-nav-height)}.lobby-shell{padding:12px 0 5px;min-height:620px;max-height:1100px}.lobby-top{padding-bottom:10px;margin-bottom:10px;gap:10px}.lobby-brand{font-size:20px;letter-spacing:4px}.lobby-brand>span{font-size:6px;letter-spacing:2.7px}.lobby-wallet{gap:8px}.lobby-wallet>span{font-size:11px;gap:4px}.lobby-wallet svg{width:17px;height:17px}.lobby-settings{width:44px;height:44px;padding:12px}.lobby-settings svg{width:19px;height:19px}.lobby-main{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(150px,1fr) auto;gap:9px;align-items:stretch}.lobby-stage{min-height:150px;border-radius:110px 110px 10px 10px}.lobby-stage-title{top:10px}.lobby-stage-title>span{font-size:7px;letter-spacing:2.5px}.lobby-stage-title h1{font-size:17px;margin-top:5px}.lobby-character{width:min(190px,64cqh);height:min(190px,64cqh);bottom:18%}.lobby-identity{bottom:5px;min-height:44px;padding:5px 10px;gap:8px}.lobby-avatar{width:22px;height:22px}.lobby-identity strong{font-size:15px}.lobby-identity small{font-size:8px}.lobby-identity>svg{width:12px;height:12px;margin-left:5px}.lobby-stage-corner{bottom:56px;left:20px;font-size:17px}.lobby-dashboard{gap:9px}.lobby-rank{min-height:69px;padding:8px 12px;gap:12px;border-radius:9px}.lobby-rank-emblem{width:36px;height:43px}.lobby-rank-line{margin:2px 0 5px}.lobby-rank-line strong{font-size:20px}.lobby-rank-goal{font-size:8px;margin-top:5px}.lobby-rank .lobby-overline{font-size:7px}.lobby-build{padding:2px 10px 0;border-radius:9px}.lobby-build-title strong{font-size:18px;max-width:210px}.lobby-build-title small{font-size:7px}.lobby-build-icons{gap:7px;padding:2px 5px;max-width:380px;margin:auto}.lobby-build-foot{min-height:28px;font-size:8px}.lobby-build-foot button{min-height:30px;font-size:9px}.lobby-mode-wrap{margin:5px 0 7px}.lobby-mode-wrap select{height:44px;font-size:12px}.lobby-mode-wrap>svg{top:12px}.lobby-play{min-height:57px}.lobby-play strong{font-size:21px}.lobby-play small{font-size:7px}.lobby-mode-copy{font-size:9px;margin-top:6px}.lobby-status{font-size:8px;min-height:12px}.lobby-overline{font-size:7px}}
 
-@media(min-width:701px) and (max-height:720px){.lobby-shell{min-height:550px}.lobby-top{padding-bottom:10px;margin-bottom:12px}.lobby-dashboard{gap:9px}.lobby-rank{min-height:76px;padding:9px 14px}.lobby-build-icons{max-width:290px;margin:auto}.lobby-build-foot{min-height:30px}.lobby-play{min-height:56px}.lobby-mode-copy{margin-top:6px}}
+
 @media(prefers-reduced-motion:reduce){.lobby-motes i{animation:none}}
 
 /* Keep the live region from adding a scrollable pixel after a full-height lobby. */

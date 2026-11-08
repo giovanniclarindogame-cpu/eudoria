@@ -20,20 +20,7 @@ body{background:#0e1727}
 #battle #arenaZoom{right:calc(max(18px,0px) + 48px);font-size:24px}
 #battle #practiceMeter{top:88px;left:16px;max-width:170px;padding:6px 9px;background:#132139aa;pointer-events:none}
 #battle #toast{top:92px}#battle .teamhud,#battle #modeObjective{top:84px}#battle #riftCombatToggle{top:136px;right:18px}
-@media(max-height:520px){
- #battle{--skill-size:48px;--control-gap:9px}
- #battle .hud{min-height:50px;inset:5px max(12px,0px) auto max(12px,0px);padding:5px 8px;gap:10px}
- #battle .fighterhud{padding-left:43px}#battle .fighterhud.enemy{padding-right:43px}
- #battle .arena-portrait{width:36px;height:42px;top:0}#battle .fighterhud .title{font-size:10px;letter-spacing:0}
- #battle .bar{height:10px}#battle .resources{margin-top:4px}#battle .resources .bar{height:6px}
- #battle .mid-hud{flex-basis:62px}#battle .mid-hud:before{font-size:12px}#battle .mid-hud strong{font-size:18px}#battle #resText{display:none}
- #battle .control-center{bottom:max(84px,calc(env(safe-area-inset-bottom) + 84px))}
- #battle .action-group{gap:10px;bottom:max(12px,env(safe-area-inset-bottom))}
- #battle .action-group #attack{width:60px;height:60px}#battle .action-group #defend,#battle .action-group #dodge{width:46px;height:46px}
- #battle .action small{font-size:8px}#battle .action svg{width:22px;height:22px}
- #battle .hud #pauseBtn,#battle #arenaZoom{top:65px;width:34px;height:34px}#battle #arenaZoom{right:calc(var(--edge) + 44px)}
- #battle #practiceMeter{top:64px;font-size:9px;max-width:150px}#battle #toast{top:66px}#battle .teamhud,#battle #modeObjective{top:60px}#battle #riftCombatToggle{top:108px}
-}
+
 /* A landscape-first navigation rail leaves the full height to each panel. */
 @media(orientation:landscape){
  body{--bg:#0e1727;--panel:#17253b;--line:#40516b;--cream:#f2eddf;--muted:#a5b4cc;--gold:#ecd09a;--mint:#a9d9e6}
@@ -106,7 +93,7 @@ body.hero-detail-open .hero-detail-head{padding-right:150px}
  body:not(:has(#battle[style*="display: block"])) #fullscreenToggle .fullscreen-label{display:none}
  body.hero-detail-open #fullscreenToggle{top:10px;bottom:auto;left:auto;right:18px;width:38px;min-height:34px}
 }
-@media(max-height:520px){body:has(#battle[style*="display: block"]) #fullscreenToggle{top:65px;right:calc(max(18px,0px) + 88px);width:34px;height:34px;min-height:34px;min-width:34px}}
+
 html:fullscreen,html:-webkit-full-screen{width:100%;height:100%;background:#0e1727}
 @media(orientation:landscape){
  #homeScreen .lobby-shell{height:calc(100*var(--dvh,1dvh));min-height:calc(100*var(--dvh,1dvh))}

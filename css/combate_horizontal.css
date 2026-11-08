@@ -33,20 +33,8 @@
 #battle #practiceMeter{top:110px;left:16px;bottom:auto;max-width:210px;font-size:10px;background:#172135bb}
 #battle #toast{top:130px;bottom:auto;pointer-events:none}#battle #modeObjective{top:105px;z-index:7}
 #battle .teamhud{top:108px;bottom:auto}#battle #riftCombatToggle{position:absolute;top:100px;right:28px}
-@media(max-height:520px){
- #battle .hud{inset:5px 14px auto;min-height:58px;padding:5px 10px;gap:14px}
- #battle .fighterhud{padding-left:48px}#battle .fighterhud.enemy{padding-right:48px}
- #battle .arena-portrait{width:40px;height:48px;top:0}#battle .fighterhud .title{font-size:9px;margin-bottom:3px}
- #battle .bar{height:11px}#battle .resources .bar{height:6px}#battle #resText{display:none}
- #battle .mid-hud{flex-basis:70px}#battle .mid-hud:before{font-size:14px}#battle .mid-hud strong{font-size:18px}#battle .mid-hud small{display:none}
- #battle .hud-menu{top:58px;right:0;padding:6px}#battle .arena-caption{top:67px;font-size:7px}
- #battle #stick{left:20px;bottom:12px;width:86px;height:86px}
- #battle .control-center{right:16px;bottom:12px}#battle .equipped{grid-template-columns:repeat(3,44px);gap:8px}
- #battle .skill{width:44px;height:44px;border-width:2px;padding:2px}#battle .skill .hotkey{width:16px;height:16px;font-size:10px}
- #battle .action-group{right:185px;bottom:14px;gap:6px}#battle .action-group #attack{width:46px;height:46px}#battle .action-group #defend,#battle .action-group #dodge{width:38px;height:38px}
- #battle .action small{font-size:7px}#battle #practiceMeter{top:82px;font-size:8px;max-width:150px;padding:5px}#battle #toast{top:78px}#battle #modeObjective{top:67px;font-size:9px}#battle .teamhud{top:70px}
-}
+
 
 #battle .hud #pauseBtn{position:absolute;left:auto;right:0;top:96px;transform:none;width:32px;height:32px;padding:5px}
 #battle .arena-caption{top:107px}
-@media(max-height:520px){#battle .hud #pauseBtn{top:60px}#battle .arena-caption{top:65px}}
+
