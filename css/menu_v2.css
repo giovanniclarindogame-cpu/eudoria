@@ -17,3 +17,9 @@ body:not([data-screen=home]) :is(.simple-header,.roster-head,.hunt-top,.section-
 /* Campeões: a grade começa abaixo do botão de voltar para ele não cobrir um cartão. */
 body[data-screen=library] .hero-grid,body[data-screen=library] .empty-roster{margin-top:54px}
 body[data-screen=library] .hero-search{position:relative;z-index:1}
+
+/* Modos: Explorar ocupa dois cartões; os dois "Online" bloqueados viraram um só, pequeno. */
+.royal-mode[data-royal-mode="arenas"]{grid-column:span 2}
+.royal-mode[data-royal-mode="online"]{flex-direction:row;gap:8px}
+.royal-mode[data-royal-mode="online"] small{font-size:10px}
+.royal-mode[data-royal-mode="online"]{flex-direction:column;gap:1px}
