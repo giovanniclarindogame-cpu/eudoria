@@ -1,6 +1,7 @@
 'use strict';
 // Ninja das Brumas (Kakashi): o Olho Copiador agora também copia as habilidades do chefe da Caçada.
-// Com o olho aberto, a próxima habilidade (não ultimate) do chefe que acertar o jogador fica guardada;
+// Com o olho aberto, a próxima habilidade (não ultimate) do chefe fica guardada assim que ele a lança (ao alcance da vista)
+// ou, se ele ainda não a viu, quando o acertar;
 // o botão 5 a usa uma vez, com 75% do dano e metade da recarga.
 (function(){
  const SCALE=.75;
@@ -10,20 +11,34 @@
  const isUlt=(s,k)=>!k||s.cd>=28||k.kind==='nova'||k.kind==='domain';
  const key=(def,s)=>'boss:'+def.id+':'+s.id;
 
- function landed(R,t){
+ // Copia a habilidade `act` do chefe para o ninja `t` (olho aberto, sem cópia guardada).
+ function tryCopy(R,t,act){
   try{
-   if(!t||t.skin!==1||t.copySource||typeof reworkState!=='function')return;
-   const act=R?.act;if(!act||!/^s\d$/.test(act.id))return;
-   const ts=reworkState(t);if(!(ts.eye>0)||ts.copy)return;
+   if(!t||t.skin!==1||t.hp<=0||t.copySource||typeof reworkState!=='function')return false;
+   if(!act||!/^s\d$/.test(act.id))return false;
+   const ts=reworkState(t);if(!(ts.eye>0)||ts.copy)return false;
    const def=R.def,s=def.skills.find(x=>x.id===act.id),k=s&&kindOf(def,s);
-   if(!s||isUlt(s,k))return;
+   if(!s||isUlt(s,k))return false;
    const id=key(def,s);
    skills[id]={id,name:s.name,type:'Cópia',cost:0,cd:s.cd,range:420,color:def.color||'#c04bff',desc:s.desc,boss:{icon:s.icon,k}};
    ts.copy={id};ts.eye=0;t.cd[t.kit[4]]=0;
    try{rwFx(t,4,t.x,t.y,'copied',.6,{size:80})}catch{}
    if(t===p)toast('Copiado do chefe: '+s.name+' · use 5');
-  }catch(e){console.error('[Eldoria] cópia do chefe',e)}
+   return true;
+  }catch(e){console.error('[Eldoria] cópia do chefe',e);return false}
  }
+ // Ao ser atingido (continua valendo).
+ function landed(R,t){tryCopy(R,t,R?.act)}
+ // Ao VER a habilidade: com o olho aberto e o chefe ao alcance da vista, copia assim que ele começa a lançá-la.
+ const SIGHT=520;let lastAct=null;
+ function watch(){
+  if(typeof state==='undefined'||state!=='fight'||typeof modeRun==='undefined'||!modeRun)return;
+  const R=modeRun.hunt||modeRun.gb;if(!R||!R.act){lastAct=null;return}
+  if(R.act===lastAct)return;lastAct=R.act;
+  const A=R.a;if(!A||A.hp<=0)return;
+  for(const t of actors){if(t.team===A.team||t.skin!==1||t.hp<=0)continue;if(Math.hypot(t.x-A.x,t.y-A.y)<=SIGHT)tryCopy(R,t,R.act)}
+ }
+ setInterval(watch,40);
 
  function castBoss(a,copy,angle){
   const sk=skills[copy.id]?.boss;if(!sk)return false;
@@ -48,5 +63,5 @@
   if(typeof id==='string'&&id.startsWith('boss:')){const sk=skills[id]?.boss;return `<span class="skill-art boss-copy-art" aria-hidden="true">${sk&&window.HuntAPI?HuntAPI.iconImg(sk.icon,'hunt-ico boss-copy-ico'):''}</span>`}
   return oi(id);
  };
- window.BossCopy={landed,castBoss,key};
+ window.BossCopy={landed,tryCopy,castBoss,key,SIGHT};
 })();
