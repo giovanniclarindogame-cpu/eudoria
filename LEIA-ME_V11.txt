@@ -60,3 +60,25 @@ LIMPEZA DE REGRAS ANTIGAS E TELA INTEIRA
   (o jogo só funciona na horizontal), as de tela grande (min-width/min-height), as de largura menor que
   640px e as condicionais de altura da batalha. Conferido por comparação pixel a pixel de 14 telas em 4
   tamanhos (sem diferença). Ficaram as regras para larguras de 640 a 850px e as de altura menor que 430px.
+
+OS 10 CHEFES DA CAÇADA DO DIA (um vilão para cada herói)
+O chefe do dia gira entre 10 vilões (pelo dia do calendário local). Todos são personagens ORIGINAIS que remetem
+ao arquétipo de um vilão dos nossos heróis. Para testar um específico: abra o jogo com ?boss=<id> no endereço
+(ex.: index.html?boss=nyxar). A faixa "Chefes da semana" do lobby mostra os próximos 7.
+ zorvath  · Imperador Cristalino ........ (Guerreiro Astral)   3 formas e Supernova interrompível
+ vhalor   · o Mascarado das Sombras ...... (Ninja das Brumas)    Fase Etérea: imune por 3,5s a cada 13s
+ kuroen   · o Espadachim Incandescente ... (Ronin Carmesim)      Brasa na Lâmina: calor vira Lâmina Rubra
+ nyxar    · o Senhor do Crepúsculo ....... (Guardião Solar)      Eclipse: escuro, só o círculo de luz é seguro
+ ryoku    · o Rei das Maldições .......... (Lutador do Eclipse)  Domínio Maligno: quebre com dano
+ xerath   · o Rei Quimera ................ (Caçador Espectral)   Adaptação: resiste ao golpe que você repete
+ rapina   · o Usurpador de Poderes ....... (Herdeiro da Centelha) Roubo de Vigor: golpes viram escudo
+ malrath  · o Devorador dos Sete Mares ... (Corsário da Maré)    Gravidade: pulso que puxa e esmaga
+ hadrion  · o Deus do Submundo ........... (Cav. do Firmamento)  Colheita de Almas: 6 almas disparam
+ genesis  · o Homúnculo Primordial ....... (Alquimista de Aço)   Círculos de Transmutação a desfazer
+Cada chefe tem 6 habilidades, golpe, guarda e esquiva, fase 2 (fúria) abaixo de 50% de vida e avisos no chão
+antes de cada golpe forte. Os 9 novos usam o motor genérico js/chefes_motor.js (ataques-padrão: leque,
+investida, círculo, anel, chuva, raio, marcação, vórtice, teleporte, zona, buff, clones, combo, nova, orbitais,
+domínio) + a mecânica própria de cada um em js/chefes_lote.js + visual em js/chefes_looks.js, desenhado por
+código (js/chefes_base.js). Para criar o próximo chefe, copie uma definição de chefes_lote.js e mude os dados.
+PREVIA_CHEFES.html mostra as animações dos 9 (e baixa a folha de sprites). Teste: node tests/chefes.cjs.
+O equilíbrio da dificuldade é estimado (testado só com IA e simulações): ajuste hp/dmg/cd em chefes_lote.js.

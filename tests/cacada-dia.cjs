@@ -5,7 +5,7 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  const b=await chromium.launch();
  for(const vp of [{width:1280,height:720},{width:844,height:390}]){
   const p=await b.newPage({viewport:vp});const errs=[];p.on('pageerror',e=>errs.push(e.message));
-  await p.goto('http://localhost:8000/index.html');await p.waitForTimeout(1200);
+  await p.goto('http://localhost:8000/index.html?boss=zorvath');await p.waitForTimeout(1200);
   await p.getByText('ENTRAR',{exact:true}).click();await p.fill('input','Teste');await p.getByText('Continuar',{exact:true}).click();await p.waitForTimeout(1200);
   ok(await p.locator('.hunt-home').count()===1,`${vp.width}x${vp.height}: cartão da Caçada aparece na tela inicial`);
   await p.click('[data-hunt-home]');await p.waitForTimeout(500);

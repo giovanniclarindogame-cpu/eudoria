@@ -70,3 +70,7 @@ body[data-screen=hunt] #modeScreen{padding:0!important;overflow:hidden!important
  .royal-sanctuary-title{top:14px}
  .hunt-home h2{font-size:17px}.hunt-home-title{font-size:7px;letter-spacing:1.5px}.hunt-home-meta{font-size:8px}.hunt-home-copy{gap:3px;padding:6px 10px 6px 0}.hunt-home{gap:6px}
 }
+
+/* nomes e títulos longos dos chefes não podem empurrar o botão para fora do cartão */
+.hunt-home h2,.hunt-home-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.hunt-home-copy{overflow:hidden}

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Prévia · Chefes</title>
+<style>
+body{margin:0;background:#061c18;color:#f1ead1;font:14px system-ui;padding:20px}
+h1{font:28px Georgia;color:#f4e5ba;margin:0 0 4px}p{color:#b5c8b6;margin:0 0 16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.card{background:linear-gradient(130deg,#12372b,#08241c);border:1px solid #9aa47766;border-radius:12px;padding:10px;text-align:center}
+.card canvas{width:128px;height:128px;image-rendering:pixelated;background:radial-gradient(#2a4a3a,#0c2018)}
+.card b{display:block;font-size:12px;color:#e8c787;margin-top:6px}
+label{margin-right:16px}select,button{background:#e8c787;color:#173021;border:0;border-radius:8px;padding:10px 16px;font-weight:700;cursor:pointer}
+</style></head><body>
+<h1>Chefes da Caçada do Dia</h1>
+<p>Todas as animações de cada chefe, em loop (pixel art 64×64 por quadro). O Zorvath tem a prévia própria em PREVIA_VILAO.html.</p>
+<p><label>Chefe <select id="boss"></select></label><label><input type="checkbox" id="flip"> Espelhar</label><button id="dl">Baixar folha de sprites (PNG)</button></p>
+<div class="grid" id="grid"></div>
+<script src="js/chefes_base.js"></script><script src="js/chefes_looks.js"></script>
+<script>
+const sel=document.getElementById('boss');for(const id of Object.keys(BOSS_LOOKS)){const o=document.createElement('option');o.value=id;o.textContent=id;sel.append(o)}
+const q=new URLSearchParams(location.search).get('boss');if(q&&BOSS_LOOKS[q])sel.value=q;
+const grid=document.getElementById('grid'),cards=[];
+for(const{name,frames,variants}of BossSprite.layout()){for(let v=0;v<variants;v++){
+ const d=document.createElement('div');d.className='card';const c=document.createElement('canvas');c.width=c.height=128;d.append(c);
+ const b=document.createElement('b');b.textContent=name+(variants>1?' · mão '+(v?'trás':'frente'):'')+' · '+frames+' q.';d.append(b);grid.append(d);cards.push({c,name,frames,v});
+}}
+let t=0;function loop(){t++;const look=BOSS_LOOKS[sel.value],flip=document.getElementById('flip').checked;
+ for(const k of cards){const g=k.c.getContext('2d');g.clearRect(0,0,128,128);const i=Math.floor(t/(k.name==='walk'?8:12))%k.frames;BossSprite.paint(g,look,k.name,i,{x:64,y:118,scale:2,flip,side:k.v})}
+ requestAnimationFrame(loop)}
+loop();
+document.getElementById('dl').onclick=()=>{const look=BOSS_LOOKS[sel.value],items=[];for(const{name,frames,variants}of BossSprite.layout())for(let v=0;v<variants;v++)for(let i=0;i<frames;i++)items.push([name,i,v]);
+ const cols=8,c=document.createElement('canvas');c.width=cols*64;c.height=Math.ceil(items.length/cols)*64;const g=c.getContext('2d');items.forEach(([n,i,v],k)=>g.drawImage(BossSprite.frame(look,n,i,{side:v}),(k%cols)*64,Math.floor(k/cols)*64));
+ const a=document.createElement('a');a.download=sel.value+'.png';a.href=c.toDataURL();a.click()};
+</script></body></html>
