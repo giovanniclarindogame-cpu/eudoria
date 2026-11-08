@@ -95,3 +95,7 @@ O equilíbrio da dificuldade é estimado (testado só com IA e simulações): aj
 - Configurações > "Modo economia": 30 quadros/s, efeitos leves, canvas a 1.5x. Salvo em eldoria.economia.v1.
 - Sem o modo, a resolução do canvas também cai sozinha se a luta ficar lenta (ui_escala.js).
 - Teste: node tests/economia.cjs
+
+== TELAS NUMA VISÃO SÓ (css/telas_unicas.css) ==
+- Arenas: 8 modos em 4x2; Campeões/Loja: 10 cartas em 5x2; Configurações, Perfil, Dojo e Início compactados.
+- Teste: node tests/telas-unicas.cjs (9 telas x 6 tamanhos, sem rolagem). A tela da Caçada ainda rola a coluna de informações do chefe.
