@@ -1,5 +1,5 @@
 /* V16: one landscape shell, proportional scaling and persistent navigation. */
-:root{--eldoria-rail:clamp(82px,11vw,136px);--safe-left:max(env(safe-area-inset-left),0px);--safe-right:max(env(safe-area-inset-right),0px)}
+:root{--eldoria-rail:clamp(82px,11vw,136px);--safe-left:max(0px,0px);--safe-right:max(0px,0px)}
 html,body{width:100%;min-height:100%;overflow-x:hidden}
 body[data-screen]{--rail:var(--eldoria-rail)}
 body[data-screen] #lobbyNav.royal-nav{position:fixed!important;inset:0 auto 0 0!important;width:calc(var(--eldoria-rail) + var(--safe-left))!important;height:calc(100*var(--dvh,1dvh))!important;padding:max(10px,env(safe-area-inset-top)) 6px max(10px,env(safe-area-inset-bottom)) var(--safe-left)!important;display:flex!important;flex-direction:column!important;justify-content:center!important;gap:clamp(2px,1.1vh,8px)!important;border:0!important;border-right:1px solid #a98d4e70!important;border-radius:0!important;background:linear-gradient(90deg,#10251c,#061813 75%,#15261b)!important;z-index:250!important;box-shadow:4px 0 18px #0004!important}
@@ -18,7 +18,7 @@ body:not([data-screen=home]) #modeScreen.app-screen:not(#homeScreen){inset:0 0 0
 body.hero-detail-open #heroDetail{left:calc(var(--eldoria-rail) + var(--safe-left));width:calc(100% - var(--eldoria-rail) - var(--safe-left));max-width:none}
 body.hero-detail-open #heroDetail [data-hero-back]{display:none}body.hero-detail-open .hero-detail-head{padding-right:0}
 #fullscreenToggle{display:none!important}
-.royal-header{padding-right:max(12px,env(safe-area-inset-right))!important}.royal-header .royal-settings{flex-shrink:0;min-width:36px;min-height:36px}
+.royal-header{padding-right:max(12px,0px)!important}.royal-header .royal-settings{flex-shrink:0;min-width:36px;min-height:36px}
 #pause .pause-fullscreen{width:44px;height:44px;padding:10px;margin:8px auto}.pause-fullscreen svg{width:100%;height:100%}
 #battle #toast{display:none!important}
 #heroDetail.ninja-detail{background:#071b26 url('../assets/ninja_v22/background.webp') center/cover no-repeat}

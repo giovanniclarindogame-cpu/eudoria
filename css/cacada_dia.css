@@ -1,12 +1,12 @@
 /* Caçada do Dia — lobby do chefe. Mesmo vocabulário verde-esmeralda e dourado dos menus. */
 body[data-screen=hunt] #modeScreen{padding:0!important;overflow:hidden!important;display:block;background:radial-gradient(ellipse at 20% 0%,#2a1647aa,transparent 60%),radial-gradient(ellipse at 90% 100%,#173d2b88,transparent 60%),#061c18}
 .hunt-page{display:flex;flex-direction:column;height:calc(100*var(--dvh,1dvh));color:#f1ead1;--boss:#c04bff}
-.hunt-top{display:flex;align-items:center;gap:16px;padding:12px max(18px,env(safe-area-inset-right)) 10px max(18px,env(safe-area-inset-left));border-bottom:1px solid #b39d5e55;flex:0 0 auto}
+.hunt-top{display:flex;align-items:center;gap:16px;padding:12px max(18px,0px) 10px max(18px,0px);border-bottom:1px solid #b39d5e55;flex:0 0 auto}
 .hunt-title{flex:1;min-width:0}.hunt-title h1{font:30px/1.05 Georgia,serif;margin:2px 0 0;color:#f4e5ba;letter-spacing:.5px}
 .hunt-title .eyebrow{font-size:10px;letter-spacing:3px;color:#d3b877}
 .hunt-timer{font-size:12px;color:#cdbfe6;background:#1a0f2e;border:1px solid #7a4fb0;border-radius:99px;padding:8px 14px;white-space:nowrap}.hunt-timer b{color:#ffd0ee;font-variant-numeric:tabular-nums;letter-spacing:1px}
 .hunt-top .ghost{flex-shrink:0}
-.hunt-body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(260px,42%) 1fr;gap:16px;padding:14px max(18px,env(safe-area-inset-right)) 8px max(18px,env(safe-area-inset-left))}
+.hunt-body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(260px,42%) 1fr;gap:16px;padding:14px max(18px,0px) 8px max(18px,0px)}
 .hunt-stage{position:relative;min-height:0;border:1px solid #9aa47766;border-radius:14px;overflow:hidden;background:#0a0714;box-shadow:inset 0 0 0 1px #0004,0 0 40px #c04bff22}
 .hunt-stage canvas{width:100%;height:100%;object-fit:contain;image-rendering:pixelated;display:block}
 .hunt-plate{position:absolute;left:0;right:0;bottom:0;padding:34px 16px 12px;text-align:center;background:linear-gradient(transparent,#0a0714f0 60%)}
@@ -33,7 +33,7 @@ body[data-screen=hunt] #modeScreen{padding:0!important;overflow:hidden!important
 .hunt-day{border:1px solid #647755;border-radius:9px;background:#092219;padding:8px 4px;text-align:center;min-width:0}.hunt-day small{display:block;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#b5c8b6}.hunt-day b{display:block;font-size:12px;color:#f1ead1;margin:3px 0;overflow:hidden;text-overflow:ellipsis}.hunt-day span{font-size:9px;color:#8fa391}
 .hunt-day.today{border-color:#c04bff;background:linear-gradient(#2a1647,#150a26);box-shadow:0 0 12px #c04bff44}.hunt-day.today b{color:#ffd0ee}.hunt-day.today span{color:#f2ca5c}
 .hunt-day.locked:not(.today){opacity:.55}
-.hunt-foot{flex:0 0 auto;display:flex;align-items:center;gap:14px;padding:10px max(18px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left));border-top:1px solid #b39d5e55;background:linear-gradient(#061c18,#04140f)}
+.hunt-foot{flex:0 0 auto;display:flex;align-items:center;gap:14px;padding:10px max(18px,0px) calc(10px + env(safe-area-inset-bottom)) max(18px,0px);border-top:1px solid #b39d5e55;background:linear-gradient(#061c18,#04140f)}
 .hunt-team{display:flex;gap:6px}
 .hunt-team button{display:flex;flex-direction:column;align-items:center;gap:1px;min-width:86px;min-height:46px;padding:6px 12px;color:#dccb99;border:1px solid #647755;border-radius:9px;background:#092219;cursor:pointer;touch-action:manipulation}
 .hunt-team button b{font-size:13px}.hunt-team button small{font-size:9px;color:#9fb3a2}

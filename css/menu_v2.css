@@ -1,6 +1,6 @@
 /* Menu v2: fora da tela inicial, sem menu lateral; botão de voltar no canto superior direito. */
 #backHome{display:none}
-body[data-screen]:not([data-screen=home]):not([data-screen=profile]) #backHome{display:grid;place-items:center;position:fixed;top:max(10px,env(safe-area-inset-top));right:max(14px,env(safe-area-inset-right));z-index:230;width:44px;height:44px;padding:0;border:1px solid #cdb16a;border-radius:12px;background:#0a2a20ee;color:#f1dc9d;box-shadow:0 4px 14px #0007;cursor:pointer;touch-action:manipulation}
+body[data-screen]:not([data-screen=home]):not([data-screen=profile]) #backHome{display:grid;place-items:center;position:fixed;top:max(10px,env(safe-area-inset-top));right:max(14px,0px);z-index:230;width:44px;height:44px;padding:0;border:1px solid #cdb16a;border-radius:12px;background:#0a2a20ee;color:#f1dc9d;box-shadow:0 4px 14px #0007;cursor:pointer;touch-action:manipulation}
 #backHome svg{width:24px;height:24px}
 #backHome:hover{background:#12392c;border-color:#f5d37b;color:#fff4cc}
 #backHome:focus-visible{outline:2px solid #f5d58b;outline-offset:3px}
