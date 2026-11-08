@@ -48,7 +48,8 @@ const royalPreviousHero=drawLobbyHero;
 drawLobbyHero=function(t){
  if(!document.querySelector('.royal-sanctuary'))return royalPreviousHero(t);
  if(appScreen!=='home'||state!=='select'||!account.profile||!$('#profileScreen').hidden||document.hidden||!$('#lobbySettings').hidden)return;
- const animated=lobbyMotionEnabled();if(lobbyPainted&&(!animated||t-lobbyPaintAt<50))return;
+ // Mesmo sem animação, redesenha a cada 0,5s: se a arte final ainda estava carregando na primeira pintura, o sprite de reserva (menor) é trocado assim que ela chega.
+ const animated=lobbyMotionEnabled();if(lobbyPainted&&t-lobbyPaintAt<(animated?50:500))return;
  const canvas=$('#lobbyHero'),g=canvas?.getContext('2d');if(!g)return;
  lobbyPaintAt=t;g.clearRect(0,0,440,440);g.save();g.translate(220,350);
  g.fillStyle='#041b1580';g.beginPath();g.ellipse(0,8,64,17,0,0,TAU);g.fill();
