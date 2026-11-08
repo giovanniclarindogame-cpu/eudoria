@@ -22,7 +22,7 @@ const assert=require('node:assert/strict');
  await page.locator('#heroSearch').fill('xyz');assert.equal(await page.locator('.hero-card').count(),0);assert.ok(await page.locator('.empty-roster').isVisible());
  await page.locator('#heroSearch').fill('');await page.locator('#heroGrid [data-hero-open="8"]').click();await page.locator('[data-hero-skill="5"]').click();assert.ok((await page.locator('#heroSkillCopy').textContent()).includes('Cosmo'));
  await page.locator('[data-hero-confirm]').click();assert.equal(await page.evaluate(()=>arenaQA.account.activeChampion),8);
- await nav('library');await page.locator('#heroGrid [data-hero-open="9"]').click();assert.ok((await page.locator('#heroDetail h1').textContent()).includes('Alquimista'));await page.locator('#lobbyNav [data-nav="library"]').click();
+ await nav('library');await page.locator('#heroGrid [data-hero-open="9"]').click();assert.ok((await page.locator('#heroDetail h1').textContent()).includes('Alquimista'));await page.locator('#backHome').click();
  await nav('training');await page.locator('#setupDummy').selectOption('guard');await page.locator('[data-practice-free]').check();await page.locator('[data-progression="training"]').click();
  await page.waitForFunction(()=>['count','fight'].includes(arenaQA.state));assert.deepEqual(await page.evaluate(()=>({...arenaQA.progression.options})),{dummy:'guard',free:true});
  await page.evaluate(()=>arenaQA.begin());await page.locator('#pauseBtn').click();await page.locator('#pause .simple-extra summary').click();assert.ok(await page.locator('#pause .simple-extra p').isVisible());await page.locator('#pause .simple-extra summary').click();
