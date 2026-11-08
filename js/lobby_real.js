@@ -14,7 +14,7 @@ renderLobbyNav=function(){
  `<div class="royal-nav-divider"></div><button data-open-modes>${royalIcon('compass')}<span>Arenas</span></button><button data-royal-missions>${royalIcon('quest')}<span>Missões</span></button><button data-nav="league">${royalIcon('crown')}<span>Liga</span></button><span class="royal-nav-seal" aria-hidden="true">✧</span>`;
 };
 function royalModes(){
- return [['league','Liga offline','1×1','swords'],['1v1','Duelo livre','1×1','swords'],['2v2','Equipes','2×2','team'],['online1','Online 1×1','Em breve','lock'],['online2','Online 2×2','Em breve','lock'],['arenas','Explorar','novos modos…','compass']].map(([id,title,sub,icon])=>{
+ return [['league','Liga offline','1×1','swords'],['1v1','Duelo livre','1×1','swords'],['2v2','Equipes','2×2','team'],['arenas','Explorar','Caçada, Torneio e mais','compass'],['online','Online','Em breve','lock']].map(([id,title,sub,icon])=>{
  const disabled=id.startsWith('online');
  return `<button class="royal-mode" data-royal-mode="${id}" ${disabled?'disabled':''} aria-pressed="false" aria-label="${title} ${sub}">${royalIcon(icon)}<strong>${title}</strong><small>${sub}</small><span class="royal-selected" aria-hidden="true">✓</span></button>`;
  }).join('');

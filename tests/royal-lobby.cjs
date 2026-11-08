@@ -24,7 +24,7 @@ const assert=require('node:assert/strict');
  }
  await page.locator('[data-royal-mode="arenas"]').click();await page.locator('#lobbyPlay').click();assert.ok(await page.locator('#modeScreen').isVisible());assert.equal(await page.locator('[data-arena-mode]').count(),8);
  await page.evaluate(()=>arenaQA.showScreen('home'));
- for(const mode of ['online1','online2'])assert.ok(await page.locator(`[data-royal-mode="${mode}"]`).isDisabled());
+ for(const mode of ['online'])assert.ok(await page.locator(`[data-royal-mode="${mode}"]`).isDisabled());
  await page.locator('#openLobbySettings').click();assert.ok(await page.locator('#lobbySettings').isVisible());await page.locator('#doneLobbySettings').click();
  await page.locator('[data-royal-missions]').click();assert.equal(await page.evaluate(()=>document.activeElement.id),'journeyHome');
  // Existing progression still awards exactly once through the new mission panel.
