@@ -195,7 +195,7 @@ hit=function(target,amount,owner,knock=0,angle=0,id=-1){
   if(target.skin===0)originalGainKi(target,Math.min(5,lost*.04));if(owner.skin===0)originalGainKi(owner,id<0?6:2);
   if(owner.skin===2&&(id<0||[0,1].includes(skills[id]?.slot)))os.value=Math.min(100,os.value+14);
   if(owner.skin===3){os.value=Math.min(100,os.value+15);os.lastGain=clock;originalBurn(target,owner,skills[id]?.slot===5?4:1);}
-  if(target.skin===1&&ts.eye>0&&special&&!skills[id].ultimate&&!owner.copySource){ts.copy={id};ts.eye=0;target.cd[target.kit[4]]=0;rwFx(target,4,target.x,target.y,'copied',.6,{size:80});if(target===p)toast('Copiado: '+skills[id].name+' · use 5');}
+  if(target.skin===1&&ts.eye>0&&special&&!owner.copySource){ts.copy={id};ts.eye=0;target.cd[target.kit[4]]=0;rwFx(target,4,target.x,target.y,'copied',.6,{size:80});if(target===p)toast('Copiado: '+skills[id].name+' · use 5');}
   if(target.skin===5&&target.rwCast?.holding){rwCancelCharge(target);target.cd[target.kit[0]]=1;if(target===p)toast('Carga interrompida');}
  }return result;
 };
