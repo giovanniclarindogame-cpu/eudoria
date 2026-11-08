@@ -35,16 +35,12 @@ body:not([data-screen=home]) .panel{border:1px solid #9aa47766;border-radius:12p
  .simple-mode-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.simple-mode{padding:12px!important;gap:8px}.simple-mode h2{font-size:20px}.simple-mode p{font-size:11px}.simple-mode .eyebrow{font-size:8px}.simple-mode .gold{font-size:12px;min-height:36px;padding:8px}
 }
 @media(orientation:landscape) and (max-width:740px){.simple-columns{grid-template-columns:.9fr 1.1fr}.simple-champion{flex-direction:column;gap:8px}.simple-champion-art{height:58%;width:100%;flex:none}.simple-champion>div:last-child{flex:none;text-align:center}.simple-champion h2{font-size:18px;margin:4px 0 8px}.simple-champion .eyebrow{display:none}.simple-collection{grid-template-columns:.75fr 1.25fr}.simple-collection-list{grid-template-columns:1fr}.simple-mode-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.simple-roster{grid-template-columns:115px minmax(0,1fr)}.simple-roster .roster-head h1{font-size:23px}}
-@media(orientation:portrait){
- body:not([data-screen=home]) .app-screen:not(#homeScreen),body[data-screen=library] #selection{margin:0;padding:18px 14px 90px;max-width:none;overflow-y:auto}
- body[data-screen] #lobbyNav.simple-nav{inset:auto 0 0;height:70px;width:100%;padding:4px 6px;display:grid;grid-template-columns:repeat(6,1fr);gap:3px;border-top:1px solid #9d864a66}
- #lobbyNav.simple-nav button{padding:3px;gap:3px;min-height:54px;flex-direction:column;font-size:8px}#lobbyNav.simple-nav svg{width:21px;height:21px}.simple-header{margin-bottom:16px}.simple-header h1{font-size:28px}.simple-header p{font-size:12px}.simple-columns{height:auto;grid-template-columns:1fr;gap:14px}.simple-columns>.panel{padding:18px}.simple-champion-art{height:210px}.simple-champion h2{font-size:23px}.simple-options{min-height:280px!important}.simple-roster{display:block}.simple-roster .hero-search{margin:18px 0}.simple-roster .hero-grid{grid-template-columns:repeat(2,1fr)}.simple-roster .hero-card{min-height:200px}.simple-collection{height:auto;grid-template-columns:1fr;gap:14px}.simple-current>img{height:210px}.simple-collection-list{grid-template-columns:1fr 1fr;overflow:visible}.simple-mode-grid{grid-template-columns:1fr}.simple-detail .simple-kit-heading{margin:16px 0 10px}.simple-detail .hero-detail-actions{background:#062219f5}.simple-detail .hero-stage{height:250px}body #modeScreen{inset:0;z-index:20;padding-bottom:90px!important}
-}
+
 
 .simple-draft-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}.simple-draft-card{display:flex;flex-direction:column;align-items:center;gap:10px;padding:12px;color:#efe0b6}.simple-draft-card img{width:100%;height:180px;object-fit:contain}.simple-draft-card strong{font:20px Georgia}.simple-draft-card span{font:11px system-ui;color:#d9c78e}
 @media(orientation:landscape){.simple-draft-card img{height:120px}.simple-draft-card strong{font-size:16px}}
 @media(max-width:740px){.simple-draft-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
-@media(orientation:portrait){.simple-draft-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
 .simple-options .exchange-select{margin:0}
 
 /* V7: navigation belongs only to the home screen. */
@@ -56,10 +52,10 @@ body:not([data-screen=home]) #modeScreen{inset:0;margin:0!important}
 body:not([data-screen=home]):not(:has(#battle[style*="display: block"])) #fullscreenToggle{top:24px;bottom:auto;left:auto;right:max(20px,0px);width:38px;min-width:38px;background:#102f25;border-color:#ab965d}
 body[data-screen=library]:not(.hero-detail-open) #fullscreenToggle{top:14px;left:76px;right:auto}
 @media(orientation:landscape){body:not([data-screen=home]):not(:has(#battle[style*="display: block"])) #fullscreenToggle{top:24px}body[data-screen=library]:not(.hero-detail-open) #fullscreenToggle{top:14px}}
-@media(orientation:portrait){body:not([data-screen=home]) .app-screen:not(#homeScreen),body[data-screen=library] #selection{padding-bottom:24px}.simple-roster .roster-head{padding-right:50px}body[data-screen=library]:not(.hero-detail-open) #fullscreenToggle{top:18px;left:auto;right:20px}.simple-header{padding-right:46px}}
+
 .simple-roster .hero-card-art img{width:100%;height:100%;left:0;top:0;object-fit:contain;padding:5px 3px 34px}
 @media(orientation:landscape){body[data-screen=library]:not(.hero-detail-open):not(:has(#battle[style*="display: block"])) #fullscreenToggle{top:14px!important;left:76px!important;right:auto!important}}
-@media(orientation:portrait){body[data-screen=home] #lobbyNav.royal-nav{grid-template-columns:repeat(6,1fr)}body[data-screen=home] #lobbyNav.royal-nav button:nth-of-type(n+5){display:flex}}
+
 /* Astral lookout fills the detail page; quiet panels preserve skill readability. */
 #heroDetail.astral-detail{background:#173b49 url('../assets/astral_v18/lookout.webp') center/cover no-repeat}
 .astral-detail.simple-detail .hero-detail-inner{background:linear-gradient(90deg,#03161a25,#03161a55 46%,#03161aa8)}

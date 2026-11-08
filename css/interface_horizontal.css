@@ -94,11 +94,7 @@ body{background:#0e1727}
  #profileScreen .profile-box{padding:18px 22px;gap:8px 24px}.profile-box h1{font-size:32px}.profile-box>p{font-size:12px}#profileScreen .avatar-grid{gap:6px}.profile-box .profile-label{font-size:9px}
 }
 @media(orientation:landscape) and (max-width:740px){.hero-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.roster-page{grid-template-columns:130px minmax(0,1fr)}.hero-detail-inner{grid-template-columns:minmax(160px,.75fr) minmax(290px,1.25fr);gap:6px 12px}.hero-heading h1{font-size:22px}}
-@media(orientation:portrait) and (max-width:700px){
- #battle .hud{gap:8px}#battle .fighterhud{padding-left:0}#battle .fighterhud.enemy{padding-right:0}#battle .arena-portrait{display:none}#battle .mid-hud{flex-basis:56px}
- #battle .control-center{bottom:96px;right:14px}#battle .action-group{bottom:16px;right:14px;gap:8px}#battle .action-group #attack{width:60px;height:60px}#battle .action-group #defend,#battle .action-group #dodge{width:44px;height:44px}
- #battle #stick{left:14px;bottom:24px;width:96px;height:96px}#battle{--skill-size:44px;--control-gap:8px}
-}
+
 #fullscreenToggle{position:fixed;top:max(10px,env(safe-area-inset-top));right:max(14px,0px);z-index:240;display:flex;align-items:center;justify-content:center;gap:8px;min-width:40px;min-height:40px;padding:7px 10px;border:1px solid #8499b7;border-radius:10px;background:#14233bea;color:#f5e8cd;font:11px system-ui;touch-action:manipulation}
 #fullscreenToggle>span:first-child{font-size:24px;line-height:1}#fullscreenStatus{position:fixed;z-index:1001;bottom:max(16px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:min(480px,85vw);padding:14px;border:1px solid #b7a582;border-radius:10px;background:#17253bf5;color:#f1e3c9;text-align:center;font:13px/1.5 system-ui}
 body:has(#battle[style*="display: block"]) #fullscreenToggle{top:88px;right:calc(max(18px,0px) + 96px);min-width:38px;min-height:38px;width:38px;height:38px;padding:3px}
