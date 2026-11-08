@@ -17,6 +17,23 @@
  window.battleTop=function(){
   const hud=document.querySelector('#battle .hud');
   if(!hud)return innerHeight<520?58:88;
-  return Math.ceil(hud.getBoundingClientRect().bottom)+6;
+  // Medir o HUD a cada quadro força recalcular o layout (pesado em celulares, pior no 2x2).
+  // O valor fica em cache e só é refeito quando o HUD ou a janela mudam de tamanho.
+  if(topDirty||topHud!==hud){
+   topHud=hud;topDirty=false;
+   if(window.ResizeObserver&&!topObs){topObs=new ResizeObserver(()=>{topDirty=true});topObs.observe(hud);const b=document.querySelector('#battle');if(b)topObs.observe(b)}
+   topCache=Math.ceil(hud.getBoundingClientRect().bottom)+6;
+  }
+  return topCache;
  };
+ let topCache=0,topDirty=true,topHud=null,topObs=null;
+ ['resize','orientationchange','fullscreenchange'].forEach(e=>addEventListener(e,()=>{topDirty=true}));
+ document.addEventListener('fullscreenchange',()=>{topDirty=true});
+ // Resolução adaptativa: se a luta ficar lenta (quadro médio > ~26 ms por 3 verificações), baixa a resolução do canvas.
+ let slow=0;
+ setInterval(()=>{
+  if(typeof state==='undefined'||state!=='fight'||document.hidden||typeof vfxFrameCost!=='number')return;
+  const cap=window.renderCap||2;
+  if(vfxFrameCost>26&&cap>1){if(++slow>=3){slow=0;window.renderCap=cap>1.5?1.5:1;if(typeof resize==='function')resize()}}else slow=0;
+ },1000);
 })();
