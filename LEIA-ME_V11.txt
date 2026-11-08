@@ -52,3 +52,11 @@ só proporcionalmente maior; os controles ficam ancorados nos cantos e a arena g
 - Menu lateral só na tela inicial; nas demais telas há um botão de voltar no canto superior direito.
 - Para mudar um tamanho, mude o valor no desenho de referência, não crie regra por tamanho de tela.
 Teste: node tests/ui-escala.cjs (7 tamanhos de tela, 98 verificações).
+
+LIMPEZA DE REGRAS ANTIGAS E TELA INTEIRA
+- Removidas as margens de segurança de câmera/borda (esquerda e direita): todas as telas chegam aos cantos.
+  (viewport-fit=cover continua ligado; se uma câmera cobrir algo, o conteúdo fica por baixo dela.)
+- Removidas as regras por tamanho de tela que a escala única tornou mortas: todas as de retrato
+  (o jogo só funciona na horizontal), as de tela grande (min-width/min-height), as de largura menor que
+  640px e as condicionais de altura da batalha. Conferido por comparação pixel a pixel de 14 telas em 4
+  tamanhos (sem diferença). Ficaram as regras para larguras de 640 a 850px e as de altura menor que 430px.

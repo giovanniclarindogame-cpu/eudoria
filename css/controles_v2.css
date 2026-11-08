@@ -8,12 +8,12 @@
  * batalha são fixados com !important para não dependerem delas.
  */
 @media(orientation:landscape){
- body #battle{--edge:max(18px,env(safe-area-inset-right));--skill-size:48px;--control-gap:9px;--atk:60px;--sm:46px;--hud-height:58px}
+ body #battle{--edge:max(18px,0px);--skill-size:48px;--control-gap:9px;--atk:60px;--sm:46px;--hud-height:58px}
  body #battle[data-mode="2v2"]:has(#teamHud:not([hidden])){--hud-height:82px}
  body #battle #countdown{top:calc((var(--hud-height) + 17px)*var(--ui,1))!important}
 
  /* ---------- HUD ---------- */
- body #battle .hud{zoom:var(--ui,1);height:auto!important;inset:5px max(12px,env(safe-area-inset-right)) auto max(12px,env(safe-area-inset-left))!important;min-height:50px!important;padding:5px 8px!important;gap:10px!important}
+ body #battle .hud{zoom:var(--ui,1);height:auto!important;inset:5px max(12px,0px) auto max(12px,0px)!important;min-height:50px!important;padding:5px 8px!important;gap:10px!important}
  body #battle[data-mode="2v2"]:has(#teamHud:not([hidden])) .hud{min-height:82px!important}
  body #battle .fighterhud{padding-left:43px!important;max-width:none!important}
  body #battle .fighterhud.enemy{padding-left:0!important;padding-right:43px!important}
@@ -37,9 +37,9 @@
  body #battle .enemy-mini .team-mini-title{flex-direction:row-reverse}
 
  /* ---------- Zoom, pausa e avisos ---------- */
- body #battle .hud #pauseBtn,body #battle #arenaZoom{top:65px!important;width:34px!important;height:34px!important;right:max(18px,env(safe-area-inset-right))!important}
+ body #battle .hud #pauseBtn,body #battle #arenaZoom{top:65px!important;width:34px!important;height:34px!important;right:max(18px,0px)!important}
  body #battle #arenaZoom{zoom:var(--ui,1)}
- body #battle #arenaZoom{right:calc(max(18px,env(safe-area-inset-right)) + 44px)!important}
+ body #battle #arenaZoom{right:calc(max(18px,0px) + 44px)!important}
  body #battle[data-mode="2v2"]:has(#teamHud:not([hidden])) .hud #pauseBtn,body #battle[data-mode="2v2"]:has(#teamHud:not([hidden])) #arenaZoom{top:94px!important}
  body #battle #practiceMeter{zoom:var(--ui,1);top:64px!important;font-size:9px;max-width:150px}
  body #battle #toast{zoom:var(--ui,1);top:66px!important}
@@ -47,7 +47,7 @@
  body #battle #riftCombatToggle{zoom:var(--ui,1);top:108px!important}
 
  /* ---------- Controles ---------- */
- body #battle #stick{zoom:var(--ui,1);left:max(26px,env(safe-area-inset-left))!important;bottom:max(24px,env(safe-area-inset-bottom))!important;width:100px!important;height:100px!important}
+ body #battle #stick{zoom:var(--ui,1);left:max(26px,0px)!important;bottom:max(24px,env(safe-area-inset-bottom))!important;width:100px!important;height:100px!important}
  body #battle .control-center{zoom:var(--ui,1);right:calc(var(--edge) + var(--atk) + var(--control-gap) + 8px)!important;bottom:max(12px,env(safe-area-inset-bottom))!important;left:auto!important;width:auto!important}
  body #battle .equipped{grid-template-columns:repeat(3,var(--skill-size))!important;gap:var(--control-gap)!important}
  body #battle .skill{width:var(--skill-size)!important;height:var(--skill-size)!important;border-width:2px!important;padding:3px!important}
