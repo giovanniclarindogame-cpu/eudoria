@@ -14,7 +14,7 @@ const col=R=>R.def.look.aura||{a:'#c04bff',b:'#ff62a8'};
 /* ============================== utilidades ============================== */
 function bossHit(R,t,dmg,knock,angle,opt={}){
  const A=R.a;if(t.hp<=0||A.hp<=0)return false;
- let n=dmg*(R.def.dmg||1)*(R.phase===2?1.1:1)*(R.buff?R.buff.dmg:1);
+ let n=dmg*(R.def.dmg||1)*(R.phase===2?1.1:1)*(R.buff?R.buff.dmg:1)*(R.dmgScale||1);
  if(R.def.mech?.dmgMul)n*=R.def.mech.dmgMul(R);
  if(opt.breakGuard&&t.guard&&t.inv<=0)breakGuard(t);
  const ok=hit(t,n,A,knock,angle,-1);
@@ -326,14 +326,19 @@ prepareArenaMode=function(){
  prevPrepare();
  if(arenaModeId!=='guardian'||!modeRun)return;
  const def=HuntAPI.bossOfDay();if(!def.generic)return;
- const A=b;
- modeRun.gb=A.gb={def,a:A,solo:HuntAPI.loadSave().team==='solo',phase:1,act:null,next:null,rest:1.6,guardT:0,guardCD:0,dodgeCD:0,strafe:1,strafeT:2,walk:0,face:Math.PI,
+ modeRun.gb=makeGB(def,b,HuntAPI.loadSave().team==='solo');
+};
+// Fábrica do estado do chefe (usada também pela Cruzada Arcade, que o cria no fim da fase).
+function makeGB(def,A,solo){
+ const R=A.gb={def,a:A,solo,phase:1,act:null,next:null,rest:1.6,guardT:0,guardCD:0,dodgeCD:0,strafe:1,strafeT:2,walk:0,face:Math.PI,
   cds:{},tele:[],proj:[],zones:[],decoys:[],wisps:[],beam:null,cannon:null,nova:null,ghosts:[],pose:null,dying:0,landed:0,glow:0,exh:0,buff:null,shield:0,
   aggro:0,aggroT:0,intro:false,mech:{}};
- const R=A.gb;def.skills.forEach((s,i)=>{R.cds[s.id]=s.cd*(.25+.12*i)});
+ def.skills.forEach((s,i)=>{R.cds[s.id]=s.cd*(.25+.12*i)});
  A.huntBoss=true;
  def.mech?.init?.(R,A);
-};
+ return R;
+}
+HuntAPI.makeGB=makeGB;
 
 /* ============================== passo da arena ============================== */
 const prevStepMode=stepArenaMode;
@@ -346,7 +351,7 @@ stepArenaMode=function(dt){
  if(R.exh>0)R.exh=Math.max(0,R.exh-dt);
  if(R.buff){R.buff.t-=dt;if(R.buff.t<=0)R.buff=null}
  if(A.hp>0){
-  if(R.phase===1&&A.hp<A.max*.5){R.phase=2;R.tele=[];R.beam=null;R.cannon=null;R.nova=null;setGuard(A,false);startAct(R,'fury',{})}
+  if(R.phase===1&&!R.noPhase2&&A.hp<A.max*.5){R.phase=2;R.tele=[];R.beam=null;R.cannon=null;R.nova=null;setGuard(A,false);startAct(R,'fury',{})}
   def.mech?.tick?.(R,A,dt);
  }
  for(const t of R.tele){t.t+=dt;if(t.follow&&(!t.followUntil||t.t<t.followUntil)){t.x=t.follow.x;t.y=t.follow.y}}

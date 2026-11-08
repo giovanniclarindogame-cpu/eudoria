@@ -37,9 +37,6 @@ body:not([data-screen=home]) .panel{border:1px solid #9aa47766;border-radius:12p
 @media(orientation:landscape) and (max-width:740px){.simple-columns{grid-template-columns:.9fr 1.1fr}.simple-champion{flex-direction:column;gap:8px}.simple-champion-art{height:58%;width:100%;flex:none}.simple-champion>div:last-child{flex:none;text-align:center}.simple-champion h2{font-size:18px;margin:4px 0 8px}.simple-champion .eyebrow{display:none}.simple-collection{grid-template-columns:.75fr 1.25fr}.simple-collection-list{grid-template-columns:1fr}.simple-mode-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.simple-roster{grid-template-columns:115px minmax(0,1fr)}.simple-roster .roster-head h1{font-size:23px}}
 
 
-.simple-draft-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}.simple-draft-card{display:flex;flex-direction:column;align-items:center;gap:10px;padding:12px;color:#efe0b6}.simple-draft-card img{width:100%;height:180px;object-fit:contain}.simple-draft-card strong{font:20px Georgia}.simple-draft-card span{font:11px system-ui;color:#d9c78e}
-@media(orientation:landscape){.simple-draft-card img{height:120px}.simple-draft-card strong{font-size:16px}}
-@media(max-width:740px){.simple-draft-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 
 .simple-options .exchange-select{margin:0}
 

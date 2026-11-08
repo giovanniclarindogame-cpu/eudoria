@@ -109,3 +109,12 @@ O equilíbrio da dificuldade é estimado (testado só com IA e simulações): aj
 - Olho Copiador também copia ao VER o rival lançar uma habilidade (alcance de vista 520) e agora copia as ULTIMATES dos heróis (ao ver ou ao ser atingido).
 - Simulação IA x IA (tests/simulacao-duelo.cjs 1 0 150): Kakashi x Goku antes = 26% x 74%; depois = 48% x 52% (sementes extras: 53% e 50%).
 - Testes: node tests/copia-heroi.cjs, node tests/copia-chefe.cjs
+
+== CRUZADA ARCADE (js/fase_arcade.js, css/fase_arcade.css) ==
+- Substitui o modo "Escolha de Campeão" (removido). Fase de rolagem horizontal, estilo fliperama: 4 ondas de monstros, comida no caminho (maçã, carne, banquete), chefe no fim.
+- Solo ou dupla (aliado bot). Regra OCULTA: em dupla, monstros e chefe têm o dobro de vida (o HUD mostra a vida em %, para não revelar).
+- 10 fases, uma por chefe, liberadas em sequência. Os monstros usam o mesmo universo do chefe (3 tipos: soldado, atirador e brutamontes), com cenário próprio.
+- Chefe em nível médio: só a 1ª fase (sem transformações), vida ~36% do original e dano reduzido (ajuste fino por chefe em TUNE). Perto de 50% da vida ele derruba carne.
+- Salvo em eldoria.arcade.v1 (fases concluídas e melhor tempo). Não mexe nos recordes da Caçada do Dia.
+- Os motores dos chefes ganharam fábricas (HuntAPI.makeHunt / makeGB) e opções noForms / noPhase2 / dmgScale.
+- Testes: node tests/fase-arcade.cjs (48). Simulação: node tests/simulacao-arcade.cjs zorvath solo 10.

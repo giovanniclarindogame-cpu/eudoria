@@ -10,7 +10,7 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
   const out={};
   p.skin=1;p.kit=[...CHAMPIONS[1].kit];b.skin=0;b.kit=[...CHAMPIONS[0].kit];
   const ult=CHAMPIONS[0].kit[5],spec=CHAMPIONS[0].kit[0];
-  const reset=()=>{for(const x of [p,b]){x.rwCast=null;x.cast=0;x.skillLock=0;x.actionRecovery=0;x.punchTime=0;x.guard=false}const s=reworkState(p);s.copy=null;s.eye=6;p.inv=0;p.hp=p.max=3000;b.hp=b.max=100000;b.inv=0;b.x=p.x+300;b.y=p.y;p.cd=p.cd.map(()=>0);b.cd=b.cd.map(()=>0)};
+  const reset=()=>{for(const x of [p,b]){x.rwCast=null;x.cast=0;x.skillLock=0;x.actionRecovery=0;x.punchTime=0;x.guard=false}const s=reworkState(p);s.copy=null;s.eye=6;p.inv=0;p.hp=p.max=3000;b.hp=b.max=100000;b.inv=0;b.x=p.x+300;b.y=p.y;p.cd=p.cd.map(()=>0);b.cd=b.cd.map(()=>0);reworkState(b).value=100;b.mp=120};
   reset();hit(p,40,b,0,0,ult);out.hitUlt=reworkState(p).copy?.id===ult;
   reset();rwCast(b,spec,true);out.seeSpecial=reworkState(p).copy?.id===spec;out.seeNoDamage=p.hp===p.max;
   reset();reworkState(b).value=100;reworkState(b).stage=2;b.mp=120;out.ultReady=rwReady(b,ult);rwCast(b,ult,true);out.seeUlt=reworkState(p).copy?.id===ult;
