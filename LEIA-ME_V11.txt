@@ -90,3 +90,8 @@ O equilíbrio da dificuldade é estimado (testado só com IA e simulações): aj
 - Botão "Compartilhar resultado" na tela de resultado (Web Share ou copia o texto).
 - Em navegador automatizado os pop-ups automáticos ficam desligados.
 - Teste: node tests/retencao.cjs
+
+== MODO ECONOMIA (js/economia.js) ==
+- Configurações > "Modo economia": 30 quadros/s, efeitos leves, canvas a 1.5x. Salvo em eldoria.economia.v1.
+- Sem o modo, a resolução do canvas também cai sozinha se a luta ficar lenta (ui_escala.js).
+- Teste: node tests/economia.cjs

@@ -32,7 +32,7 @@
  // Resolução adaptativa: se a luta ficar lenta (quadro médio > ~26 ms por 3 verificações), baixa a resolução do canvas.
  let slow=0;
  setInterval(()=>{
-  if(typeof state==='undefined'||state!=='fight'||document.hidden||typeof vfxFrameCost!=='number')return;
+  if(window.ecoMode||typeof state==='undefined'||state!=='fight'||document.hidden||typeof vfxFrameCost!=='number')return;
   const cap=window.renderCap||2;
   if(vfxFrameCost>26&&cap>1){if(++slow>=3){slow=0;window.renderCap=cap>1.5?1.5:1;if(typeof resize==='function')resize()}}else slow=0;
  },1000);
