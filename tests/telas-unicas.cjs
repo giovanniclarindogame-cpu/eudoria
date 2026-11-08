@@ -36,6 +36,10 @@ const SIZES=[[844,390],[667,375],[740,360],[932,430],[1000,450],[1280,720]];
     return out});
    ok(over.length===0,`${w}x${h} ${name}: tudo numa visão só ${over.join(', ')}`);
   }
+  await p.evaluate(()=>{account.journey.training=account.journey.duel=account.journey.build=account.journey.claimed=true;showScreen('home')});await p.waitForTimeout(500);
+  await p.evaluate(()=>{const h=document.querySelector('.hunt-home');h.outerHTML='<section class="royal-explore royal-panel">x</section>'});await p.waitForTimeout(500);
+  ok(await p.evaluate(()=>!!document.querySelector('.hunt-home')&&!document.querySelector('.royal-explore')),`${w}x${h}: cartão da Caçada volta sozinho se a tela inicial for remontada sem ele`);
+  ok(await p.evaluate(()=>{const g=document.querySelector('#dailyGoals');if(!g)return true;return [...g.querySelectorAll('.ret-goal')].every((e,i,a)=>i===0||e.getBoundingClientRect().top>=a[i-1].getBoundingClientRect().bottom-1)}),`${w}x${h}: linhas das metas não se sobrepõem`);
   ok(errs.length===0,`${w}x${h}: sem erros de JavaScript ${errs.join('|')}`);
   await ctx.close();
  }
