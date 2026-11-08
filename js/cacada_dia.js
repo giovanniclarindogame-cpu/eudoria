@@ -746,9 +746,7 @@ function startHomeArt(){
  };
  homeRaf=requestAnimationFrame(loop);
 }
-const prevHome=renderLobbyHome;
-renderLobbyHome=function(){
- prevHome.apply(this,arguments);
+function ensureHuntHome(){
  const ex=document.querySelector('.royal-explore');if(!ex)return;
  const def=bossOfDay(),sv=loadSave(),rec=sv.best[def.id],wins=sv.wins[def.id]||0;
  const card=document.createElement('section');card.className='royal-panel hunt-home';card.setAttribute('aria-label','Caçada do Dia');
@@ -756,10 +754,15 @@ renderLobbyHome=function(){
  ex.replaceWith(card);
  if(account.journey&&account.journey.claimed){
   const j=document.querySelector('#journeyHome');if(j)j.hidden=true;
-  document.querySelector('.royal-bottom')?.classList.add('single');
+  if(!document.querySelector('#dailyGoals'))document.querySelector('.royal-bottom')?.classList.add('single');
  }
  startHomeArt();
-};
+}
+const prevHome=renderLobbyHome;
+renderLobbyHome=function(){prevHome.apply(this,arguments);ensureHuntHome()};
+window.ensureHuntHome=ensureHuntHome;
+// Garantia extra: se algum outro caminho montar a tela inicial sem passar por aqui, o cartão da Caçada é recolocado.
+{let q=0;new MutationObserver(()=>{if(q)return;q=requestAnimationFrame(()=>{q=0;try{if(document.querySelector('.royal-explore'))ensureHuntHome()}catch(e){console.error(e)}})}).observe(document.body,{childList:true,subtree:true})}
 document.addEventListener('click',e=>{if(e.target.closest('[data-hunt-home]'))beginArenaMode('guardian')});
 
 window.HuntAPI={ROSTER,register(d){d.generic=true;ROSTER.push(d)},bossOfDay,dayBoss,loadSave,writeSave,mmss,clock3,iconImg,bust,skillIcon};

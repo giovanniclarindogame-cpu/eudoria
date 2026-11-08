@@ -47,3 +47,5 @@
 .ret-prog,.ret-got{min-width:34px;font-size:10px}
 .ret-goal .royal-small-gold{font-size:9px;padding:2px 7px;min-height:22px}
 .ret-chest{font-size:9px;line-height:1.2;padding-top:1px}.ret-chest .royal-small-gold{min-height:22px;font-size:10px}
+/* Em cartão baixo, as metas são cortadas em vez de se sobreporem */
+.ret-goals{overflow:hidden}.ret-goals>*,.ret-goal-list>*,.ret-goal{flex-shrink:0}
