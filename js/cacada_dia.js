@@ -46,7 +46,8 @@ function writeSave(s){try{localStorage.setItem(KEY,JSON.stringify(s));return tru
 let save=loadSave();
 
 function dayIndex(now=new Date()){return Math.floor((now.getTime()-now.getTimezoneOffset()*60000)/864e5)}
-function bossOfDay(now=new Date()){return ROSTER[dayIndex(now)%ROSTER.length]}
+function dayBoss(now=new Date()){return ROSTER[dayIndex(now)%ROSTER.length]}
+function bossOfDay(now=new Date()){const q=new URLSearchParams(location.search).get('boss');if(q){const f=ROSTER.find(b=>b.id===q);if(f)return f}return dayBoss(now)}
 function msToMidnight(){const n=new Date(),m=new Date(n.getFullYear(),n.getMonth(),n.getDate()+1);return m-n}
 function clock3(ms){const s=Math.max(0,Math.floor(ms/1000));return[Math.floor(s/3600),Math.floor(s/60)%60,s%60].map(v=>String(v).padStart(2,'0')).join(':')}
 function mmss(sec){sec=Math.max(0,Math.round(sec));return Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0')}
@@ -54,6 +55,7 @@ function mmss(sec){sec=Math.max(0,Math.round(sec));return Math.floor(sec/60)+':'
 /* ============================== ícones em pixel art ============================== */
 const iconCache={};
 function skillIcon(kind){
+ if(kind&&typeof kind==='object')return BossIcons.make(kind.shape,kind.c1,kind.c2);
  if(iconCache[kind])return iconCache[kind];
  const c=document.createElement('canvas');c.width=c.height=24;const g=c.getContext('2d');g.imageSmoothingEnabled=false;
  const K=ZorvathSprite,r=K.rect;
@@ -76,13 +78,14 @@ function skillIcon(kind){
 const iconImg=(kind,cls='hunt-ico')=>`<img class="${cls}" src="${skillIcon(kind)}" alt="" draggable="false">`;
 
 /* retrato (busto) gerado a partir do sprite */
-let bustURL=null;
-function bust(){
- if(bustURL)return bustURL;
+const bustCache={};
+function bust(def=bossOfDay()){
+ if(def.generic){if(bustCache[def.id])return bustCache[def.id];const c=document.createElement('canvas');c.width=c.height=96;const g=c.getContext('2d');g.imageSmoothingEnabled=false;const bg=g.createRadialGradient(48,40,6,48,48,70);bg.addColorStop(0,def.look.aura.a+'88');bg.addColorStop(1,'#120a22');g.fillStyle=bg;g.fillRect(0,0,96,96);g.drawImage(BossSprite.frame(def.look,'idle',0),13,8,38,38,0,0,96,96);return bustCache[def.id]=c.toDataURL()}
+ if(bustCache.zorvath)return bustCache.zorvath;
  const c=document.createElement('canvas');c.width=c.height=96;const g=c.getContext('2d');g.imageSmoothingEnabled=false;
  const bg=g.createRadialGradient(48,40,6,48,48,70);bg.addColorStop(0,'#3d1f66');bg.addColorStop(1,'#120a22');g.fillStyle=bg;g.fillRect(0,0,96,96);
  g.drawImage(ZorvathSprite.frame('idle',0,{form:3}),13,6,38,38,0,0,96,96);
- bustURL=c.toDataURL();return bustURL;
+ bustCache.zorvath=c.toDataURL();return bustCache.zorvath;
 }
 /* ============================== lobby ============================== */
 let lobbyDef=null,artRaf=0,timerInt=0,selectedSkill=null;
@@ -90,8 +93,8 @@ function stars(n){return '★'.repeat(n)+'☆'.repeat(5-n)}
 function weekStrip(def){
  const names=['dom','seg','ter','qua','qui','sex','sáb'],now=new Date(),out=[];
  for(let i=0;i<7;i++){
-  const d=new Date(now.getFullYear(),now.getMonth(),now.getDate()+i),boss=i===0?def:null;
-  out.push(`<div class="hunt-day ${i===0?'today':'locked'}"><small>${i===0?'hoje':names[d.getDay()]}</small><b>${boss?boss.name:'?'}</b><span>${i===0?'Disponível':'Em breve'}</span></div>`);
+  const d=new Date(now.getFullYear(),now.getMonth(),now.getDate()+i),boss=i===0?def:dayBoss(d);
+  out.push(`<div class="hunt-day ${i===0?'today':''}"><small>${i===0?'hoje':names[d.getDay()]}</small><b>${boss.name.split(',')[0]}</b><span>${i===0?'Disponível':'Em '+i+' dia'+(i>1?'s':'')}</span></div>`);
  }
  return out.join('');
 }
@@ -107,10 +110,10 @@ function lobbyMarkup(def){
    <div class="hunt-plate"><strong>${def.name}</strong><span>${def.title}</span><em>Dificuldade ${def.difficulty} <i>${stars(def.stars)}</i></em></div></section>
   <section class="hunt-info">
    <article class="hunt-card"><span class="eyebrow">CHEFE DE HOJE</span><p>${def.story}</p>
-    <div class="hunt-chips"><span>3 formas</span><span>${mmss(ARENA_MODES.guardian.seconds)} de limite</span><span>◉ até ${prize} moedas</span><span>Vida ${save.team==='solo'?def.hp:def.hpDuo}</span></div></article>
+    <div class="hunt-chips"><span>${def.generic?'2 fases':'3 formas'}</span><span>${mmss(ARENA_MODES.guardian.seconds)} de limite</span><span>◉ até ${prize} moedas</span><span>Vida ${save.team==='solo'?def.hp:def.hpDuo}</span></div></article>
    <article class="hunt-card"><span class="eyebrow">SISTEMA PRÓPRIO · ${def.system[0].toUpperCase()}</span>
-    <div class="hunt-pride">${iconImg('forms','hunt-ico big')}<div><div class="pride-demo"><i></i></div><p>${def.system[1]}</p></div></div></article>
-   <article class="hunt-card"><span class="eyebrow">6 HABILIDADES · AS NOVAS VÊM COM AS FORMAS</span><div class="hunt-skills">${def.skills.map(skillBtn).join('')}</div>
+    <div class="hunt-pride">${iconImg(def.systemIcon||'forms','hunt-ico big')}<div><div class="pride-demo"><i></i></div><p>${def.system[1]}</p></div></div></article>
+   <article class="hunt-card"><span class="eyebrow">${def.generic?'6 HABILIDADES':'6 HABILIDADES · AS NOVAS VÊM COM AS FORMAS'}</span><div class="hunt-skills">${def.skills.map(skillBtn).join('')}</div>
     <span class="eyebrow" style="margin-top:12px;display:block">GOLPE, DEFESA E ESQUIVA</span><div class="hunt-skills three">${def.basics.map(basic).join('')}</div>
     <p class="hunt-skilldesc" id="huntSkillDesc" role="status">Toque em uma habilidade para ver como ela funciona.</p></article>
    <article class="hunt-card"><span class="eyebrow">COMO VENCER</span><ul class="hunt-tips">${def.tips.map(t=>`<li>${t}</li>`).join('')}</ul></article>
@@ -144,6 +147,16 @@ function startArt(){
   // piso rúnico
   g.save();g.translate(210,300);g.scale(1,.28);g.strokeStyle='#b86bff55';g.lineWidth=5;for(const r of[150,115,80]){g.beginPath();g.arc(0,0,r,0,6.3);g.stroke()}
   g.rotate(t*.3);g.strokeStyle='#ff62a855';g.lineWidth=4;g.beginPath();for(let i=0;i<6;i++){const a=i/6*6.283;g.lineTo(Math.cos(a)*118,Math.sin(a)*118)}g.closePath();g.stroke();g.restore();
+  if(def.generic){
+   const au=def.look.aura,cyc=def.cycle||[['idle',2.4],['s0',1.4],['idle',1.2],['s2',1.4],['idle',1],['s4',1.6],['s5',1.8]],total=cyc.reduce((x,c)=>x+c[1],0);
+   let u=t%total,pose='idle',dur=1,lt=0;for(const[n,d]of cyc){if(u<d){pose=n;dur=d;lt=u;break}u-=d}
+   const frames=BossSprite.POSES[pose].n,fi=pose==='idle'?Math.floor(t*4)%frames:Math.min(frames-1,Math.floor(lt/dur*frames)),power=pose==='idle'?.25:1;
+   g.save();g.globalCompositeOperation='lighter';
+   const ag=g.createRadialGradient(210,170,6,210,170,150);ag.addColorStop(0,au.b+Math.round(90*power).toString(16).padStart(2,'0'));ag.addColorStop(.5,au.a+Math.round(64*power).toString(16).padStart(2,'0'));ag.addColorStop(1,au.a+'00');g.fillStyle=ag;g.fillRect(0,0,420,340);
+   for(let i=0;i<22;i++){const k=(t*(.45+(i%5)*.07)+i/22)%1,x=210+Math.sin(i*5.3+t*1.7)*(48+k*26),y=312-k*230,sz=Math.max(2,Math.round(7*(1-k)));g.globalAlpha=(1-k)*(.3+.6*power);g.fillStyle=i%3?au.a:au.b;g.fillRect(Math.round(x),Math.round(y),sz,sz)}
+   g.restore();
+   BossSprite.paint(g,def.look,pose,fi,{x:210,y:318,scale:6,filter:'drop-shadow(0 0 10px '+au.a+'88)'});
+  }else{
   // ciclo: mostra as 3 formas e alguns golpes
   const cyc=[['idle',2.2,1],['whip',1.4,1],['idle',1,1],['power',1.3,2],['idle',1.4,2],['beam',1.5,2],['power',1.3,3],['idle',1.3,3],['nova',2.2,3]],total=cyc.reduce((s,c)=>s+c[1],0);
   let u=t%total,pose='idle',form=1,dur=1,lt=0;for(const[n,d,f]of cyc){if(u<d){pose=n;form=f;dur=d;lt=u;break}u-=d}
@@ -155,6 +168,7 @@ function startArt(){
   g.restore();
   if(pose==='nova'){g.save();g.globalCompositeOperation='lighter';const rr=14+lt/dur*34,ng=g.createRadialGradient(210,92,2,210,92,rr*1.5);ng.addColorStop(0,'#fff');ng.addColorStop(.4,'#ff62a8');ng.addColorStop(1,'rgba(184,107,255,0)');g.fillStyle=ng;g.fillRect(100,0,220,200);g.restore()}
   ZorvathSprite.paint(g,pose,fi,{x:210,y:318,scale:6,form,filter:'drop-shadow(0 0 10px #b86bff88)'});
+  }
   artRaf=requestAnimationFrame(loop);
  };
  artRaf=requestAnimationFrame(loop);
@@ -208,7 +222,7 @@ configureArenaSize=function(){
 const prevCam=updateArenaCamera;
 let camKey='',camL=150,camR=300;
 updateArenaCamera=function(){
- const R=modeRun&&modeRun.hunt;
+ const R=modeRun&&(modeRun.hunt||modeRun.gb);
  if(!R||courtyardWide||cw<ch||!p||!cw)return prevCam();
  const pts=actors.filter(a=>a.hp>0&&(a===p||a===R.a));if(pts.length<2)return prevCam();
  // reserva as áreas dos controles (analógico à esquerda; habilidades e ações à direita)
@@ -238,6 +252,7 @@ prepareArenaMode=function(){
  b.boss=true;b.huntBoss=true;b.team=1;b.label=def.name;b.r=26;b.max=b.hp=solo?def.hp:def.hpDuo;b.a=Math.PI;b.st=100;
  p.x=W*.16;p.y=H*.5;if(ally&&!solo){ally.x=W*.16;ally.y=H*.78;ally.label='Aliado'}
  b.x=W*.8;b.y=H*.5;
+ if(def.generic){b.kit=[0,1,2,3,4,5];return}
  modeRun.hunt=b.hunt={
   def,a:b,solo,form:1,shown:1,exh:0,act:null,next:null,rest:1.6,guardT:0,guardCD:0,dodgeCD:0,strafe:1,strafeT:2,walk:0,face:Math.PI,
   cds:{s0:2,s1:4,s2:7,s3:5,s4:9,s5:14},tele:[],discs:[],beam:null,cannon:null,nova:null,ghosts:[],pose:null,dying:0,landed:0,glow:0,aggro:0,aggroT:0,intro:false
@@ -248,8 +263,9 @@ const prevStart=start;
 start=function(){
  const r=prevStart.apply(this,arguments);
  const eb=document.querySelector('#outcome .eyebrow');if(eb)eb.textContent=arenaModeId==='guardian'?'CAÇADA ENCERRADA':'DUELO ENCERRADO';
- if(modeRun?.hunt){$('#teamHud').hidden=modeRun.hunt.solo;
-  const def=modeRun.hunt.def;
+ const hh=modeRun?.hunt||modeRun?.gb;
+ if(hh){$('#teamHud').hidden=hh.solo;
+  const def=hh.def;
   $('#botkit').innerHTML=def.skills.map(s=>`<span title="${s.name}">${iconImg(s.icon,'hunt-mini')}</span>`).join('');
   $('#battle').dataset.arena='hunt';
  }
@@ -705,6 +721,7 @@ endArenaMode=function(win,draw){
 let homeRaf=0,homeTimer=0;
 function startHomeArt(){
  cancelAnimationFrame(homeRaf);clearInterval(homeTimer);
+ const hd=bossOfDay();
  const alive=()=>document.getElementById('huntHomeArt')&&appScreen==='home'&&!document.hidden;
  homeTimer=setInterval(()=>{const el=document.getElementById('huntHomeTimer');if(!el){clearInterval(homeTimer);return}el.textContent=clock3(msToMidnight())},1000);
  let last=0;
@@ -716,7 +733,7 @@ function startHomeArt(){
    const ag=g.createRadialGradient(100,100,6,100,100,95);ag.addColorStop(0,'rgba(255,98,168,.3)');ag.addColorStop(.6,'rgba(184,107,255,.2)');ag.addColorStop(1,'rgba(184,107,255,0)');g.fillStyle=ag;g.fillRect(0,0,200,200);
    for(let i=0;i<10;i++){const k=(t*(.4+(i%4)*.08)+i/10)%1,x=100+Math.sin(i*5.3+t*1.6)*(26+k*14),y=176-k*140,sz=Math.max(2,Math.round(5*(1-k)));g.globalAlpha=(1-k)*.8;g.fillStyle=i%3?'#b86bff':'#ff62a8';g.fillRect(Math.round(x),Math.round(y),sz,sz)}
    g.restore();
-   ZorvathSprite.paint(g,'idle',Math.floor(t*3)%4,{x:100,y:176,scale:2.7,form:3});
+   if(hd.generic)BossSprite.paint(g,hd.look,'idle',Math.floor(t*3)%4,{x:100,y:176,scale:2.7});else ZorvathSprite.paint(g,'idle',Math.floor(t*3)%4,{x:100,y:176,scale:2.7,form:3});
   }
   homeRaf=requestAnimationFrame(loop);
  };
@@ -728,7 +745,7 @@ renderLobbyHome=function(){
  const ex=document.querySelector('.royal-explore');if(!ex)return;
  const def=bossOfDay(),sv=loadSave(),rec=sv.best[def.id],wins=sv.wins[def.id]||0;
  const card=document.createElement('section');card.className='royal-panel hunt-home';card.setAttribute('aria-label','Caçada do Dia');
- card.innerHTML=`<canvas class="hunt-home-art" id="huntHomeArt" width="200" height="200" aria-hidden="true"></canvas><div class="hunt-home-copy"><span class="royal-eyebrow">CAÇADA DO DIA</span><h2>${def.name}</h2><small class="hunt-home-title">${def.title}</small><div class="hunt-home-meta"><span>⏳ Troca em <b id="huntHomeTimer">${clock3(msToMidnight())}</b></span><span>${rec?'Melhor tempo '+mmss(rec):'Ainda sem recorde'}${wins?' · '+wins+' vitória'+(wins>1?'s':''):''}</span></div><button class="royal-small-gold" data-hunt-home>⚔ Caçar ↗</button></div>`;
+ card.innerHTML=`<canvas class="hunt-home-art" id="huntHomeArt" width="200" height="200" aria-hidden="true"></canvas><div class="hunt-home-copy"><span class="royal-eyebrow">CAÇADA DO DIA</span><h2>${def.name.split(',')[0]}</h2><small class="hunt-home-title">${def.title}</small><div class="hunt-home-meta"><span>⏳ Troca em <b id="huntHomeTimer">${clock3(msToMidnight())}</b></span><span>${rec?'Melhor tempo '+mmss(rec):'Ainda sem recorde'}${wins?' · '+wins+' vitória'+(wins>1?'s':''):''}</span></div><button class="royal-small-gold" data-hunt-home>⚔ Caçar ↗</button></div>`;
  ex.replaceWith(card);
  if(account.journey&&account.journey.claimed){
   const j=document.querySelector('#journeyHome');if(j)j.hidden=true;
@@ -738,6 +755,7 @@ renderLobbyHome=function(){
 };
 document.addEventListener('click',e=>{if(e.target.closest('[data-hunt-home]'))beginArenaMode('guardian')});
 
+window.HuntAPI={ROSTER,register(d){d.generic=true;ROSTER.push(d)},bossOfDay,dayBoss,loadSave,writeSave,mmss,clock3,iconImg,bust,skillIcon};
 /* ganchos de teste */
-window.huntQA={get state(){return modeRun?.hunt},bossOfDay,ROSTER,lobby:openHuntLobby,force(id){const R=hunt();if(!R)return;R.act=null;R.tele=[];R.nova=null;R.cannon=null;R.rest=0;startAct(R,id,{})},ACT};
+window.huntQA={get state(){return modeRun?.hunt||modeRun?.gb},bossOfDay,ROSTER,lobby:openHuntLobby,force(id){const R=hunt();if(!R)return;R.act=null;R.tele=[];R.nova=null;R.cannon=null;R.rest=0;startAct(R,id,{})},ACT};
 })();
