@@ -260,12 +260,14 @@ prepareArenaMode=function(){
  p.x=W*.16;p.y=H*.5;if(ally&&!solo){ally.x=W*.16;ally.y=H*.78;ally.label='Aliado'}
  b.x=W*.8;b.y=H*.5;
  if(def.generic){b.kit=[0,1,2,3,4,5];return}
- modeRun.hunt=b.hunt={
-  def,a:b,solo,form:1,shown:1,exh:0,act:null,next:null,rest:1.6,guardT:0,guardCD:0,dodgeCD:0,strafe:1,strafeT:2,walk:0,face:Math.PI,
-  cds:{s0:2,s1:4,s2:7,s3:5,s4:9,s5:14},tele:[],discs:[],beam:null,cannon:null,nova:null,ghosts:[],pose:null,dying:0,landed:0,glow:0,aggro:0,aggroT:0,intro:false
- };
+ modeRun.hunt=b.hunt=makeHunt(def,b,solo);
  b.kit=[0,1,2,3,4,5];
 };
+// Fábrica do estado do chefe (usada também pela Cruzada Arcade, que o cria no fim da fase).
+function makeHunt(def,A,solo){return{
+  def,a:A,solo,form:1,shown:1,exh:0,act:null,next:null,rest:1.6,guardT:0,guardCD:0,dodgeCD:0,strafe:1,strafeT:2,walk:0,face:Math.PI,
+  cds:{s0:2,s1:4,s2:7,s3:5,s4:9,s5:14},tele:[],discs:[],beam:null,cannon:null,nova:null,ghosts:[],pose:null,dying:0,landed:0,glow:0,aggro:0,aggroT:0,intro:false
+ }}
 const prevStart=start;
 start=function(){
  const r=prevStart.apply(this,arguments);
@@ -293,7 +295,7 @@ function pickTarget(R,A){
 }
 function bossHit(t,dmg,knock,angle,opt={}){
  const R=hunt(),A=R.a;if(t.hp<=0||A.hp<=0)return false;
- const n=dmg*DMG[R.form-1];
+ const n=dmg*DMG[R.form-1]*(R.dmgScale||1);
  if(opt.breakGuard&&t.guard&&t.inv<=0)breakGuard(t);
  const ok=hit(t,n,A,knock,angle,-1);
  if(ok){R.landed++;window.BossCopy?.landed(R,t)}
@@ -515,7 +517,7 @@ stepArenaMode=function(dt){
  if(A.hp>0){
   if(R.exh>0)R.exh=Math.max(0,R.exh-dt);
   // transformações
-  const need=A.hp<A.max*.35?3:A.hp<A.max*.7?2:1;
+  const need=R.noForms?1:A.hp<A.max*.35?3:A.hp<A.max*.7?2:1;
   if(need>R.form&&!(R.act&&R.act.id==='xform')){
    R.form++;R.tele=[];R.beam=null;R.cannon=null;R.nova=null;R.discs=[];R.exh=0;setGuard(A,false);
    for(const k of['s0','s1','s2'])R.cds[k]=Math.min(R.cds[k],2.5);
@@ -765,7 +767,7 @@ window.ensureHuntHome=ensureHuntHome;
 {let q=0;new MutationObserver(()=>{if(q)return;q=requestAnimationFrame(()=>{q=0;try{if(document.querySelector('.royal-explore'))ensureHuntHome()}catch(e){console.error(e)}})}).observe(document.body,{childList:true,subtree:true})}
 document.addEventListener('click',e=>{if(e.target.closest('[data-hunt-home]'))beginArenaMode('guardian')});
 
-window.HuntAPI={ROSTER,register(d){d.generic=true;ROSTER.push(d)},bossOfDay,dayBoss,loadSave,writeSave,mmss,clock3,iconImg,bust,skillIcon};
+window.HuntAPI={makeHunt,ROSTER,register(d){d.generic=true;ROSTER.push(d)},bossOfDay,dayBoss,loadSave,writeSave,mmss,clock3,iconImg,bust,skillIcon};
 /* ganchos de teste */
 window.huntQA={get state(){return modeRun?.hunt||modeRun?.gb},bossOfDay,ROSTER,lobby:openHuntLobby,force(id){const R=hunt();if(!R)return;R.act=null;R.tele=[];R.nova=null;R.cannon=null;R.rest=0;startAct(R,id,{})},ACT};
 })();

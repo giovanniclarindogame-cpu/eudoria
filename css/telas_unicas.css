@@ -5,22 +5,22 @@
  */
 @media(orientation:landscape){
  /* Arenas: 8 modos em 4 colunas x 2 linhas */
- body:not([data-screen=hunt]) #modeScreen.app-screen:not([hidden]){display:flex!important;flex-direction:column;overflow:hidden!important;padding:10px 16px 10px!important}
- body:not([data-screen=hunt]) #modeScreen .simple-header{flex:0 0 auto;min-height:0!important;margin:0 0 8px!important;padding:0 62px 6px 0!important}
- body:not([data-screen=hunt]) #modeScreen .simple-header h1{font-size:24px!important;margin:0!important}
- body:not([data-screen=hunt]) #modeScreen .simple-header p{display:none}
- body:not([data-screen=hunt]) #modeScreen .simple-mode-grid{flex:1 1 0;min-height:0;grid-template-columns:repeat(4,minmax(0,1fr))!important;grid-template-rows:repeat(2,minmax(0,1fr));gap:8px!important}
- body:not([data-screen=hunt]) #modeScreen .simple-mode{padding:10px 12px!important;gap:5px!important;overflow:hidden;justify-content:flex-start}
- body:not([data-screen=hunt]) #modeScreen .simple-mode h2{font-size:17px!important;line-height:1.1}
- body:not([data-screen=hunt]) #modeScreen .simple-mode p{font-size:10.5px!important;line-height:1.35!important}
- body:not([data-screen=hunt]) #modeScreen .simple-mode .eyebrow{font-size:8px!important}
- body:not([data-screen=hunt]) #modeScreen .simple-mode .gold{min-height:30px!important;padding:5px!important;font-size:12px!important;margin-top:auto}
+ body:not([data-screen=hunt]):not([data-screen=arcade]) #modeScreen.app-screen:not([hidden]){display:flex!important;flex-direction:column;overflow:hidden!important;padding:10px 16px 10px!important}
+ body:not([data-screen=hunt]):not([data-screen=arcade]) #modeScreen .simple-header{flex:0 0 auto;min-height:0!important;margin:0 0 8px!important;padding:0 62px 6px 0!important}
+ body:not([data-screen=hunt]):not([data-screen=arcade]) #modeScreen .simple-header h1{font-size:24px!important;margin:0!important}
+ body:not([data-screen=hunt]):not([data-screen=arcade]) #modeScreen .simple-header p{display:none}
+ body:not([data-screen=hunt]):not([data-screen=arcade]) #modeScreen .simple-mode-grid{flex:1 1 0;min-height:0;grid-template-columns:repeat(4,minmax(0,1fr))!important;grid-template-rows:repeat(2,minmax(0,1fr));gap:8px!important}
+ body:not([data-screen=hunt]):not([data-screen=arcade]) #modeScreen .simple-mode{padding:10px 12px!important;gap:5px!important;overflow:hidden;justify-content:flex-start}
+ body:not([data-screen=hunt]):not([data-screen=arcade]) #modeScreen .simple-mode h2{font-size:17px!important;line-height:1.1}
+ body:not([data-screen=hunt]):not([data-screen=arcade]) #modeScreen .simple-mode p{font-size:10.5px!important;line-height:1.35!important}
+ body:not([data-screen=hunt]):not([data-screen=arcade]) #modeScreen .simple-mode .eyebrow{font-size:8px!important}
+ body:not([data-screen=hunt]):not([data-screen=arcade]) #modeScreen .simple-mode .gold{min-height:30px!important;padding:5px!important;font-size:12px!important;margin-top:auto}
  /* regras completas: botão pequeno no rodapé; abre como painel sobre os cartões */
- body:not([data-screen=hunt]) #modeScreen .simple-mode-rules{position:absolute;right:16px;top:calc(10px + 4px);margin:0!important;padding:0!important;min-height:0!important;border:0!important;background:none!important;z-index:5}
- body:not([data-screen=hunt]) #modeScreen .simple-mode-rules{display:none!important}
+ body:not([data-screen=hunt]):not([data-screen=arcade]) #modeScreen .simple-mode-rules{position:absolute;right:16px;top:calc(10px + 4px);margin:0!important;padding:0!important;min-height:0!important;border:0!important;background:none!important;z-index:5}
+ body:not([data-screen=hunt]):not([data-screen=arcade]) #modeScreen .simple-mode-rules{display:none!important}
 }
 @media(orientation:landscape) and (max-width:720px){
- body:not([data-screen=hunt]) #modeScreen .simple-rule{display:none}
+ body:not([data-screen=hunt]):not([data-screen=arcade]) #modeScreen .simple-rule{display:none}
 }
 
 /* Campeões e Loja: 10 cartas em 5 colunas x 2 linhas, qualquer tamanho de celular */

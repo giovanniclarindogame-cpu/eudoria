@@ -1,0 +1,38 @@
+/* Cruzada Arcade — lobby e avisos de fase. Mesmo vocabulário esmeralda e dourado da Caçada. */
+body[data-screen=arcade] #modeScreen{padding:0!important;overflow:hidden!important;display:block;background:radial-gradient(ellipse at 15% 0%,#3a2a0eaa,transparent 55%),radial-gradient(ellipse at 90% 100%,#173d2b88,transparent 60%),#061c18}
+.arc-page{display:flex;flex-direction:column;height:calc(100*var(--dvh,1dvh));color:#f1ead1}
+.arc-top{display:flex;align-items:center;gap:14px;padding:8px 18px 7px;border-bottom:1px solid #b39d5e55;flex:0 0 auto}
+.arc-title .eyebrow{font-size:9px;letter-spacing:3px;color:#d3b877}.arc-title h1{font:26px/1.05 Georgia,serif;margin:2px 0 0;color:#f4e5ba}
+.arc-body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:12px;padding:10px 18px 8px}
+.arc-stages{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:7px;min-height:0}
+.arc-stage{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:1px;min-height:0;padding:0 3px 5px;border:1px solid #647755;border-radius:10px;background:#092219;color:#e8dcb8;overflow:hidden;cursor:pointer;touch-action:manipulation;text-align:center}
+.arc-stage img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;image-rendering:pixelated;opacity:.8}
+.arc-stage::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 38%,#04120dee 88%)}
+.arc-stage>*{position:relative;z-index:1}
+.arc-stage .arc-n{position:absolute;top:4px;left:6px;z-index:2;font:700 12px Georgia,serif;color:#f4e5ba;text-shadow:0 1px 3px #000}
+.arc-stage b{font-size:11px;line-height:1.1}.arc-stage small{font-size:9px;color:#b5c8b6}
+.arc-stage.on{border-color:#f2ca5c;box-shadow:0 0 14px #f2ca5c44}
+.arc-stage.lock{opacity:.55;filter:grayscale(.8)}.arc-stage.lock img{opacity:.35}
+.arc-info{display:flex;flex-direction:column;gap:7px;min-height:0;border:1px solid #9aa47766;border-radius:12px;background:linear-gradient(130deg,#12372b,#08241c);padding:10px 12px}
+.arc-boss .eyebrow{font-size:8.5px;letter-spacing:2.2px;color:#d3b877}
+.arc-boss h2{font:19px/1.1 Georgia,serif;margin:3px 0;color:#f4e5ba}.arc-boss p{margin:0;font-size:11px;line-height:1.35;color:#c3d4c6}
+.arc-mobs{display:flex;gap:8px;align-items:flex-end;justify-content:space-between;flex:1;min-height:0}
+.arc-mobs figure{margin:0;flex:1;display:flex;flex-direction:column;align-items:center;min-width:0}
+.arc-mobs canvas{width:100%;max-width:76px;aspect-ratio:1;image-rendering:pixelated;background:radial-gradient(#1f4636,#0b1d17);border-radius:9px}
+.arc-mobs figcaption{font-size:9px;line-height:1.15;text-align:center;color:#c3d4c6;margin-top:3px}
+.arc-chips{margin-top:0}.arc-chips span{font-size:10px;padding:3px 8px}
+.arc-foot{flex:0 0 auto;display:flex;align-items:center;gap:12px;padding:7px 18px calc(7px + env(safe-area-inset-bottom));border-top:1px solid #b39d5e55;background:linear-gradient(#061c18,#04140f)}
+.arc-tip{flex:1;margin:0;font-size:11px;line-height:1.35;color:#b5c8b6}
+.arc-foot .hunt-team button{min-height:40px;min-width:78px;padding:4px 10px}.arc-foot .hunt-go{min-height:44px;padding:0 20px;font-size:13px}
+/* avisos na luta */
+#arcBanner{position:absolute;left:0;right:0;top:24%;text-align:center;pointer-events:none;z-index:12;opacity:0;transform:scale(.9)}
+#arcBanner b{display:block;font:900 calc(34px*var(--ui,1))/1 Georgia,serif;letter-spacing:5px;color:#f4e5ba;text-shadow:0 3px 0 #000,0 0 22px #f2ca5c88}
+#arcBanner small{display:block;margin-top:6px;font:700 calc(12px*var(--ui,1)) system-ui;letter-spacing:3px;color:#fff;text-shadow:0 2px 6px #000;text-transform:uppercase}
+#arcBanner.boss b{color:#ffb0b0;text-shadow:0 3px 0 #000,0 0 26px #ff4f4faa}
+#arcBanner.show{animation:arcBanner 2.4s ease-out forwards}
+@keyframes arcBanner{0%{opacity:0;transform:scale(.7)}12%{opacity:1;transform:scale(1.04)}22%{transform:scale(1)}78%{opacity:1}100%{opacity:0;transform:scale(1.02)}}
+#arcGo{position:absolute;right:calc(8%*1);top:36%;z-index:11;pointer-events:none;font:900 calc(24px*var(--ui,1)) Georgia,serif;letter-spacing:3px;color:#f4e5ba;text-shadow:0 3px 0 #000,0 0 16px #f2ca5c;animation:arcGo .8s steps(2) infinite}
+#arcGo i{font-style:normal;margin-left:6px}
+#arcGo[hidden]{display:none}
+@keyframes arcGo{50%{opacity:.15}}
+@media (prefers-reduced-motion:reduce){#arcGo{animation:none}}
