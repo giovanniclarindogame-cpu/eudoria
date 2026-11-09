@@ -10,7 +10,9 @@
  */
 (function(){
 const KEY='eldoria.arcade.v1';
-const WORLD_W=4400,WORLD_H=430,GROUND=.44;       // faixa de chão: de H*GROUND até H
+const WORLD_W=4400,WORLD_H=700,GROUND=189/700;     // o cenário (prédios, céu) acaba em y=189; abaixo é chão até o fim da tela (mundo mais alto para cobrir abaixo da faixa de luta)
+const BAND_TOP=214,BAND_BOT=350;                  // faixa onde os personagens andam (mais alta que o chão todo: o analógico e as skills ficam abaixo dela)
+const BAND_MID=(BAND_TOP+BAND_BOT)/2;
 const TRIG=[760,1460,2160,2860];               // pontos onde cada onda começa
 const BOSS_TRIG=3560;
 const FOOD_AFTER={1:'apple',2:'meat',3:'feast'};   // depois da onda i (0-based) coloca comida no caminho
@@ -123,7 +125,7 @@ function startWave(i){
  const e=viewEdges(),list=WAVES[i];let n=0;
  list.forEach((type,k)=>{
   const fromLeft=i>=1&&k%3===2&&e.l>120,x=fromLeft?e.l-50-rnd(0,40):Math.min(WORLD_W-40,e.r+50+rnd(0,70));
-  S.queue.push({t:.15+n*.55,type,x,y:rnd(WORLD_H*.55,WORLD_H*.9)});n++;
+  S.queue.push({t:.15+n*.55,type,x,y:rnd(BAND_TOP+8,BAND_BOT-8)});n++;
  });
  banner('ONDA '+(i+1)+' / '+WAVES.length,'','wave');
 }
@@ -193,7 +195,7 @@ function mobAI(dt,a){
  m.cd-=dt;m.blinkCd-=dt;m.face=ang;a.a=ang;
  // Ninja Clone: some e reaparece atrás de você
  if(m.kind==='blink'&&m.blinkCd<=0&&d>150){
-  const bx=clamp(T.x-Math.cos(T.a||0)*58,30,WORLD_W-30),by=clamp(T.y-Math.sin(T.a||0)*34,WORLD_H*GROUND+12,WORLD_H-26);
+  const bx=clamp(T.x-Math.cos(T.a||0)*58,30,WORLD_W-30),by=clamp(T.y-Math.sin(T.a||0)*34,BAND_TOP,BAND_BOT);
   ring(a.x,a.y,40,theme(S.def).bg.line,.35);spark(a.x,a.y,theme(S.def).bg.orb,10);
   a.x=bx;a.y=by;ring(a.x,a.y,44,'#ffffff',.35);spark(a.x,a.y,theme(S.def).bg.orb,10);
   m.blinkCd=rnd(4.2,5.6);m.cd=Math.min(m.cd,.25);
@@ -359,7 +361,7 @@ function clampActors(){
    if(!a.mob.entered&&a.x>e.l+24&&a.x<e.r-24)a.mob.entered=true;
    if(a.mob.entered)a.x=clamp(a.x,e.l+22,e.r-22);
   }
-  a.y=clamp(a.y,WORLD_H*GROUND+10,WORLD_H-24);
+  a.y=clamp(a.y,BAND_TOP,BAND_BOT);
  }
 }
 function stageStep(dt){
@@ -374,7 +376,7 @@ function stageStep(dt){
    a.dead=true;S.kills++;const m=a.mob;
    S.corpses.push({x:a.x,y:a.y,t:0,look:m.look,scale:m.cfg.scale,r:m.cfg.r,flip:Math.cos(m.face)<0});
    ring(a.x,a.y,50,theme(S.def).bg.line,.4);spark(a.x,a.y,theme(S.def).bg.orb,14);
-   if(m.drop)dropFood('apple',a.x,clamp(a.y,WORLD_H*GROUND+20,WORLD_H-30));
+   if(m.drop)dropFood('apple',a.x,clamp(a.y,BAND_TOP+10,BAND_BOT-8));
    if(m.kind==='split'&&!m.small){for(const dx of [-26,26])spawnMob('g',clamp(a.x+dx,40,WORLD_W-40),a.y,{small:true});banner('A RAINHA-GUARDA SOLTOU FORMIGAS','','wave')}
   }
  }
@@ -385,7 +387,7 @@ function stageStep(dt){
   if(!S.mobs.length&&!S.queue.length){
    const food=FOOD_AFTER[S.wave];
    const e=viewEdges();
-   if(food)dropFood(food,clamp(e.r-170,e.l+120,WORLD_W-120),WORLD_H*.72);
+   if(food)dropFood(food,clamp(e.r-170,e.l+120,WORLD_W-120),BAND_MID+14);
    S.phase='walk';S.nextTrig=S.wave+1;S.lockCx=null;
    if(S.wave+1>=WAVES.length)banner('CAMINHO LIVRE','O chefe espera no fim da fase','go');
    else banner('ONDA SUPERADA','','go');
@@ -412,7 +414,7 @@ function stageStep(dt){
 function startBoss(){
  const def=S.def;S.phase='boss-intro';S.bossOn=true;S.bossT=0;S.lockCx=Math.min(WORLD_W-S.viewW/2,Math.max(S.camX,BOSS_TRIG-40));
  const tu=TUNE[def.id]||{},solo=!S.duo,base=Math.round(def.hp*(tu.hp||.36)),e0=viewEdges();
- const A=actor(Math.min(WORLD_W-80,e0.r-110),WORLD_H*.68,[0,1,2,3,4,5],def.color||'#c04bff');
+ const A=actor(Math.min(WORLD_W-80,e0.r-110),BAND_MID,[0,1,2,3,4,5],def.color||'#c04bff');
  A.boss=true;A.huntBoss=true;A.team=1;A.label=def.name;A.r=def.generic?30:26;A.a=Math.PI;A.st=100;A.skin=0;A.trainingDummy=true;
  A.max=A.hp=Math.round(base*S.mul);A.inv=0;
  b=A;S.bossA=A;S.bossFoodGiven=false;
@@ -435,8 +437,8 @@ prepareArenaMode=function(){
  actors=save.team==='duo'&&ally?[p,ally]:[p];
  S=modeRun.stage=newStage(def,save.team);
  time=ARENA_MODES.stage.seconds;
- p.x=300;p.y=WORLD_H*.7;p.a=0;p.inv=2;
- if(ally&&S.duo){ally.x=230;ally.y=WORLD_H*.84;ally.label='Aliado';ally.inv=2}
+ p.x=300;p.y=BAND_MID+8;p.a=0;p.inv=2;
+ if(ally&&S.duo){ally.x=230;ally.y=BAND_BOT-14;ally.label='Aliado';ally.inv=2}
  b.hp=b.max=1000;b.team=1;b.label=theme(def).tag;
  S.camX=WORLD_W*0+640;S.nextTrig=0;
  
@@ -465,7 +467,7 @@ stepArenaMode=function(dt){
   for(const c of S.corpses)c.t+=dt;S.corpses=S.corpses.filter(c=>c.t<.9);
   // comida em ponto estratégico: o chefe "derruba" carne ao passar da metade da vida
   const A=S.bossA;
-  if(A&&!S.bossFoodGiven&&A.hp>0&&A.hp<A.max*.5){S.bossFoodGiven=true;const e=viewEdges();dropFood('meat',clamp((e.l+e.r)/2,e.l+140,e.r-140),WORLD_H*.74);banner('COMIDA!','Pegue a carne para recuperar vida','go')}
+  if(A&&!S.bossFoodGiven&&A.hp>0&&A.hp<A.max*.5){S.bossFoodGiven=true;const e=viewEdges();dropFood('meat',clamp((e.l+e.r)/2,e.l+140,e.r-140),BAND_MID+16);banner('COMIDA!','Pegue a carne para recuperar vida','go')}
   const r=prevStep(dt);clampActors();return r;
  }
  return stageStep(dt);
@@ -505,7 +507,12 @@ updateArenaCamera=function(){
  S.camX=S.lockCx!=null?(S.camX+(target-S.camX)*.12):S.camX;
  S.camX=clamp(S.camX,S.viewW/2,WORLD_W-S.viewW/2);
  ox=cw/2-S.camX*scale;
- oy=top+Math.max(0,(ch-top-WORLD_H*scale)/2)-(WORLD_H*(1-.86)*scale)*0;
+ // o fundo da faixa de chão fica logo acima do analógico/skills (medido uma vez por tamanho de tela)
+ const key=cw+'x'+ch;
+ if(key!==S.feetKey){S.feetKey=key;const st=document.querySelector('#stick');S.feetY=st?st.getBoundingClientRect().top-14:ch*.68}
+ const bandH=(BAND_BOT-BAND_TOP)*scale;
+ const feet=clamp(S.feetY||ch*.68,top+bandH+24,ch-40);
+ oy=Math.min(top,feet-BAND_BOT*scale);
 };
 const prevHUD=modeHUD;
 modeHUD=function(){
@@ -642,7 +649,7 @@ document.addEventListener('click',e=>{
 
 /* ------------------------------ ganchos de teste ------------------------------ */
 window.ArcadeAPI={
- get S(){return S},THEMES,ELITE,TYPES,WAVES,TRIG,BOSS_TRIG,WORLD_W,WORLD_H,
+ get S(){return S},THEMES,ELITE,TYPES,WAVES,BAND_TOP,BAND_BOT,TRIG,BOSS_TRIG,WORLD_W,WORLD_H,
  get save(){return load()},setSave(s){save={...load(),...s};write(save)},
  openLobby,startStage,roster,unlocked,
  mobLooks,spawnMob:(t,x,y)=>S&&spawnMob(t,x,y)

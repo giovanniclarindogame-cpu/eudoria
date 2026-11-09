@@ -150,3 +150,6 @@ O equilíbrio da dificuldade é estimado (testado só com IA e simulações): aj
 == SOBREVIVÊNCIA · MONSTROS SEM RENASCIMENTO ==
 - Os monstros NÃO renascem: são 84 no início (38 fracos, 24 médios, 12 elites, 10 grandes) e a XP do mapa é finita (cada monstro morto some).
 - O gás também mata os monstros (dano proporcional à fase da zona, mais rápido que nos lutadores). Monstro que morre só pelo gás não dá XP nem comida, a não ser que alguém tenha batido nele nos últimos 4 s.
+
+== CRUZADA ARCADE · FAIXA DE CHÃO MAIS ALTA ==
+- Os personagens andam numa faixa (y 214 a 350 do mundo) e a câmera a posiciona logo acima do analógico/skills (medido pelo botão do analógico em cada tamanho de tela), então a luta não fica mais por baixo dos controles. O mundo ficou mais alto (700) para o chão continuar cobrindo a tela abaixo da faixa.
