@@ -286,7 +286,7 @@ function drawMob(a){
  // aviso do ataque
  if(m.windup>0&&!m.ranged&&m.kind!=='lunge'){const k=clamp(m.t/m.windup,0,1),rad=m.cfg.reach+10;ctx.globalAlpha=.18+.3*k;ctx.fillStyle=th.bg.line;ctx.beginPath();ctx.arc(0,6,rad,0,TAU);ctx.fill();ctx.globalAlpha=.55;ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.setLineDash([8,6]);ctx.beginPath();ctx.arc(0,6,rad,0,TAU);ctx.stroke();ctx.setLineDash([]);ctx.globalAlpha=1}
  ctx.translate(0,10);
- const f=a.flash>0||m.flash>0?'brightness(2.1) saturate(.5)':'brightness(.92)';
+ const f=a.flash>0||m.flash>0?'brightness(2.1) saturate(.5)':'';   // sem filtro no estado normal (ctx.filter é caro)
  BossSprite.paint(ctx,m.look,pose.name,pose.i,{x:0,y:0,scale:m.cfg.scale,flip:Math.cos(m.face)<0,side:pose.side||0,filter:f});
  ctx.restore();
  if(a.hp<a.max||m.type==='e'){const w=m.type==='b'?40:m.type==='e'?34:m.small?18:28,h=4;ctx.save();ctx.translate(a.x,a.y-(m.type==='b'?86:m.type==='e'?70:m.small?44:60));ctx.fillStyle='#10061be0';ctx.fillRect(-w/2,0,w,h+2);ctx.fillStyle=m.type==='b'?'#ff9a5a':m.type==='e'?theme(S.def).bg.line:'#e86a6a';ctx.fillRect(-w/2+1,1,(w-2)*clamp(a.hp/a.max,0,1),h);ctx.restore()}

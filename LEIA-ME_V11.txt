@@ -135,3 +135,9 @@ O equilíbrio da dificuldade é estimado (testado só com IA e simulações): aj
 - Testes: node tests/sobrevivencia.cjs (46). Simulação: node tests/simulacao-sobrevivencia.cjs 5.
 
 - Ajustes: painel de nível e minimapa compactos (80px). O minimapa é um RADAR: só mostra rivais a até 780 de distância (ou quem acabou de te acertar). Bots mais ativos: evitam monstro grande sem nível, comem quando feridos, caçam rivais depois da 1ª zona. Resultado: 🥇🥈🥉 e "Nº LUGAR".
+
+== SOBREVIVÊNCIA · MAPA MAIOR E ESCALA ==
+- Mapa 3600x2800 (era 2600x2000). Escalaram junto: 44 obstáculos, 58 monstros iniciais (+ reposição até 80, com 4º tipo ELITE), zona de 1400 a 120 de raio com fases mais longas (~5,5 min no total), curva de XP maior e nível máximo 10.
+- Níveis 2-7 dão ponto de habilidade (nível 7 = tudo liberado); níveis 8-10 dão +8% de vida e +6% de dano por nível.
+- Monstros fortes (elite e grandes) ficam perto do centro; as bordas só têm os fracos. Dano dos monstros reduzido.
+- Desempenho: o terreno é desenhado em blocos de 512 px (só os visíveis) e os sprites não usam ctx.filter no estado normal (o filtro por sprite deixava o quadro de 20 ms em ~380 ms). Mesma correção na Cruzada Arcade.
