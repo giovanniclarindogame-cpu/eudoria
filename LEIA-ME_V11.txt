@@ -125,3 +125,11 @@ O equilíbrio da dificuldade é estimado (testado só com IA e simulações): aj
   Nyxar: Demônio Sanguessuga (cura com o dano) · Ryoku: Maldição Ancestral (área que deixa lento) · Xerath: Formiga Rainha-Guarda (solta 2 formigas ao morrer)
   Rapina: Vilão Ladrão (drena energia e se cura) · Malrath: Imediato Bombardeiro (bombas com aviso) · Hadrion: Espectro Chorão (almas que perseguem) · Gênesis: Armadura Alquímica (escudo)
 - O lobby mostra o especial com a descrição. Teste: node tests/fase-arcade.cjs (98).
+
+== SOBREVIVÊNCIA · BATTLE ROYALE (js/sobrevivencia.js, css/sobrevivencia.css) ==
+- Substitui as 9 ondas antigas. 8 lutadores (você + 7 bots), cada um por si, mapa 2600x2000 com árvores e pedras, monstros espalhados e reposição dentro da zona.
+- Todos começam no nível 1 SEM habilidade. Cada nível dá 1 ponto: toque numa habilidade bloqueada para liberar (uma por ponto); a ultimate só depois das outras 5 (nível 7 = tudo liberado).
+- XP: monstros (10/22/50) e rivais (70 + 25 x nível). Subir de nível cura 20% da vida.
+- Zona segura em 5 fases (espera + fechamento), sempre para um ponto aleatório dentro da anterior; fora dela há gás (1,2% a 12% da vida por segundo). Suprimentos (maçã/carne) caem na nova zona; monstros soltam comida.
+- Extras: minimapa, placar de abates, nome/nível/vida dos rivais, ranking final (1º a 8º) e bônus de moedas por colocação e abates.
+- Testes: node tests/sobrevivencia.cjs (46). Simulação: node tests/simulacao-sobrevivencia.cjs 5.
