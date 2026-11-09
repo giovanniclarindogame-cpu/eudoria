@@ -9,19 +9,22 @@
  * Os monstros e a IA dos bots usam os mesmos motores da Cruzada Arcade (sprites) e do duelo (IA dos bots).
  */
 (function(){
-const MAP_W=2600,MAP_H=2000,CX=MAP_W/2,CY=MAP_H/2,R0=1700;
-const LV_XP=[0,40,100,180,280,400,540];            // XP acumulada para o nível 1..7
-const MAX_LV=7;
+const MAP_W=3600,MAP_H=2800,CX=MAP_W/2,CY=MAP_H/2,R0=2350;     // mapa ~1,9x maior; tudo abaixo escala junto
+// XP acumulada para o nível 1..10. Níveis 2-7 dão 1 ponto de habilidade; 8-10 dão bônus de vida e dano.
+const LV_XP=[0,60,150,270,420,600,820,1080,1380,1720];
+const MAX_LV=10,SKILL_LV=7,LV_BONUS={hp:.08,dmg:.06};
 // fases da zona: espera, fechamento, raio final e dano por segundo (fração da vida máxima)
-const ZONES=[{wait:60,shrink:28,r:1000,dps:.012},{wait:40,shrink:24,r:660,dps:.025},{wait:30,shrink:20,r:420,dps:.045},{wait:24,shrink:16,r:230,dps:.075},{wait:16,shrink:12,r:95,dps:.12}];
+const ZONES=[{wait:75,shrink:34,r:1400,dps:.012},{wait:48,shrink:28,r:920,dps:.025},{wait:36,shrink:22,r:590,dps:.045},{wait:28,shrink:18,r:320,dps:.075},{wait:18,shrink:14,r:120,dps:.12}];
 const NAMES=['Kaito','Lyra','Bruto','Sora','Vex','Nami','Dante','Ryu','Mika','Zed'];
 const MON={
- s:{hp:100,dmg:16,speed:88,r:15,scale:2,xp:10,windup:.5,cd:1.5,reach:46,aggro:250},
- m:{hp:190,dmg:26,speed:84,r:17,scale:2.15,xp:22,windup:.55,cd:1.8,reach:50,aggro:290},
- b:{hp:430,dmg:50,speed:62,r:24,scale:2.9,xp:50,windup:.95,cd:2.6,reach:78,aggro:320}
+ s:{hp:100,dmg:12,speed:88,r:15,scale:2,xp:12,windup:.5,cd:1.5,reach:46,aggro:250},
+ m:{hp:190,dmg:19,speed:84,r:17,scale:2.15,xp:26,windup:.55,cd:1.8,reach:50,aggro:290},
+ e:{hp:310,dmg:26,speed:90,r:19,scale:2.4,xp:40,windup:.55,cd:1.7,reach:54,aggro:300},
+ b:{hp:430,dmg:38,speed:62,r:24,scale:2.9,xp:60,windup:.95,cd:2.6,reach:78,aggro:320}
 };
-const MON_LOOK={s:0,m:1,b:2};
-const RADAR=780;                                   // o minimapa só mostra rivais a até esta distância (ou quem acabou de te acertar)
+const MAXR={s:0,m:0,e:1500,b:950};                    // distância máxima do centro por tipo de monstro (0 = qualquer lugar)
+const MON_LOOK={s:0,m:1,b:2,e:3};
+const RADAR=900;                                   // o minimapa só mostra rivais a até esta distância (ou quem acabou de te acertar)
 const FOODS={apple:{heal:.18,name:'Maçã'},meat:{heal:.35,name:'Carne'}};
 
 let R=null,layout=null;
@@ -40,8 +43,8 @@ const rng=seed=>()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4
 /* ------------------------------ mapa ------------------------------ */
 function makeLayout(){
  const id=Math.floor(Math.random()*1e9),r=rng(id),pil=[];
- for(let i=0;i<150&&pil.length<22;i++){
-  const x=rnd(150,MAP_W-150),y=rnd(150,MAP_H-150),rad=rnd(26,44);
+ for(let i=0;i<300&&pil.length<44;i++){
+  const x=rnd(150,MAP_W-150),y=rnd(150,MAP_H-150),rad=rnd(26,46);
   if(Math.hypot(x-CX,y-CY)<130)continue;
   if(pil.some(o=>Math.hypot(o.x-x,o.y-y)<o.r+rad+120))continue;
   pil.push({x,y,r:rad,kind:r()<.6?'tree':'rock'});
@@ -51,21 +54,23 @@ function makeLayout(){
 function buildMap(){
  const g0=document.createElement('canvas');g0.width=MAP_W;g0.height=MAP_H;const g=g0.getContext('2d'),r=rng(layout.seed);
  const gr=g.createLinearGradient(0,0,MAP_W,MAP_H);gr.addColorStop(0,'#254a34');gr.addColorStop(.5,'#2b5238');gr.addColorStop(1,'#223f2c');g.fillStyle=gr;g.fillRect(0,0,MAP_W,MAP_H);
- for(let i=0;i<260;i++){const x=r()*MAP_W,y=r()*MAP_H,rad=40+r()*130;g.fillStyle=['#2f5c3d22','#1d3a2822','#4a5a3022','#3a4a2a22'][i%4];g.beginPath();g.ellipse(x,y,rad,rad*.6,r()*3,0,TAU);g.fill()}
- // trilhas de terra
- g.strokeStyle='#6a5a3c55';g.lineWidth=46;g.lineCap='round';
- for(let k=0;k<4;k++){g.beginPath();g.moveTo(r()*MAP_W,r()*MAP_H);g.bezierCurveTo(r()*MAP_W,r()*MAP_H,r()*MAP_W,r()*MAP_H,r()*MAP_W,r()*MAP_H);g.stroke()}
- g.strokeStyle='#8a7a5a22';g.lineWidth=18;for(let k=0;k<4;k++){g.beginPath();g.moveTo(r()*MAP_W,r()*MAP_H);g.bezierCurveTo(r()*MAP_W,r()*MAP_H,r()*MAP_W,r()*MAP_H,r()*MAP_W,r()*MAP_H);g.stroke()}
- for(let i=0;i<900;i++){const x=r()*MAP_W,y=r()*MAP_H;g.fillStyle=['#7ac26a55','#e8d36a66','#c46a8a55','#9ad8ff44'][i%4];g.fillRect(x,y,2+r()*3,2+r()*3)}
- // moldura do mundo
+ for(let i=0;i<480;i++){const x=r()*MAP_W,y=r()*MAP_H,rad=40+r()*140;g.fillStyle=['#2f5c3d22','#1d3a2822','#4a5a3022','#3a4a2a22'][i%4];g.beginPath();g.ellipse(x,y,rad,rad*.6,r()*3,0,TAU);g.fill()}
+ // lagos e trilhas
+ for(let k=0;k<5;k++){const x=r()*MAP_W,y=r()*MAP_H,rad=90+r()*160;g.fillStyle='#1d4a5a88';g.beginPath();g.ellipse(x,y,rad,rad*.55,r()*3,0,TAU);g.fill();g.strokeStyle='#8ad0e044';g.lineWidth=4;g.stroke()}
+ g.strokeStyle='#6a5a3c55';g.lineWidth=50;g.lineCap='round';
+ for(let k=0;k<7;k++){g.beginPath();g.moveTo(r()*MAP_W,r()*MAP_H);g.bezierCurveTo(r()*MAP_W,r()*MAP_H,r()*MAP_W,r()*MAP_H,r()*MAP_W,r()*MAP_H);g.stroke()}
+ g.strokeStyle='#8a7a5a22';g.lineWidth=20;for(let k=0;k<7;k++){g.beginPath();g.moveTo(r()*MAP_W,r()*MAP_H);g.bezierCurveTo(r()*MAP_W,r()*MAP_H,r()*MAP_W,r()*MAP_H,r()*MAP_W,r()*MAP_H);g.stroke()}
+ for(let i=0;i<1700;i++){const x=r()*MAP_W,y=r()*MAP_H;g.fillStyle=['#7ac26a55','#e8d36a66','#c46a8a55','#9ad8ff44'][i%4];g.fillRect(x,y,2+r()*3,2+r()*3)}
  g.strokeStyle='#0a1a10';g.lineWidth=24;g.strokeRect(0,0,MAP_W,MAP_H);
- const p0=document.createElement('canvas');p0.width=MAP_W;p0.height=MAP_H;const pg=p0.getContext('2d');
- for(const o of layout.pillars){
-  pg.fillStyle='#06100c66';pg.beginPath();pg.ellipse(o.x,o.y+o.r*.7,o.r*1.1,o.r*.45,0,0,TAU);pg.fill();
-  if(o.kind==='tree'){pg.fillStyle='#4a3420';pg.fillRect(o.x-5,o.y-4,10,o.r*.9);pg.fillStyle='#1c4a2a';pg.beginPath();pg.arc(o.x,o.y-o.r*.5,o.r*1.05,0,TAU);pg.fill();pg.fillStyle='#2d6a3c';pg.beginPath();pg.arc(o.x-o.r*.25,o.y-o.r*.75,o.r*.6,0,TAU);pg.fill();pg.fillStyle='#4a8a50';pg.beginPath();pg.arc(o.x-o.r*.35,o.y-o.r*.9,o.r*.28,0,TAU);pg.fill()}
-  else{pg.fillStyle='#5c6068';pg.beginPath();pg.ellipse(o.x,o.y-o.r*.1,o.r,o.r*.8,0,0,TAU);pg.fill();pg.fillStyle='#8a8f98';pg.beginPath();pg.ellipse(o.x-o.r*.2,o.y-o.r*.35,o.r*.55,o.r*.4,0,0,TAU);pg.fill();pg.fillStyle='#3a3d44';pg.fillRect(o.x-o.r*.8,o.y+o.r*.35,o.r*1.6,3)}
- }
+ const p0=document.createElement('canvas');p0.width=p0.height=1;       // árvores e pedras são desenhadas na hora (economiza memória)
  return{ground:g0,pil:p0};
+}
+function paintObstacle(o){
+ ctx.save();
+ ctx.fillStyle='#06100c66';ctx.beginPath();ctx.ellipse(o.x,o.y+o.r*.7,o.r*1.1,o.r*.45,0,0,TAU);ctx.fill();
+ if(o.kind==='tree'){ctx.fillStyle='#4a3420';ctx.fillRect(o.x-5,o.y-4,10,o.r*.9);ctx.fillStyle='#1c4a2a';ctx.beginPath();ctx.arc(o.x,o.y-o.r*.5,o.r*1.05,0,TAU);ctx.fill();ctx.fillStyle='#2d6a3c';ctx.beginPath();ctx.arc(o.x-o.r*.25,o.y-o.r*.75,o.r*.6,0,TAU);ctx.fill();ctx.fillStyle='#4a8a50';ctx.beginPath();ctx.arc(o.x-o.r*.35,o.y-o.r*.9,o.r*.28,0,TAU);ctx.fill()}
+ else{ctx.fillStyle='#5c6068';ctx.beginPath();ctx.ellipse(o.x,o.y-o.r*.1,o.r,o.r*.8,0,0,TAU);ctx.fill();ctx.fillStyle='#8a8f98';ctx.beginPath();ctx.ellipse(o.x-o.r*.2,o.y-o.r*.35,o.r*.55,o.r*.4,0,0,TAU);ctx.fill();ctx.fillStyle='#3a3d44';ctx.fillRect(o.x-o.r*.8,o.y+o.r*.35,o.r*1.6,3)}
+ ctx.restore();
 }
 
 /* ------------------------------ zona ------------------------------ */
@@ -133,10 +138,12 @@ function addXP(a,xp){
  ro.xp+=xp;
  const lv=Math.min(MAX_LV,lvOfXp(ro.xp));
  while(ro.lv<lv){
-  ro.lv++;ro.pts++;
+  ro.lv++;
+  if(ro.lv<=SKILL_LV)ro.pts++;
+  else{const gain=Math.round(1000*LV_BONUS.hp);a.max+=gain;a.hp+=gain;ro.dmgMul=1+LV_BONUS.dmg*(ro.lv-SKILL_LV);if(a===p)toast('Nível '+ro.lv+': +vida e +dano')}
   const heal=a.max*.2;a.hp=Math.min(a.max,a.hp+heal);
-  float(a.x,a.y-70,'NÍVEL '+ro.lv+'!','#f2ca5c');ring(a.x,a.y,70,'#f2ca5c',.6);spark(a.x,a.y,'#f2ca5c',18);
-  if(a===p){toast('Nível '+ro.lv+' · 1 ponto: toque numa habilidade para liberar');combatSound?.('heal',1)}
+  float(a.x,a.y-70,'NÍVEL '+ro.lv+(ro.lv>SKILL_LV?' · +VIDA/DANO':'!'),'#f2ca5c');ring(a.x,a.y,70,'#f2ca5c',.6);spark(a.x,a.y,'#f2ca5c',18);
+  if(a===p){if(ro.lv<=SKILL_LV)toast('Nível '+ro.lv+' · 1 ponto: toque numa habilidade para liberar');combatSound?.('heal',1)}
  }
  if(ro.bot)botUnlock(a);
 }
@@ -144,7 +151,7 @@ function addXP(a,xp){
 /* ------------------------------ monstros ------------------------------ */
 function spawnMonster(tier,x,y){
  const cfg=MON[tier],defs=ArcadeAPI.roster(),def=defs[Math.floor(Math.random()*defs.length)];
- const L=ArcadeAPI.mobLooks(def)[MON_LOOK[tier]],names=ArcadeAPI.THEMES[def.id].names;
+ const L=ArcadeAPI.mobLooks(def)[MON_LOOK[tier]],names=[...ArcadeAPI.THEMES[def.id].names,ArcadeAPI.ELITE[def.id].name];
  const a=actor(x,y,[],def.color||'#c04bff');
  a.team=99;a.boss=true;a.trainingDummy=true;a.skin=0;a.r=cfg.r;a.max=a.hp=cfg.hp;a.inv=.2;
  a.label=names[MON_LOOK[tier]];
@@ -152,13 +159,14 @@ function spawnMonster(tier,x,y){
  actors.push(a);R.mobs.push(a);
  return a;
 }
-function pickSpot(minFrom,inside){
- for(let i=0;i<60;i++){
+function pickSpot(minFrom,inside,maxR){
+ for(let i=0;i<80;i++){
   let x,y;
   if(inside){const z=R.zone.c,an=rnd(0,TAU),d=Math.sqrt(Math.random())*(z.r-80);x=z.x+Math.cos(an)*d;y=z.y+Math.sin(an)*d}
   else{x=rnd(120,MAP_W-120);y=rnd(120,MAP_H-120)}
   if(x<80||y<80||x>MAP_W-80||y>MAP_H-80)continue;
   if(blocked(x,y,30))continue;
+  if(maxR&&Math.hypot(x-CX,y-CY)>maxR)continue;           // monstros fortes ficam perto do centro; as bordas têm só os fracos
   if(players().some(a=>a.hp>0&&Math.hypot(a.x-x,a.y-y)<minFrom))continue;
   return{x,y};
  }
@@ -307,7 +315,7 @@ prepareArenaMode=function(){
  const ids=CHAMPIONS.map(c=>c.id).filter(id=>id!==p.skin).sort(()=>Math.random()-.5);
  const names=NAMES.slice().sort(()=>Math.random()-.5);
  const start=Math.random()*TAU,mine=Math.floor(Math.random()*8);
- const spots=[...Array(8)].map((_,i)=>{const an=start+i*TAU/8;return{x:CX+Math.cos(an)*820,y:CY+Math.sin(an)*640}});
+ const spots=[...Array(8)].map((_,i)=>{const an=start+i*TAU/8;return{x:CX+Math.cos(an)*1180,y:CY+Math.sin(an)*920}});
  actors=[p];
  R=modeRun.roy={t:0,zone:{phase:0,state:'wait',t:0,c:{x:CX,y:CY,r:R0},from:{x:CX,y:CY,r:R0},to:{x:CX,y:CY,r:R0}},mobs:[],food:[],corpses:[],feed:[],kills:0,over:false,nextRespawn:10,placement:0,alive:8,tagT:0};
  p.team=0;p.label=account.profile?.name||'Você';p.max=p.hp=1000;p.x=spots[mine].x;p.y=spots[mine].y;p.inv=2;initRoy(p,false);
@@ -319,8 +327,7 @@ prepareArenaMode=function(){
   a.skin=c;a.champion=c;a.kit=[...CHAMPIONS[c].kit];a.cd=a.cd.map(()=>0);a.inv=2;
   actors.push(a);initRoy(a,true);k++;
  }
- for(const t of ['s','s','s','s','s','s','s','s','s','s','s','s','s','s','s','m','m','m','m','m','m','m','m','m','b','b','b','b'])
-  { const s=pickSpot(280,false);spawnMonster(t,s.x,s.y) }
+ for(const [t,n] of [['s',26],['m',16],['e',8],['b',8]])for(let i=0;i<n;i++){const sp=pickSpot(360,false,MAXR[t]);spawnMonster(t,sp.x,sp.y)}
  startZonePhase(0);
  p.cd=p.cd.map(()=>0);
  R.layoutId=layout&&layout.id;
@@ -361,7 +368,7 @@ function royStep(dt){
    R.corpses.push({x:a.x,y:a.y,t:0,look:m.look,scale:m.cfg.scale,r:m.cfg.r,flip:Math.cos(m.face)<0});
    ring(a.x,a.y,46,'#ffffff',.35);spark(a.x,a.y,'#ffe0a0',10);
    if(k){addXP(k,m.cfg.xp);if(k===p)float(a.x,a.y-48,'+'+m.cfg.xp+' XP','#9ad8ff')}
-   if(Math.random()<(m.tier==='b'?.7:m.tier==='m'?.3:.18))dropFood(m.tier==='b'?'meat':Math.random()<.5?'meat':'apple',a.x,a.y);
+   if(Math.random()<(m.tier==='b'?.7:m.tier==='e'?.4:m.tier==='m'?.3:.18))dropFood(m.tier==='b'||m.tier==='e'?'meat':Math.random()<.5?'meat':'apple',a.x,a.y);
   }
  }
  actors=actors.filter(a=>!(a.rmob&&a.dead));R.mobs=R.mobs.filter(a=>!a.dead);
@@ -373,17 +380,19 @@ function royStep(dt){
    const left=alive().length;a.roy.place=left+1;
    const k=award(recent(a),a);
    if(k&&k!==a){k.roy.kills++;addXP(k,70+25*a.roy.lv);if(k===p)R.kills++}
-   const killerName=k&&k!==a?k.roy.name:'a zona';
+   const by=recent(a),cause=k&&k!==a?'player':by&&by.rmob?'mob':'zone';
+   R.causes=R.causes||{player:0,mob:0,zone:0};R.causes[cause]++;
+   const killerName=cause==='player'?k.roy.name:cause==='mob'?by.label:'a zona';
    feed(`<b>${killerName}</b> eliminou <b>${a.roy.name}</b>`,k===p||a===p);
    ring(a.x,a.y,90,'#ff6a6a',.6);spark(a.x,a.y,'#ff6a6a',24);
-   if(a===p)R.deathBy=killerName;
+   if(a===p){R.deathBy=killerName;R.deathCause=cause}
   }
  }
  // reposição de monstros dentro da zona
  R.nextRespawn-=dt;
- if(R.nextRespawn<=0&&R.mobs.length<42){
-  R.nextRespawn=7;
-  for(let i=0;i<3;i++){const s=pickSpot(300,true);spawnMonster(Math.random()<.65?'s':Math.random()<.8?'m':'b',s.x,s.y)}
+ if(R.nextRespawn<=0&&R.mobs.length<80){
+  R.nextRespawn=6;
+  for(let i=0;i<4;i++){const q=Math.random(),t=q<.5?'s':q<.72?'m':q<.88?'e':'b',s=pickSpot(360,true,MAXR[t]);spawnMonster(t,s.x,s.y)}
  }
  // fim
  const left=alive();
@@ -416,15 +425,16 @@ function botMelee(dt,a,t){
 }
 // escolhe o alvo que vale a pena: XP boa e perto; evita monstro grande sem nível; ataca rival fraco ou machucado
 function botTarget(a){
- const ro=a.roy,hpf=a.hp/a.max,late=R.zone.phase>=2,aggr=R.zone.phase>=1||R.t>70;   // a partir da 1ª zona fechando, os bots caçam rivais pelo mapa todo
+ const ro=a.roy,hpf=a.hp/a.max,late=R.zone.phase>=2,aggr=R.zone.phase>=1||R.t>40;   // a partir da 1ª zona fechando, os bots caçam rivais pelo mapa todo
  let best=null,bs=-1e9;
  for(const t of actors){
   if(t===a||t.hp<=0)continue;
-  const d=Math.hypot(t.x-a.x,t.y-a.y);if(d>(aggr&&t.roy?1700:780))continue;
+  const d=Math.hypot(t.x-a.x,t.y-a.y);if(d>(aggr&&t.roy?3200:900))continue;
   let sc=-d;
   if(t.rmob){
    const m=t.rmob;
-   if(m.tier==='b'&&(ro.lv<3||hpf<.5)&&m.target!==a)continue;       // não procura chefe de mapa sem nível/vida
+   if(m.tier==='b'&&(ro.lv<4||hpf<.55)&&m.target!==a)continue;       // não procura monstro grande sem nível/vida
+   if(m.tier==='e'&&(ro.lv<2||hpf<.45)&&m.target!==a)continue;
    sc+=m.cfg.xp*4-(late?260:0);
   }else if(t.roy){
    const rs=t.roy.unlocked.size,ms=ro.unlocked.size;
@@ -443,9 +453,16 @@ ai=function(dt,a=b){
   if(free(a)){goTo(a,z.x,z.y,dt,150);return}
  }
  const ro=a.roy,hpf=a.hp/a.max,near=nearestFoe(a,120);
+ // 1b) muito ferido com monstro em cima: foge (os monstros são mais lentos) em direção à zona/comida
+ if(hpf<.38&&free(a)){
+  const mon=R.mobs.find(m=>m.hp>0&&Math.hypot(m.x-a.x,m.y-a.y)<230);
+  if(mon){let tx=z.x,ty=z.y;let f=null,bd=700;for(const o of R.food){const d=Math.hypot(o.x-a.x,o.y-a.y);if(d<bd){bd=d;f=o}}if(f){tx=f.x;ty=f.y}
+   const away=Math.atan2(a.y-mon.y,a.x-mon.x),to=Math.atan2(ty-a.y,tx-a.x),ang=Math.cos(to-away)>0?to:away;
+   move(a,Math.cos(ang)*155*dt,Math.sin(ang)*155*dt);a.a=ang;a.moving=true;return}
+ }
  // 2) ferido e sem inimigo em cima: vai buscar comida
  if(hpf<.5&&!near&&free(a)){
-  let f=null,bd=520;for(const o of R.food){const d=Math.hypot(o.x-a.x,o.y-a.y);if(d<bd){bd=d;f=o}}
+  let f=null,bd=620;for(const o of R.food){const d=Math.hypot(o.x-a.x,o.y-a.y);if(d<bd){bd=d;f=o}}
   if(f){goTo(a,f.x,f.y,dt,150);return}
  }
  // 3) alvo do momento
@@ -455,7 +472,7 @@ ai=function(dt,a=b){
   if(!free(a))return prevAI(dt,a);
   ro.way=ro.way&&clock<ro.way.t&&Math.hypot(ro.way.x-a.x,ro.way.y-a.y)>40?ro.way:null;
   if(!ro.way){
-   let m=null,bd=1400;for(const o of R.mobs){if(o.hp<=0)continue;if(o.rmob.tier==='b'&&ro.lv<3)continue;const d=Math.hypot(o.x-a.x,o.y-a.y);if(d<bd){bd=d;m=o}}
+   let m=null,bd=1900;for(const o of R.mobs){if(o.hp<=0)continue;if((o.rmob.tier==='b'&&ro.lv<4)||(o.rmob.tier==='e'&&ro.lv<2))continue;const d=Math.hypot(o.x-a.x,o.y-a.y);if(d<bd){bd=d;m=o}}
    if(m&&inZone(m))ro.way={x:m.x,y:m.y,t:clock+4};
    else{const an=Math.random()*TAU,dd=Math.random()*(z.r*.6);ro.way={x:z.x+Math.cos(an)*dd,y:z.y+Math.sin(an)*dd,t:clock+5}}
   }
@@ -481,6 +498,7 @@ cast=function(a,id,manual){
 // quem causou o dano (para dar a XP)
 const prevHit=hit;
 hit=function(t,n,o,k,an,id){
+ if(isRoy()&&o&&o.roy&&o.roy.dmgMul&&t!==o)n*=o.roy.dmgMul;
  const before=t&&t.hp,r=prevHit(t,n,o,k,an,id);
  if(isRoy()&&t&&o&&o!==t&&t.hp<before)t.lastHit={by:o.roy?o:o.owner&&o.owner.roy?o.owner:o,t:clock};
  return r;
@@ -525,6 +543,8 @@ const prevDepth=integratedDepth;
 integratedDepth=function(){
  const list=prevDepth();
  if(!isRoy())return list;
+ const vx0=-ox/scale-80,vx1=(cw-ox)/scale+80,vy0=-oy/scale-120,vy1=(ch-oy)/scale+80;
+ for(const o of layout.pillars)if(o.x>vx0&&o.x<vx1&&o.y>vy0&&o.y<vy1)list.push({kind:'roy-obs',y:o.y+o.r*.6,priority:2,paint(){paintObstacle(o)}});
  for(const f of R.food)list.push({kind:'roy-food',y:f.y,priority:1,paint(){paintFood(f)}});
  for(const c of R.corpses)list.push({kind:'roy-corpse',y:c.y-1,priority:0,paint(){
   const k=clamp(c.t/.9,0,1);ctx.save();ctx.translate(c.x,c.y);ctx.globalAlpha=(1-k)*(Math.floor(c.t*18)%2?.55:1);ctx.translate(0,10);
@@ -593,7 +613,7 @@ endArenaMode=function(win,draw){
  const mmss=s=>Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
  const medal=['','🥇','🥈','🥉'][place]||'';
  $('#resultTitle').textContent=place===1?'🥇 1º LUGAR · ÚLTIMO EM PÉ!':`${medal?medal+' ':''}${place}º LUGAR`;
- const why=place===1?'Você venceu os 7 rivais.':R.deathBy==='a zona'?'A zona pegou você.':`${R.deathBy||'Alguém'} eliminou você.`;
+ const why=place===1?'Você venceu os 7 rivais.':R.deathCause==='zone'?'A zona pegou você.':R.deathCause==='mob'?`${R.deathBy} derrubou você.`:`${R.deathBy||'Alguém'} eliminou você.`;
  $('#resultText').textContent=`Sobrevivência · ${why} Nível ${lv}, ${kills} abate${kills===1?'':'s'}.${extra?` Bônus: +${extra} moedas.`:''} `+$('#resultText').textContent.replace(/^[^·]*·\s*/,'');
  $('#stats').innerHTML=`<span>${place}º de 8</span><span>${mmss(sec)}</span><span>${kills} abates</span><span>NV ${lv}</span>`;
  const h=document.getElementById('royHud');if(h)h.hidden=true;

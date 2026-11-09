@@ -18,7 +18,7 @@ async function boot(b,vp){
   ok(/8 lutadores|Battle royale/i.test(await p.locator('[data-arena-mode="survival"]').locator('xpath=..').innerText()),`${tag}: cartão fala de battle royale com 8 lutadores`);
   await p.click('[data-arena-mode="survival"]');await p.waitForTimeout(1500);
   const st=await p.evaluate(()=>{window.requestAnimationFrame=()=>0;state='fight';count=0;return{mode:modeRun.id,W,H,all:RoyaleAPI.players().length,alive:RoyaleAPI.alive().length,lv:RoyaleAPI.players().map(a=>a.roy.lv),unl:RoyaleAPI.players().map(a=>a.roy.unlocked.size),bots:RoyaleAPI.players().filter(a=>a.roy.bot).length,teams:new Set(RoyaleAPI.players().map(a=>a.team)).size,mobs:RoyaleAPI.R.mobs.length}});
-  ok(st.mode==='survival'&&st.W===2600&&st.all===8&&st.alive===8&&st.bots===7,`${tag}: 8 lutadores (você + 7 bots) num mapa grande`);
+  ok(st.mode==='survival'&&st.W===3600&&st.all===8&&st.alive===8&&st.bots===7,`${tag}: 8 lutadores (você + 7 bots) num mapa grande`);
   ok(st.lv.every(x=>x===1)&&st.unl.every(x=>x===0),`${tag}: todos começam no nível 1 sem nenhuma habilidade`);
   ok(st.teams===8&&st.mobs>=20,`${tag}: cada um por si e monstros espalhados pelo mapa (${st.mobs})`);
   ok(await p.locator('#royMap').count()===1&&await p.locator('#royLv').count()===1,`${tag}: minimapa e painel de nível na tela`);
@@ -38,8 +38,8 @@ async function boot(b,vp){
  ok(lock.r===false&&lock.cdSame&&!lock.can,'sem ponto: não dá para usar nem liberar habilidade');
  await p.locator('#equipped .skill').nth(0).click({force:true});
  ok(await p.evaluate(()=>p.roy.unlocked.size===0),'tocar numa habilidade sem ponto não libera nada');
- const lv=await p.evaluate(()=>{const hp0=p.hp;p.hp=500;RoyaleAPI.addXP(p,40);return{lv:p.roy.lv,pts:p.roy.pts,heal:p.hp>500,xp:p.roy.xp}});
- ok(lv.lv===2&&lv.pts===1&&lv.heal,'40 de XP: nível 2, 1 ponto e cura ao subir');
+ const lv=await p.evaluate(()=>{const hp0=p.hp;p.hp=500;RoyaleAPI.addXP(p,RoyaleAPI.LV_XP[1]);return{lv:p.roy.lv,pts:p.roy.pts,heal:p.hp>500,xp:p.roy.xp}});
+ ok(lv.lv===2&&lv.pts===1&&lv.heal,'XP do nível 2: sobe 1 nível, ganha 1 ponto e cura');
  await p.waitForTimeout(100);
  await p.evaluate(()=>updateUI());
  ok(await p.locator('#equipped .skill.roy-can').count()===5&&await p.locator('#equipped .skill.roy-lock[data-roy-ult="1"]').count()===1,'com ponto: 5 habilidades brilham para liberar e a ultimate segue trancada');
@@ -52,7 +52,7 @@ async function boot(b,vp){
  ok(u2.can===false,'sem ponto sobrando, a próxima continua bloqueada');
  // ultimate só depois das 5
  const ult=await p.evaluate(()=>{
-  const out=[];RoyaleAPI.addXP(p,2000);        // sobe até o nível máximo
+  const out=[];RoyaleAPI.addXP(p,5000);        // sobe até o nível máximo
   out.push(p.roy.lv,p.roy.pts);
   out.push(RoyaleAPI.canUnlock(p,p.kit[5]));
   for(const i of [0,1,3]){RoyaleAPI.unlock(p,p.kit[i])}
@@ -61,7 +61,8 @@ async function boot(b,vp){
   out.push(p.roy.unlocked.size,RoyaleAPI.canUnlock(p,p.kit[5]));
   RoyaleAPI.unlock(p,p.kit[5]);out.push(p.roy.unlocked.size,p.roy.pts);
   return out});
- ok(ult[0]===7&&ult[1]===5,'XP leva ao nível 7 (máximo), com 6 pontos ganhos no total');
+ ok(ult[0]===10&&ult[1]===5,'XP leva ao nível máximo (10); só os níveis 2 a 7 dão ponto de habilidade');
+ ok(await p.evaluate(()=>p.max>1000&&p.roy.dmgMul>1),'níveis 8 a 10 dão bônus de vida máxima e de dano');
  ok(ult[2]===false&&ult[3]===false,'ultimate segue bloqueada enquanto faltar qualquer uma das outras');
  ok(ult[4]===5&&ult[5]===true&&ult[6]===6&&ult[7]===0,'com as 5 liberadas, a ultimate pode ser liberada (6/6 habilidades, 0 pontos)');
  ok(await p.evaluate(()=>cast(p,p.kit[0])!==undefined),'habilidade liberada passa pela checagem de uso');
@@ -71,7 +72,7 @@ async function boot(b,vp){
   const bot=RoyaleAPI.players().find(a=>a.roy.bot);const x0=p.roy.xp,lvBefore=bot.roy.lv;
   const m=RoyaleAPI.spawnMonster('s',p.x+60,p.y);m.hp=1;m.inv=0;hit(m,50,p,0,0,0);for(let i=0;i<3;i++)step(1/60);
   const gain=p.roy.xp-x0;
-  RoyaleAPI.addXP(bot,45);return{gain,mon:RoyaleAPI.MON.s.xp,botLv:bot.roy.lv,botSk:bot.roy.unlocked.size,botPts:bot.roy.pts}});
+  RoyaleAPI.addXP(bot,RoyaleAPI.LV_XP[1]+5);return{gain,mon:RoyaleAPI.MON.s.xp,botLv:bot.roy.lv,botSk:bot.roy.unlocked.size,botPts:bot.roy.pts}});
  ok(xp.gain===xp.mon,'matar um monstro dá a XP dele ao autor do golpe ('+xp.gain+')');
  ok(xp.botLv>=2&&xp.botSk>=1&&xp.botPts===0,'bots usam o ponto sozinhos e liberam uma habilidade');
  const kill=await p.evaluate(()=>{
@@ -81,6 +82,12 @@ async function boot(b,vp){
  ok(kill.dead&&kill.kills===1&&kill.xp>=70,'derrotar um rival dá abate e bastante XP');
  ok(/eliminou/.test(kill.feed)&&kill.alive===7,'aparece no placar de abates e restam 7 vivos');
 
+ /* ---------- escala do mapa ---------- */
+ const sc=await p.evaluate(()=>{const R=RoyaleAPI.R;return{W:RoyaleAPI.MAP_W,H:RoyaleAPI.MAP_H,pil:pillars.length,mobs:R.mobs.length,elite:R.mobs.filter(a=>a.rmob.tier==='e').length,zr:RoyaleAPI.ZONES.map(z=>z.r),wait:RoyaleAPI.ZONES[0].wait,xp:RoyaleAPI.LV_XP,bytes:groundCache?groundCache.width*groundCache.height:0}});
+ ok(sc.W===3600&&sc.H===2800,'mapa maior (3600 x 2800)');
+ ok(sc.pil>=30&&sc.mobs>=40&&sc.elite>=1,`obstáculos e monstros escalam com o mapa (${sc.pil} obstáculos, ${sc.mobs} monstros, ${sc.elite} elites)`);
+ ok(sc.zr[0]>=1300&&sc.zr[4]>=100&&sc.wait>=60,'zona começa maior e as fases ficam mais longas');
+ ok(sc.xp.length===10&&sc.xp[6]>=800,'curva de XP maior (nível 7 exige '+sc.xp[6]+' XP)');
  /* ---------- radar: só se vê quem está perto ---------- */
  const rd=await p.evaluate(()=>{const bots=RoyaleAPI.players().filter(a=>a.roy.bot&&a.hp>0);const [a,c]=bots;p.x=1000;p.y=1000;a.x=1200;a.y=1000;c.x=1000+RoyaleAPI.RADAR+500;c.y=1000;
   const near=RoyaleAPI.radar().includes(a),far=RoyaleAPI.radar().includes(c);p.lastHit={by:c,t:clock};const hitShown=RoyaleAPI.radar().includes(c);p.lastHit=null;return{near,far,hitShown,n:RoyaleAPI.radar().length}});
@@ -93,15 +100,15 @@ async function boot(b,vp){
   const R=RoyaleAPI.R,z=R.zone;const out={r0:z.c.r,state0:z.state,phase0:z.phase,inside0:RoyaleAPI.inZone(p)};
   const to=z.to;out.toInside=Math.hypot(to.x-z.c.x,to.y-z.c.y)+to.r<=z.c.r+1;out.toR=to.r;
   // avança o tempo até começar a fechar
-  p.inv=1e9;for(let i=0;i<60*62;i++){step(1/60);}
+  p.inv=1e9;for(let i=0;i<60*(RoyaleAPI.ZONES[0].wait+2);i++){step(1/60);}
   out.state1=z.state;out.phase1=z.phase;
-  for(let i=0;i<60*30;i++)step(1/60);
+  for(let i=0;i<60*(RoyaleAPI.ZONES[0].shrink+2);i++)step(1/60);
   out.state2=z.state;out.phase2=z.phase;out.r2=z.c.r;out.moved=Math.hypot(z.c.x-RoyaleAPI.MAP_W/2,z.c.y-RoyaleAPI.MAP_H/2);
   return out});
  ok(zn.phase0===0&&zn.state0==='wait'&&zn.r0>1500&&zn.inside0,'a partida começa com a zona cobrindo o mapa todo');
  ok(zn.toInside&&zn.toR<zn.r0,'a próxima zona é um círculo menor dentro da atual');
  ok(zn.state1==='shrink'||zn.phase1>=1,'depois de um tempo a zona começa a fechar');
- ok(zn.phase2>=1&&zn.r2<1100,'a zona fecha em fases (raio cai) e muda de lugar ('+Math.round(zn.r2)+')');
+ ok(zn.phase2>=1&&zn.r2<=1401+1,'a zona fecha em fases (raio cai) e muda de lugar ('+Math.round(zn.r2)+')');
  const gas=await p.evaluate(()=>{const R=RoyaleAPI.R,z=R.zone.c;p.hp=p.max=1000;p.inv=1e9;
   p.x=Math.min(RoyaleAPI.MAP_W-60,z.x+z.r+300);p.y=z.y;if(RoyaleAPI.inZone(p)){p.x=60;p.y=60}
   const out={outside:!RoyaleAPI.inZone(p)};const h0=p.hp;for(let i=0;i<60*3&&p.hp>0;i++)step(1/60);out.lost=h0-p.hp;out.dps=RoyaleAPI.gasDps();
