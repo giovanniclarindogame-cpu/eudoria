@@ -1380,7 +1380,7 @@ function refreshIncomeUI(){
 const ARENA_MODES={
  zone:{name:'Controle de Zona',w:1400,h:1300,seconds:240,prize:200,copy:'2×2 · ocupe a zona sem rivais dentro. Primeiro a 90 pontos. A zona muda a cada 40s; reaparecimento em 5s.'},
  guardian:{name:'Caçada ao Guardião',w:1500,h:1400,seconds:300,prize:200,copy:'Você e um aliado bot contra o Guardião. Saia das áreas vermelhas antes do impacto. Duas fases; sem reaparecimento.'},
- survival:{name:'Sobrevivência',w:1400,h:1400,seconds:600,prize:300,copy:'Nove ondas, até três inimigos por vez. Escolha uma melhoria temporária após as ondas 3 e 6.'},
+ survival:{name:'Sobrevivência',w:2600,h:2000,seconds:600,prize:200,copy:'Battle royale solo com 8 lutadores. Todos começam sem habilidade: mate monstros e rivais, suba de nível e libere uma habilidade por ponto (a ultimate por último). A zona segura fecha para um ponto aleatório do mapa; seja o último de pé.'},
  stage:{name:'Cruzada Arcade',w:4400,h:430,seconds:900,prize:150,copy:'Fase de rolagem horizontal, como nos fliperamas: derrote as ondas de monstros, pegue comida no caminho e enfrente o chefe no fim. Solo ou em dupla.'},
  tournament:{name:'Torneio dos Campeões',w:1100,h:1100,seconds:540,prize:250,copy:'Três adversários em sequência. Recupere 25% do HP máximo entre duelos. Recompensa ao concluir a disputa.'},
  mirror:{name:'Espelho',w:1000,h:1100,seconds:180,prize:100,copy:'Um duelo com builds idênticas. Vence quem aproveitar melhor as mesmas ferramentas.'},

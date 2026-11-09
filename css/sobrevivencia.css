@@ -1,0 +1,29 @@
+/* Sobrevivência (battle royale) — painel de nível, minimapa, avisos e botões de habilidade bloqueados */
+#royHud{position:absolute;left:8px;top:calc(96px*var(--ui,1));z-index:11;pointer-events:none;display:flex;flex-direction:column;gap:6px;max-width:44%}
+#royHud[hidden]{display:none}
+.roy-top{display:flex;gap:6px;align-items:flex-start}
+#royMap{width:calc(104px*var(--ui,1));height:calc(82px*var(--ui,1));border:1px solid #f2ca5caa;border-radius:6px;image-rendering:pixelated;box-shadow:0 2px 10px #0008}
+.roy-lv{display:flex;flex-direction:column;gap:3px;min-width:calc(96px*var(--ui,1));background:#08241ccc;border:1px solid #9aa47788;border-radius:8px;padding:calc(5px*var(--ui,1)) calc(8px*var(--ui,1))}
+.roy-lv b{font:900 calc(14px*var(--ui,1))/1 Georgia,serif;color:#f4e5ba;letter-spacing:1px}
+.roy-lv i{display:block;height:calc(6px*var(--ui,1));background:#0a1a14;border:1px solid #b39d5e88;border-radius:99px;overflow:hidden}
+.roy-lv u{display:block;height:100%;width:0;background:linear-gradient(90deg,#4fb5d6,#9ad8ff);text-decoration:none;transition:width .25s}
+.roy-lv small{font:600 calc(9px*var(--ui,1)) system-ui;color:#b5c8b6}
+.roy-lv em{font:700 calc(9.5px*var(--ui,1)) system-ui;font-style:normal;color:#1c1405;background:#f2ca5c;border-radius:99px;padding:2px 7px;text-align:center;animation:royPts 1s ease-in-out infinite}
+@keyframes royPts{50%{transform:scale(1.07)}}
+#royFeed{display:flex;flex-direction:column;gap:2px}
+#royFeed div{font:600 calc(10px*var(--ui,1)) system-ui;color:#e8dcb8;background:#06100ccc;border-radius:5px;padding:2px 7px;width:fit-content;max-width:100%;text-shadow:0 1px 2px #000}
+#royFeed div.mine{border-left:3px solid #f2ca5c;color:#fff}
+/* habilidades bloqueadas / liberáveis */
+body #equipped .skill.roy-lock{filter:grayscale(1) brightness(.55);position:relative}
+body #equipped .skill.roy-lock::after{content:"🔒";position:absolute;inset:auto 0 3px 0;text-align:center;font-size:calc(13px*var(--ui,1));filter:none}
+body #equipped .skill.roy-lock[data-roy-ult="1"]::after{content:"🔒 ULT"}
+body #equipped .skill.roy-can{filter:none;box-shadow:0 0 0 2px #f2ca5c,0 0 14px #f2ca5c;animation:royCan 1s ease-in-out infinite}
+body #equipped .skill.roy-can::after{content:"+";position:absolute;right:-3px;top:-6px;width:calc(17px*var(--ui,1));height:calc(17px*var(--ui,1));border-radius:50%;background:#f2ca5c;color:#1c1405;font:900 calc(14px*var(--ui,1))/calc(17px*var(--ui,1)) system-ui;text-align:center}
+@keyframes royCan{50%{box-shadow:0 0 0 2px #fff,0 0 20px #f2ca5c}}
+/* avisos */
+#royBanner{position:absolute;left:0;right:0;top:26%;text-align:center;pointer-events:none;z-index:12;opacity:0;transform:scale(.9)}
+#royBanner b{display:block;font:900 calc(30px*var(--ui,1))/1 Georgia,serif;letter-spacing:4px;color:#f4e5ba;text-shadow:0 3px 0 #000,0 0 22px #f2ca5c88}
+#royBanner small{display:block;margin-top:6px;font:700 calc(11.5px*var(--ui,1)) system-ui;letter-spacing:2px;color:#fff;text-shadow:0 2px 6px #000;text-transform:uppercase;padding:0 12px}
+#royBanner.zone b{color:#ff9ac0;text-shadow:0 3px 0 #000,0 0 26px #ff4f86aa}
+#royBanner.show{animation:royBanner 3s ease-out forwards}
+@keyframes royBanner{0%{opacity:0;transform:scale(.7)}10%{opacity:1;transform:scale(1.04)}18%{transform:scale(1)}82%{opacity:1}100%{opacity:0;transform:scale(1.02)}}
