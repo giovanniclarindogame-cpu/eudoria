@@ -195,8 +195,10 @@ function pickSpot(minFrom,inside,maxR){
 function nearestRoy(a,maxD){let best=null,bd=maxD;for(const t of alive()){const d=Math.hypot(t.x-a.x,t.y-a.y);if(d<bd){bd=d;best=t}}return best?{t:best,d:bd}:null}
 function monsterAI(dt,a){
  const m=a.rmob;if(!m||a.hp<=0)return;
- m.walk+=dt*6;m.flash=Math.max(0,m.flash-dt);a.moving=false;
+ a.moving=false;
  const cfg=m.cfg;
+ if(!nearestRoy(a,1400)&&a.hitReact<=0)return;           // ninguém por perto: não gasta processamento
+ m.walk+=dt*6;m.flash=Math.max(0,m.flash-dt);
  if(a.hitReact>.01){m.windup=0;m.t=0;return}
  if(m.windup>0){
   m.t+=dt;const T=m.target;
@@ -432,6 +434,9 @@ stepArenaMode=function(dt){
 /* ------------------------------ IA ------------------------------ */
 const prevGuardianAI=guardianAI;
 guardianAI=function(dt,a){if(a.rmob)monsterAI(dt,a);else prevGuardianAI(dt,a)};
+const offscreen=a=>{const m=120,l=-ox/scale-m,r=(cw-ox)/scale+m,t=-oy/scale-m-80,b2=(ch-oy)/scale+m;return a.x<l||a.x>r||a.y<t||a.y>b2};
+const prevDrawActor=integratedDrawActor;
+integratedDrawActor=function(a){if(isRoy()&&a!==p&&offscreen(a))return;return prevDrawActor(a)};
 const prevDrawGuardian=drawGuardian;
 drawGuardian=function(a){if(a.rmob)drawMonster(a);else prevDrawGuardian(a)};
 const prevAI=ai;
@@ -568,6 +573,8 @@ integratedDepth=function(){
  const list=prevDepth();
  if(!isRoy())return list;
  const vx0=-ox/scale-80,vx1=(cw-ox)/scale+80,vy0=-oy/scale-120,vy1=(ch-oy)/scale+80;
+ // corte: o motor base desenha tudo, mesmo o que está a milhares de pixels da câmera; aqui só o que pode aparecer
+ for(let i=list.length-1;i>=0;i--){const e=list[i];if(e.kind==='pillar'||e.y<vy0-260||e.y>vy1+260)list.splice(i,1)}
  for(const o of layout.pillars)if(o.x>vx0&&o.x<vx1&&o.y>vy0&&o.y<vy1)list.push({kind:'roy-obs',y:o.y+o.r*.6,priority:2,paint(){paintObstacle(o)}});
  for(const f of R.food)list.push({kind:'roy-food',y:f.y,priority:1,paint(){paintFood(f)}});
  for(const c of R.corpses)list.push({kind:'roy-corpse',y:c.y-1,priority:0,paint(){

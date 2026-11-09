@@ -141,3 +141,8 @@ O equilíbrio da dificuldade é estimado (testado só com IA e simulações): aj
 - Níveis 2-7 dão ponto de habilidade (nível 7 = tudo liberado); níveis 8-10 dão +8% de vida e +6% de dano por nível.
 - Monstros fortes (elite e grandes) ficam perto do centro; as bordas só têm os fracos. Dano dos monstros reduzido.
 - Desempenho: o terreno é desenhado em blocos de 512 px (só os visíveis) e os sprites não usam ctx.filter no estado normal (o filtro por sprite deixava o quadro de 20 ms em ~380 ms). Mesma correção na Cruzada Arcade.
+
+== DESEMPENHO DA SOBREVIVÊNCIA / MODO ECONOMIA AUTOMÁTICO ==
+- A lista de desenho agora ignora tudo que está fora da tela (lutadores, monstros, efeitos, pilares do motor base); monstros longe de qualquer lutador ficam parados sem IA.
+- Economia automático (js/economia.js): se a luta ficar abaixo de ~26 quadros/s por 3 s, o Modo economia liga sozinho (30 q/s, efeitos leves, canvas 1,5x) e avisa; abaixo de ~15 q/s baixa também a resolução para 1x. Dá para desligar em Configurações.
+- Medição (CPU 6x mais lenta, headless): Sobrevivência ~65-85 ms/quadro, igual ao duelo 2x2 (~66-70 ms): o custo está no desenho do motor, não nos monstros (sem monstros: sem mudança; sem bots: metade).

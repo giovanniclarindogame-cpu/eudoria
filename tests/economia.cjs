@@ -33,7 +33,19 @@ const calls=p=>p.evaluate(()=>new Promise(r=>{let n=0;const o=window.step;window
   await p.evaluate(()=>{EcoQA.set(false)});await p.waitForTimeout(300);
   ok(await p.evaluate(()=>!EcoQA.on&&window.renderCap===undefined),`${tag}: desligar volta ao normal`);
   ok(errs.length===0,`${tag}: sem erros de JavaScript ${errs.join('|')}`);
-  await ctx.close();
+  // proteção automática: luta lenta (45 ms por quadro) por mais de 3 s liga o modo economia sozinho
+ {
+  const c2=await b.newContext({viewport:vp});const p2=await c2.newPage();
+  await p2.goto('http://localhost:8000/index.html');await p2.waitForTimeout(900);
+  await p2.getByText('ENTRAR',{exact:true}).click();await p2.fill('input','Teste');await p2.getByText('Continuar',{exact:true}).click();await p2.waitForTimeout(1400);
+  await p2.evaluate(()=>{window.requestAnimationFrame=()=>0;matchMode='1v1';start();state='fight';count=0;EcoQA.reset();EcoQA.set(false)});
+  const fast=await p2.evaluate(()=>{for(let i=0;i<400;i++)EcoQA.feed(16);return EcoQA.on});
+  ok(fast===false,`${tag}: luta fluida (16 ms por quadro) não liga o modo economia`);
+  const slow=await p2.evaluate(()=>{for(let i=0;i<120;i++)EcoQA.feed(45);return{on:EcoQA.on,cap:window.renderCap}});
+  ok(slow.on===true&&slow.cap===1.5,`${tag}: luta lenta por mais de 3 s liga o modo economia sozinho`);
+  await p2.evaluate(()=>EcoQA.set(false));await c2.close();
+ }
+ await ctx.close();
  }
  await b.close();
 })();
