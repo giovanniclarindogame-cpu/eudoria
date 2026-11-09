@@ -133,3 +133,5 @@ O equilíbrio da dificuldade é estimado (testado só com IA e simulações): aj
 - Zona segura em 5 fases (espera + fechamento), sempre para um ponto aleatório dentro da anterior; fora dela há gás (1,2% a 12% da vida por segundo). Suprimentos (maçã/carne) caem na nova zona; monstros soltam comida.
 - Extras: minimapa, placar de abates, nome/nível/vida dos rivais, ranking final (1º a 8º) e bônus de moedas por colocação e abates.
 - Testes: node tests/sobrevivencia.cjs (46). Simulação: node tests/simulacao-sobrevivencia.cjs 5.
+
+- Ajustes: painel de nível e minimapa compactos (80px). O minimapa é um RADAR: só mostra rivais a até 780 de distância (ou quem acabou de te acertar). Bots mais ativos: evitam monstro grande sem nível, comem quando feridos, caçam rivais depois da 1ª zona. Resultado: 🥇🥈🥉 e "Nº LUGAR".

@@ -21,6 +21,7 @@ const MON={
  b:{hp:430,dmg:50,speed:62,r:24,scale:2.9,xp:50,windup:.95,cd:2.6,reach:78,aggro:320}
 };
 const MON_LOOK={s:0,m:1,b:2};
+const RADAR=780;                                   // o minimapa só mostra rivais a até esta distância (ou quem acabou de te acertar)
 const FOODS={apple:{heal:.18,name:'Maçã'},meat:{heal:.35,name:'Carne'}};
 
 let R=null,layout=null;
@@ -28,6 +29,12 @@ const isRoy=()=>modeRun&&modeRun.id==='survival'&&modeRun.roy;
 const rnd=(a,b)=>a+Math.random()*(b-a);
 const players=()=>actors.filter(a=>a.roy);
 const alive=()=>actors.filter(a=>a.roy&&a.hp>0);
+// rivais que o jogador "sabe" onde estão: perto dele, ou quem o acertou nos últimos 4 segundos
+function radar(){
+ if(!R||!p)return[];
+ const hitBy=p.lastHit&&clock-p.lastHit.t<4?p.lastHit.by:null;
+ return alive().filter(a=>a!==p&&(Math.hypot(a.x-p.x,a.y-p.y)<=RADAR||a===hitBy));
+}
 const rng=seed=>()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
 
 /* ------------------------------ mapa ------------------------------ */
@@ -254,8 +261,8 @@ function ensureHud(){
  let h=document.getElementById('royHud');
  if(!h){
   h=document.createElement('div');h.id='royHud';
-  h.innerHTML=`<div class="roy-top"><canvas id="royMap" width="104" height="82" aria-label="Minimapa"></canvas>
-   <div class="roy-lv"><b id="royLv">NV 1</b><i><u id="royXp"></u></i><small id="royXpT"></small><em id="royPts" hidden></em></div></div><div id="royFeed" aria-live="polite"></div>`;
+  h.innerHTML=`<div class="roy-top"><canvas id="royMap" width="80" height="62" aria-label="Minimapa"></canvas>
+   <div class="roy-lv"><div class="roy-row"><b id="royLv">NV 1</b><em id="royPts" hidden></em></div><i><u id="royXp"></u></i><small id="royXpT"></small></div></div><div id="royFeed" aria-live="polite"></div>`;
   document.getElementById('battle').appendChild(h);
  }
  h.hidden=false;return h;
@@ -264,10 +271,10 @@ function hudUpdate(){
  const ro=p.roy;if(!ro)return;
  const next=ro.lv>=MAX_LV?null:LV_XP[ro.lv],prev=LV_XP[ro.lv-1];
  const q=id=>document.getElementById(id);
- q('royLv').textContent='NV '+ro.lv+(ro.lv>=MAX_LV?' · MÁX':'');
+ q('royLv').textContent='NV '+ro.lv+(ro.lv>=MAX_LV?' MÁX':'');
  q('royXp').style.width=(next?100*(ro.xp-prev)/(next-prev):100)+'%';
- q('royXpT').textContent=next?`${ro.xp-prev}/${next-prev} XP`:'nível máximo';
- const pts=q('royPts');pts.hidden=ro.pts<=0;if(ro.pts>0)pts.textContent='★ '+ro.pts+(ro.pts>1?' pontos':' ponto')+': toque numa habilidade';
+ q('royXpT').textContent=next?`${ro.xp-prev}/${next-prev}`:'máx';
+ const pts=q('royPts');pts.hidden=ro.pts<=0;if(ro.pts>0)pts.textContent='★ '+ro.pts;
  // botões das habilidades
  document.querySelectorAll('#equipped .skill').forEach((el,i)=>{
   const id=p.kit[i],un=ro.unlocked.has(id),can=canUnlock(p,id);
@@ -284,7 +291,10 @@ function hudUpdate(){
  g.fillStyle='#2a5a3a66';g.beginPath();g.ellipse(z.c.x*sx,z.c.y*sy,z.c.r*sx,z.c.r*sy,0,0,TAU);g.fill();
  g.strokeStyle='#ffffffcc';g.lineWidth=1;g.beginPath();g.ellipse(z.c.x*sx,z.c.y*sy,z.c.r*sx,z.c.r*sy,0,0,TAU);g.stroke();
  if(z.state==='wait'&&z.to){g.setLineDash([3,3]);g.strokeStyle='#fff';g.beginPath();g.ellipse(z.to.x*sx,z.to.y*sy,z.to.r*sx,z.to.r*sy,0,0,TAU);g.stroke();g.setLineDash([])}
- for(const a of alive()){if(a===p)continue;g.fillStyle='#ff6a6a';g.fillRect(a.x*sx-1.5,a.y*sy-1.5,3,3)}
+ // raio de detecção (rivais fora dele ficam escondidos)
+ g.strokeStyle='#ffffff30';g.lineWidth=1;g.beginPath();g.ellipse(p.x*sx,p.y*sy,RADAR*sx,RADAR*sy,0,0,TAU);g.stroke();
+ for(const a of radar()){const d=Math.hypot(a.x-p.x,a.y-p.y);g.globalAlpha=clamp(1.15-d/(RADAR*1.25),.35,1);g.fillStyle='#ff6a6a';g.fillRect(a.x*sx-1.5,a.y*sy-1.5,3,3)}
+ g.globalAlpha=1;
  g.fillStyle='#fff';g.fillRect(p.x*sx-2.5,p.y*sy-2.5,5,5);g.strokeStyle='#f2ca5c';g.strokeRect(p.x*sx-3.5,p.y*sy-3.5,7,7);
  g.restore();
 }
@@ -377,6 +387,7 @@ function royStep(dt){
  }
  // fim
  const left=alive();
+ if(window.RoyaleAPI&&RoyaleAPI.noEnd){if(left.length<=1&&!R.over){R.over=true;R.placement=0;modeRun.settled=true;state='end'}return}   // modo de simulação: só termina com 1 vivo
  if(p.hp<=0){if(!R.over){R.over=true;R.placement=p.roy.place||left.length+1;endArenaMode(false)}return}
  if(left.length===1&&left[0]===p){if(!R.over){R.over=true;R.placement=1;endArenaMode(true)}return}
  if(time<=0){if(!R.over){R.over=true;const sorted=[...left].sort((a,b2)=>b2.hp-a.hp);R.placement=sorted.indexOf(p)+1;endArenaMode(R.placement===1)}}
@@ -393,38 +404,70 @@ guardianAI=function(dt,a){if(a.rmob)monsterAI(dt,a);else prevGuardianAI(dt,a)};
 const prevDrawGuardian=drawGuardian;
 drawGuardian=function(a){if(a.rmob)drawMonster(a);else prevDrawGuardian(a)};
 const prevAI=ai;
-function botMelee(dt,a){
+const free=a=>!a.guard&&a.cast<=0&&a.root<=0&&a.dash<=0&&a.dodgeTime<=0;
+function goTo(a,x,y,dt,sp=145){const ang=Math.atan2(y-a.y,x-a.x);const c=move(a,Math.cos(ang)*sp*dt,Math.sin(ang)*sp*dt);if(c)move(a,Math.cos(ang+1.1)*sp*dt,Math.sin(ang+1.1)*sp*dt);a.a=ang;a.moving=true}
+function botMelee(dt,a,t){
  // sem habilidade liberada o bot luta só com o golpe básico, de perto (a IA padrão de campeões à distância nunca chegaria perto)
- const t=enemy(a);if(!t||t===a){return}
  const d=Math.hypot(t.x-a.x,t.y-a.y),ang=Math.atan2(t.y-a.y,t.x-a.x);
- a.a=ang;a.think-=dt;
- if(!a.guard&&a.cast<=0&&a.root<=0&&a.dash<=0&&a.dodgeTime<=0){
-  const sp=140*(a.slow>0?.55:1);
-  if(d>58){const c=move(a,Math.cos(ang)*sp*dt,Math.sin(ang)*sp*dt);if(c)move(a,Math.cos(ang+1.1)*sp*dt,Math.sin(ang+1.1)*sp*dt);a.moving=true}else a.moving=false;
- }
+ a.a=ang;a.think-=dt;a.moving=false;
+ if(free(a)&&d>58)goTo(a,t.x,t.y,dt,140*(a.slow>0?.55:1));
  if(d<76&&typeof basic==='function')basic(a);
  if(a.think<=0){a.think=.45+Math.random()*.3;if(t.rmob?t.rmob.windup>0&&d<110:t.punchTime>0&&d<110){if(Math.random()<.35&&typeof dodge==='function')dodge(a)}}
+}
+// escolhe o alvo que vale a pena: XP boa e perto; evita monstro grande sem nível; ataca rival fraco ou machucado
+function botTarget(a){
+ const ro=a.roy,hpf=a.hp/a.max,late=R.zone.phase>=2,aggr=R.zone.phase>=1||R.t>70;   // a partir da 1ª zona fechando, os bots caçam rivais pelo mapa todo
+ let best=null,bs=-1e9;
+ for(const t of actors){
+  if(t===a||t.hp<=0)continue;
+  const d=Math.hypot(t.x-a.x,t.y-a.y);if(d>(aggr&&t.roy?1700:780))continue;
+  let sc=-d;
+  if(t.rmob){
+   const m=t.rmob;
+   if(m.tier==='b'&&(ro.lv<3||hpf<.5)&&m.target!==a)continue;       // não procura chefe de mapa sem nível/vida
+   sc+=m.cfg.xp*4-(late?260:0);
+  }else if(t.roy){
+   const rs=t.roy.unlocked.size,ms=ro.unlocked.size;
+   if(hpf<.4&&rs>=ms&&d>150)continue;                                 // machucado: não procura briga com igual ou mais forte
+   sc+=(late?420:aggr?300:120)+(t.hp<t.max*.5?260:0)+(ms>rs?140:0)-(rs>ms+1?220:0);
+  }
+  if(sc>bs){bs=sc;best=t}
+ }
+ return best;
 }
 ai=function(dt,a=b){
  if(!isRoy()||!a||!a.roy||!a.roy.bot||a.hp<=0)return prevAI(dt,a);
  const z=R.zone.c;
- // 1) fugir do gás
+ // 1) fugir do gás (e já ir para dentro enquanto a zona fecha)
  if(!inZone(a)||Math.hypot(a.x-z.x,a.y-z.y)>z.r-40&&R.zone.state==='shrink'){
-  if(!a.guard&&a.cast<=0&&a.root<=0&&a.dash<=0&&a.dodgeTime<=0){
-   const ang=Math.atan2(z.y-a.y,z.x-a.x);
-   move(a,Math.cos(ang)*150*dt,Math.sin(ang)*150*dt);a.a=ang;a.moving=true;return;
+  if(free(a)){goTo(a,z.x,z.y,dt,150);return}
+ }
+ const ro=a.roy,hpf=a.hp/a.max,near=nearestFoe(a,120);
+ // 2) ferido e sem inimigo em cima: vai buscar comida
+ if(hpf<.5&&!near&&free(a)){
+  let f=null,bd=520;for(const o of R.food){const d=Math.hypot(o.x-a.x,o.y-a.y);if(d<bd){bd=d;f=o}}
+  if(f){goTo(a,f.x,f.y,dt,150);return}
+ }
+ // 3) alvo do momento
+ const t=botTarget(a);
+ if(!t){
+  // 4) sem ninguém por perto: procura monstros (XP) ou anda pela zona
+  if(!free(a))return prevAI(dt,a);
+  ro.way=ro.way&&clock<ro.way.t&&Math.hypot(ro.way.x-a.x,ro.way.y-a.y)>40?ro.way:null;
+  if(!ro.way){
+   let m=null,bd=1400;for(const o of R.mobs){if(o.hp<=0)continue;if(o.rmob.tier==='b'&&ro.lv<3)continue;const d=Math.hypot(o.x-a.x,o.y-a.y);if(d<bd){bd=d;m=o}}
+   if(m&&inZone(m))ro.way={x:m.x,y:m.y,t:clock+4};
+   else{const an=Math.random()*TAU,dd=Math.random()*(z.r*.6);ro.way={x:z.x+Math.cos(an)*dd,y:z.y+Math.sin(an)*dd,t:clock+5}}
   }
+  goTo(a,ro.way.x,ro.way.y,dt,145);return;
  }
- // 2) sem habilidade: luta de perto
- if(a.roy.unlocked.size===0){botMelee(dt,a);return}
- // 3) com 3 ou mais habilidades, parte para cima do rival mais próximo (se não houver monstro por perto)
- if(a.roy.unlocked.size>=3&&!a.guard&&a.cast<=0&&a.root<=0&&a.dash<=0&&a.dodgeTime<=0){
-  let rival=null,bd=900;for(const o of alive()){if(o===a)continue;const d=Math.hypot(o.x-a.x,o.y-a.y);if(d<bd){bd=d;rival=o}}
-  const mon=nearestRoy&&R.mobs.some(m=>m.hp>0&&Math.hypot(m.x-a.x,m.y-a.y)<150);
-  if(rival&&bd>280&&!mon){const ang=Math.atan2(rival.y-a.y,rival.x-a.x);move(a,Math.cos(ang)*140*dt,Math.sin(ang)*140*dt);a.a=ang;a.moving=true;return}
- }
+ // 5) lutar
+ if(ro.unlocked.size===0){botMelee(dt,a,t);return}
+ const d=Math.hypot(t.x-a.x,t.y-a.y);
+ if(d>300&&free(a)){goTo(a,t.x,t.y,dt,145);return}
  return prevAI(dt,a);
 };
+function nearestFoe(a,r){for(const t of actors){if(t===a||t.hp<=0)continue;if(Math.hypot(t.x-a.x,t.y-a.y)<r&&(t.rmob||t.roy))return t}return null}
 // só pode usar as habilidades já liberadas
 const prevCast=cast;
 let lockToast=0;
@@ -548,7 +591,8 @@ endArenaMode=function(win,draw){
  let extra=0;
  if(bonus>0){try{extra=awardMatchCoins(bonus);saveAccount()}catch{}}
  const mmss=s=>Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
- $('#resultTitle').textContent=place===1?'ÚLTIMO EM PÉ!':`Você ficou em ${place}º lugar.`;
+ const medal=['','🥇','🥈','🥉'][place]||'';
+ $('#resultTitle').textContent=place===1?'🥇 1º LUGAR · ÚLTIMO EM PÉ!':`${medal?medal+' ':''}${place}º LUGAR`;
  const why=place===1?'Você venceu os 7 rivais.':R.deathBy==='a zona'?'A zona pegou você.':`${R.deathBy||'Alguém'} eliminou você.`;
  $('#resultText').textContent=`Sobrevivência · ${why} Nível ${lv}, ${kills} abate${kills===1?'':'s'}.${extra?` Bônus: +${extra} moedas.`:''} `+$('#resultText').textContent.replace(/^[^·]*·\s*/,'');
  $('#stats').innerHTML=`<span>${place}º de 8</span><span>${mmss(sec)}</span><span>${kills} abates</span><span>NV ${lv}</span>`;
@@ -557,8 +601,9 @@ endArenaMode=function(win,draw){
 document.addEventListener('click',e=>{if(e.target.closest('#leave,#change,#rematch')){const h=document.getElementById('royHud');if(h)h.hidden=true}});
 
 window.RoyaleAPI={
+ noEnd:false,
  get R(){return R},ZONES,LV_XP,MON,MAP_W,MAP_H,
- canUnlock,unlock,addXP,spawnMonster,alive,players,inZone,
+ canUnlock,unlock,addXP,spawnMonster,alive,players,inZone,radar,RADAR,
  gasDps:()=>R?gasDps():0
 };
 })();

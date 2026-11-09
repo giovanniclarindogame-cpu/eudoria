@@ -81,6 +81,13 @@ async function boot(b,vp){
  ok(kill.dead&&kill.kills===1&&kill.xp>=70,'derrotar um rival dá abate e bastante XP');
  ok(/eliminou/.test(kill.feed)&&kill.alive===7,'aparece no placar de abates e restam 7 vivos');
 
+ /* ---------- radar: só se vê quem está perto ---------- */
+ const rd=await p.evaluate(()=>{const bots=RoyaleAPI.players().filter(a=>a.roy.bot&&a.hp>0);const [a,c]=bots;p.x=1000;p.y=1000;a.x=1200;a.y=1000;c.x=1000+RoyaleAPI.RADAR+500;c.y=1000;
+  const near=RoyaleAPI.radar().includes(a),far=RoyaleAPI.radar().includes(c);p.lastHit={by:c,t:clock};const hitShown=RoyaleAPI.radar().includes(c);p.lastHit=null;return{near,far,hitShown,n:RoyaleAPI.radar().length}});
+ ok(rd.near&&!rd.far,'minimapa: rival perto aparece e rival longe fica escondido');
+ ok(rd.hitShown,'minimapa: quem acabou de te acertar aparece mesmo de longe');
+ ok(await p.evaluate(()=>{const c=document.getElementById('royMap').getBoundingClientRect();const l=document.querySelector('.roy-lv').getBoundingClientRect();return c.width<=100&&l.width<=100&&c.height<=80}),'painel de nível e minimapa compactos (até 100px de largura)');
+
  /* ---------- zona e gás ---------- */
  const zn=await p.evaluate(()=>{
   const R=RoyaleAPI.R,z=R.zone;const out={r0:z.c.r,state0:z.state,phase0:z.phase,inside0:RoyaleAPI.inZone(p)};
@@ -105,7 +112,7 @@ async function boot(b,vp){
 
  /* ---------- fim da partida ---------- */
  const win=await p.evaluate(()=>{p.inv=0;p.hp=p.max;for(const a of RoyaleAPI.players())if(a!==p){a.hp=0}for(let i=0;i<10&&state==='fight';i++)step(1/60);return{state,title:document.getElementById('resultTitle').textContent,text:document.getElementById('resultText').textContent,stats:document.getElementById('stats').innerText}});
- ok(win.state==='end'&&/ÚLTIMO EM PÉ/i.test(win.title),'ser o último vivo: "ÚLTIMO EM PÉ!"');
+ ok(win.state==='end'&&/ÚLTIMO EM PÉ/i.test(win.title)&&/1º LUGAR/.test(win.title),'ser o último vivo: "ÚLTIMO EM PÉ!"');
  ok(/1º de 8/.test(win.stats),'resultado mostra a colocação (1º de 8)');
  ok(errs.length===0,'partida sem erros de JavaScript '+errs.join('|'));
  await ctx.close();
@@ -117,7 +124,7 @@ async function boot(b,vp){
   const lose=await p.evaluate(()=>{window.requestAnimationFrame=()=>0;state='fight';count=0;
    const bot=RoyaleAPI.players().find(a=>a.roy.bot);p.inv=0;p.hp=1;hit(p,500,bot,0,0,0);for(let i=0;i<10&&state==='fight';i++)step(1/60);
    return{state,title:document.getElementById('resultTitle').textContent,text:document.getElementById('resultText').textContent,stats:document.getElementById('stats').innerText,bot:bot.roy.name}});
-  ok(lose.state==='end'&&/8º lugar/.test(lose.title),'ser eliminado primeiro: "8º lugar"');
+  ok(lose.state==='end'&&/8º LUGAR/.test(lose.title),'ser eliminado primeiro: "8º lugar"');
   ok(lose.text.includes(lose.bot)&&/eliminou você/.test(lose.text),'a mensagem diz quem eliminou você');
   ok(errs.length===0,'derrota sem erros '+errs.join('|'));
   await ctx.close();
