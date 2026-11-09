@@ -109,6 +109,19 @@ async function boot(b,vp){
  ok(zn.toInside&&zn.toR<zn.r0,'a próxima zona é um círculo menor dentro da atual');
  ok(zn.state1==='shrink'||zn.phase1>=1,'depois de um tempo a zona começa a fechar');
  ok(zn.phase2>=1&&zn.r2<=1401+1,'a zona fecha em fases (raio cai) e muda de lugar ('+Math.round(zn.r2)+')');
+ /* ---------- monstros não renascem e morrem no gás ---------- */
+ const mg=await p.evaluate(()=>{
+  const R=RoyaleAPI.R,z=R.zone.c;p.inv=1e9;
+  const n0=R.mobs.length;for(let i=0;i<60*20;i++){if(i%20===0){p.hp=p.max}step(1/60)}const n1=R.mobs.length;
+  const corners=[[200,200],[RoyaleAPI.MAP_W-200,200],[200,RoyaleAPI.MAP_H-200],[RoyaleAPI.MAP_W-200,RoyaleAPI.MAP_H-200]].sort((a,b)=>Math.hypot(b[0]-z.x,b[1]-z.y)-Math.hypot(a[0]-z.x,a[1]-z.y));
+  const [cx,cy]=corners[0];const outside=!RoyaleAPI.inZone({x:cx,y:cy});
+  const m=RoyaleAPI.spawnMonster('s',cx,cy);m.hp=m.max=100;const xp0=p.roy.xp,h0=m.hp;
+  for(let i=0;i<30;i++)step(1/60);const h1=m.hp;
+  for(let i=0;i<60*26;i++){if(i%20===0){p.x=R.zone.c.x;p.y=R.zone.c.y;p.hp=p.max}step(1/60)}
+  return{n0,n1,outside,hurt:h1<h0,gone:!R.mobs.includes(m),xpSame:p.roy.xp===xp0,rate:(h0-h1)/100/0.5}});
+ ok(mg.n1<=mg.n0,`monstros não renascem (${mg.n0} → ${mg.n1} depois de 20 s)`);
+ ok(mg.outside&&mg.hurt&&mg.gone,'o gás machuca e mata os monstros que ficam fora da zona');
+ ok(mg.xpSame,'monstro morto só pelo gás não dá XP a ninguém');
  const gas=await p.evaluate(()=>{const R=RoyaleAPI.R,z=R.zone.c;p.hp=p.max=1000;p.inv=1e9;
   p.x=Math.min(RoyaleAPI.MAP_W-60,z.x+z.r+300);p.y=z.y;if(RoyaleAPI.inZone(p)){p.x=60;p.y=60}
   const out={outside:!RoyaleAPI.inZone(p)};const h0=p.hp;for(let i=0;i<60*3&&p.hp>0;i++)step(1/60);out.lost=h0-p.hp;out.dps=RoyaleAPI.gasDps();
