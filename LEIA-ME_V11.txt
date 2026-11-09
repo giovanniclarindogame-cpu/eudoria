@@ -118,3 +118,10 @@ O equilíbrio da dificuldade é estimado (testado só com IA e simulações): aj
 - Salvo em eldoria.arcade.v1 (fases concluídas e melhor tempo). Não mexe nos recordes da Caçada do Dia.
 - Os motores dos chefes ganharam fábricas (HuntAPI.makeHunt / makeGB) e opções noForms / noPhase2 / dmgScale.
 - Testes: node tests/fase-arcade.cjs (48). Simulação: node tests/simulacao-arcade.cjs zorvath solo 10.
+
+== CRUZADA ARCADE · MONSTRO ESPECIAL POR UNIVERSO ==
+- A partir da onda 2 aparece um monstro ESPECIAL (4º tipo, 300 de vida) com mecânica própria:
+  Zorvath: Capitão Cristalino (leque de 3 cristais) · Vhalor: Ninja Clone (teleporta para as costas) · Kuroen: Espectro Flamejante (avanço em linha reta)
+  Nyxar: Demônio Sanguessuga (cura com o dano) · Ryoku: Maldição Ancestral (área que deixa lento) · Xerath: Formiga Rainha-Guarda (solta 2 formigas ao morrer)
+  Rapina: Vilão Ladrão (drena energia e se cura) · Malrath: Imediato Bombardeiro (bombas com aviso) · Hadrion: Espectro Chorão (almas que perseguem) · Gênesis: Armadura Alquímica (escudo)
+- O lobby mostra o especial com a descrição. Teste: node tests/fase-arcade.cjs (98).
