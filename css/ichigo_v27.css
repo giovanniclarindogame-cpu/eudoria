@@ -1,0 +1,7 @@
+#heroDetail.ichigo-detail{background:#100f22 url('../assets/ichigo_v27/background.webp') center/cover no-repeat}
+.ichigo-detail.simple-detail .hero-detail-inner{background:linear-gradient(90deg,#100b1822,#100b18c9)}
+.ichigo-detail.simple-detail .hero-stage{background:none}
+.ichigo-detail .hero-halo{display:none}
+.ichigo-detail .hero-heading,.ichigo-detail .simple-kit-heading{text-shadow:0 2px 6px #000}
+.ichigo-detail.simple-detail .hero-skill-copy{background:#130e20ec;border-color:#a9567077}
+.ichigo-detail .hero-stage img{object-fit:contain;filter:drop-shadow(0 8px 20px #0008)}
