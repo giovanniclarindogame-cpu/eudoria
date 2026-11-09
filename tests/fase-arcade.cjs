@@ -49,6 +49,10 @@ const run=(p,fn,arg)=>p.evaluate(fn,arg);
   ok(w.hp.split(',').every(x=>+x===150),'solo: vida normal dos monstros (150)');
   const clampT=await p.evaluate(()=>{const S=ArcadeAPI.S;p.x=S.camX+5000;step(1/60);const edge=S.camX+S.viewW/2;const r1=p.x<=edge;p.x=-500;step(1/60);return r1&&p.x>=S.camX-S.viewW/2});
   ok(clampT,'o jogador não sai da tela durante a luta (tela travada)');
+  const fl=await p.evaluate(()=>{const S=ArcadeAPI.S;p.y=900;step(1/60);const y1=p.y;p.y=-300;step(1/60);const y2=p.y;p.y=300;updateArenaCamera();
+   const st=document.querySelector('#stick').getBoundingClientRect().top;return{y1,y2,bt:ArcadeAPI.BAND_TOP,bb:ArcadeAPI.BAND_BOT,bottom:oy+ArcadeAPI.BAND_BOT*scale,top:oy+ArcadeAPI.BAND_TOP*scale,stick:st,hud:window.battleTop?battleTop():0}});
+  ok(fl.y1<=fl.bb&&fl.y2>=fl.bt,'os personagens só andam na faixa de chão mais alta (não descem até o fim da tela)');
+  ok(fl.bottom<=fl.stick+1&&fl.top>=fl.hud-1,`a faixa de luta fica entre o HUD e o analógico/skills (${Math.round(fl.top)}–${Math.round(fl.bottom)} px; analógico em ${Math.round(fl.stick)})`);
   const names=await p.evaluate(()=>ArcadeAPI.S.mobs.map(a=>a.label));
   ok(names.every(n=>n==='Ninja Sem Rosto'),'monstros do universo do chefe (Vhalor → ninjas sem rosto)');
   // limpar onda: dá "AVANTE" e solta comida depois da onda 2
