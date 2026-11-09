@@ -51,19 +51,39 @@ function makeLayout(){
  }
  return{id,pillars:pil,seed:id};
 }
-function buildMap(){
- const g0=document.createElement('canvas');g0.width=MAP_W;g0.height=MAP_H;const g=g0.getContext('2d'),r=rng(layout.seed);
- const gr=g.createLinearGradient(0,0,MAP_W,MAP_H);gr.addColorStop(0,'#254a34');gr.addColorStop(.5,'#2b5238');gr.addColorStop(1,'#223f2c');g.fillStyle=gr;g.fillRect(0,0,MAP_W,MAP_H);
- for(let i=0;i<480;i++){const x=r()*MAP_W,y=r()*MAP_H,rad=40+r()*140;g.fillStyle=['#2f5c3d22','#1d3a2822','#4a5a3022','#3a4a2a22'][i%4];g.beginPath();g.ellipse(x,y,rad,rad*.6,r()*3,0,TAU);g.fill()}
- // lagos e trilhas
- for(let k=0;k<5;k++){const x=r()*MAP_W,y=r()*MAP_H,rad=90+r()*160;g.fillStyle='#1d4a5a88';g.beginPath();g.ellipse(x,y,rad,rad*.55,r()*3,0,TAU);g.fill();g.strokeStyle='#8ad0e044';g.lineWidth=4;g.stroke()}
- g.strokeStyle='#6a5a3c55';g.lineWidth=50;g.lineCap='round';
- for(let k=0;k<7;k++){g.beginPath();g.moveTo(r()*MAP_W,r()*MAP_H);g.bezierCurveTo(r()*MAP_W,r()*MAP_H,r()*MAP_W,r()*MAP_H,r()*MAP_W,r()*MAP_H);g.stroke()}
- g.strokeStyle='#8a7a5a22';g.lineWidth=20;for(let k=0;k<7;k++){g.beginPath();g.moveTo(r()*MAP_W,r()*MAP_H);g.bezierCurveTo(r()*MAP_W,r()*MAP_H,r()*MAP_W,r()*MAP_H,r()*MAP_W,r()*MAP_H);g.stroke()}
- for(let i=0;i<1700;i++){const x=r()*MAP_W,y=r()*MAP_H;g.fillStyle=['#7ac26a55','#e8d36a66','#c46a8a55','#9ad8ff44'][i%4];g.fillRect(x,y,2+r()*3,2+r()*3)}
+// Terreno em blocos de 512 px, criados só quando a câmera os vê (um canvas único de 3600x2800 deixava cada quadro lento)
+const TS=512;
+let terrain=null;
+function buildTerrain(){
+ const r=rng(layout.seed),F={blots:[],lakes:[],trails:[],flowers:[]};
+ for(let i=0;i<480;i++){const rad=40+r()*140;F.blots.push({x:r()*MAP_W,y:r()*MAP_H,rad,rot:r()*3,col:['#2f5c3d22','#1d3a2822','#4a5a3022','#3a4a2a22'][i%4]})}
+ for(let k=0;k<5;k++)F.lakes.push({x:r()*MAP_W,y:r()*MAP_H,rad:90+r()*160,rot:r()*3});
+ for(let k=0;k<14;k++)F.trails.push({p:[r()*MAP_W,r()*MAP_H,r()*MAP_W,r()*MAP_H,r()*MAP_W,r()*MAP_H,r()*MAP_W,r()*MAP_H],wide:k<7});
+ for(let i=0;i<1700;i++)F.flowers.push({x:r()*MAP_W,y:r()*MAP_H,w:2+r()*3,h:2+r()*3,col:['#7ac26a55','#e8d36a66','#c46a8a55','#9ad8ff44'][i%4]});
+ terrain={F,tiles:new Map(),cols:Math.ceil(MAP_W/TS),rows:Math.ceil(MAP_H/TS)};
+ return terrain;
+}
+function makeTile(ix,iy){
+ const F=terrain.F,x0=ix*TS,y0=iy*TS,c=document.createElement('canvas');c.width=c.height=TS;const g=c.getContext('2d');
+ g.translate(-x0,-y0);
+ const gr=g.createLinearGradient(0,0,MAP_W,MAP_H);gr.addColorStop(0,'#254a34');gr.addColorStop(.5,'#2b5238');gr.addColorStop(1,'#223f2c');g.fillStyle=gr;g.fillRect(x0,y0,TS,TS);
+ const hit=(x,y,r)=>x+r>x0&&x-r<x0+TS&&y+r>y0&&y-r<y0+TS;
+ for(const b of F.blots)if(hit(b.x,b.y,b.rad)){g.fillStyle=b.col;g.beginPath();g.ellipse(b.x,b.y,b.rad,b.rad*.6,b.rot,0,TAU);g.fill()}
+ for(const l of F.lakes)if(hit(l.x,l.y,l.rad)){g.fillStyle='#1d4a5a88';g.beginPath();g.ellipse(l.x,l.y,l.rad,l.rad*.55,l.rot,0,TAU);g.fill();g.strokeStyle='#8ad0e044';g.lineWidth=4;g.stroke()}
+ g.lineCap='round';
+ for(const t of F.trails){g.strokeStyle=t.wide?'#6a5a3c55':'#8a7a5a22';g.lineWidth=t.wide?50:20;g.beginPath();g.moveTo(t.p[0],t.p[1]);g.bezierCurveTo(t.p[2],t.p[3],t.p[4],t.p[5],t.p[6],t.p[7]);g.stroke()}
+ for(const f of F.flowers)if(f.x>=x0&&f.x<x0+TS&&f.y>=y0&&f.y<y0+TS){g.fillStyle=f.col;g.fillRect(f.x,f.y,f.w,f.h)}
  g.strokeStyle='#0a1a10';g.lineWidth=24;g.strokeRect(0,0,MAP_W,MAP_H);
- const p0=document.createElement('canvas');p0.width=p0.height=1;       // árvores e pedras são desenhadas na hora (economiza memória)
- return{ground:g0,pil:p0};
+ return c;
+}
+function drawTerrain(){
+ if(!terrain)return;
+ const x0=Math.max(0,Math.floor((-ox/scale)/TS)),x1=Math.min(terrain.cols-1,Math.floor(((cw-ox)/scale)/TS));
+ const y0=Math.max(0,Math.floor((-oy/scale)/TS)),y1=Math.min(terrain.rows-1,Math.floor(((ch-oy)/scale)/TS));
+ for(let iy=y0;iy<=y1;iy++)for(let ix=x0;ix<=x1;ix++){
+  const k=iy*terrain.cols+ix;let t=terrain.tiles.get(k);if(!t){t=makeTile(ix,iy);terrain.tiles.set(k,t)}
+  ctx.drawImage(t,ix*TS,iy*TS,TS+1,TS+1);
+ }
 }
 function paintObstacle(o){
  ctx.save();
@@ -221,7 +241,7 @@ function drawMonster(a){
  ctx.fillStyle='#06100c99';ctx.beginPath();ctx.ellipse(0,12,m.cfg.r+7,9*m.cfg.scale/2.2,0,0,TAU);ctx.fill();
  if(m.windup>0){const k=clamp(m.t/m.windup,0,1),rad=m.cfg.reach+10;ctx.globalAlpha=.16+.28*k;ctx.fillStyle='#ffd0a0';ctx.beginPath();ctx.arc(0,6,rad,0,TAU);ctx.fill();ctx.globalAlpha=.55;ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.setLineDash([8,6]);ctx.beginPath();ctx.arc(0,6,rad,0,TAU);ctx.stroke();ctx.setLineDash([]);ctx.globalAlpha=1}
  ctx.translate(0,10);
- const f=a.flash>0||m.flash>0?'brightness(2.1) saturate(.5)':'brightness(.92)';
+ const f=a.flash>0||m.flash>0?'brightness(2.1) saturate(.5)':'';   // sem filtro no estado normal: ctx.filter é muito caro para dezenas de sprites
  BossSprite.paint(ctx,m.look,pose.name,pose.i,{x:0,y:0,scale:m.cfg.scale,flip:Math.cos(m.face)<0,side:pose.side||0,filter:f});
  ctx.restore();
  if(a.hp<a.max){const w=m.tier==='b'?40:28;ctx.save();ctx.translate(a.x,a.y-(m.tier==='b'?86:60));ctx.fillStyle='#10061be0';ctx.fillRect(-w/2,0,w,6);ctx.fillStyle=m.tier==='b'?'#ff9a5a':'#e86a6a';ctx.fillRect(-w/2+1,1,(w-2)*clamp(a.hp/a.max,0,1),4);ctx.restore()}
@@ -341,7 +361,9 @@ const prevBG=buildArenaBackground;
 buildArenaBackground=function(){
  if(arenaModeId!=='survival'||battleActivity==='training'||!layout)return prevBG();
  if(groundCache&&groundCache.__roy===layout.id)return;
- const m=buildMap();groundCache=m.ground;groundCache.__roy=layout.id;pillarCache=m.pil;backgroundBuilds++;
+ buildTerrain();
+ groundCache=document.createElement('canvas');groundCache.width=groundCache.height=1;groundCache.__roy=layout.id;   // o chão é desenhado em blocos (drawTerrain)
+ pillarCache=document.createElement('canvas');pillarCache.width=pillarCache.height=1;backgroundBuilds++;
 };
 
 /* ------------------------------ passo ------------------------------ */
@@ -528,10 +550,12 @@ const prevWorld=drawModeWorld;
 drawModeWorld=function(){
  prevWorld();
  if(!isRoy())return;
+ drawTerrain();
  const z=R.zone.c;
  ctx.save();
- // gás: tudo fora do círculo
- ctx.beginPath();ctx.rect(-50,-50,MAP_W+100,MAP_H+100);ctx.arc(z.x,z.y,Math.max(1,z.r),0,TAU,true);
+ // gás: tudo fora do círculo (só a parte visível)
+ const gx0=-ox/scale-60,gy0=-oy/scale-60,gx1=(cw-ox)/scale+60,gy1=(ch-oy)/scale+60;
+ ctx.beginPath();ctx.rect(gx0,gy0,gx1-gx0,gy1-gy0);ctx.arc(z.x,z.y,Math.max(1,z.r),0,TAU,true);
  ctx.fillStyle='#b0206055';ctx.fill('evenodd');
  ctx.strokeStyle='#ff6aa0';ctx.lineWidth=5;ctx.globalAlpha=.8;ctx.beginPath();ctx.arc(z.x,z.y,Math.max(1,z.r),0,TAU);ctx.stroke();
  // próxima zona
