@@ -12,7 +12,7 @@ const run=(p,fn,arg)=>p.evaluate(fn,arg);
 (async()=>{
  const b=await chromium.launch();
  /* ---------- lobby ---------- */
- for(const vp of [{width:844,height:390},{width:1280,height:720}]){
+ for(const vp of [{width:844,height:390},{width:1280,height:720},{width:667,height:375},{width:740,height:360},{width:932,height:430}]){
   const tag=`${vp.width}x${vp.height}`;
   const {ctx,p,errs}=await boot(b,vp);
   await p.evaluate(()=>showArenaModes());await p.waitForTimeout(400);
@@ -26,7 +26,10 @@ const run=(p,fn,arg)=>p.evaluate(fn,arg);
   ok(await p.evaluate(()=>ArcadeAPI.save.sel)==='zorvath',`${tag}: fase bloqueada não pode ser escolhida`);
   const fit=await p.evaluate(()=>{const pg=document.querySelector('.arc-page'),m=document.querySelector('#modeScreen');return m.scrollHeight<=m.clientHeight+2&&[...pg.querySelectorAll('*')].every(e=>{const r=e.getBoundingClientRect();return !r.width||r.bottom<=innerHeight+2})});
   ok(fit,`${tag}: lobby cabe na tela sem rolar`);
-  ok(await p.locator('[data-arc-mob]').count()===3,`${tag}: mostra os 3 tipos de monstro da fase`);
+  await p.evaluate(()=>{ArcadeAPI.setSave({sel:'xerath',cleared:{zorvath:1,vhalor:1,kuroen:1,nyxar:1,ryoku:1}});beginArenaMode('stage')});await p.waitForTimeout(500);
+  const info=await p.evaluate(()=>{const i=document.querySelector('.arc-info');const kids=[...i.children].map(e=>e.getBoundingClientRect()).filter(r=>r.height>0);const ov=kids.some((r,k)=>k>0&&r.top<kids[k-1].bottom-1);return{over:i.scrollHeight-i.clientHeight,ov}});
+  ok(info.over<=1&&!info.ov,`${tag}: painel da fase (com o especial) cabe e sem sobreposição`);
+  ok(await p.locator('[data-arc-mob]').count()===4&&await p.locator('.arc-special').count()===1,`${tag}: mostra os 3 tipos de monstro e o ESPECIAL da fase`);
   await p.click('[data-arc-team="duo"]');ok(await p.evaluate(()=>ArcadeAPI.save.team)==='duo',`${tag}: escolha de dupla é lembrada`);
   ok(!/dobro|2x|dobra/i.test(await p.locator('.arc-page').innerText()),`${tag}: regra oculta da dupla não aparece no lobby`);
   ok(errs.length===0,`${tag}: lobby sem erros ${errs.join('|')}`);
@@ -103,6 +106,59 @@ const run=(p,fn,arg)=>p.evaluate(fn,arg);
   await ctx.close();
  }
 
+ /* ---------- monstros ESPECIAIS (um por universo) ---------- */
+ {
+  const {ctx,p,errs}=await boot(b,{width:844,height:390});
+  const kinds=[['zorvath','volley'],['vhalor','blink'],['kuroen','lunge'],['nyxar','leech'],['ryoku','curse'],['xerath','split'],['rapina','drain'],['malrath','bomb'],['hadrion','homing'],['genesis','shield']];
+  const out=await p.evaluate(async(kinds)=>{
+   let seed=5;Math.random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
+   const res={};
+   for(const [id,kind] of kinds){
+    ArcadeAPI.setSave({team:'solo',sel:id,cleared:{}});ArcadeAPI.startStage();window.requestAnimationFrame=()=>0;
+    state='fight';count=0;const S=ArcadeAPI.S;S.phase='walk';S.nextTrig=0;
+    const prep=()=>{p.inv=0;p.guard=false;p.hp=p.max=1000;p.x=1200;p.y=300;S.camX=1200;S.lockCx=1200};
+    const adj=e=>{e.x=p.x+44;e.y=p.y;e.mob.cd=0;e.mob.windup=0;e.hitReact=0};
+    const r={kind:ArcadeAPI.ELITE[id].kind};
+    prep();const e=ArcadeAPI.spawnMob('e',p.x+260,p.y);e.inv=0;
+    r.hp=e.max;r.label=e.label;
+    if(kind==='volley'||kind==='homing'||kind==='bomb'){
+     e.mob.cd=0;let seen=0,homing=false,bombs=0;
+     for(let i=0;i<240;i++){p.inv=99;step(1/60);seen=Math.max(seen,S.proj.length);homing=homing||S.proj.some(o=>o.homing);bombs=Math.max(bombs,S.bombs.length)}
+     r.proj=seen;r.homing=homing;r.bombs=bombs;
+     if(kind==='bomb'){prep();S.bombs.length=0;S.bombs.push({x:p.x,y:p.y,t:.2,dur:.2,r:74,dmg:60,owner:e});for(let i=0;i<30;i++)step(1/60);r.bombHit=p.hp<p.max}
+    }else if(kind==='blink'){
+     e.x=p.x+420;e.y=p.y;e.mob.blinkCd=0;const d0=Math.hypot(e.x-p.x,e.y-p.y);p.a=0;step(1/60);r.d0=d0;r.d1=Math.hypot(e.x-p.x,e.y-p.y);r.behind=e.x<p.x
+    }else if(kind==='lunge'){
+     e.x=p.x+250;e.y=p.y;e.mob.cd=0;let started=false,d0=Math.hypot(e.x-p.x,e.y-p.y),dmin=d0;
+     for(let i=0;i<150;i++){p.inv=0;step(1/60);started=started||!!e.mob.lunge;dmin=Math.min(dmin,Math.hypot(e.x-p.x,e.y-p.y))}
+     r.started=started;r.dmin=dmin;r.d0=d0;r.hurt=p.hp<p.max
+    }else if(kind==='leech'||kind==='drain'||kind==='curse'){
+     adj(e);e.hp=Math.round(e.max*.5);p.mp=100;const h0=e.hp;e.mob.cd=0;
+     for(let i=0;i<240&&p.hp>=p.max;i++){if(!e.mob.windup){e.x=p.x+44;e.y=p.y}step(1/60)}
+     r.pHurt=p.hp<p.max;r.eHealed=e.hp>h0;r.mp=p.mp;r.slow=p.slow||0
+    }else if(kind==='split'){
+     e.hp=0;step(1/60);step(1/60);r.small=S.mobs.filter(a=>a.mob.small).length;r.smallHp=S.mobs.filter(a=>a.mob.small).map(a=>a.max)
+    }else if(kind==='shield'){
+     r.shield=e.mob.shield;const hp0=e.hp;hit(e,60,p,0,0,0);r.afterA=e.hp===hp0&&e.mob.shield<r.shield;hit(e,400,p,0,0,0);r.afterB=e.hp<hp0&&e.mob.shield===0
+    }
+    res[id]=r;try{leave()}catch{}
+   }
+   return res},kinds);
+  ok(out.zorvath.proj>=3,'Capitão Cristalino (Zorvath): dispara 3 cristais em leque ('+out.zorvath.proj+')');
+  ok(out.vhalor.behind&&out.vhalor.d1<110&&out.vhalor.d0>350,'Ninja Clone (Vhalor): teleporta para as costas do jogador');
+  ok(out.kuroen.started&&out.kuroen.dmin<60,'Espectro Flamejante (Kuroen): avança em linha reta até o jogador');
+  ok(out.nyxar.pHurt&&out.nyxar.eHealed,'Demônio Sanguessuga (Nyxar): cura-se com o dano que causa');
+  ok(out.ryoku.pHurt&&out.ryoku.slow>0,'Maldição Ancestral (Ryoku): o golpe em área deixa o jogador lento');
+  ok(out.xerath.small===2&&out.xerath.smallHp.every(x=>x===45),'Formiga Rainha-Guarda (Xerath): ao morrer solta 2 formigas');
+  ok(out.rapina.pHurt&&out.rapina.eHealed&&out.rapina.mp<100,'Vilão Ladrão (Rapina): drena a energia e se cura');
+  ok(out.malrath.bombs>=1&&out.malrath.bombHit,'Imediato Bombardeiro (Malrath): bomba com aviso que explode e machuca');
+  ok(out.hadrion.homing,'Espectro Chorão (Hadrion): dispara almas que perseguem');
+  ok(out.genesis.afterA&&out.genesis.afterB,'Armadura Alquímica (Gênesis): o escudo absorve os primeiros golpes e depois quebra');
+  ok(Object.values(out).every(r=>r.hp===300),'especial tem 300 de vida na solo (o dobro de um soldado)');
+  ok(errs.length===0,'especiais sem erros de JavaScript '+errs.join('|'));
+  await ctx.close();
+ }
+
  /* ---------- os 10 universos ---------- */
  {
   const {ctx,p,errs}=await boot(b,{width:844,height:390});
@@ -112,10 +168,10 @@ const run=(p,fn,arg)=>p.evaluate(fn,arg);
     const L=ArcadeAPI.mobLooks(d),th=ArcadeAPI.THEMES[d.id];
     const c=document.createElement('canvas');c.width=c.height=96;const g=c.getContext('2d');let drew=true;
     try{for(const l of L)for(const pose of ['idle','walk','punch','s0','hit','dead'])BossSprite.paint(g,l,pose,0,{x:48,y:80,scale:1})}catch(e){drew=String(e)}
-    out.push([d.id,!!th,th&&th.names.length===3,L.length===3,drew]);
+    out.push([d.id,!!th,th&&th.names.length===3&&!!ArcadeAPI.ELITE[d.id],L.length===4,drew]);
    }
    return out});
-  ok(res.length===10&&res.every(r=>r[1]&&r[2]&&r[3]&&r[4]===true),'os 10 chefes têm universo próprio: 3 monstros desenhados em todas as poses ('+res.filter(r=>r[4]!==true).map(r=>r[0]+':'+r[4]).join(',')+')');
+  ok(res.length===10&&res.every(r=>r[1]&&r[2]&&r[3]&&r[4]===true),'os 10 chefes têm universo próprio: 3 monstros + especial desenhados em todas as poses ('+res.filter(r=>r[4]!==true).map(r=>r[0]+':'+r[4]).join(',')+')');
   ok(errs.length===0,'universos sem erros '+errs.join('|'));
   await ctx.close();
  }

@@ -36,3 +36,15 @@ body[data-screen=arcade] #modeScreen{padding:0!important;overflow:hidden!importa
 #arcGo[hidden]{display:none}
 @keyframes arcGo{50%{opacity:.15}}
 @media (prefers-reduced-motion:reduce){#arcGo{animation:none}}
+.arc-mobs{gap:5px}.arc-mobs canvas{max-width:62px}
+.arc-mobs figcaption{font-size:8.5px}
+.arc-elite canvas{box-shadow:0 0 0 1px #f2ca5c88,0 0 12px #f2ca5c33}
+.arc-elite figcaption i{display:block;font-style:normal;font-size:7.5px;letter-spacing:1.5px;color:#f2ca5c;margin-top:1px}
+.arc-special{margin:0;font-size:10.5px;line-height:1.3;color:#c3d4c6}.arc-special b{color:#f4e5ba}
+.arc-info{overflow:hidden}
+@media (max-width:760px){
+ .arc-boss p{display:none}.arc-boss h2{font-size:17px;margin:2px 0}
+ .arc-mobs canvas{max-width:50px}.arc-special{font-size:9.5px}.arc-chips span{font-size:9px;padding:2px 6px}
+ .arc-info{gap:5px;padding:8px 10px}
+}
+@media (max-height:370px){.arc-mobs canvas{max-width:44px}.arc-chips{display:none}}
