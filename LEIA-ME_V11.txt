@@ -146,3 +146,7 @@ O equilíbrio da dificuldade é estimado (testado só com IA e simulações): aj
 - A lista de desenho agora ignora tudo que está fora da tela (lutadores, monstros, efeitos, pilares do motor base); monstros longe de qualquer lutador ficam parados sem IA.
 - Economia automático (js/economia.js): se a luta ficar abaixo de ~26 quadros/s por 3 s, o Modo economia liga sozinho (30 q/s, efeitos leves, canvas 1,5x) e avisa; abaixo de ~15 q/s baixa também a resolução para 1x. Dá para desligar em Configurações.
 - Medição (CPU 6x mais lenta, headless): Sobrevivência ~65-85 ms/quadro, igual ao duelo 2x2 (~66-70 ms): o custo está no desenho do motor, não nos monstros (sem monstros: sem mudança; sem bots: metade).
+
+== SOBREVIVÊNCIA · MONSTROS SEM RENASCIMENTO ==
+- Os monstros NÃO renascem: são 84 no início (38 fracos, 24 médios, 12 elites, 10 grandes) e a XP do mapa é finita (cada monstro morto some).
+- O gás também mata os monstros (dano proporcional à fase da zona, mais rápido que nos lutadores). Monstro que morre só pelo gás não dá XP nem comida, a não ser que alguém tenha batido nele nos últimos 4 s.

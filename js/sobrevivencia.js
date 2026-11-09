@@ -339,7 +339,7 @@ prepareArenaMode=function(){
  const start=Math.random()*TAU,mine=Math.floor(Math.random()*8);
  const spots=[...Array(8)].map((_,i)=>{const an=start+i*TAU/8;return{x:CX+Math.cos(an)*1180,y:CY+Math.sin(an)*920}});
  actors=[p];
- R=modeRun.roy={t:0,zone:{phase:0,state:'wait',t:0,c:{x:CX,y:CY,r:R0},from:{x:CX,y:CY,r:R0},to:{x:CX,y:CY,r:R0}},mobs:[],food:[],corpses:[],feed:[],kills:0,over:false,nextRespawn:10,placement:0,alive:8,tagT:0};
+ R=modeRun.roy={t:0,zone:{phase:0,state:'wait',t:0,c:{x:CX,y:CY,r:R0},from:{x:CX,y:CY,r:R0},to:{x:CX,y:CY,r:R0}},mobs:[],food:[],corpses:[],feed:[],kills:0,over:false,placement:0,alive:8,tagT:0};
  p.team=0;p.label=account.profile?.name||'Você';p.max=p.hp=1000;p.x=spots[mine].x;p.y=spots[mine].y;p.inv=2;initRoy(p,false);
  let k=0;
  for(let i=0;i<8;i++){
@@ -349,7 +349,7 @@ prepareArenaMode=function(){
   a.skin=c;a.champion=c;a.kit=[...CHAMPIONS[c].kit];a.cd=a.cd.map(()=>0);a.inv=2;
   actors.push(a);initRoy(a,true);k++;
  }
- for(const [t,n] of [['s',26],['m',16],['e',8],['b',8]])for(let i=0;i<n;i++){const sp=pickSpot(360,false,MAXR[t]);spawnMonster(t,sp.x,sp.y)}
+ for(const [t,n] of [['s',38],['m',24],['e',12],['b',10]])for(let i=0;i<n;i++){const sp=pickSpot(360,false,MAXR[t]);spawnMonster(t,sp.x,sp.y)}
  startZonePhase(0);
  p.cd=p.cd.map(()=>0);
  R.layoutId=layout&&layout.id;
@@ -385,14 +385,20 @@ function royStep(dt){
    if(a.gasFlash>.8){a.gasFlash=0;float(a.x,a.y-56,'GÁS','#ff6aa0')}
   }
  }
+ // gás também mata os monstros (eles não renascem)
+ for(const a of R.mobs){
+  if(a.hp>0&&!inZone(a)){a.hp-=a.max*Math.max(dps,.03)*1.6*dt;a.flash=.08;a.rmob.flash=.08;if(a.hp<=0)a.gasDeath=true}
+ }
  // monstros mortos → XP e comida
  for(const a of R.mobs){
   if(a.hp<=0&&!a.dead){
-   a.dead=true;const m=a.rmob,k=award(recent(a),a);
+   a.dead=true;const m=a.rmob;
+   const stolen=a.gasDeath&&!(a.lastHit&&clock-a.lastHit.t<4);       // morreu no gás sem ninguém ter batido há pouco: sem XP nem comida
+   const k=stolen?null:award(recent(a),a);
    R.corpses.push({x:a.x,y:a.y,t:0,look:m.look,scale:m.cfg.scale,r:m.cfg.r,flip:Math.cos(m.face)<0});
    ring(a.x,a.y,46,'#ffffff',.35);spark(a.x,a.y,'#ffe0a0',10);
    if(k){addXP(k,m.cfg.xp);if(k===p)float(a.x,a.y-48,'+'+m.cfg.xp+' XP','#9ad8ff')}
-   if(Math.random()<(m.tier==='b'?.7:m.tier==='e'?.4:m.tier==='m'?.3:.18))dropFood(m.tier==='b'||m.tier==='e'?'meat':Math.random()<.5?'meat':'apple',a.x,a.y);
+   if(!stolen&&Math.random()<(m.tier==='b'?.7:m.tier==='e'?.4:m.tier==='m'?.3:.18))dropFood(m.tier==='b'||m.tier==='e'?'meat':Math.random()<.5?'meat':'apple',a.x,a.y);
   }
  }
  actors=actors.filter(a=>!(a.rmob&&a.dead));R.mobs=R.mobs.filter(a=>!a.dead);
@@ -411,12 +417,6 @@ function royStep(dt){
    ring(a.x,a.y,90,'#ff6a6a',.6);spark(a.x,a.y,'#ff6a6a',24);
    if(a===p){R.deathBy=killerName;R.deathCause=cause}
   }
- }
- // reposição de monstros dentro da zona
- R.nextRespawn-=dt;
- if(R.nextRespawn<=0&&R.mobs.length<80){
-  R.nextRespawn=6;
-  for(let i=0;i<4;i++){const q=Math.random(),t=q<.5?'s':q<.72?'m':q<.88?'e':'b',s=pickSpot(360,true,MAXR[t]);spawnMonster(t,s.x,s.y)}
  }
  // fim
  const left=alive();
