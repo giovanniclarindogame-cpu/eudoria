@@ -1,7 +1,7 @@
 {
   "source_file": "ELDORIA_ARENA_10_CAMPEOES_LAYOUT_SEGURO.html",
   "image_occurrences": 166,
-  "unique_files": 160,
+  "unique_files": 124,
   "files": [
     {
       "source_index": 0,
@@ -220,172 +220,16 @@
       "sha256": "191623a43c79f3200835d0a7aec55edb320ead5cfd6a16744252fa802db4db50"
     },
     {
-      "source_index": 36,
-      "file": "assets/sprites/arte_036.webp",
-      "bytes": 118062,
-      "sha256": "9f6de31d0ac757891701cdd48c148862253ee41c84269e19869d0f89a65fc228"
-    },
-    {
-      "source_index": 37,
-      "file": "assets/sprites/arte_037.webp",
-      "bytes": 433538,
-      "sha256": "7a5b28fc6573cc38e8a0f5a5ae1286f683703881319d96a4abc63dc4116f4c83"
-    },
-    {
-      "source_index": 38,
-      "file": "assets/sprites/arte_038.webp",
-      "bytes": 401732,
-      "sha256": "cd66636708905847e313b491d4cb9a986cf631888c64de15ec7c3c5370534b7f"
-    },
-    {
-      "source_index": 40,
-      "file": "assets/sprites/arte_040.webp",
-      "bytes": 247590,
-      "sha256": "9cd6673e9a47bee427aee0adcabd06a2d162857a58bca2f3a68d07755176b4ef"
-    },
-    {
-      "source_index": 41,
-      "file": "assets/sprites/arte_041.webp",
-      "bytes": 276372,
-      "sha256": "9a7aa7a2f72b871f3a61852e5c93bd0aa4a5e0727490e6c267d5771d2e3fdc2a"
-    },
-    {
-      "source_index": 42,
-      "file": "assets/sprites/arte_042.webp",
-      "bytes": 282366,
-      "sha256": "1520c9f0adc9a2892c65581c41926b775a1b1c6aad7cae36fc8d027afc6d79bf"
-    },
-    {
-      "source_index": 44,
-      "file": "assets/sprites/arte_044.webp",
-      "bytes": 89222,
-      "sha256": "af1679d8cf90917a532ab5a5ddf92297d0dbefe5c3e73a9705b969f326892637"
-    },
-    {
-      "source_index": 45,
-      "file": "assets/sprites/arte_045.webp",
-      "bytes": 19344,
-      "sha256": "c9221991056c4467dd1a40c878b0489210bb351559d4e2b6853607b38179da10"
-    },
-    {
-      "source_index": 46,
-      "file": "assets/sprites/arte_046.webp",
-      "bytes": 18234,
-      "sha256": "a874ece860bcfa25f3c7ccec8f9866d123c390685ef92c9956d4196378bfacb5"
-    },
-    {
-      "source_index": 47,
-      "file": "assets/sprites/arte_047.webp",
-      "bytes": 18732,
-      "sha256": "14db32c4a3b96f99f3fe9a6643c28732ba728c89b37d46b19e55215c3cdb754b"
-    },
-    {
-      "source_index": 48,
-      "file": "assets/sprites/arte_048.webp",
-      "bytes": 23706,
-      "sha256": "8f7280ac0ef5a6fdb543fd6e378f15ece48f9339317ad826c1ac55929247704e"
-    },
-    {
-      "source_index": 49,
-      "file": "assets/sprites/arte_049.webp",
-      "bytes": 18172,
-      "sha256": "138656b4754c9d39f7cd3ba4ba5e4675a0f85d0289b05eca6d010ecb53e8c4ec"
-    },
-    {
-      "source_index": 50,
-      "file": "assets/sprites/arte_050.webp",
-      "bytes": 22342,
-      "sha256": "aad3e56333863fa08f78f7173be672471b6b3e5727e93f18afac483082047fd0"
-    },
-    {
-      "source_index": 51,
-      "file": "assets/sprites/arte_051.webp",
-      "bytes": 121824,
-      "sha256": "20cbaa3cdc8988740bb1c3515c317a7a8d7a361319b2bb8d7561d261ca82d2e4"
-    },
-    {
-      "source_index": 52,
-      "file": "assets/sprites/arte_052.webp",
-      "bytes": 5394,
-      "sha256": "f75baad57d01a6929701b3d26d12c3d23fa0805b66da0e074b7274b2c61b7766"
-    },
-    {
-      "source_index": 53,
-      "file": "assets/sprites/arte_053.webp",
-      "bytes": 452152,
-      "sha256": "f2d6ad17673478f8a7dc05b04772d09f86356199765cebcdf134601aff5de0f6"
-    },
-    {
-      "source_index": 54,
-      "file": "assets/sprites/arte_054.webp",
-      "bytes": 531390,
-      "sha256": "87d82476d0fb0e1fd3bc173f168db10ffb90f9bb18985a4c435280930856fe92"
-    },
-    {
-      "source_index": 55,
-      "file": "assets/sprites/arte_055.webp",
-      "bytes": 124640,
-      "sha256": "34267410965188f1fa13e7b14c24bf24829c96f009b1ee9ec3e854e6b981015a"
-    },
-    {
-      "source_index": 56,
-      "file": "assets/sprites/arte_056.webp",
-      "bytes": 252742,
-      "sha256": "ba835c66c530630a579323948ff79162b213fad6b38fc64f12192b0f3fc30600"
-    },
-    {
-      "source_index": 57,
-      "file": "assets/sprites/arte_057.webp",
-      "bytes": 280208,
-      "sha256": "49f5c9bea723bb73715545f3e1700572eaf278352ec82e8bd4ac38bcc5154658"
-    },
-    {
-      "source_index": 58,
-      "file": "assets/sprites/arte_058.webp",
-      "bytes": 303870,
-      "sha256": "2d92cdbef5f1930924797ebf605fc37de986d890d8be2a19a78781ccd72565f7"
-    },
-    {
       "source_index": 59,
       "file": "assets/sprites/arte_059.webp",
       "bytes": 112318,
       "sha256": "1ef978f5e0349455f16f485a3e4238295969ceb579bbd62ae9c7afbd454f059f"
     },
     {
-      "source_index": 60,
-      "file": "assets/sprites/arte_060.webp",
-      "bytes": 113066,
-      "sha256": "24cfefbb69fa08146d5541b4ed3cbdff114b58d92b2f18777c7ee55b16f8e21a"
-    },
-    {
-      "source_index": 61,
-      "file": "assets/sprites/arte_061.webp",
-      "bytes": 143198,
-      "sha256": "34197e54f7be6ab2de3bd1a28e71ac523545ef5da325933d40df714eef539562"
-    },
-    {
-      "source_index": 62,
-      "file": "assets/sprites/arte_062.webp",
-      "bytes": 449466,
-      "sha256": "75d12aeac66fbb0b1d2e4cc4bae2c9afb40c76615077b6f398271a5451434ab4"
-    },
-    {
-      "source_index": 63,
-      "file": "assets/sprites/arte_063.webp",
-      "bytes": 500154,
-      "sha256": "93034e8342ea0e7bb9131a79982ff793516d2072f226f7eb7c8b240f5f0af31c"
-    },
-    {
       "source_index": 64,
       "file": "assets/sprites/arte_064.webp",
       "bytes": 123268,
       "sha256": "c93434a8e5bbcec59d0f72926f113f514f900475b27b5dde51e7c7e1e24d60f9"
-    },
-    {
-      "source_index": 65,
-      "file": "assets/sprites/arte_065.webp",
-      "bytes": 166520,
-      "sha256": "7f6a3b80ed072975cd6872e4ab849e14e58cb44cfe13de81ebad7ba1e05fd13f"
     },
     {
       "source_index": 67,
@@ -406,70 +250,10 @@
       "sha256": "73ec4c240072702a7eeee3ae0cb374aa3c2e4a2b4f1e0b05cfe820dead161caf"
     },
     {
-      "source_index": 71,
-      "file": "assets/sprites/arte_071.webp",
-      "bytes": 82396,
-      "sha256": "e54e364d86220e38ec7ddbf7657292c964780910ed0424fe0701212ebff290ca"
-    },
-    {
-      "source_index": 72,
-      "file": "assets/sprites/arte_072.webp",
-      "bytes": 14854,
-      "sha256": "0c35d4d53a871370bcbce130e3d332b6ff523731eb9c888334aa88e29603f712"
-    },
-    {
-      "source_index": 73,
-      "file": "assets/sprites/arte_073.webp",
-      "bytes": 18406,
-      "sha256": "3e05d5d5c3930cb181f556a8a97d2bd6d0b9d8eda80c7b6e9045a9106e7a6c19"
-    },
-    {
-      "source_index": 74,
-      "file": "assets/sprites/arte_074.webp",
-      "bytes": 19376,
-      "sha256": "fc39350e4cbead2d139a68a3d2c6399ebf9b28b7ec03d06f1fff3430fc6c20fb"
-    },
-    {
-      "source_index": 75,
-      "file": "assets/sprites/arte_075.webp",
-      "bytes": 18034,
-      "sha256": "d14cd581e9c9a0d9b53c50142ecaab10f66a77653033104947902ffbfebd431f"
-    },
-    {
-      "source_index": 76,
-      "file": "assets/sprites/arte_076.webp",
-      "bytes": 16410,
-      "sha256": "ae6d6f65f0c73536a3cd170755bb6b89f93a7440fcf9c867d999dd29bd90001c"
-    },
-    {
-      "source_index": 77,
-      "file": "assets/sprites/arte_077.webp",
-      "bytes": 18954,
-      "sha256": "3e30882e0821d8936ac57a59bf975c252764bc5c0a58bb8eb4c30bc7bdacad47"
-    },
-    {
       "source_index": 78,
       "file": "assets/sprites/arte_078.webp",
       "bytes": 132564,
       "sha256": "fd53a3a6ba0d8790275c5fcf7ed240efcab5cd5eccc05096c91286f04448f9e3"
-    },
-    {
-      "source_index": 79,
-      "file": "assets/sprites/arte_079.webp",
-      "bytes": 5624,
-      "sha256": "c961efcbf87093d135e00a59693194b04fdd212c6052cd972761443e8dc79071"
-    },
-    {
-      "source_index": 80,
-      "file": "assets/sprites/arte_080.webp",
-      "bytes": 517306,
-      "sha256": "910c1d117b3fdf4f1387cf0aec781207420799f08f6aed5f177b09ec5fe87ff7"
-    },
-    {
-      "source_index": 81,
-      "file": "assets/sprites/arte_081.webp",
-      "bytes": 420950,
-      "sha256": "375027778e938ccaaf5e4c9f9340d9b3ec41e480d9792cb3a4c0e5ea590e97ba"
     },
     {
       "source_index": 82,

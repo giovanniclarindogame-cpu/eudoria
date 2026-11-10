@@ -157,3 +157,10 @@ O equilíbrio da dificuldade é estimado (testado só com IA e simulações): aj
 - Cruzada Arcade: o chão desenhado agora termina na beirada logo abaixo da faixa de luta (BAND_BOT + 16); abaixo dela há um primeiro plano escuro com silhuetas fracas (o chão não continua por baixo do analógico e das skills).
 
 - Cruzada Arcade: faixa de luta ~16% mais funda (BAND_BOT 350 -> 374). O topo dela fica no mesmo lugar da tela e o fundo desce ~18 px, até a beira do analógico.
+
+== LIMPEZA DA ARTE ANTIGA DO GOKU E DO GOJO ==
+- Removidos 51 arquivos (~8,9 MB) que eram baixados mas nunca desenhados: Goku = folhas antigas assets/sprites/arte_036..061 e reforged_v10 astral-0..5, astral-N-icon, astral-combo-vfx, astral14-blast/body; Gojo = folhas antigas assets/sprites/arte_062..081 (efeitos, ícones e retrato da geração antiga).
+- As entradas antigas em ASTRAL_SOURCES/ECLIPSE_SOURCES (jogo.js) e os pedidos via rwImage (REMOVED_ART em arte_identidades.js) apontam para assets/ui/vazio.webp (1x1 transparente), então nada pede arquivo inexistente.
+- Prova: 152 quadros de luta por papel (herói e inimigo), com todas as habilidades em 8 direções, vida baixa e golpe sofrido, ficaram IDÊNTICOS (hash) antes e depois, com relógio e aleatoriedade congelados. Nenhum erro de carregamento em todos os heróis e modos.
+- Mantidos por falta de prova de que não são usados: reforged_v10/eclipse-1.webp e eclipse-3.webp (Gojo) e astral_v18/portrait.webp (Goku).
+- Total de imagens baixadas no jogo: 323 -> 273; pasta assets: 62 MB -> 53 MB.
