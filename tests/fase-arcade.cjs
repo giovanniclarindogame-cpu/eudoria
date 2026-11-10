@@ -53,6 +53,10 @@ const run=(p,fn,arg)=>p.evaluate(fn,arg);
    const st=document.querySelector('#stick').getBoundingClientRect().top;return{y1,y2,bt:ArcadeAPI.BAND_TOP,bb:ArcadeAPI.BAND_BOT,bottom:oy+ArcadeAPI.BAND_BOT*scale,top:oy+ArcadeAPI.BAND_TOP*scale,stick:st,hud:window.battleTop?battleTop():0}});
   ok(fl.y1<=fl.bb&&fl.y2>=fl.bt,'os personagens só andam na faixa de chão mais alta (não descem até o fim da tela)');
   ok(fl.bottom<=fl.stick+1&&fl.top>=fl.hud-1,`a faixa de luta fica entre o HUD e o analógico/skills (${Math.round(fl.top)}–${Math.round(fl.bottom)} px; analógico em ${Math.round(fl.stick)})`);
+  // o chão desenhado termina logo abaixo da faixa onde se anda (abaixo é primeiro plano escuro)
+  const fb=await p.evaluate(()=>{const c=groundCache,g=c.getContext('2d');const avg=(y)=>{const d=g.getImageData(900,y,600,1).data;let t=0;for(let i=0;i<d.length;i+=4)t+=d[i]+d[i+1]+d[i+2];return t/(d.length/4)};const bb=ArcadeAPI.BAND_BOT;
+   return{floor:avg(bb-30),below:avg(bb+70),deep:avg(bb+250)}});
+  ok(fb.floor>fb.below&&fb.deep<fb.floor-25,`o chão acaba onde o personagem anda: abaixo da faixa o fundo é escuro (chão ${Math.round(fb.floor)}, abaixo ${Math.round(fb.below)}, fundo ${Math.round(fb.deep)})`);
   const names=await p.evaluate(()=>ArcadeAPI.S.mobs.map(a=>a.label));
   ok(names.every(n=>n==='Ninja Sem Rosto'),'monstros do universo do chefe (Vhalor → ninjas sem rosto)');
   // limpar onda: dá "AVANTE" e solta comida depois da onda 2

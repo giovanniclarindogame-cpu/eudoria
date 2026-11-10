@@ -153,3 +153,5 @@ O equilíbrio da dificuldade é estimado (testado só com IA e simulações): aj
 
 == CRUZADA ARCADE · FAIXA DE CHÃO MAIS ALTA ==
 - Os personagens andam numa faixa (y 214 a 350 do mundo) e a câmera a posiciona logo acima do analógico/skills (medido pelo botão do analógico em cada tamanho de tela), então a luta não fica mais por baixo dos controles. O mundo ficou mais alto (700) para o chão continuar cobrindo a tela abaixo da faixa.
+
+- Cruzada Arcade: o chão desenhado agora termina na beirada logo abaixo da faixa de luta (BAND_BOT + 16); abaixo dela há um primeiro plano escuro com silhuetas fracas (o chão não continua por baixo do analógico e das skills).

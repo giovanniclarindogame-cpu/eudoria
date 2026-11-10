@@ -337,17 +337,24 @@ function buildStageBG(def){
  // astro / orbe do cenário
  for(let x=260;x<WORLD_W;x+=900){const rad=34+r()*18;const gr=g.createRadialGradient(x,70,6,x,70,rad*2.2);gr.addColorStop(0,th.orb+'cc');gr.addColorStop(1,th.orb+'00');g.fillStyle=gr;g.fillRect(x-rad*2.2,0,rad*4.4,160);g.fillStyle=th.orb;g.globalAlpha=.85;g.beginPath();g.arc(x,70,rad*.55,0,TAU);g.fill();g.globalAlpha=1}
  (DECO[th.deco]||DECO.spires)(g,WORLD_W,WORLD_H,th,r);
- // chão
- const y0=WORLD_H*GROUND,gr=g.createLinearGradient(0,y0,0,WORLD_H);gr.addColorStop(0,th.gnd[0]);gr.addColorStop(1,th.gnd[1]);g.fillStyle=gr;g.fillRect(0,y0,WORLD_W,WORLD_H-y0);
+ // chão: só até onde os personagens andam (a faixa de luta), com uma beirada; abaixo dela é um primeiro plano escuro
+ const y0=WORLD_H*GROUND,yb=BAND_BOT+16,fh=yb-y0;
+ const gr=g.createLinearGradient(0,y0,0,yb);gr.addColorStop(0,th.gnd[0]);gr.addColorStop(1,th.gnd[1]);g.fillStyle=gr;g.fillRect(0,y0,WORLD_W,fh);
  g.fillStyle=th.line+'66';g.fillRect(0,y0,WORLD_W,3);
- for(let i=1;i<6;i++){const y=y0+(WORLD_H-y0)*i/6;g.fillStyle=th.line+(i%2?'18':'10');g.fillRect(0,y,WORLD_W,1)}
- for(let x=0;x<WORLD_W;x+=120){g.fillStyle=th.line+'14';g.fillRect(x+((x/120)%2)*40,y0+4,2,WORLD_H-y0)}
- for(let i=0;i<260;i++){g.fillStyle=th.line+'22';g.fillRect(r()*WORLD_W,y0+8+r()*(WORLD_H-y0-12),2+r()*5,1)}
+ for(let i=1;i<6;i++){const y=y0+fh*i/6;g.fillStyle=th.line+(i%2?'18':'10');g.fillRect(0,y,WORLD_W,1)}
+ for(let x=0;x<WORLD_W;x+=120){g.fillStyle=th.line+'14';g.fillRect(x+((x/120)%2)*40,y0+4,2,fh-4)}
+ for(let i=0;i<220;i++){g.fillStyle=th.line+'22';g.fillRect(r()*WORLD_W,y0+8+r()*(fh-12),2+r()*5,1)}
  // marcos de onda e do chefe (faixas no chão)
- for(const x of TRIG){g.fillStyle=th.line+'33';g.fillRect(x-2,y0+4,4,WORLD_H-y0-4)}
- g.fillStyle='#ffffff22';g.fillRect(BOSS_TRIG-3,y0+4,6,WORLD_H-y0-4);
+ for(const x of TRIG){g.fillStyle=th.line+'33';g.fillRect(x-2,y0+4,4,fh-4)}
+ g.fillStyle='#ffffff22';g.fillRect(BOSS_TRIG-3,y0+4,6,fh-4);
+ // beirada do chão e primeiro plano escuro abaixo dela (o chão não continua por baixo dos controles)
+ g.fillStyle=th.line+'aa';g.fillRect(0,yb,WORLD_W,3);
+ const face=g.createLinearGradient(0,yb+3,0,yb+22);face.addColorStop(0,th.gnd[1]);face.addColorStop(1,'#0a0f14');g.fillStyle=face;g.fillRect(0,yb+3,WORLD_W,19);
+ const fg=g.createLinearGradient(0,yb+22,0,WORLD_H);fg.addColorStop(0,'#0a0f14');fg.addColorStop(1,'#04070a');g.fillStyle=fg;g.fillRect(0,yb+22,WORLD_W,WORLD_H-yb-22);
+ for(let i=0;i<45;i++){const x=r()*WORLD_W,w=40+r()*110,h=14+r()*34;g.fillStyle=th.mid;g.globalAlpha=.32;g.beginPath();g.moveTo(x,yb+60);g.lineTo(x+w*.5,yb+60-h);g.lineTo(x+w,yb+60);g.fill();g.globalAlpha=1}   // silhuetas do primeiro plano
+ g.fillStyle=th.line+'22';g.fillRect(0,yb+24,WORLD_W,1);
  // luz de borda
- const v=g.createLinearGradient(0,0,0,WORLD_H);v.addColorStop(0,'#00000055');v.addColorStop(.5,'#00000000');v.addColorStop(1,'#00000066');g.fillStyle=v;g.fillRect(0,0,WORLD_W,WORLD_H);
+ const v=g.createLinearGradient(0,0,0,WORLD_H);v.addColorStop(0,'#00000055');v.addColorStop(.45,'#00000000');v.addColorStop(1,'#00000000');g.fillStyle=v;g.fillRect(0,0,WORLD_W,WORLD_H);
  return cv;
 }
 
