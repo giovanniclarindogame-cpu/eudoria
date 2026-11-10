@@ -11,7 +11,7 @@
 (function(){
 const KEY='eldoria.arcade.v1';
 const WORLD_W=4400,WORLD_H=700,GROUND=189/700;     // o cenário (prédios, céu) acaba em y=189; abaixo é chão até o fim da tela (mundo mais alto para cobrir abaixo da faixa de luta)
-const BAND_TOP=214,BAND_BOT=350;                  // faixa onde os personagens andam (mais alta que o chão todo: o analógico e as skills ficam abaixo dela)
+const BAND_TOP=214,BAND_BOT=374,BAND_REF=350;   // BAND_REF = fundo da faixa antes do aumento (o topo da faixa continua no mesmo lugar da tela)                  // faixa onde os personagens andam (mais alta que o chão todo: o analógico e as skills ficam abaixo dela)
 const BAND_MID=(BAND_TOP+BAND_BOT)/2;
 const TRIG=[760,1460,2160,2860];               // pontos onde cada onda começa
 const BOSS_TRIG=3560;
@@ -518,7 +518,7 @@ updateArenaCamera=function(){
  const key=cw+'x'+ch;
  if(key!==S.feetKey){S.feetKey=key;const st=document.querySelector('#stick');S.feetY=st?st.getBoundingClientRect().top-14:ch*.68}
  const bandH=(BAND_BOT-BAND_TOP)*scale;
- const feet=clamp(S.feetY||ch*.68,top+bandH+24,ch-40);
+ const feet=clamp((S.feetY||ch*.68)+(BAND_BOT-BAND_REF)*scale,top+bandH+24,ch-24);
  oy=Math.min(top,feet-BAND_BOT*scale);
 };
 const prevHUD=modeHUD;
