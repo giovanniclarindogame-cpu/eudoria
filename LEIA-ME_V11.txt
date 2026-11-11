@@ -164,3 +164,15 @@ O equilíbrio da dificuldade é estimado (testado só com IA e simulações): aj
 - Prova: 152 quadros de luta por papel (herói e inimigo), com todas as habilidades em 8 direções, vida baixa e golpe sofrido, ficaram IDÊNTICOS (hash) antes e depois, com relógio e aleatoriedade congelados. Nenhum erro de carregamento em todos os heróis e modos.
 - Mantidos por falta de prova de que não são usados: reforged_v10/eclipse-1.webp e eclipse-3.webp (Gojo) e astral_v18/portrait.webp (Goku).
 - Total de imagens baixadas no jogo: 323 -> 273; pasta assets: 62 MB -> 53 MB.
+
+=== COMBATE V3 + HUD V3 ===
+- Cada herói: 3 habilidades + 1 ultimate + 1 dash próprio. Sem ataque normal e sem defesa.
+- Layout: botão DASH no lugar do soco; habilidades em meia-lua ao redor dele (1ª = rápida, funciona como o golpe básico; última = ultimate). Teclas 1-4 e Espaço (dash).
+- Dash: Goku = Passo Instantâneo; Kakashi = recuo deixando imagem residual; Gojo = teleporte livre; Ichigo = Shunpo; Rengoku = Investida Solar; Gon = Salto Selvagem; Corsário = Catapulta Humana; Cavaleiro = Investida Galopante (sem custo); Herdeiro e Alquimista = deslize. Recarga 3,5-4 s, com 0,28 s de invulnerabilidade.
+- Kakashi: Lâmina Rápida (corte duplo) · Clone de Fumaça (tocar de novo troca de lugar com o clone) · Olho Copiador (NÃO copia ultimate) · ult Golpe Trovão (Chidori).
+- Goku: sem Carregar Aura. Usar habilidades enche o ki; no máximo ele entra em Modo Poder por 4 s (habilidades mais fortes), depois a barra volta a zero e enche de novo.
+- Sobrevivência: a 1ª habilidade e o dash já nascem liberados; níveis 2-4 dão pontos para as outras 2 habilidades e a ultimate; níveis 5-10 dão vida/dano.
+- Chefes: textos reescritos (sem "quebra de guarda" do jogador; guarda é do chefe).
+- HUD: barra de vida (e de recurso) em cima de cada lutador; cartões compactos nos cantos (você / rival) e tempo no meio; com ≤25% de vida as bordas piscam em vermelho; analógico flutuante na metade esquerda (o desenho fixo vira dica).
+- Arquivos: js/combate_v3.js, css/combate_v3.css, js/hud_v3.js, css/hud_v3.css. "?legacy=1" na URL volta ao combate antigo.
+- Testes: tests/combate-v3.cjs, tests/hud-v3.cjs. Balanceamento Kakashi×Goku simulado: ~50/50.

@@ -35,7 +35,7 @@ const rect=s=>{const e=document.querySelector(s);if(!e)return null;const r=e.get
   const bt=await p.evaluate(()=>{const q=s=>{const e=document.querySelector(s);if(!e)return null;const r=e.getBoundingClientRect();return{x:r.left,y:r.top,r:r.right,b:r.bottom}};
    return{hud:q('.hud'),team:q('#teamHud'),stick:q('#stick'),skills:q('.equipped'),act:q('.action-group'),atk:q('#attack'),def:q('#defend'),dod:q('#dodge'),pause:q('#pauseBtn'),zoom:q('#arenaZoom'),iw:innerWidth,ih:innerHeight,sw:document.documentElement.scrollWidth}});
   const hit=(a,c)=>a&&c&&a.x<c.r-1&&a.r>c.x+1&&a.y<c.b-1&&a.b>c.y+1;
-  const pairs=[['stick','skills'],['stick','act'],['skills','act'],['hud','skills'],['hud','act'],['hud','stick'],['pause','zoom'],['skills','pause'],['act','pause'],['skills','zoom'],['atk','dod'],['dod','def']];
+  const pairs=[['stick','skills'],['stick','act'],['hud','skills'],['hud','act'],['hud','stick'],['pause','zoom'],['skills','pause'],['act','pause'],['skills','zoom'],['atk','dod'],['dod','def']];
   const bad=pairs.filter(([a,c])=>hit(bt[a],bt[c])).map(x=>x.join('×'));
   ok(bad.length===0,`${tag}: batalha sem sobreposição ${bad.join(',')}`);
   ok(['hud','stick','skills','act','pause','zoom'].every(k=>inside2(bt[k],bt)),`${tag}: batalha — HUD e controles dentro da tela`);

@@ -20,10 +20,10 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
   reset();b.x=p.x+130;reworkState(p).copy={id:ult};rwCast(p,p.kit[4],true);
   return out});
  await pg.waitForTimeout(300);
- ok(r.hitUlt,'ultimate do rival é copiada ao ser atingido');
+ ok(!r.hitUlt,'ultimate do rival NÃO é copiada (Olho Copiador)');
  ok(r.seeSpecial,'habilidade do rival é copiada só de ver o lançamento');
  ok(r.seeNoDamage,'sem tomar dano ao copiar de longe');
- ok(r.ultReady,'(preparo) rival tem recurso para a ultimate');ok(r.seeUlt,'ultimate do rival é copiada ao ver o lançamento');
+ ok(r.ultReady,'(preparo) rival tem recurso para a ultimate');ok(!r.seeUlt,'ultimate do rival não é copiada ao ver o lançamento');
  ok(r.farNoCopy,'rival longe demais não é copiado');
  ok(r.eyeClosedNoCopy,'com o olho fechado não copia');
  ok(errs.length===0,'sem erros de JavaScript '+errs.join('|'));

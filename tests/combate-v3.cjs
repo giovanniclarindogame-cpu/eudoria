@@ -11,6 +11,8 @@ const FIGHT=(p,s)=>p.evaluate(s=>{matchMode='1v1';battleActivity='casual';accoun
   const r=await p.evaluate(()=>{const sk=[...document.querySelectorAll('#equipped .skill')];const vis=sk.filter(e=>!e.hidden&&getComputedStyle(e).display!=='none');const box=e=>e.getBoundingClientRect();const a=document.getElementById('attack').getBoundingClientRect();
    const inside=vis.every(e=>{const q=box(e);return q.left>=0&&q.right<=innerWidth&&q.top>=0&&q.bottom<=innerHeight});
    return {n:vis.length,ult:vis.at(-1)===sk[5],inside,dodge:getComputedStyle(document.getElementById('dodge')).display,defend:getComputedStyle(document.getElementById('defend')).display,label:document.getElementById('attack').textContent.trim(),dashId:V3API.dashIdOf(p),basic:basic(p),cdp:skills[p.kit[V3API.V2[p.skin].s[0]]].cd}});
+  const ov=await p.evaluate(()=>{const els=[...document.querySelectorAll('#equipped .skill:not(.v3-hidden)'),document.getElementById('attack')].map(e=>e.getBoundingClientRect());let bad=0;for(let i=0;i<els.length;i++)for(let j=i+1;j<els.length;j++){const a=els[i],b=els[j];if(Math.hypot((a.left+a.right-b.left-b.right)/2,(a.top+a.bottom-b.top-b.bottom)/2)<(a.width+b.width)/2-2)bad++}return bad});
+  ok(ov===0,`herói ${s}: botões da meia-lua e dash não se sobrepõem`);
   ok(r.n===4&&r.ult,`herói ${s}: 3 habilidades + ultimate na meia-lua`);
   ok(r.inside,`herói ${s}: botões dentro da tela`);
   ok(r.dodge==='none'&&r.defend==='none'&&r.label.includes('DASH'),`herói ${s}: sem esquiva/defesa, botão DASH`);

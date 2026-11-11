@@ -67,7 +67,7 @@ document.addEventListener('pointerdown',e=>{
  stick.style.setProperty('bottom','auto','important');
  stick.classList.add('floating');
  e.preventDefault();e.stopPropagation();
- stickID=e.pointerId;stick.setPointerCapture(e.pointerId);stickMove(e);
+ stickID=e.pointerId;try{stick.setPointerCapture(e.pointerId)}catch{}stickMove(e);
 },true);
 for(const type of ['pointerup','pointercancel','lostpointercapture'])stick.addEventListener(type,e=>{if(e.pointerId===undefined||stickID===null||e.pointerId===stickID||true){setTimeout(()=>{if(stickID===null)home()},0)}});
 window.HudV3={isFighter,resourceOf,home};
