@@ -35,7 +35,7 @@ const V2={
 const PRIMARY_CD={0:2.6,1:1.3,2:1.8,3:1.8,4:2.6,5:1.8,6:1.6,7:1.8,8:1.6,9:1.8};
 const CD_MUL={0:1.2,1:.5};   // equilíbrio (simulação Kakashi × Goku)
 const DASH_CD=4,DASH_INV=.28,GENERIC_DASH_CD=3.5;
-const ARC=[null,190,158,82],DASH_ANG=124;   // a habilidade 1 fica no centro; 2, 3 e ultimate em meia-lua; o dash pequeno no alto à esquerda                 // ângulos (graus) dos 4 botões da meia-lua ao redor do dash
+const ARC=[null,190,158,124],DASH_ANG=72;   // habilidade 1 no centro; 2, 3 e ultimate em meia-lua; o dash pequeno logo acima dela, à direita                 // ângulos (graus) dos 4 botões da meia-lua ao redor do dash
 const ARC_R=96;
 
 const isHero=a=>!!a&&!a.boss&&!a.mob&&!a.rmob&&!a.trainingDummy&&Array.isArray(a.kit)&&a.kit.length===6&&!!CHAMPIONS[a.skin]&&a.kit.every((id,i)=>id===CHAMPIONS[a.skin].kit[i]);
@@ -213,7 +213,7 @@ function layout(){
   b.addEventListener('pointerdown',e=>{e.preventDefault();if(state!=='fight'||!p)return;if(!doDash(p)&&state==='fight'){const cd=dashCooldown(p);if(cd>0)toast('Dash em recarga: '+cd.toFixed(1)+'s')}});
  }
  const d=document.getElementById('attack');
- {const th=DASH_ANG*Math.PI/180;d.style.setProperty('--dx',(ARC_R*Math.cos(th)).toFixed(1)+'px');d.style.setProperty('--dy',(-ARC_R*Math.sin(th)).toFixed(1)+'px')}
+ {const th=DASH_ANG*Math.PI/180;d.style.setProperty('--dx',(84*Math.cos(th)).toFixed(1)+'px');d.style.setProperty('--dy',(-84*Math.sin(th)).toFixed(1)+'px')}
  const id=dashIdOf(p),vis=id!=null?id:(p.skin===1||p.skin===6?p.kit[3]:null);
  d.innerHTML=(vis!=null?icon(vis):'<span class="skill-art v3-arrow"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 20l9-9 4 4 9-9M19 6h8v8"/></svg></span>')+'<small>DASH</small><span class="v3-cd" aria-hidden="true"></span>';
  d.dataset.hero=String(p.skin);
