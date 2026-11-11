@@ -1,10 +1,20 @@
-/* HUD v3: cartões compactos nos cantos, tempo no centro, borda vermelha com pouca vida, analógico flutuante */
-body.v3 #battle .hud{background:none!important;border:0!important;box-shadow:none!important;pointer-events:none}
-body.v3 #battle .hud .fighterhud{position:absolute!important;top:6px!important;width:min(34vw,290px)!important;background:linear-gradient(90deg,#071b2de6,#0b2a3fb0)!important;border:1px solid #5fd2ee88!important;border-radius:8px!important}
-body.v3 #battle .hud .fighterhud:not(.enemy){left:8px!important;right:auto!important}
-body.v3 #battle .hud .fighterhud.enemy{right:8px!important;left:auto!important;background:linear-gradient(270deg,#2d0b14e6,#3f1a22b0)!important;border-color:#ee7c7c88!important}
-body.v3 #battle .hud .mid-hud{position:absolute!important;left:50%!important;top:4px!important;transform:translateX(-50%);min-width:70px;background:#06141cb0!important;border-radius:0 0 10px 10px;padding:2px 10px!important}
-body.v3 #battle #pauseBtn,body.v3 #battle #arenaZoom{top:60px!important}
+/* HUD v3: cartões quadrados nos cantos, tempo no centro, borda vermelha com pouca vida, analógico flutuante */
+body.v3 #battle .hud{background:none!important;border:0!important;box-shadow:none!important;pointer-events:none;padding:0!important;min-height:0!important}
+body.v3 #battle .hud .fighterhud{--fc:#5fd2ee;position:absolute!important;top:8px!important;box-sizing:border-box;width:min(34vw,300px)!important;max-width:none!important;padding:7px 9px 7px 56px!important;background:#08141ef0!important;border:2px solid var(--fc)!important;border-radius:2px!important;box-shadow:0 0 0 2px #05090e,0 3px 12px #0008!important;clip-path:none!important}
+body.v3 #battle .hud .fighterhud:not(.enemy){left:10px!important;right:auto!important}
+body.v3 #battle .hud .fighterhud.enemy{--fc:#ee7c7c;right:10px!important;left:auto!important;padding:7px 56px 7px 9px!important;background:#1a0c12f0!important}
+body.v3 #battle .hud .fighterhud .arena-portrait{width:38px!important;height:38px!important;top:50%!important;left:8px!important;right:auto!important;transform:translateY(-50%)!important;border:2px solid var(--fc)!important;border-radius:2px!important;clip-path:none!important;object-fit:cover;object-position:50% 18%;background:#15283a}
+body.v3 #battle .hud .fighterhud.enemy .arena-portrait{left:auto!important;right:8px!important;transform:translateY(-50%) scaleX(-1)!important}
+body.v3 #battle .hud .fighterhud .title{margin-bottom:4px!important}
+body.v3 #battle .hud .fighterhud .bar{border-radius:1px!important;margin:0!important}
+body.v3 #battle .hud .fighterhud .resources{margin-top:3px!important;gap:3px!important}
+body.v3 #battle .hud .fighterhud .resources .bar{height:4px!important}
+body.v3 #battle #resText,body.v3 #battle .botkit,body.v3 #battle .arena-caption{display:none!important}
+body.v3 #battle .hud .mid-hud{position:absolute!important;left:50%!important;top:8px!important;transform:translateX(-50%);min-width:76px;background:#08141ef0!important;border:2px solid #c9a64a!important;border-radius:2px!important;padding:3px 10px!important;box-shadow:0 0 0 2px #05090e;text-align:center}
+body.v3 #battle .hud .mid-hud small{display:none}
+body.v3 #battle .hud #pauseBtn,body.v3 #battle #arenaZoom{top:8px!important;right:auto!important;width:34px!important;height:34px!important}
+body.v3 #battle .hud #pauseBtn{left:calc(50vw/var(--ui,1) + 50px)!important}
+body.v3 #battle #arenaZoom{left:calc(50vw/var(--ui,1) - 84px)!important}
 body.v3 #battle #lowHpFx{position:absolute;inset:0;pointer-events:none;z-index:6;opacity:0;box-shadow:inset 0 0 70px 18px #ff1a1ac0,inset 0 0 18px 4px #ff4d4d}
 body.v3 #battle #lowHpFx.on{animation:lowHp .85s ease-in-out infinite}
 @keyframes lowHp{0%,100%{opacity:.15}50%{opacity:.95}}
