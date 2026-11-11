@@ -66,7 +66,7 @@ updateUI=function(){
 
 /* analógico flutuante */
 const stick=document.getElementById('stick');
-function home(){stick.style.removeProperty('left');stick.style.removeProperty('top');stick.style.removeProperty('bottom');stick.classList.remove('floating')}
+function home(){stick.style.removeProperty('left');stick.style.removeProperty('top');stick.style.removeProperty('bottom');stick.classList.remove('floating');window.V3Layout?.applyStick?.()}
 document.addEventListener('pointerdown',e=>{
  if(state!=='fight'||stickID!==null||e.pointerType==='mouse')return;
  const t=e.target;

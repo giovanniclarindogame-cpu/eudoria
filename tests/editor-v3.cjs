@@ -1,0 +1,45 @@
+// Editor de layout dentro da batalha: abrir, arrastar, redimensionar, salvar, exportar/importar, restaurar.
+const { chromium } = require('playwright');
+const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else console.log('ok  -',m)};
+(async()=>{
+ const br=await chromium.launch();const ctx=await br.newContext({viewport:{width:844,height:390},hasTouch:true});const p=await ctx.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
+ await p.goto('http://localhost:8000/index.html');await p.waitForTimeout(900);await p.getByText('ENTRAR',{exact:true}).click();await p.fill('input','Giovanni');await p.getByText('Continuar',{exact:true}).click();await p.waitForTimeout(1400);
+ const go=()=>p.evaluate(()=>{matchMode='1v1';start();state='fight';count=0;document.getElementById('countdown').style.display='none'});
+ await go();await p.waitForTimeout(500);
+ const pos=k=>p.evaluate(k=>{const e=k==='dash'?document.getElementById('attack'):document.querySelector(`#equipped .skill[data-arc="${k}"]`);const r=e.getBoundingClientRect();return[r.left+r.width/2,r.top+r.height/2,r.width]},k);
+ ok(await p.evaluate(()=>getComputedStyle(document.getElementById('editBtn')).display!=='none'),'botão de editor existe na batalha');
+ await p.click('#editBtn');await p.waitForTimeout(200);
+ ok(await p.evaluate(()=>state==='paused'&&!document.getElementById('editPanel').hidden),'abrir o editor pausa a luta e mostra o painel');
+ const a=await pos('0');
+ await p.mouse.move(a[0],a[1]);await p.mouse.down();await p.mouse.move(a[0]-60,a[1]-40,{steps:5});await p.mouse.up();
+ const b=await pos('0');
+ ok(Math.abs((b[0]-a[0])+60)<4&&Math.abs((b[1]-a[1])+40)<4,'arrastar move a habilidade 1');
+ ok(await p.evaluate(()=>document.getElementById('epName').textContent==='Habilidade 1'),'botão selecionado aparece no painel');
+ await p.evaluate(()=>{const s=document.getElementById('epSize');s.value=90;s.dispatchEvent(new Event('input',{bubbles:true}))});
+ ok((await pos('0'))[2]>=88,'controle de tamanho aumenta o botão');
+ const d=await pos('dash');await p.mouse.move(d[0],d[1]);await p.mouse.down();await p.mouse.move(d[0]-30,d[1]+10,{steps:4});await p.mouse.up();
+ const st=await p.evaluate(()=>{const r=document.getElementById('stick').getBoundingClientRect();return[r.left+r.width/2,r.top+r.height/2]});
+ await p.mouse.move(st[0],st[1]);await p.mouse.down();await p.mouse.move(st[0]+50,st[1]-30,{steps:4});await p.mouse.up();
+ const st2=await p.evaluate(()=>{const r=document.getElementById('stick').getBoundingClientRect();return[r.left+r.width/2,r.top+r.height/2]});
+ ok(Math.abs(st2[0]-st[0]-50)<4&&Math.abs(st2[1]-st[1]+30)<4,'analógico também pode ser movido');
+ ok(await p.evaluate(()=>joy.x===0&&joy.y===0),'arrastar no editor não move o personagem');
+ await p.click('[data-a="save"]');
+ const code=await p.evaluate(()=>V3Editor.code());
+ ok(code.startsWith('ELDORIA-LAYOUT-V3:'),'gera código de layout');
+ await p.click('[data-a="close"]');await p.waitForTimeout(200);
+ ok(await p.evaluate(()=>state==='fight'),'fechar o editor retoma a luta');
+ const saved0=await pos('0');
+ await p.reload();await p.waitForTimeout(1200);await p.getByText('ENTRAR',{exact:true}).click().catch(()=>{});await p.waitForTimeout(1200);
+ await go();await p.waitForTimeout(600);
+ const again=await pos('0');
+ ok(Math.abs(again[0]-saved0[0])<3&&Math.abs(again[1]-saved0[1])<3&&Math.abs(again[2]-saved0[2])<2,'layout salvo é aplicado na próxima batalha');
+ // importar código
+ await p.click('#editBtn');await p.evaluate(()=>{localStorage.removeItem('eldoria.layout.v3')});
+ await p.click('[data-a="reset"]');await p.waitForTimeout(100);
+ const def=await pos('0');ok(Math.abs(def[0]-again[0])>20||Math.abs(def[2]-again[2])>5,'Padrão restaura posição e tamanho');
+ await p.click('[data-a="paste"]');await p.fill('#epCode',code);await p.click('[data-a="paste"]');
+ const imp=await pos('0');ok(Math.abs(imp[0]-again[0])<3&&Math.abs(imp[2]-again[2])<2,'colar código aplica o layout');
+ await p.click('[data-a="close"]');
+ ok(errs.length===0,'sem erros '+errs.slice(0,2));
+ await br.close();
+})();

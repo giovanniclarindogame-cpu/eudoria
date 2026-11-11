@@ -231,10 +231,11 @@ function refresh(){
  const el=eq&&eq.querySelectorAll('.skill')[1];
  if(el&&p.skin===1){const sw=hasClone(p);el.classList.toggle('v3-swap',sw)}
 }
+window.V3Relayout=()=>{try{layout()}catch{}};
 const prevStart=start;
 start=function(){
  const r=prevStart.apply(this,arguments);
- try{layout()}catch(e){console.error('[Eldoria] layout v3',e)}
+ try{layout();window.V3Layout?.apply()}catch(e){console.error('[Eldoria] layout v3',e)}
  return r;
 };
 const prevUI=updateUI;

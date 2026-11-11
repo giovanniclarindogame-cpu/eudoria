@@ -176,3 +176,4 @@ O equilíbrio da dificuldade é estimado (testado só com IA e simulações): aj
 - HUD: barra de vida (e de recurso) em cima de cada lutador; cartões compactos nos cantos (você / rival) e tempo no meio; com ≤25% de vida as bordas piscam em vermelho; analógico flutuante na metade esquerda (o desenho fixo vira dica).
 - Arquivos: js/combate_v3.js, css/combate_v3.css, js/hud_v3.js, css/hud_v3.css. "?legacy=1" na URL volta ao combate antigo.
 - Testes: tests/combate-v3.cjs, tests/hud-v3.cjs. Balanceamento Kakashi×Goku simulado: ~50/50.
+- Editor de layout (botão ✎ ao lado do tempo, durante a luta): pausa, arraste botões/analógico, ajuste o tamanho, Salvar (fica no aparelho), Copiar código (para me enviar) e Colar código. Arquivos: js/editor_v3.js, css/editor_v3.css, tests/editor-v3.cjs.

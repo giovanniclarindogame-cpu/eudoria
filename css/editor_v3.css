@@ -1,0 +1,17 @@
+body.v3 #battle .hud #editBtn{position:absolute;pointer-events:auto;zoom:var(--ui,1);top:8px;left:calc(50vw/var(--ui,1) - 84px);width:34px;height:34px;border-radius:9px;border:2px solid #8aa6c8;background:#0b1b2de6;color:#dbe9ff;font-size:17px;line-height:1;display:grid;place-items:center;padding:0;z-index:8}
+body.v3 #battle:not([data-activity="training"]) .hud #editBtn{opacity:.85}
+body.v3 #battle #editPanel{position:absolute;zoom:var(--ui,1);left:44%;bottom:8px;transform:translateX(-50%);z-index:30;background:#08141efa;border:2px solid #e8c787;border-radius:4px;padding:8px 10px;display:grid;gap:6px;width:min(66vw/var(--ui,1),400px);box-shadow:0 0 0 2px #05090e,0 6px 22px #000a;pointer-events:auto}
+body.v3 #battle #editPanel[hidden]{display:none}
+body.v3 #battle #editPanel .ep-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;justify-content:space-between;font-size:11px;color:#dbe9ff}
+body.v3 #battle #editPanel button{font-size:11px;padding:5px 8px;border:1px solid #6f8bb0;border-radius:3px;background:#17304a;color:#fff}
+body.v3 #battle #editPanel button[data-a="save"]{background:#2d6a3f;border-color:#6fd08c}
+body.v3 #battle #editPanel textarea{width:100%;font:10px monospace;background:#050b12;color:#cfe;border:1px solid #456;border-radius:3px;resize:none}
+body.v3 #battle #editPanel input[type=range]{width:120px;vertical-align:middle}
+body.v3 #battle.editing #controls .skill,body.v3 #battle.editing #attack,body.v3 #battle.editing #stick{outline:2px dashed #e8c787;outline-offset:2px;touch-action:none}
+body.v3 #battle.editing .ed-sel{outline:3px solid #7dffb0!important;outline-offset:3px}
+body.v3 #battle.editing #stick{opacity:1}
+/* posição e tamanho personalizáveis (v3 editável) */
+body.v3 #battle #equipped .skill{--s:var(--sz,var(--skill-size));width:var(--s)!important;height:var(--s)!important;left:calc(var(--dx,0px) - var(--s)/2)!important;top:calc(var(--dy,0px) - var(--s)/2)!important}
+body.v3 #battle #equipped .skill[data-arc="0"]{--s:var(--sz,var(--atk))}
+body.v3 #battle #equipped .skill[data-arc="3"]{--s:var(--sz,56px)}
+body.v3 #battle .action-group #attack.v3-dash{--s:var(--sz,44px);width:var(--s)!important;height:var(--s)!important;left:calc(var(--dx,0px) - var(--s)/2)!important;top:calc(var(--dy,0px) - var(--s)/2)!important}
