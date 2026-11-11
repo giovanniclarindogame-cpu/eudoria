@@ -39,7 +39,7 @@ const rect=s=>{const e=document.querySelector(s);if(!e)return null;const r=e.get
   const bad=pairs.filter(([a,c])=>hit(bt[a],bt[c])).map(x=>x.join('×'));
   ok(bad.length===0,`${tag}: batalha sem sobreposição ${bad.join(',')}`);
   ok(['hud','stick','skills','act','pause','zoom'].every(k=>inside2(bt[k],bt)),`${tag}: batalha — HUD e controles dentro da tela`);
-  const edge=bt.iw-bt.act.r,expEdge=78*exp;
+  const edge=bt.iw-bt.act.r,expEdge=(72+36)*exp;
   ok(Math.abs(edge-expEdge)<4,`${tag}: batalha — ações ancoradas no canto direito (${edge.toFixed(0)}px ≈ ${expEdge.toFixed(0)}px)`);
   ok(bt.sw<=bt.iw+1,`${tag}: batalha sem rolagem horizontal`);
   ok(errs.length===0,`${tag}: sem erros de JavaScript ${errs.join('|')}`);

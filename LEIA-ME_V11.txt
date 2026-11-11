@@ -167,7 +167,7 @@ O equilíbrio da dificuldade é estimado (testado só com IA e simulações): aj
 
 === COMBATE V3 + HUD V3 ===
 - Cada herói: 3 habilidades + 1 ultimate + 1 dash próprio. Sem ataque normal e sem defesa.
-- Layout: botão DASH no lugar do soco; habilidades em meia-lua ao redor dele (1ª = rápida, funciona como o golpe básico; última = ultimate). Teclas 1-4 e Espaço (dash).
+- Layout: habilidade 1 grande no canto (golpe básico), dash pequeno no alto à esquerda dela, habilidades 2 e 3 e ultimate em meia-lua. Teclas 1-4 e Espaço (dash).
 - Dash: Goku = Passo Instantâneo; Kakashi = recuo deixando imagem residual; Gojo = teleporte livre; Ichigo = Shunpo; Rengoku = Investida Solar; Gon = Salto Selvagem; Corsário = Catapulta Humana; Cavaleiro = Investida Galopante (sem custo); Herdeiro e Alquimista = deslize. Recarga 3,5-4 s, com 0,28 s de invulnerabilidade.
 - Kakashi: Lâmina Rápida (corte duplo) · Clone de Fumaça (tocar de novo troca de lugar com o clone) · Olho Copiador (NÃO copia ultimate) · ult Golpe Trovão (Chidori).
 - Goku: sem Carregar Aura. Usar habilidades enche o ki; no máximo ele entra em Modo Poder por 4 s (habilidades mais fortes), depois a barra volta a zero e enche de novo.
