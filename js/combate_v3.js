@@ -162,7 +162,7 @@ rwCommit=function(a,q){
  return prevCommit(a,q);
 };
 const prevBeginCharge=rwBeginCharge;
-rwBeginCharge=function(a,angle,slot){if(isHero(a)&&a.skin===0)return false;return prevBeginCharge(a,angle,slot)};
+rwBeginCharge=function(a,angle,slot){if(isHero(a)&&a.skin===0&&slot===4)return false;return prevBeginCharge(a,angle,slot)};
 const prevAstralStage=reworkState;
 
 /* ------------------------------ passo: recarga do dash, Modo Poder do Goku, Barreira passiva do Gojo ------------------------------ */
@@ -250,6 +250,8 @@ document.getElementById('equipped')?.addEventListener('pointerdown',e=>{
  if(i===1&&hasClone(p)&&kakashiSwap(p)){e.stopPropagation();e.preventDefault()}
 },true);
 
+// mira mais sensível: o botão fica perto da borda, então basta arrastar pouco
+document.getElementById('equipped')?.addEventListener('pointerdown',()=>{if(aimGesture)aimGesture.stickRadius=Math.min(aimGesture.stickRadius||46,44)});
 // textos
 const pauseP=document.querySelector('#pause .dialog p');
 if(pauseP)pauseP.textContent='O dash (botão grande) tem um instante de invulnerabilidade. As habilidades ficam em meia-lua ao redor dele: a 1ª é a mais rápida, a última é a ultimate. Arraste uma habilidade para escolher a direção.';
