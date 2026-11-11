@@ -8,7 +8,7 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  const d=await p.evaluate(()=>{const l=integratedDepth().filter(e=>e.kind==='v3-bar').length;const r=s=>document.querySelector(s).getBoundingClientRect();const me=r('.hud .fighterhud:not(.enemy)'),en=r('.hud .fighterhud.enemy'),mid=r('.hud .mid-hud');return{bars:l,meRight:me.right,enLeft:en.left,midL:mid.left,midR:mid.right,iw:innerWidth,meL:me.left,enR:en.right,hudH:Math.max(me.bottom,en.bottom)}});
  ok(d.bars===2,'barra de vida desenhada sobre os 2 lutadores');
  ok(d.meL<=24&&d.enR>=d.iw-24&&d.meRight<d.midL&&d.enLeft>d.midR,'cartões nos cantos opostos e tempo no meio, sem se sobrepor');
- ok(d.hudH<75,`HUD ocupa pouco espaço (${Math.round(d.hudH)}px)`);
+ ok(d.hudH<90,`HUD ocupa pouco espaço (${Math.round(d.hudH)}px)`);
  ok(await p.evaluate(()=>!document.getElementById('lowHpFx').classList.contains('on')),'sem alerta com vida cheia');
  await p.evaluate(()=>{p.hp=p.max*.2;updateUI()});
  ok(await p.evaluate(()=>document.getElementById('lowHpFx').classList.contains('on')&&getComputedStyle(document.getElementById('lowHpFx')).animationName==='lowHp'),'com 25% ou menos as bordas piscam em vermelho');

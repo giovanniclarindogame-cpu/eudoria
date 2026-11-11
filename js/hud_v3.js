@@ -42,6 +42,19 @@ integratedDepth=function(){
  return list.sort((u,v)=>u.y-v.y||(u.priority||0)-(v.priority||0));
 };
 
+/* câmera de "arena inteira"/treino: o mapa sempre cobre a tela (sem faixas vazias nas laterais); se sobrar, a câmera segue o herói */
+const prevCam=updateArenaCamera;
+updateArenaCamera=function(){
+ prevCam();
+ if(!cw||!ch||cw<ch||!p)return;
+ const bt=document.getElementById('battle');
+ if(!bt||bt.dataset.arena||W>1500)return;
+ if(!(courtyardWide||battleActivity==='training'))return;
+ scale=Math.max(cw/W,ch/H);
+ const f=p.hp>0?p:actors.find(a=>a.team===p.team&&a.hp>0)||p;
+ ox=clamp(cw/2-f.x*scale,cw-W*scale,0);oy=clamp(ch/2-f.y*scale,ch-H*scale,0);
+};
+
 /* bordas vermelhas piscando */
 const fx=document.createElement('div');fx.id='lowHpFx';document.getElementById('battle').appendChild(fx);
 const prevUI=updateUI;
