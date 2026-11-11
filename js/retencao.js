@@ -139,7 +139,7 @@ endArenaMode=function(win,draw){const first=modeRun&&!modeRun.settled;const r=pr
 /* ============================== 3 · tutorial ============================== */
 const STEPS=[
  {sel:'#stick',title:'Mover',text:'Arraste o analógico para andar pela arena.'},
- {sel:'.action-group',title:'Ataque, esquiva e defesa',text:'Segure ATAQUE para socar. Logo acima ficam a ESQUIVA (um toque) e a DEFESA (segure).'},
+ {sel:'.action-group',title:'Dash',text:'O botão grande é o DASH: um toque desliza com um instante de invulnerabilidade. As habilidades ficam em meia-lua ao redor dele; a 1ª é a mais rápida e a última é a ultimate.'},
  {sel:'.control-center',title:'Habilidades',text:'Toque numa habilidade para usar; arraste para escolher a direção. Cada uma tem recarga.'},
  {sel:'.hud',title:'Como vencer',text:'Esvazie a barra de vida do rival antes do tempo acabar. Avisos vermelhos no chão mostram onde um golpe forte vai cair.'}
 ];

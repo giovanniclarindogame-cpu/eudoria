@@ -128,13 +128,19 @@ const gasDps=()=>{const z=R.zone;const P=ZONES[Math.min(z.phase,ZONES.length-1)]
 const inZone=a=>Math.hypot(a.x-R.zone.c.x,a.y-R.zone.c.y)<=R.zone.c.r-8;
 
 /* ------------------------------ XP, nível e habilidades ------------------------------ */
+// Combate v3: a 1ª habilidade (e o dash) já nascem liberadas; os pontos liberam só as outras 2 habilidades e a ultimate
+const v3h=a=>window.COMBAT_V3&&window.V3API&&V3API.isHero(a)?V3API.V2[a.skin]:null;
+const skillLv=()=>window.COMBAT_V3?4:SKILL_LV;
 function initRoy(a,isBot){
  a.roy={lv:1,xp:0,pts:0,unlocked:new Set(),kills:0,bot:isBot,name:a.label,dead:false,place:0};
+ const v=v3h(a);if(v){a.roy.unlocked.add(a.kit[v.s[0]]);const d=V3API.dashIdOf(a);if(d!=null)a.roy.unlocked.add(d)}
 }
 function lvOfXp(xp){let lv=1;for(let i=1;i<LV_XP.length;i++)if(xp>=LV_XP[i])lv=i+1;return lv}
 function canUnlock(a,id){
  const ro=a.roy;if(!ro||ro.pts<=0||ro.unlocked.has(id))return false;
  const idx=a.kit.indexOf(id);if(idx<0)return false;
+ const v=v3h(a);
+ if(v){if(idx!==5&&!v.s.slice(1).some(i=>a.kit[i]===id))return false;if(idx===5)return v.s.every(i=>ro.unlocked.has(a.kit[i]));return true}
  if(idx===5)return a.kit.slice(0,5).every(k=>ro.unlocked.has(k));
  return true;
 }
@@ -148,7 +154,8 @@ function unlock(a,id){
 function botUnlock(a){
  const ro=a.roy;let n=0;
  while(ro.pts>0&&n++<7){
-  const pool=a.kit.slice(0,5).filter(id=>!ro.unlocked.has(id));
+  const v=v3h(a);
+  const pool=(v?v.s.slice(1).map(i=>a.kit[i]):a.kit.slice(0,5)).filter(id=>!ro.unlocked.has(id));
   const id=pool.length?pool[Math.floor(Math.random()*pool.length)]:a.kit[5];
   if(!unlock(a,id))break;
  }
@@ -159,11 +166,11 @@ function addXP(a,xp){
  const lv=Math.min(MAX_LV,lvOfXp(ro.xp));
  while(ro.lv<lv){
   ro.lv++;
-  if(ro.lv<=SKILL_LV)ro.pts++;
-  else{const gain=Math.round(1000*LV_BONUS.hp);a.max+=gain;a.hp+=gain;ro.dmgMul=1+LV_BONUS.dmg*(ro.lv-SKILL_LV);if(a===p)toast('Nível '+ro.lv+': +vida e +dano')}
+  if(ro.lv<=skillLv())ro.pts++;
+  else{const gain=Math.round(1000*LV_BONUS.hp);a.max+=gain;a.hp+=gain;ro.dmgMul=1+LV_BONUS.dmg*(ro.lv-skillLv());if(a===p)toast('Nível '+ro.lv+': +vida e +dano')}
   const heal=a.max*.2;a.hp=Math.min(a.max,a.hp+heal);
-  float(a.x,a.y-70,'NÍVEL '+ro.lv+(ro.lv>SKILL_LV?' · +VIDA/DANO':'!'),'#f2ca5c');ring(a.x,a.y,70,'#f2ca5c',.6);spark(a.x,a.y,'#f2ca5c',18);
-  if(a===p){if(ro.lv<=SKILL_LV)toast('Nível '+ro.lv+' · 1 ponto: toque numa habilidade para liberar');combatSound?.('heal',1)}
+  float(a.x,a.y-70,'NÍVEL '+ro.lv+(ro.lv>skillLv()?' · +VIDA/DANO':'!'),'#f2ca5c');ring(a.x,a.y,70,'#f2ca5c',.6);spark(a.x,a.y,'#f2ca5c',18);
+  if(a===p){if(ro.lv<=skillLv())toast('Nível '+ro.lv+' · 1 ponto: toque numa habilidade para liberar');combatSound?.('heal',1)}
  }
  if(ro.bot)botUnlock(a);
 }
@@ -542,7 +549,7 @@ function equippedHandler(e){
   e.stopPropagation();e.preventDefault();
   if(e.type==='pointerdown'||e.type==='touchstart'||e.type==='mousedown'||e.type==='click'){
    if(now>swallowUntil&&canUnlock(p,id)){unlock(p,id);swallowUntil=now+380;hudUpdate()}
-   else if(now>swallowUntil&&now-lockToast>900){lockToast=now;toast(p.roy.pts>0?(i===5?'A ultimate só libera depois das outras 5 habilidades':'Esta não pode ser liberada agora'):'Habilidade bloqueada: suba de nível para ganhar um ponto')}
+   else if(now>swallowUntil&&now-lockToast>900){lockToast=now;toast(p.roy.pts>0?(i===5?'A ultimate só libera depois das outras habilidades':'Esta não pode ser liberada agora'):'Habilidade bloqueada: suba de nível para ganhar um ponto')}
   }
   return;
  }

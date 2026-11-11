@@ -7,7 +7,7 @@
 (()=>{
 const L=BOSS_LOOKS;
 const ic=(shape,l)=>({shape,c1:l.aura.a,c2:l.aura.b});
-const basics=(l,a,b,c)=>[{name:a[0],icon:ic('combo',l),desc:a[1]},{name:b[0]||'Guarda Soberba',icon:ic('guard',l),desc:'Bloqueia de frente. Gasta stamina e, se acabar, a guarda quebra.'},{name:c[0],icon:ic('step',l),desc:c[1]}];
+const basics=(l,a,b,c)=>[{name:a[0],icon:ic('combo',l),desc:a[1]},{name:b[0]||'Guarda Soberba',icon:ic('guard',l),desc:'O chefe se protege de frente e reduz o dano. Ataque pelas costas ou espere ele baixar a guarda.'},{name:c[0],icon:ic('step',l),desc:c[1]}];
 const col=R=>R.def.look.aura;
 const TAU=Math.PI*2;
 
@@ -24,7 +24,7 @@ const vhalor={id:'vhalor',name:'Vhalor, o Mascarado',title:'Mestre das Sombras',
   {id:'s4',name:'Selos Proibidos',icon:ic('mark',L.vhalor),cd:13,desc:'Marca você com um círculo. Quem ficar dentro fica preso e sofre o Passo Etéreo em seguida.',k:{kind:'mark',r:80,delay:1,root:1.4,dmg:55,then:'s3',label:'SELADO'},ai:{w:2.4}},
   {id:'s5',name:'Vórtice do Vazio',icon:ic('vortex',L.vhalor),cd:22,desc:'Abre um vórtice que puxa e fere; no fim, uma explosão no centro.',k:{kind:'pull',r:300,dur:2.4,force:130,dmg:22,tick:.45,slam:{r:120,dmg:110}},ai:{w:2.4,phase:1}}],
  basic:{hits:3,hits2:1,dmgs:[30,34,44,66]},
- basics:basics(L.vhalor,['Golpe das Sombras','Combo de 3 golpes (4 na fúria). O último empurra.'],[''],['Passo de Fumaça','Esquiva curta com invulnerabilidade ao ver um golpe se formando.']),
+ basics:basics(L.vhalor,['Golpe das Sombras','Combo de 3 golpes (4 na fúria). O último empurra.'],[''],['Passo de Fumaça','Dash curto do chefe, com invulnerabilidade, ao ver um golpe se formando.']),
  mech:{
   init(R){R.mech.phase='solid';R.mech.t=0},
   tick(R,A,dt){const m=R.mech;m.t+=dt;
@@ -50,7 +50,7 @@ const kuroen={id:'kuroen',name:'Kuroen, o Incandescente',title:'Espadachim da L�
   {id:'s4',name:'Corte em Cruz',icon:ic('blink',L.kuroen),cd:10,desc:'Desaparece e corta duas vezes, atrás de você.',k:{kind:'blink',wind:.35,dmg:80,r:80,hops:2,hops2:0},ai:{min:60,w:3}},
   {id:'s5',name:'Iaijutsu Final',icon:ic('beam',L.kuroen),cd:20,desc:'Longa preparação e um único corte fino e letal por uma linha enorme. Pilares bloqueiam.',k:{kind:'beam',w:34,dmg:260,charge:1.6,track:3,dur:.3,len:900,shots2:1,charge2:.9},ai:{min:180,w:3}}],
  basic:{hits:3,hits2:1,dmgs:[32,36,46,70]},
- basics:basics(L.kuroen,['Combo de Espada','Combo de 3 cortes (4 na fúria). O último empurra.'],[''],['Passo de Lâmina','Esquiva curta com invulnerabilidade ao ver um golpe se formando.']),
+ basics:basics(L.kuroen,['Combo de Espada','Combo de 3 cortes (4 na fúria). O último empurra.'],[''],['Passo de Lâmina','Dash curto do chefe, com invulnerabilidade, ao ver um golpe se formando.']),
  mech:{
   init(R){R.mech.heat=0;R.mech.blaze=0},
   onLanded(R){const m=R.mech;if(m.blaze>0)return;m.heat=Math.min(100,m.heat+7);if(m.heat>=100){m.heat=0;m.blaze=9;R.buff={t:9,spd:1.18,dmg:1.2};toast('Kuroen incendiou a lâmina! Lâmina Rubra por 9s.');ring(R.a.x,R.a.y,100,col(R).b,.5);spark(R.a.x,R.a.y,col(R).a,24)}},
@@ -71,10 +71,10 @@ const nyxar={id:'nyxar',name:'Nyxar, o Crepúsculo',title:'Senhor das Sombras Et
   {id:'s1',name:'Almas Errantes',icon:ic('orbit',L.nyxar),cd:9,desc:'Orbes giram ao redor dele e depois perseguem você.',k:{kind:'orbit',n:4,n2:2,hold:1.5,dmg:46,speed:280,homing:2.6},ai:{w:3}},
   {id:'s2',name:'Manto da Noite',icon:ic('buff',L.nyxar),cd:18,desc:'Escudo de 250 e mais velocidade por 8s. Quebre o escudo antes de atacar a vida.',k:{kind:'buff',dur:8,spd:1.2,dmg:1.15,shield:250,label:'Manto da Noite',r:140},ai:{w:2.4},cond:R=>!(R.shield>0)},
   {id:'s3',name:'Queda do Véu',icon:ic('rain',L.nyxar),cd:12,desc:'Marca vários pontos e derruba trevas em ondas, deixando sombra no chão.',k:{kind:'rain',waves:2,waves2:1,per:2,r:62,dmg:90,delay:1,rand:1,leave:{dmg:10,dur:3,kind:'dark'}},ai:{w:2.6}},
-  {id:'s4',name:'Grito Fúnebre',icon:ic('blast',L.nyxar),cd:11,desc:'Onda de choque que quebra a guarda.',k:{kind:'blast',r:190,dmg:100,wind:.8,knock:100},ai:{max:260,w:3}},
+  {id:'s4',name:'Grito Fúnebre',icon:ic('blast',L.nyxar),cd:11,desc:'Onda de choque que empurra para longe.',k:{kind:'blast',r:190,dmg:100,wind:.8,knock:100},ai:{max:260,w:3}},
   {id:'s5',name:'Julgamento do Crepúsculo',icon:ic('nova',L.nyxar),cd:28,desc:'Carrega uma esfera de trevas sobre uma área enorme. Interrompa com muito dano ou saia da área.',k:{kind:'nova',charge:3,r:300,dmg:320,interrupt:400,label:'Julgamento do Crepúsculo'},ai:{w:3.4}}],
  basic:{hits:3,hits2:1,dmgs:[30,34,44,66]},
- basics:basics(L.nyxar,['Golpe da Lança','Combo de 3 golpes (4 na fúria). O último empurra.'],[''],['Véu','Esquiva curta com invulnerabilidade ao ver um golpe se formando.']),
+ basics:basics(L.nyxar,['Golpe da Lança','Combo de 3 golpes (4 na fúria). O último empurra.'],[''],['Véu','Dash curto do chefe, com invulnerabilidade, ao ver um golpe se formando.']),
  mech:{
   init(R){const m=R.mech;m.phase='day';m.t=0;m.light={x:W/2,y:H/2,tx:W/2,ty:H/2,r:125};m.acc=0},
   tick(R,A,dt){const m=R.mech;m.t+=dt;
@@ -100,12 +100,12 @@ const ryoku={id:'ryoku',name:'Ryoku, Rei das Maldições',title:'Soberano do San
  skills:[
   {id:'s0',name:'Desmantelar',icon:ic('fan',L.ryoku),cd:5.5,desc:'Rajada de cortes finos e rápidos. Na fúria, ainda mais cortes.',k:{kind:'fan',n:7,n2:4,spread:1.2,speed:520,dmg:34,r:9,shape:'blade',wind:.35},ai:{min:100,max:480,w:3}},
   {id:'s1',name:'Clivar',icon:ic('dash',L.ryoku),cd:8,desc:'Corte pesado em linha reta, muito rápido.',k:{kind:'dash',dmg:140,w:44,min:320,max:520,wind:.5,speed:1500,rec:.5},ai:{min:110,w:3}},
-  {id:'s2',name:'Fuga',icon:ic('beam',L.ryoku),cd:9,desc:'Flecha de fogo que trava a mira e quebra guardas.',k:{kind:'beam',w:40,dmg:170,charge:.8,track:5,dur:.35,shots2:1,charge2:.5},ai:{min:130,w:3}},
+  {id:'s2',name:'Fuga',icon:ic('beam',L.ryoku),cd:9,desc:'Flecha de fogo que trava a mira e causa dano alto.',k:{kind:'beam',w:40,dmg:170,charge:.8,track:5,dur:.35,shots2:1,charge2:.5},ai:{min:130,w:3}},
   {id:'s3',name:'Maldição Ancestral',icon:ic('mark',L.ryoku),cd:12,desc:'Prende quem ficar no círculo e corta em seguida com o Clivar.',k:{kind:'mark',r:74,delay:.9,root:1.3,dmg:70,then:'s1',label:'AMALDIÇOADO'},ai:{w:2.4}},
   {id:'s4',name:'Corte do Mundo',icon:ic('ring',L.ryoku),cd:13,desc:'Onda de corte em volta dele; a segunda atinge quem fugiu.',k:{kind:'ring',r0:170,r:280,dmg:95,wind:.8},ai:{max:260,w:3}},
   {id:'s5',name:'Domínio: Santuário Maligno',icon:ic('nova',L.ryoku),cd:28,desc:'Zona enorme que fere e desacelera por 6s. Quebre com 360 de dano ou saia dela.',k:{kind:'domain',r:300,dur:6,dmg:30,wind:1.2,break:360},ai:{w:3.4}}],
  basic:{hits:3,hits2:1,dmgs:[30,34,44,66]},
- basics:basics(L.ryoku,['Golpe do Rei','Combo de 3 golpes (4 na fúria). O último empurra.'],[''],['Passo Maldito','Esquiva curta com invulnerabilidade ao ver um golpe se formando.']),
+ basics:basics(L.ryoku,['Golpe do Rei','Combo de 3 golpes (4 na fúria). O último empurra.'],[''],['Passo Maldito','Dash curto do chefe, com invulnerabilidade, ao ver um golpe se formando.']),
  mech:{
   hud:R=>{const s=R.zones.find(z=>z.domain);if(s&&s.t>=s.delay)return{text:'DOMÍNIO · quebrar: '+Math.max(0,Math.round((R.domainBreak||360)-(R.domainDmg||0))),meter:1-(R.domainDmg||0)/(R.domainBreak||360),color:'#ff9ac4'};
    const cd=R.def.skills[5].cd;return{text:'MALDIÇÃO · domínio em '+Math.max(0,Math.ceil(R.cds.s5))+'s',meter:1-Math.max(0,R.cds.s5)/cd}},
@@ -116,7 +116,7 @@ const ryoku={id:'ryoku',name:'Ryoku, Rei das Maldições',title:'Soberano do San
 const xerath={id:'xerath',name:'Xerath, Rei Quimera',title:'Predador Adaptável',look:L.xerath,hp:3400,hpDuo:4400,stars:4,difficulty:'Alta',speed:136,pref:170,
  story:'Nasceu como um inseto e devorou tudo até virar rei. Xerath aprende com cada golpe que sofre: se você repete o mesmo ataque, o corpo dele já se acostumou.',
  system:['Adaptação','Quando você acerta o mesmo golpe várias vezes seguidas, ele ganha resistência (até 60%). Alterne as habilidades para zerar a adaptação.'],systemIcon:ic('system',L.xerath),
- tips:['Não repita a mesma habilidade: a resistência dele sobe a cada acerto igual.','Alternar entre 2 ou 3 habilidades mantém o dano alto.','O Voo Predador deixa ele exposto logo depois: contra-ataque.','O Enxame persegue: use esquiva quando chegar perto.'],
+ tips:['Não repita a mesma habilidade: a resistência dele sobe a cada acerto igual.','Alternar entre 2 ou 3 habilidades mantém o dano alto.','O Voo Predador deixa ele exposto logo depois: contra-ataque.','O Enxame persegue: use o DASH quando chegar perto.'],
  skills:[
   {id:'s0',name:'Rajada de Espinhos',icon:ic('fan',L.xerath),cd:6,desc:'Leque de espinhos rápidos. Na fúria, mais espinhos e uma segunda rajada.',k:{kind:'fan',n:6,n2:3,spread:.95,speed:460,dmg:38,r:9,shape:'blade',wind:.4,again:.5},ai:{min:110,w:3}},
   {id:'s1',name:'Voo Predador',icon:ic('dash',L.xerath),cd:8.5,desc:'Mergulho rápido numa linha marcada.',k:{kind:'dash',dmg:125,w:56,min:320,max:540,speed:1300,rec:.6},ai:{min:110,w:3}},
@@ -125,7 +125,7 @@ const xerath={id:'xerath',name:'Xerath, Rei Quimera',title:'Predador Adaptável'
   {id:'s4',name:'Regeneração',icon:ic('buff',L.xerath),cd:17,desc:'Recupera um pouco de vida e ganha escudo e velocidade por 7s.',k:{kind:'buff',dur:7,spd:1.15,dmg:1.1,shield:180,heal:.06,label:'Regeneração',r:110},ai:{w:2.2},cond:(R,A)=>A.hp<A.max*.85},
   {id:'s5',name:'Pulso Real',icon:ic('ring',L.xerath),cd:14,desc:'Anel de choque que atinge também quem se afastou.',k:{kind:'ring',r0:190,r:300,dmg:105,wind:.8},ai:{max:260,w:3}}],
  basic:{hits:3,hits2:1,dmgs:[32,36,46,70]},
- basics:basics(L.xerath,['Garras','Combo de 3 golpes (4 na fúria). O último empurra.'],[''],['Salto Rápido','Esquiva curta com invulnerabilidade ao ver um golpe se formando.']),
+ basics:basics(L.xerath,['Garras','Combo de 3 golpes (4 na fúria). O último empurra.'],[''],['Salto Rápido','Dash curto do chefe, com invulnerabilidade, ao ver um golpe se formando.']),
  mech:{
   init(R){R.mech.last=null;R.mech.streak=0},
   resist(R,id){const m=R.mech;return(id!==undefined&&id===m.last)?Math.min(.6,.12*m.streak):0},
@@ -139,7 +139,7 @@ const xerath={id:'xerath',name:'Xerath, Rei Quimera',title:'Predador Adaptável'
 const rapina={id:'rapina',name:'Lord Rapina',title:'O Usurpador de Poderes',look:L.rapina,hp:3500,hpDuo:4500,stars:5,difficulty:'Extrema',speed:116,pref:200,
  story:'Ele nunca criou um poder: roubou todos. Rapina colhe força de quem toca e a guarda como armadura — e cada herdeiro que ele derrota o deixa mais forte.',
  system:['Roubo de Vigor','Cada golpe que ele acerta rouba stamina e vira escudo (até 500). O escudo absorve dano antes da vida: quebre-o com golpes fortes ou não deixe que ele acerte.'],systemIcon:ic('system',L.rapina),
- tips:['Não deixe que ele acerte: cada golpe vira escudo.','Quando o escudo estiver cheio, use as suas habilidades mais fortes para quebrá-lo de uma vez.','A Mão Estendida puxa você: use esquiva no meio para sair do vórtice.','O Fim da Linha pode ser interrompido com muito dano de uma só vez.'],
+ tips:['Não deixe que ele acerte: cada golpe vira escudo.','Quando o escudo estiver cheio, use as suas habilidades mais fortes para quebrá-lo de uma vez.','A Mão Estendida puxa você: use o DASH no meio para sair do vórtice.','O Fim da Linha pode ser interrompido com muito dano de uma só vez.'],
  skills:[
   {id:'s0',name:'Onda de Pressão',icon:ic('blast',L.rapina),cd:5,desc:'Onda de choque curta ao redor dele.',k:{kind:'blast',r:140,dmg:85,wind:.5,knock:110},ai:{max:190,w:4}},
   {id:'s1',name:'Mão Estendida',icon:ic('vortex',L.rapina),cd:11,desc:'Puxa você para perto e fere; no fim, uma explosão.',k:{kind:'pull',r:260,dur:1.6,force:150,dmg:28,tick:.4,slam:{r:110,dmg:100}},ai:{w:2.8}},
@@ -148,7 +148,7 @@ const rapina={id:'rapina',name:'Lord Rapina',title:'O Usurpador de Poderes',look
   {id:'s4',name:'Fusão',icon:ic('buff',L.rapina),cd:20,desc:'Escudo de 300 e mais força por 9s.',k:{kind:'buff',dur:9,spd:1.15,dmg:1.15,shield:300,label:'Fusão',r:120},ai:{w:2.4},cond:R=>!(R.shield>0)},
   {id:'s5',name:'Fim da Linha',icon:ic('nova',L.rapina),cd:30,desc:'Esfera de energia roubada sobre uma área enorme. Interrompa com muito dano.',k:{kind:'nova',charge:3.2,r:320,dmg:340,interrupt:440,label:'Fim da Linha'},ai:{w:3.4}}],
  basic:{hits:3,hits2:1,dmgs:[30,34,44,66]},
- basics:basics(L.rapina,['Punho do Usurpador','Combo de 3 golpes (4 na fúria). O último empurra.'],[''],['Passo Roubado','Esquiva curta com invulnerabilidade ao ver um golpe se formando.']),
+ basics:basics(L.rapina,['Punho do Usurpador','Combo de 3 golpes (4 na fúria). O último empurra.'],[''],['Passo Roubado','Dash curto do chefe, com invulnerabilidade, ao ver um golpe se formando.']),
  mech:{
   onLanded(R,t,n){R.shield=Math.min(500,(R.shield||0)+n*.25);t.st=Math.max(0,t.st-12)},
   hud:R=>({text:'ESCUDO '+Math.round(R.shield||0)+'/500',meter:(R.shield||0)/500,color:'#9fb2ff'}),
@@ -168,7 +168,7 @@ const malrath={id:'malrath',name:'Capitão Malrath',title:'O Devorador dos Sete 
   {id:'s4',name:'Canhão do Capitão',icon:ic('beam',L.malrath),cd:14,desc:'Tiro enorme e lento, de grande dano. Na fúria, dispara duas vezes.',k:{kind:'beam',w:70,dmg:230,charge:1.5,track:2.5,dur:.45,shots2:1,charge2:.8},ai:{min:160,w:3}},
   {id:'s5',name:'Maré Negra',icon:ic('zone',L.malrath),cd:15,desc:'Poças de maré escura que ferem por vários segundos.',k:{kind:'zone',n:4,n2:2,r:80,dur:5,dmg:18,delay:.9,aim:'foes',kind2:'tide'},ai:{w:2.8}}],
  basic:{hits:3,hits2:1,dmgs:[34,38,50,76],knock:90},
- basics:basics(L.malrath,['Sabre do Capitão','Combo de 3 golpes (4 na fúria). O último empurra forte.'],[''],['Passo de Convés','Esquiva curta com invulnerabilidade ao ver um golpe se formando.']),
+ basics:basics(L.malrath,['Sabre do Capitão','Combo de 3 golpes (4 na fúria). O último empurra forte.'],[''],['Passo de Convés','Dash curto do chefe, com invulnerabilidade, ao ver um golpe se formando.']),
  mech:{
   init(R){R.mech.t=0;R.mech.pulse=0},
   tick(R,A,dt){const m=R.mech;
@@ -184,7 +184,7 @@ const malrath={id:'malrath',name:'Capitão Malrath',title:'O Devorador dos Sete 
 const hadrion={id:'hadrion',name:'Hadrion, Deus do Submundo',title:'Soberano das Almas Perdidas',look:L.hadrion,hp:3600,hpDuo:4600,stars:5,difficulty:'Extrema',speed:114,pref:200,
  story:'Cada guerreiro que cai na terra vai parar nas mãos de Hadrion. Ele coleciona as almas dos derrotados e as solta, famintas, contra os vivos.',
  system:['Colheita de Almas','Cada golpe que ele acerta prende uma alma que gira ao redor dele. Com 6 almas, todas disparam de uma vez contra você, perseguindo. Evite ser acertado para não alimentá-lo.'],systemIcon:ic('orbit',L.hadrion),
- tips:['Cada alma ao redor dele é um golpe que você levou: não deixe chegar a 6.','Quando as almas dispararem, use esquiva no último instante: elas perseguem.','O Portal Sombrio traz ele por trás de você.','O Julgamento dos Mortos pode ser interrompido com muito dano.'],
+ tips:['Cada alma ao redor dele é um golpe que você levou: não deixe chegar a 6.','Quando as almas dispararem, use o DASH no último instante: elas perseguem.','O Portal Sombrio traz ele por trás de você.','O Julgamento dos Mortos pode ser interrompido com muito dano.'],
  skills:[
   {id:'s0',name:'Garra do Submundo',icon:ic('blast',L.hadrion),cd:5,desc:'Garras de sombra em volta dele.',k:{kind:'blast',r:130,dmg:90,wind:.5,knock:100},ai:{max:180,w:4}},
   {id:'s1',name:'Lamento',icon:ic('fan',L.hadrion),cd:7,desc:'Gritos de alma que perseguem de leve. Na fúria, mais gritos.',k:{kind:'fan',n:5,n2:2,spread:.9,speed:330,dmg:40,r:11,homing:1.8,wind:.5},ai:{min:110,w:3}},
@@ -193,7 +193,7 @@ const hadrion={id:'hadrion',name:'Hadrion, Deus do Submundo',title:'Soberano das
   {id:'s4',name:'Pilares de Chama Fria',icon:ic('rain',L.hadrion),cd:12,desc:'Marca pontos e derruba chamas frias em ondas, deixando gelo no chão.',k:{kind:'rain',waves:2,waves2:1,per:2,r:60,dmg:90,delay:1,leave:{dmg:12,dur:3,kind:'cold'}},ai:{w:2.6}},
   {id:'s5',name:'Julgamento dos Mortos',icon:ic('nova',L.hadrion),cd:28,desc:'Esfera de almas sobre uma área enorme. Interrompa com muito dano ou saia da área.',k:{kind:'nova',charge:3.2,r:320,dmg:330,interrupt:420,label:'Julgamento dos Mortos'},ai:{w:3.4}}],
  basic:{hits:3,hits2:1,dmgs:[30,34,44,66]},
- basics:basics(L.hadrion,['Toque Gélido','Combo de 3 golpes (4 na fúria). O último empurra.'],[''],['Passo Espectral','Esquiva curta com invulnerabilidade ao ver um golpe se formando.']),
+ basics:basics(L.hadrion,['Toque Gélido','Combo de 3 golpes (4 na fúria). O último empurra.'],[''],['Passo Espectral','Dash curto do chefe, com invulnerabilidade, ao ver um golpe se formando.']),
  mech:{
   onLanded(R){R.wisps=R.wisps||[];if(R.wisps.length<6)R.wisps.push({a0:Math.random()*TAU,r:48+(R.wisps.length%2)*12,age:0,hold:9,launched:false,dmg:46,speed:300,homing:2.6});
    if(R.wisps.length>=6){for(const w of R.wisps)w.hold=w.age+.05;toast('As almas foram libertadas!')}},
@@ -214,7 +214,7 @@ const genesis={id:'genesis',name:'Gênesis, o Primordial',title:'Pai de Todos os
   {id:'s4',name:'Transmutar',icon:ic('ring',L.genesis),cd:12,desc:'Anel de choque que atinge também quem se afastou.',k:{kind:'ring',r0:170,r:280,dmg:100,wind:.8},ai:{max:260,w:3}},
   {id:'s5',name:'Portal da Verdade',icon:ic('nova',L.genesis),cd:30,desc:'Esfera enorme de matéria sobre uma área grande. Interrompa com muito dano.',k:{kind:'nova',charge:3.2,r:320,dmg:340,interrupt:430,label:'Portal da Verdade'},ai:{w:3.4}}],
  basic:{hits:3,hits2:1,dmgs:[30,34,44,66]},
- basics:basics(L.genesis,['Mão Alquímica','Combo de 3 golpes (4 na fúria). O último empurra.'],[''],['Passo Dourado','Esquiva curta com invulnerabilidade ao ver um golpe se formando.']),
+ basics:basics(L.genesis,['Mão Alquímica','Combo de 3 golpes (4 na fúria). O último empurra.'],[''],['Passo Dourado','Dash curto do chefe, com invulnerabilidade, ao ver um golpe se formando.']),
  mech:{
   init(R){R.mech.runes=[];R.mech.t=6},
   tick(R,A,dt){const m=R.mech;m.t-=dt;

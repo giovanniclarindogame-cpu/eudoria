@@ -25,13 +25,13 @@ const ZOR={
   {id:'s0',name:'Chicote de Cauda',icon:'whip',cd:5,desc:'Giro rápido que atinge tudo ao redor dele. Na forma final, vem duas vezes. Fique longe do círculo.'},
   {id:'s1',name:'Disco Cortante',icon:'disc',cd:8.5,desc:'Arremessa um disco que vai e volta, cortando nas duas passadas. Na forma final são dois discos.'},
   {id:'s2',name:'Pressão Psíquica',icon:'mind',cd:13,desc:'Marca você com um círculo; quem estiver dentro quando fecha fica preso e leva o golpe seguinte.'},
-  {id:'s3',name:'Raio Perfurante',icon:'beam',cd:9,desc:'Raio fino que trava a mira e atravessa a defesa. Na forma final, dispara três vezes. Pilares bloqueiam. (Forma 2+)'},
-  {id:'s4',name:'Explosão de Poder',icon:'shock',cd:15,desc:'Onda de choque que quebra a guarda. Na forma final, uma segunda onda atinge quem se afastou. (Forma 2+)'},
+  {id:'s3',name:'Raio Perfurante',icon:'beam',cd:9,desc:'Raio fino que trava a mira e causa dano alto. Na forma final, dispara três vezes. Pilares bloqueiam. (Forma 2+)'},
+  {id:'s4',name:'Explosão de Poder',icon:'shock',cd:15,desc:'Onda de choque que empurra para longe. Na forma final, uma segunda onda atinge quem se afastou. (Forma 2+)'},
   {id:'s5',name:'Supernova',icon:'nova',cd:30,desc:'Carrega uma esfera gigante e a lança sobre uma área enorme. Dano alto em tudo; interrompa com muito dano. (Forma 3)'}
  ],
  basics:[
   {name:'Golpe do Imperador',icon:'punch',desc:'Combo de 3 golpes (4 na forma final), com cauda e punho. O último empurra.'},
-  {name:'Guarda Soberba',icon:'guard',desc:'Bloqueia de frente. Gasta stamina e, se acabar, a guarda quebra.'},
+  {name:'Guarda Soberba',icon:'guard',desc:'O chefe se protege de frente e reduz o dano. Ataque pelas costas ou espere ele baixar a guarda.'},
   {name:'Piscar',icon:'step',desc:'Teleporte curto com invulnerabilidade ao ver um golpe se formando.'}
  ]
 };
@@ -117,7 +117,7 @@ function lobbyMarkup(def){
     <div class="hunt-pride">${iconImg(def.systemIcon||'forms','hunt-ico big')}<div><div class="pride-demo"><i></i></div><p>${def.system[1]}</p></div></div></article>
    </div>
    <div class="hunt-pane" data-hunt-pane="s" hidden>
-   <article class="hunt-card"><span class="eyebrow">${def.generic?'6 HABILIDADES':'6 HABILIDADES · AS NOVAS VÊM COM AS FORMAS'} · GOLPE, DEFESA E ESQUIVA</span><div class="hunt-skills nine">${def.skills.map(skillBtn).join('')}<i class="hunt-sep"></i>${def.basics.map(basic).join('')}</div>
+   <article class="hunt-card"><span class="eyebrow">${def.generic?'6 HABILIDADES':'6 HABILIDADES · AS NOVAS VÊM COM AS FORMAS'} · GOLPES, GUARDA E ESQUIVA DO CHEFE</span><div class="hunt-skills nine">${def.skills.map(skillBtn).join('')}<i class="hunt-sep"></i>${def.basics.map(basic).join('')}</div>
     <p class="hunt-skilldesc" id="huntSkillDesc" role="status">Toque em uma habilidade para ver como ela funciona.</p></article>
    </div>
    <div class="hunt-pane" data-hunt-pane="b" hidden>
