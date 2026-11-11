@@ -19,10 +19,10 @@ async function boot(b,vp){
   await p.click('[data-arena-mode="survival"]');await p.waitForTimeout(1500);
   const st=await p.evaluate(()=>{window.requestAnimationFrame=()=>0;state='fight';count=0;return{mode:modeRun.id,W,H,all:RoyaleAPI.players().length,alive:RoyaleAPI.alive().length,lv:RoyaleAPI.players().map(a=>a.roy.lv),unl:RoyaleAPI.players().map(a=>a.roy.unlocked.size),bots:RoyaleAPI.players().filter(a=>a.roy.bot).length,teams:new Set(RoyaleAPI.players().map(a=>a.team)).size,mobs:RoyaleAPI.R.mobs.length}});
   ok(st.mode==='survival'&&st.W===3600&&st.all===8&&st.alive===8&&st.bots===7,`${tag}: 8 lutadores (você + 7 bots) num mapa grande`);
-  ok(st.lv.every(x=>x===1)&&st.unl.every(x=>x===0),`${tag}: todos começam no nível 1 sem nenhuma habilidade`);
+  ok(st.lv.every(x=>x===1)&&st.unl.every(x=>x===2||x===1),`${tag}: todos começam no nível 1 só com a 1ª habilidade (e o dash) liberada`);
   ok(st.teams===8&&st.mobs>=20,`${tag}: cada um por si e monstros espalhados pelo mapa (${st.mobs})`);
   ok(await p.locator('#royMap').count()===1&&await p.locator('#royLv').count()===1,`${tag}: minimapa e painel de nível na tela`);
-  ok(await p.locator('#equipped .skill.roy-lock').count()===6,`${tag}: os 6 botões de habilidade começam bloqueados`);
+  ok(await p.locator('#equipped .skill:not(.v3-hidden).roy-lock').count()===3,`${tag}: 2 habilidades e a ultimate começam bloqueadas (a 1ª já vem liberada)`);
   ok(/vivos/.test(await p.locator('#modeObjective').innerText())&&!/onda/i.test(await p.locator('#modeObjective').innerText()),`${tag}: texto do modo mostra vivos e zona (sem ondas)`);
   ok(errs.length===0,`${tag}: início sem erros ${errs.join('|')}`);
   await ctx.close();
@@ -33,39 +33,39 @@ async function boot(b,vp){
  await p.evaluate(()=>beginArenaMode('survival'));await p.waitForTimeout(1500);
  await p.evaluate(()=>{window.requestAnimationFrame=()=>0;state='fight';count=0;});
 
- /* ---------- habilidades bloqueadas e liberação por ponto ---------- */
- const lock=await p.evaluate(()=>{const id=p.kit[0];const cd0=p.cd[id];const r=cast(p,id);return{r,cdSame:p.cd[id]===cd0,can:RoyaleAPI.canUnlock(p,id)}});
- ok(lock.r===false&&lock.cdSame&&!lock.can,'sem ponto: não dá para usar nem liberar habilidade');
- await p.locator('#equipped .skill').nth(0).click({force:true});
- ok(await p.evaluate(()=>p.roy.unlocked.size===0),'tocar numa habilidade sem ponto não libera nada');
- const lv=await p.evaluate(()=>{const hp0=p.hp;p.hp=500;RoyaleAPI.addXP(p,RoyaleAPI.LV_XP[1]);return{lv:p.roy.lv,pts:p.roy.pts,heal:p.hp>500,xp:p.roy.xp}});
+ /* ---------- habilidades bloqueadas e liberação por ponto (kit v3: 1ª liberada; pontos liberam 2 habilidades + ultimate) ---------- */
+ const ids=await p.evaluate(()=>{const v=V3API.V2[p.skin];return{a:p.kit[v.s[0]],b:p.kit[v.s[1]],c:p.kit[v.s[2]],u:p.kit[5],si:[v.s[0],v.s[1],v.s[2]]}});
+ const lock=await p.evaluate(ids=>{const id=ids.b;const cd0=p.cd[id];const r=cast(p,id);return{r,cdSame:p.cd[id]===cd0,can:RoyaleAPI.canUnlock(p,id),first:p.roy.unlocked.has(ids.a)}},ids);
+ ok(lock.r===false&&lock.cdSame&&!lock.can&&lock.first,'sem ponto: 2ª habilidade não usa nem libera; a 1ª já está liberada');
+ await p.locator('#equipped .skill').nth(ids.si[1]).click({force:true});
+ ok(await p.evaluate(()=>p.roy.unlocked.size<=2&&p.roy.pts===0),'tocar numa habilidade sem ponto não libera nada');
+ const lv=await p.evaluate(()=>{p.hp=500;RoyaleAPI.addXP(p,RoyaleAPI.LV_XP[1]);return{lv:p.roy.lv,pts:p.roy.pts,heal:p.hp>500,xp:p.roy.xp}});
  ok(lv.lv===2&&lv.pts===1&&lv.heal,'XP do nível 2: sobe 1 nível, ganha 1 ponto e cura');
  await p.waitForTimeout(100);
  await p.evaluate(()=>updateUI());
- ok(await p.locator('#equipped .skill.roy-can').count()===5&&await p.locator('#equipped .skill.roy-lock[data-roy-ult="1"]').count()===1,'com ponto: 5 habilidades brilham para liberar e a ultimate segue trancada');
+ ok(await p.locator('#equipped .skill:not(.v3-hidden).roy-can').count()===2&&await p.locator('#equipped .skill.roy-lock[data-roy-ult="1"]').count()===1,'com ponto: 2 habilidades brilham para liberar e a ultimate segue trancada');
  await p.locator('#equipped .skill').nth(5).click({force:true});
- ok(await p.evaluate(()=>p.roy.unlocked.size===0&&p.roy.pts===1),'a ultimate não libera antes das outras 5');
- await p.locator('#equipped .skill').nth(2).click({force:true});await p.waitForTimeout(500);
- const u1=await p.evaluate(()=>({n:p.roy.unlocked.size,has:p.roy.unlocked.has(p.kit[2]),pts:p.roy.pts,cd:p.cd[p.kit[2]]}));
- ok(u1.n===1&&u1.has&&u1.pts===0&&u1.cd===0,'tocar numa habilidade com ponto libera só ela (uma por vez) e não a dispara');
- const u2=await p.evaluate(()=>{const id=p.kit[1];return{can:RoyaleAPI.canUnlock(p,id)}});
- ok(u2.can===false,'sem ponto sobrando, a próxima continua bloqueada');
- // ultimate só depois das 5
- const ult=await p.evaluate(()=>{
-  const out=[];RoyaleAPI.addXP(p,5000);        // sobe até o nível máximo
+ ok(await p.evaluate(()=>p.roy.pts===1),'a ultimate não libera antes das outras');
+ const before=await p.evaluate(()=>p.roy.unlocked.size);
+ await p.locator('#equipped .skill').nth(ids.si[2]).click({force:true});await p.waitForTimeout(500);
+ const u1=await p.evaluate(ids=>({n:p.roy.unlocked.size,has:p.roy.unlocked.has(ids.c),pts:p.roy.pts,cd:p.cd[ids.c]}),ids);
+ ok(u1.n===before+1&&u1.has&&u1.pts===0&&u1.cd===0,'tocar numa habilidade com ponto libera só ela (uma por vez) e não a dispara');
+ ok(await p.evaluate(ids=>RoyaleAPI.canUnlock(p,ids.b)===false,ids),'sem ponto sobrando, a próxima continua bloqueada');
+ const ult=await p.evaluate(ids=>{
+  const out=[];RoyaleAPI.addXP(p,5000);
   out.push(p.roy.lv,p.roy.pts);
-  out.push(RoyaleAPI.canUnlock(p,p.kit[5]));
-  for(const i of [0,1,3]){RoyaleAPI.unlock(p,p.kit[i])}
-  out.push(RoyaleAPI.canUnlock(p,p.kit[5]));      // faltam 1 (índice 4)
-  RoyaleAPI.unlock(p,p.kit[4]);
-  out.push(p.roy.unlocked.size,RoyaleAPI.canUnlock(p,p.kit[5]));
-  RoyaleAPI.unlock(p,p.kit[5]);out.push(p.roy.unlocked.size,p.roy.pts);
-  return out});
- ok(ult[0]===10&&ult[1]===5,'XP leva ao nível máximo (10); só os níveis 2 a 7 dão ponto de habilidade');
- ok(await p.evaluate(()=>p.max>1000&&p.roy.dmgMul>1),'níveis 8 a 10 dão bônus de vida máxima e de dano');
- ok(ult[2]===false&&ult[3]===false,'ultimate segue bloqueada enquanto faltar qualquer uma das outras');
- ok(ult[4]===5&&ult[5]===true&&ult[6]===6&&ult[7]===0,'com as 5 liberadas, a ultimate pode ser liberada (6/6 habilidades, 0 pontos)');
- ok(await p.evaluate(()=>cast(p,p.kit[0])!==undefined),'habilidade liberada passa pela checagem de uso');
+  out.push(RoyaleAPI.canUnlock(p,ids.u));                 // falta a 2ª habilidade
+  RoyaleAPI.unlock(p,ids.b);
+  out.push(p.roy.unlocked.size,RoyaleAPI.canUnlock(p,ids.u));
+  RoyaleAPI.unlock(p,ids.u);out.push(p.roy.unlocked.has(ids.u),p.roy.pts);
+  out.push(RoyaleAPI.canUnlock(p,p.kit[4]),RoyaleAPI.canUnlock(p,p.kit[3]));
+  return out},ids);
+ ok(ult[0]===10&&ult[1]===2,'XP leva ao nível máximo (10); só os níveis 2 a 4 dão ponto de habilidade (2 habilidades + ultimate)');
+ ok(await p.evaluate(()=>p.max>1000&&p.roy.dmgMul>1),'níveis 5 a 10 dão bônus de vida máxima e de dano');
+ ok(ult[2]===false,'ultimate segue bloqueada enquanto faltar uma das habilidades');
+ ok(ult[4]===true&&ult[5]===true&&ult[6]===0,'com as 3 habilidades liberadas, a ultimate pode ser liberada e sobram 0 pontos');
+ ok(ult[7]===false&&ult[8]===false,'habilidades fora do kit v3 nunca liberam');
+ ok(await p.evaluate(ids=>cast(p,ids.a)!==undefined,ids),'habilidade liberada passa pela checagem de uso');
 
  /* ---------- XP de monstros e de rivais ---------- */
  const xp=await p.evaluate(()=>{

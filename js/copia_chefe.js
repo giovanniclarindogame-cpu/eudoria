@@ -68,6 +68,7 @@
  function copyHero(t,id){
   try{
    if(typeof reworkState!=='function'||t.skin!==1||t.hp<=0||t.copySource)return false;
+   if(window.COMBAT_V3&&skills[id]?.ultimate)return false;   // o Olho Copiador não copia ultimate
    const ts=reworkState(t);if(!(ts.eye>0)||ts.copy)return false;
    ts.copy={id};ts.eye=0;t.cd[t.kit[4]]=0;
    try{rwFx(t,4,t.x,t.y,'copied',.6,{size:80})}catch{}
