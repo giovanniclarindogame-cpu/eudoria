@@ -22,3 +22,9 @@ body.v3 #battle .action-group #attack.v3-dash{position:absolute!important;width:
 body.v3 #battle #attack.v3-dash small{font-size:7px!important;bottom:1px}
 body.v3 #battle #attack.v3-dash .v3-cd{font-size:12px}
 body.v3 #battle .equipped .skill[data-arc="0"]{width:var(--atk)!important;height:var(--atk)!important;left:calc(var(--atk)/-2)!important;top:calc(var(--atk)/-2)!important}
+
+/* posição e tamanho personalizáveis (v3 editável) */
+body.v3 #battle #equipped .skill{--s:var(--sz,var(--skill-size));width:var(--s)!important;height:var(--s)!important;left:calc(var(--dx,0px) - var(--s)/2)!important;top:calc(var(--dy,0px) - var(--s)/2)!important}
+body.v3 #battle #equipped .skill[data-arc="0"]{--s:var(--sz,var(--atk))}
+body.v3 #battle #equipped .skill[data-arc="3"]{--s:var(--sz,56px)}
+body.v3 #battle .action-group #attack.v3-dash{--s:var(--sz,34px);width:var(--s)!important;height:var(--s)!important;left:calc(var(--dx,0px) - var(--s)/2)!important;top:calc(var(--dy,0px) - var(--s)/2)!important}
