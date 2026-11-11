@@ -23,3 +23,4 @@ body.v3 #battle #stick.floating{opacity:1}
 @media (prefers-reduced-motion:reduce){body.v3 #battle #lowHpFx.on{animation:none;opacity:.6}}
 body.v3 #battle #practiceMeter{top:78px!important;left:10px!important;z-index:5}
 body.v3 #battle #toast{top:78px!important}
+body.v3 #battle .hud #pauseBtn{pointer-events:auto!important}

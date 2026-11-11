@@ -48,11 +48,11 @@ updateArenaCamera=function(){
  prevCam();
  if(!cw||!ch||cw<ch||!p)return;
  const bt=document.getElementById('battle');
- if(!bt||bt.dataset.arena||W>1500)return;
- if(!(courtyardWide||battleActivity==='training'))return;
+ if(!bt||bt.dataset.arena||W>1500||arenaModeId)return;
  scale=Math.max(cw/W,ch/H);
  const f=p.hp>0?p:actors.find(a=>a.team===p.team&&a.hp>0)||p;
- ox=clamp(cw/2-f.x*scale,cw-W*scale,0);oy=clamp(ch/2-f.y*scale,ch-H*scale,0);
+ const mx=46*scale,mt=70*scale,mb=60*scale;   // a arte continua além da borda jogável: a câmera pode ir um pouco além
+ ox=clamp(cw/2-f.x*scale,cw-W*scale-mx,mx);oy=clamp(ch/2-f.y*scale,ch-H*scale-mb,mt);
 };
 
 /* bordas vermelhas piscando */

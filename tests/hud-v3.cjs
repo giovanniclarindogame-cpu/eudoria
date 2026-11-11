@@ -26,6 +26,11 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  ok(Math.abs(back[0]-home[0])<2&&Math.abs(back[1]-home[1])<2&&back[2]===0&&back[3]===null,'ao soltar, o desenho volta ao lugar fixo e o movimento para');
  await p.evaluate(()=>{document.getElementById('arena').dispatchEvent(new PointerEvent('pointerdown',{pointerId:8,pointerType:'touch',clientX:700,clientY:150,bubbles:true,cancelable:true}))});
  ok(await p.evaluate(()=>stickID===null),'tocar no lado direito não cria analógico');
+ const pb=await p.evaluate(()=>{const r=document.getElementById('pauseBtn').getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]});
+ await p.mouse.click(pb[0],pb[1]);await p.waitForTimeout(250);
+ ok(await p.evaluate(()=>state==='paused'),'botão de pausa funciona');
+ await p.evaluate(()=>document.querySelector('#resume').click());await p.waitForTimeout(200);
+ ok(await p.evaluate(()=>getComputedStyle(document.getElementById('arenaZoom')).display==='none'),'botão de zoom (−) removido');
  await p.screenshot({path:'/tmp/claude-0/s/hud.png'});
  ok(errs.length===0,'sem erros '+errs.slice(0,2));
  await br.close();

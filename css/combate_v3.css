@@ -12,3 +12,6 @@ body.v3 #battle #attack.v3-dash .v3-cd{position:absolute;inset:0;display:flex;al
 body.v3 #battle #attack.v3-dash.cooling{filter:saturate(.5) brightness(.75)}
 body.v3 #battle #attack.v3-dash .skill-art{position:absolute!important;inset:3px!important;width:auto!important;height:auto!important;display:block!important;border-radius:50%;background-size:cover!important;background-position:center!important}
 body.v3 #battle #attack.v3-dash small{position:absolute;left:0;right:0;bottom:3px;z-index:2;text-shadow:0 1px 3px #000,0 0 4px #000}
+body.v3 #battle #attack.v3-dash .v3-arrow{display:flex!important;align-items:center;justify-content:center;background:radial-gradient(circle,#3a4663,#1b2236)!important}
+body.v3 #battle #attack.v3-dash .v3-arrow svg{width:50%;height:50%;color:#e8c787}
+body.v3 #battle #arenaZoom{display:none!important}

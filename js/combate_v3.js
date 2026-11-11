@@ -13,6 +13,8 @@ const LEGACY=/[?&]legacy=1/.test(location.search);
 window.COMBAT_V3=!LEGACY;
 if(LEGACY)return;
 document.body.classList.add('v3');
+// reforço: o mesmo CSS também entra por aqui, para o layout nunca depender de um arquivo .css antigo em cache
+{const st=document.createElement('style');st.id='v3css';st.textContent="/* Combate v3: dash no lugar do soco, habilidades em meia-lua ao redor dele */\nbody.v3 #battle{--atk:64px;--skill-size:50px;--edge:78px}\nbody.v3 #battle .action-group #dodge,body.v3 #battle .action-group #defend,body.v3 #battle .control-tip{display:none!important}\nbody.v3 #battle .control-center{right:calc(var(--edge) + var(--atk)/2)!important;bottom:calc(max(12px,env(safe-area-inset-bottom)) + var(--atk)/2)!important;width:0!important;height:0!important;padding:0!important;background:none!important;border:0!important}\nbody.v3 #battle .equipped{display:block!important;position:absolute!important;left:0;top:0;width:0;height:0}\nbody.v3 #battle .equipped .skill{position:absolute!important;left:calc(var(--dx,0px) - var(--skill-size)/2)!important;top:calc(var(--dy,0px) - var(--skill-size)/2)!important;margin:0!important}\nbody.v3 #battle .equipped .skill[data-arc=\"3\"]{width:56px!important;height:56px!important;left:calc(var(--dx,0px) - 28px)!important;top:calc(var(--dy,0px) - 28px)!important;box-shadow:0 0 12px var(--c,#e8c787)}\nbody.v3 #battle .equipped .skill.v3-hidden{display:none!important}\nbody.v3 #battle .equipped .skill.v3-swap::after{content:\"TROCAR\";position:absolute;inset:auto 0 -2px;font-size:8px;font-weight:800;text-align:center;color:#fff;text-shadow:0 1px 3px #000}\nbody.v3 #battle .action-group #attack.v3-dash{position:relative;overflow:hidden}\nbody.v3 #battle #attack.v3-dash .v3-cd{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;text-shadow:0 1px 4px #000;pointer-events:none}\nbody.v3 #battle #attack.v3-dash.cooling{filter:saturate(.5) brightness(.75)}\nbody.v3 #battle #attack.v3-dash .skill-art{position:absolute!important;inset:3px!important;width:auto!important;height:auto!important;display:block!important;border-radius:50%;background-size:cover!important;background-position:center!important}\nbody.v3 #battle #attack.v3-dash small{position:absolute;left:0;right:0;bottom:3px;z-index:2;text-shadow:0 1px 3px #000,0 0 4px #000}\nbody.v3 #battle #attack.v3-dash .v3-arrow{display:flex!important;align-items:center;justify-content:center;background:radial-gradient(circle,#3a4663,#1b2236)!important}\nbody.v3 #battle #attack.v3-dash .v3-arrow svg{width:50%;height:50%;color:#e8c787}\nbody.v3 #battle #arenaZoom{display:none!important}\n";document.head.appendChild(st)}
 
 /* ------------------------------ definição dos kits ------------------------------ */
 // s = posições do kit (0..5) usadas como habilidade 1, 2 e 3 (a 1ª é a "principal", de recarga curta); a ultimate é sempre a posição 5.
@@ -211,8 +213,8 @@ function layout(){
   b.addEventListener('pointerdown',e=>{e.preventDefault();if(state!=='fight'||!p)return;if(!doDash(p)&&state==='fight'){const cd=dashCooldown(p);if(cd>0)toast('Dash em recarga: '+cd.toFixed(1)+'s')}});
  }
  const d=document.getElementById('attack');
- const id=dashIdOf(p);
- d.innerHTML=(id!=null?icon(id):'<span class="skill-art"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 20l9-9 4 4 9-9M19 6h8v8"/></svg></span>')+'<small>DASH</small><span class="v3-cd" aria-hidden="true"></span>';
+ const id=dashIdOf(p),vis=id!=null?id:(p.skin===1||p.skin===6?p.kit[3]:null);
+ d.innerHTML=(vis!=null?icon(vis):'<span class="skill-art v3-arrow"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 20l9-9 4 4 9-9M19 6h8v8"/></svg></span>')+'<small>DASH</small><span class="v3-cd" aria-hidden="true"></span>';
  d.dataset.hero=String(p.skin);
 }
 function refresh(){
