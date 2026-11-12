@@ -39,6 +39,7 @@ hit=function(t,n,o,k,an,id){
   lastDodgeFx=clock;float(t.x,t.y-58,'ESQUIVOU!','#8fe8ff');combatImpact?.(.5);
  }
  if(isHero(o)&&DMG[o.skin])n*=DMG[o.skin];
+ if(isHero(t)&&TAKE[t.skin])n*=TAKE[t.skin];
  const before=t&&t.hp,r=prevHit(t,n,o,k,an,id);
  if(r&&t&&before>t.hp){
   const lost=before-t.hp;
@@ -90,7 +91,9 @@ integratedDepth=function(){
 // multiplicador de dano por herói (índice do herói → fator), ajustado por simulação de duelos entre todos os heróis
 const DMG={0:1,1:1,2:1,3:1,4:1,5:1,6:1,7:1,8:1,9:1};
 try{const q=new URLSearchParams(location.search).get('dmg');if(q)q.split(',').forEach(kv=>{const [k,v]=kv.split(':');if(+v>0)DMG[+k]=+v})}catch{}
-window.V3_DMG_MUL=DMG;
+const TAKE={0:1,1:1,2:1,3:1,4:1,5:1,6:1,7:1,8:1,9:1};   // dano recebido (menor = mais resistente)
+try{const q=new URLSearchParams(location.search).get('take');if(q)q.split(',').forEach(kv=>{const [k,v]=kv.split(':');if(+v>0)TAKE[+k]=+v})}catch{}
+window.V3_DMG_MUL=DMG;window.V3_TAKE_MUL=TAKE;
 
 /* ---------- 5. Goku: anel de ki / Modo Poder no botão da habilidade 1 ---------- */
 function ensureRing(){
