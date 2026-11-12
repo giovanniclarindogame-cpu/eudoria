@@ -320,7 +320,7 @@ function draw(){if(!p||!cw)return;updateArenaCamera();ctx.clearRect(0,0,cw,ch);c
 dojoDrawDepthWorld();
 drawFocusMarker();for(const a of actors)drawActorStatus(a);
 drawAimV4();
-for(let t of texts){ctx.globalAlpha=Math.min(1,t.life*3);ctx.textAlign='center';ctx.font=(typeof t.t==='number'?'bold 18px':'12px')+' system-ui';ctx.strokeStyle='#142219';ctx.lineWidth=4;ctx.strokeText(t.t,t.x,t.y);ctx.fillStyle=t.color;ctx.fillText(t.t,t.x,t.y);ctx.globalAlpha=1}ctx.restore();drawArenaMap()}
+for(let t of texts){ctx.globalAlpha=Math.min(1,t.life*3);ctx.textAlign='center';ctx.font=(typeof t.t==='number'?'bold '+Math.round(Math.min(32,15+Math.sqrt(Math.max(0,t.t))*.95))+'px':'12px')+' system-ui';ctx.strokeStyle='#142219';ctx.lineWidth=4;ctx.strokeText(t.t,t.x,t.y);ctx.fillStyle=t.color;ctx.fillText(t.t,t.x,t.y);ctx.globalAlpha=1}ctx.restore();drawArenaMap()}
 const SKILL_ATLASES=["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""];
 const SKILL_SPRITE_SIZE=192,SKILL_SPRITE_FRAMES=24,SKILL_SPRITE_ROWS=4,SKILL_SPRITE_COLUMNS=6;
 const SKILL_CACHE_LIMIT=26,SKILL_DECODE_LIMIT=2;
