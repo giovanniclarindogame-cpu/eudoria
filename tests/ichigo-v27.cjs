@@ -7,7 +7,8 @@ const fs=require('node:fs');
   const page=await browser.newPage({viewport:{width:1280,height:720},hasTouch:true}),errors=[];
   page.on('pageerror',e=>errors.push(e.message));
   page.on('response',r=>{if(r.status()>=400&&!r.url().endsWith('favicon.ico'))errors.push(r.status()+' '+r.url());});
-  await page.goto('http://127.0.0.1:8000/index.html?legacy=1');
+  // This regression suite covers the six-slot engine before the v3 HUD/balance layer.
+  await page.goto('http://127.0.0.1:8000?legacy=1');
   await page.waitForFunction(()=>window.arenaQA&&!document.querySelector('#integrationLoading'));
   await page.locator('#welcomeEnter').click();await page.locator('#profileName').fill('Ronin');await page.locator('#profileForm button[type=submit]').click();
   await page.evaluate(async()=>{

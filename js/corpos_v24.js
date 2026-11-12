@@ -3,7 +3,9 @@ const BODY24=Object.fromEntries(['astral-base','ninja-base','astral-skills','nin
 const body24Registration=new Map();
 function body24Register(key){
  if(body24Registration.has(key))return body24Registration.get(key);
- const im=BODY24[key];if(!im.naturalWidth)return null;
+ // naturalWidth can become available before a WebP finishes loading. Do not
+ // cache measurements from a partially decoded atlas during the first lobby draw.
+ const im=BODY24[key];if(!im.complete||!im.naturalWidth)return null;
  const rows=key.endsWith('base')?6:4,c=document.createElement('canvas');c.width=im.naturalWidth;c.height=im.naturalHeight;
  const g=c.getContext('2d');g.drawImage(im,0,0);const pixels=g.getImageData(0,0,c.width,c.height).data,frames=[];
  for(let i=0;i<6*rows;i++){
