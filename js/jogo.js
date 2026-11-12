@@ -1477,7 +1477,7 @@ const IMPORTED_CHAMPION_PORTRAITS={"0":"assets/portraits/campeao_01.webp","1":"a
 const CHAMPIONS=[
  {id:0,name:'Guerreiro Astral',ref:'Goku',title:'O coração das estrelas',weapon:'Punhos e energia',color:'#78dbed',kit:[29,0,43,5,41,28],style:'Pressão e rajadas de energia',ult:'Esfera do Universo',summary:'Concentra energia nas mãos, luta com os punhos e reúne uma esfera colossal.'},
  {id:1,name:'Ninja das Brumas',ref:'Kakashi',title:'O olho que atravessa o espaço',weapon:'Kunai e ninjutsu',color:'#a4caff',kit:[31,27,2,37,35,48],style:'Mobilidade, clones e distorção',ult:'Kamui · Fenda Dupla',summary:'Alterna kunais, selos, clones e relâmpagos. Seu olho abre uma fenda dimensional.'},
- {id:2,name:'Ronin Carmesim',ref:'Ichigo',title:'A última lâmina',weapon:'Katana negra',color:'#e8a2a5',kit:[18,3,10,14,9,1],style:'Cortes, avanço e pressão',ult:'Mugetsu · Lua sem Luz',summary:'Uma katana longa conduz ondas de energia e cortes com todo o peso do corpo.'},
+ {id:2,name:'Ronin Carmesim',ref:'Espadachim espiritual',title:'A última lâmina',weapon:'Katana negra',color:'#e8a2a5',kit:[18,3,10,14,9,1],style:'Cortes, avanço e pressão',ult:'Eclipse Carmesim',summary:'Uma katana longa conduz ondas de energia e cortes com todo o peso do corpo.'},
  {id:3,name:'Guardião Solar',ref:'Rengoku',title:'O dragão das chamas',weapon:'Katana flamejante',color:'#ffbf70',kit:[24,45,17,40,36,49],style:'Combos de espada e fogo',ult:'Nona Forma · Dragão Solar',summary:'Posturas de espada, giros flamejantes e uma investida final em forma de dragão.'},
  {id:4,name:'Lutador do Eclipse',ref:'Gojo',title:'Além do infinito',weapon:'Técnicas espaciais',color:'#c4a5ff',kit:[34,4,22,8,15,7],style:'Atração, repulsão e controle',ult:'Vazio Roxo · 200%',summary:'Manipula o espaço com gestos precisos e une dois núcleos em um disparo devastador.'},
  {id:5,name:'Caçador Espectral',ref:'Gon',title:'A promessa definitiva',weapon:'Punhos e aura',color:'#b9e78a',kit:[11,20,33,39,19,46],style:'Carga, perseguição e impacto',ult:'Juramento · Potência Absoluta',summary:'Carrega a aura no punho, alterna pedra, tesoura e papel e libera sua forma de potência máxima.'},
@@ -1504,7 +1504,7 @@ const CHAMPION_TECHNIQUES=[
  [10,'Passo Cortante','Avança 210 unidades com 60 dano. Pilares interrompem o avanço.','thrust'],
  [14,'Lâmina Interior','Por 5s, cada básico gera um segundo golpe de 18 dano após 0,35s.','awaken'],
  [9,'Máscara Carmesim','Reduz dano recebido em 55% por 4s e movimento em 20%. Ao terminar: 35 dano + 40% do dano absorvido.','mask'],
- [1,'Mugetsu · Lua sem Luz','Ergue a katana por 1s e libera um corte negro de 360 dano em linha de 520 unidades.','moon'],
+ [1,'Eclipse Carmesim','Ergue a katana por 1s e libera um corte negro de 360 dano em linha de 520 unidades.','moon'],
  [24,'Primeira Chama','Disparo flamejante de 60 dano. Queima por 3s: 5 dano a cada 0,5s.','flameDraw'],
  [45,'Ascensão Ardente','Dois cortes de 30 dano. O segundo empurra o inimigo.','rising'],
  [17,'Mar de Chamas','Quatro explosões em linha, com 28 dano cada, começando após 0,8s.','flameSweep'],

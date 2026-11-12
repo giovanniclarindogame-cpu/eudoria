@@ -2,16 +2,16 @@
 const ICHIGO27_BODY=rwImage('assets/ichigo_v27/body.webp');
 const ichigo27Kit=[
  ['Corte Rápido','Avança e corta por 55 de dano. Ao acertar, use 1 novamente em até 0,65s para um corte ascendente de 40. Um retorno por uso; recarga mantida.',4,110,.16,.48],
- ['Quebra de Guarda','Prepara um corte vertical de 95 de dano. No contato frontal retira 45 de Stamina da guarda. Preparação e recuperação deixam espaço para esquivar.',7,115,.48,1.05],
- ['Getsuga Tenshō','Segure 3 por até 1,4s. Solte uma meia-lua de 85 a 165 de dano e alcance de 360 a 480. Custa 25 de Pressão; a carga deixa você parado.',8,480,.2,.85],
- ['Shunpo','Avança 180 na direção escolhida com breve invulnerabilidade. Cancela a recuperação dos dois primeiros cortes. Paredes bloqueiam o avanço.',6,180,.03,.3],
- ['Bankai','Custa 40 de Pressão. Por 7s: +20% de dano, +15% de velocidade, cortes mais rápidos e Getsuga negro com bordas vermelhas.',20,0,.32,.7],
- ['Getsuga Final','Exige 70 de Pressão e consome a barra. Prepara uma meia-lua negra de 210 + 1,6 por ponto de dano. Atravessa lutadores uma vez por alvo; paredes bloqueiam. Recuperação longa.',28,560,.75,1.65]
+ ['Golpe Rompente','Prepara um corte vertical de 95 de dano. No contato frontal retira 45 de Stamina da guarda. Preparação e recuperação deixam espaço para esquivar.',7,115,.48,1.05],
+ ['Onda Lunar','Segure 3 por até 1,4s. Solte uma meia-lua de 85 a 165 de dano e alcance de 360 a 480. Custa 25 de Pressão; a carga deixa você parado.',8,480,.2,.85],
+ ['Passo Carmesim','Avança 180 na direção escolhida com breve invulnerabilidade. Cancela a recuperação dos dois primeiros cortes. Paredes bloqueiam o avanço.',6,180,.03,.3],
+ ['Despertar Carmesim','Custa 40 de Pressão. Por 7s: +20% de dano, +15% de velocidade, cortes mais rápidos e onda lunar negra com bordas vermelhas.',20,0,.32,.7],
+ ['Eclipse Carmesim','Exige 70 de Pressão e consome a barra. Prepara uma meia-lua negra de 210 + 1,6 por ponto de dano. Atravessa lutadores uma vez por alvo; paredes bloqueiam. Recuperação longa.',28,560,.75,1.65]
 ];
 CHAMPIONS[2].kit.forEach((id,i)=>{const [name,desc,cd,range,release,duration]=ichigo27Kit[i];Object.assign(skills[id],{name,desc,cd,range,release,duration});});
 skills[CHAMPIONS[2].kit[2]].holdMax=1.4;
 CHAMPIONS[2].ult=ichigo27Kit[5][0];
-CHAMPIONS[2].summary='Cortes geram Pressão. Encadeie um segundo golpe, quebre a guarda e carregue a onda espiritual. Bankai acelera os cortes e desperta a lua carmesim.';
+CHAMPIONS[2].summary='Cortes geram Pressão. Encadeie um segundo golpe, use o golpe rompente e carregue a onda espiritual. O Despertar Carmesim acelera os cortes e desperta a lua carmesim.';
 identityKit(2).summary=CHAMPIONS[2].summary;
 const ichigo27Icon=icon;icon=function(id){const s=skills[id];return s?.champion===2?`<span class="skill-art reforged-icon" aria-hidden="true" style="background-image:url('assets/ichigo_v27/icon-${s.slot}.webp')"></span>`:ichigo27Icon(id);};
 function ichigo27Follow(a,id){return a?.skin===2&&id===a.kit[0]&&state==='fight'&&a.hp>0&&!a.guard&&a.root<=0&&a.dodgeTime<=0&&(reworkState(a).ichigoFollowUntil||0)>clock&&(!a.rwCast||a.rwCast.slot===0&&a.rwCast.released);}
