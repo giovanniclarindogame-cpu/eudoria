@@ -176,8 +176,8 @@ ultimateCinematicActor=function(){return solar29OldCinematic()||actors.find(a=>a
 const solar29OldIcon=icon;
 icon=function(id){const s=skills[id];return s?.champion===3?`<span class="skill-art reforged-icon" aria-hidden="true" style="background-image:url('assets/solar_v29/icon-${s.slot}.webp?v=29')"></span>`:solar29OldIcon(id);};
 const solar29OldArt=championArt;
-championArt=c=>c.id===3?'assets/solar_v29/portrait.webp?v=31':solar29OldArt(c);
-CHAMPION_HEROES.solar='assets/solar_v29/portrait.webp?v=31';
+championArt=c=>c.id===3?'assets/solar_v29/portrait.webp?v=32':solar29OldArt(c);
+CHAMPION_HEROES.solar='assets/solar_v29/portrait.webp?v=32';
 SKINS[3].desc='Cabelo laranja-dourado, capa branca com detalhes solares, armadura dourada e espada com brilho de brasa.';
 const solar29OldDetail=openChampionDetails;
 openChampionDetails=function(id){solar29OldDetail(id);$('#heroDetail')?.classList.toggle('solar-detail',Number(id)===3);};
