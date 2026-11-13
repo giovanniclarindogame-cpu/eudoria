@@ -36,6 +36,6 @@ body.v3 #battle #equipped.v3-power .skill{box-shadow:0 0 14px 3px #ffd34daa;bord
 body.v3 #battle #equipped .skill .v3-ring[hidden]{display:none}
 
 /* Ronin Carmesim: retrato um pouco maior para ficar na proporção do Guerreiro Astral e do Ninja das Brumas */
-.hero-card[data-hero-open="2"] .hero-card-art img{transform:scale(1.12);transform-origin:50% 100%}
+.hero-card[data-hero-open="2"] .hero-card-art{overflow:hidden}
 #heroDetail .hero-stage img[alt^="Ronin"]{transform:scale(1.08);transform-origin:50% 100%}
 .simple-champion-art img[alt^="Ronin"],.simple-current img[alt^="Ronin"]{transform:scale(1.1);transform-origin:50% 100%}
