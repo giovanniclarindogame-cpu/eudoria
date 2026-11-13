@@ -8,6 +8,8 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  ok(!/Getsuga|Shunpo|Bankai|Mugetsu|Ichigo|Quebra de Guarda/i.test(names),'Ronin Carmesim sem nomes de outras obras: '+names.slice(0,120));
  const solar=await p.evaluate(()=>CHAMPIONS[3].kit.map(id=>skills[id].name).concat([CHAMPIONS[3].ult,CHAMPIONS[3].ref,CHAMPIONS[3].title]).join(' | '));
  ok(!/Rengoku|Nona Forma|Dragão Solar|Respiração/i.test(solar),'Guardião Solar sem nomes de outras obras: '+solar.slice(0,140));
+ const all=await p.evaluate(()=>CHAMPIONS.map(c=>[c.name,c.ref,c.title,c.ult,...c.kit.map(id=>skills[id].name+' '+skills[id].desc)].join(' ')).join(' | '));
+ ok(!/Goku|Kakashi|Gojo|\bGon\b|Ichigo|Rengoku|Getsuga|Shunpo|Bankai|Kamui|Vazio Roxo|Domínio Vazio|Barreira Infinita|Cosmo Desperto|Pacto Total/i.test(all),'nenhum herói cita nomes de outras obras');
  for(const id of [0,1,2,5]){
   const r=await p.evaluate(id=>{openChampionDetails(id);const el=document.getElementById('heroDetail');const b=[...el.querySelectorAll('.hero-kit [data-hero-skill]')];const r={n:b.length,labels:b.map(x=>x.textContent.trim()).join(','),stat:[...el.querySelectorAll('.hero-stat')].map(s=>s.textContent.replace(/\s+/g,' ')).join('|'),act:el.querySelector('.hero-kit .active')?.dataset.heroSkill};closeHeroDetail();return r},id);
   ok(r.n===4&&r.labels.replace(/\s/g,'')==='1,2,3,ULT'.replace(/,/g,',')||r.n===4&&/^[^]*ULT$/.test(r.labels)&&!/5 \+/.test(r.stat),`detalhe do campeão ${id}: 3 habilidades + ULT (${r.labels})`);

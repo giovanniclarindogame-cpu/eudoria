@@ -1,11 +1,11 @@
 'use strict';
 const ORIGINAL_REWORK_KITS=[
 {skin:0,key:'astral',resource:'Ki',style:'Ki e transformação',color:'#ffd76c',summary:'Carregue energia e troque golpes para passar de Base a Desperto e Supremo. Os efeitos evoluem com o estágio.',skills:[
-['Rajada de Ki','De 3 a 7 esferas conforme o estágio. Gasta 10 Ki. No Supremo, as últimas esferas explodem em uma pequena área.',3,470,.18,.8,'volley'],
+['Rajada Astral','De 3 a 7 esferas conforme o estágio. Gasta 10 Ki. No Supremo, as últimas esferas explodem em uma pequena área.',3,470,.18,.8,'volley'],
 ['Combo Relâmpago','Avança com o punho à frente. Ao alcançar um inimigo, desfere de 4 a 8 socos conforme o estágio. Se errar, perde os 18 Ki e encerra o avanço. Obstáculos bloqueiam o dash.',6,260,.15,.95,'combo'],
 ['Onda Concentrada','Segure 3 por até 1,5s e solte: feixe de 90 a 240 de dano, mais forte e largo nos estágios altos. Gasta 20 Ki; alcance de 380 a 500.',7,500,.2,1.05,'beam'],
-['Passo Instantâneo','Teleporte curto de 150 a 210 conforme o estágio. Gasta 8 Ki e cancela a animação atual, inclusive cargas. Breve invulnerabilidade na saída.',5,210,.075,.25,'teleport'],
-['Carregar Aura','Segure 5 para recuperar 30 Ki por segundo. Com 40 Ki desperta; com 80 chega ao Supremo. Fica parado e recebe 20% mais dano durante a carga.',1,0,.1,.4,'aura'],
+['Salto Estelar','Teleporte curto de 150 a 210 conforme o estágio. Gasta 8 Ki e cancela a animação atual, inclusive cargas. Breve invulnerabilidade na saída.',5,210,.075,.25,'teleport'],
+['Concentrar Aura','Segure 5 para recuperar 30 Ki por segundo. Com 40 Ki desperta; com 80 chega ao Supremo. Fica parado e recebe 20% mais dano durante a carga.',1,0,.1,.4,'aura'],
 ['Esfera Solar','Gasta 35 Ki. Após preparar, a esfera cai do céu na área escolhida. O estágio aumenta seu raio de 80 a 150 e o dano de 220 a 360.',25,420,1,1.95,'sky']
 ]},
 {skin:1,key:'ninja',resource:'Cópia',style:'Adaptação e armadilha',color:'#8ccfff',summary:'Prepare o olho para guardar o próximo golpe especial recebido. Use a tecla 5 outra vez para devolver uma cópia.',skills:[
@@ -35,10 +35,10 @@ const ORIGINAL_REWORK_KITS=[
 {skin:4,key:'eclipse',resource:'Barreira',style:'Controle de espaço',color:'#9ccaff',summary:'Absorva projéteis com a barreira, controle a distância e proteja sua energia. Se a barreira quebrar, você fica exposto.',skills:[
 ['Repulsão','Onda curta de 65 de dano que empurra fortemente. Alcance 135, ideal para abrir distância.',6,135,.2,.6,'push'],
 ['Atração','Vórtice de 45 de dano até 300 que puxa o rival até 110 unidades, respeitando obstáculos.',9,300,.3,.75,'pull'],
-['Esfera Vermelha','Projétil lento de 165 de dano que explode em raio 85. Viaja até 430 e pode ser bloqueado por paredes.',12,430,.45,1,'orb'],
+['Esfera Rubra','Projétil lento de 165 de dano que explode em raio 85. Viaja até 430 e pode ser bloqueado por paredes.',12,430,.45,1,'orb'],
 ['Teleporte Curto','Aparece ao lado do alvo até 240, com breve invulnerabilidade. Precisa de espaço livre e caminho desobstruído.',10,240,.12,.45,'teleport'],
-['Barreira Infinita','Liga ou desliga a barreira de 240 pontos. Absorve projéteis e especiais distantes, reduz sua velocidade em 28%. Ao quebrar, fica 4s exposto. Recarrega desligada após 3s sem absorver dano.',1,0,.16,.4,'barrier'],
-['Domínio Vazio','Depois de um aviso de 0,6s, cria uma zona de raio 150 por 3s. Imobiliza inimigos que permanecem dentro e causa 20 de dano por segundo.',32,300,.45,1.4,'domain']
+['Barreira Cósmica','Liga ou desliga a barreira de 240 pontos. Absorve projéteis e especiais distantes, reduz sua velocidade em 28%. Ao quebrar, fica 4s exposto. Recarrega desligada após 3s sem absorver dano.',1,0,.16,.4,'barrier'],
+['Abismo Silente','Depois de um aviso de 0,6s, cria uma zona de raio 150 por 3s. Imobiliza inimigos que permanecem dentro e causa 20 de dano por segundo.',32,300,.45,1.4,'domain']
 ]},
 {skin:5,key:'hunter',resource:'Pacto',style:'Carga e explosão',color:'#c6f27a',summary:'Escolha a abertura para carregar. Qualquer dano recebido cancela a carga e perde o poder preparado.',skills:[
 ['Soco Carregado','Segure 1 por até 1,8s: soco de 65 a 260 de dano, com empurrão crescente. Fica parado; qualquer dano recebido interrompe a carga.',4,125,.18,.75,'charge'],
@@ -46,7 +46,7 @@ const ORIGINAL_REWORK_KITS=[
 ['Vara Giratória','Giro completo com a vara de pesca. Causa 70 de dano em volta, raio 125, e afasta o inimigo.',7,125,.25,.7,'spin'],
 ['Salto Selvagem','Salta até 230 e aterrissa com chute de 95 de dano em raio 65. Aterrissagem limitada pelas paredes.',8,230,.18,.95,'leap'],
 ['Instinto Animal','Por 6s, a esquiva custa 15 de stamina, recupera 40% mais rápido e ganha 0,12s de invulnerabilidade adicional.',16,0,.25,.55,'instinct'],
-['Pacto Total','Transforma-se por um instante em uma forma adulta. Soco de 80 + 70% da vida atual; depois consome 80% da própria vida, preservando ao menos 1 HP.',30,165,.9,1.65,'adult']
+['Juramento Total','Transforma-se por um instante em uma forma adulta. Soco de 80 + 70% da vida atual; depois consome 80% da própria vida, preservando ao menos 1 HP.',30,165,.9,1.65,'adult']
 ]}
 ];
 for(const kit of ORIGINAL_REWORK_KITS){kit.assets='reforged_v10';const c=CHAMPIONS[kit.skin];c.kit=[];c.style=kit.style;c.summary=kit.summary;c.ult=kit.skills[5][0];kit.skills=kit.skills.map((row,slot)=>{const[name,desc,cd,range,release,duration,pose]=row,id=skills.length,rank=slot===5?'S':slot>=3?'A':'B';const s={id,name,desc,cd,range,release,duration,pose,slot,champion:kit.skin,rank,color:kit.color,cost:0,ultimate:slot===5,reworked:true,type:slot===5?'Ultimate':slot===4?'Defesa':'Ataque'};if(kit.skin===0&&[2,4].includes(slot)||kit.skin===5&&slot===0)s.holdMax=kit.skin===5?1.8:slot===4?6:1.5;skills.push(s);RANK_IDS[rank].push(id);c.kit.push(id);return s;});IDENTITY_KITS[kit.skin]=kit;}

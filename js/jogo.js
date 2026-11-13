@@ -1475,21 +1475,21 @@ vfxSetQuality(vfxQuality);
 /* Artes de seleção importadas do Dojo 10 */
 const IMPORTED_CHAMPION_PORTRAITS={"0":"assets/portraits/campeao_01.webp","1":"assets/portraits/campeao_02.webp","2":"assets/portraits/campeao_03.webp","3":"assets/portraits/campeao_04.webp","4":"assets/portraits/campeao_05.webp","5":"assets/portraits/campeao_06.webp","6":"assets/portraits/campeao_07.webp","7":"assets/portraits/campeao_08.webp","8":"assets/portraits/campeao_09.webp","9":"assets/portraits/campeao_10.webp"};
 const CHAMPIONS=[
- {id:0,name:'Guerreiro Astral',ref:'Goku',title:'O coração das estrelas',weapon:'Punhos e energia',color:'#78dbed',kit:[29,0,43,5,41,28],style:'Pressão e rajadas de energia',ult:'Esfera do Universo',summary:'Concentra energia nas mãos, luta com os punhos e reúne uma esfera colossal.'},
- {id:1,name:'Ninja das Brumas',ref:'Kakashi',title:'O olho que atravessa o espaço',weapon:'Kunai e ninjutsu',color:'#a4caff',kit:[31,27,2,37,35,48],style:'Mobilidade, clones e distorção',ult:'Kamui · Fenda Dupla',summary:'Alterna kunais, selos, clones e relâmpagos. Seu olho abre uma fenda dimensional.'},
+ {id:0,name:'Guerreiro Astral',ref:'Lutador de ki',title:'O coração das estrelas',weapon:'Punhos e energia',color:'#78dbed',kit:[29,0,43,5,41,28],style:'Pressão e rajadas de energia',ult:'Esfera do Universo',summary:'Concentra energia nas mãos, luta com os punhos e reúne uma esfera colossal.'},
+ {id:1,name:'Ninja das Brumas',ref:'Ninja de elite',title:'O olho que atravessa o espaço',weapon:'Kunai e ninjutsu',color:'#a4caff',kit:[31,27,2,37,35,48],style:'Mobilidade, clones e distorção',ult:'Fenda Dupla',summary:'Alterna kunais, selos, clones e relâmpagos. Seu olho abre uma fenda dimensional.'},
  {id:2,name:'Ronin Carmesim',ref:'Espadachim espiritual',title:'A última lâmina',weapon:'Katana negra',color:'#e8a2a5',kit:[18,3,10,14,9,1],style:'Cortes, avanço e pressão',ult:'Eclipse Carmesim',summary:'Uma katana longa conduz ondas de energia e cortes com todo o peso do corpo.'},
  {id:3,name:'Guardião Solar',ref:'Guerreiro das chamas',title:'A chama que guarda o amanhecer',weapon:'Katana flamejante',color:'#ffbf70',kit:[24,45,17,40,36,49],style:'Combos de espada e fogo',ult:'Fênix do Amanhecer',summary:'Posturas de espada, giros flamejantes e uma investida final em forma de dragão.'},
- {id:4,name:'Lutador do Eclipse',ref:'Gojo',title:'Além do infinito',weapon:'Técnicas espaciais',color:'#c4a5ff',kit:[34,4,22,8,15,7],style:'Atração, repulsão e controle',ult:'Vazio Roxo · 200%',summary:'Manipula o espaço com gestos precisos e une dois núcleos em um disparo devastador.'},
- {id:5,name:'Caçador Espectral',ref:'Gon',title:'A promessa definitiva',weapon:'Punhos e aura',color:'#b9e78a',kit:[11,20,33,39,19,46],style:'Carga, perseguição e impacto',ult:'Juramento · Potência Absoluta',summary:'Carrega a aura no punho, alterna pedra, tesoura e papel e libera sua forma de potência máxima.'},
+ {id:4,name:'Lutador do Eclipse',ref:'Mestre do espaço',title:'Além do horizonte',weapon:'Técnicas espaciais',color:'#c4a5ff',kit:[34,4,22,8,15,7],style:'Atração, repulsão e controle',ult:'Fusão Violeta',summary:'Manipula o espaço com gestos precisos e une dois núcleos em um disparo devastador.'},
+ {id:5,name:'Caçador Espectral',ref:'Caçador instintivo',title:'A promessa definitiva',weapon:'Punhos e aura',color:'#b9e78a',kit:[11,20,33,39,19,46],style:'Carga, perseguição e impacto',ult:'Juramento · Potência Absoluta',summary:'Carrega a aura no punho, alterna pedra, tesoura e papel e libera sua forma de potência máxima.'},
  {"id":6,"name":"Herdeiro da Centelha","ref":"Força acumulada · mobilidade · controle","title":"O poder que cresce a cada passo","weapon":"Força acumulada","color":"#65e1b4","kit":[29,27,2,5,33,28],"style":"Força acumulada · mobilidade · controle","ult":"Legado da Tempestade","summary":"O poder que cresce a cada passo"},
  {"id":7,"name":"Corsário da Maré","ref":"Golpes elásticos · pressão · resistência","title":"Nenhuma corrente segura seu ímpeto","weapon":"Golpes elásticos","color":"#f0b471","kit":[31,0,43,32,5,49],"style":"Golpes elásticos · pressão · resistência","ult":"Punho do Rei das Marés","summary":"Nenhuma corrente segura seu ímpeto"},
  {"id":8,"name":"Cavaleiro do Firmamento","ref":"Rajadas · proteção · energia cósmica","title":"Um coração aceso entre as estrelas","weapon":"Rajadas","color":"#a4cfff","kit":[29,22,35,32,41,7],"style":"Rajadas · proteção · energia cósmica","ult":"Explosão do Firmamento","summary":"Um coração aceso entre as estrelas"},
  {"id":9,"name":"Alquimista de Aço","ref":"Transmutação · terreno · contra-ataque","title":"Toda ruína pode ganhar outra forma","weapon":"Transmutação","color":"#d9b77b","kit":[18,3,10,14,36,1],"style":"Transmutação · terreno · contra-ataque","ult":"Golpe Final","summary":"Toda ruína pode ganhar outra forma"}
 ];
 const CHAMPION_TECHNIQUES=[
- [29,'Rajada de Ki','Projétil de 48 dano. Empurra o alvo por 50 unidades.','palm'],
+ [29,'Rajada Astral','Projétil de 48 dano. Empurra o alvo por 50 unidades.','palm'],
  [0,'Punho Meteoro','Soco de 45 dano e explosão de 38 dano após 0,5s.','uppercut'],
- [43,'Passo Instantâneo','Avança até 160 unidades, remove imobilização e concede 0,25s de invulnerabilidade.','blink'],
+ [43,'Salto Estelar','Avança até 160 unidades, remove imobilização e concede 0,25s de invulnerabilidade.','blink'],
  [5,'Aura Ascendente','Por 5s: +25% de movimento e +12 dano no ataque básico.','power'],
  [41,'Concentrar Ki','Concentra por 1s e recupera 25 MP. Permanece vulnerável.','gather'],
  [28,'Esfera do Universo','Reúne energia por 1,2s. Explosão de 340 dano em raio de 150 no ponto marcado.','spirit'],
@@ -1498,7 +1498,7 @@ const CHAMPION_TECHNIQUES=[
  [2,'Substituição das Brumas','Avança 150 unidades. Deixa uma explosão de 35 dano após 0,65s.','substitute'],
  [37,'Clones das Brumas','Três clones por 4s, com 30 HP cada. Cada clone causa 9 dano a cada 1,1s.','seals'],
  [35,'Olho Intangível','Por 3,2s, reflete até dois projéteis. Não reflete áreas nem golpes de perto.','eye'],
- [48,'Kamui · Fenda Dupla','Após 0,9s, abre duas fendas no ponto marcado: 180 + 150 dano, com intervalo de 0,3s.','rift'],
+ [48,'Fenda Dupla','Após 0,9s, abre duas fendas no ponto marcado: 180 + 150 dano, com intervalo de 0,3s.','rift'],
  [18,'Onda da Lua','Corte de energia de 62 dano, com alcance de 450 unidades.','draw'],
  [3,'Tríade da Katana','Três cortes de 27 dano em arco. Intervalo de 0,18s entre os cortes.','triple'],
  [10,'Passo Cortante','Avança 210 unidades com 60 dano. Pilares interrompem o avanço.','thrust'],
@@ -1516,7 +1516,7 @@ const CHAMPION_TECHNIQUES=[
  [22,'Barreira do Infinito','Por 1,2s, anula projéteis em um raio de 100. Cada anulação acrescenta 20 dano ao próximo básico.','infinity'],
  [8,'Domínio do Eclipse','Três âncoras atraem o rival ao centro por 3s. Cada âncora tem 25 HP e pode ser destruída.','domain'],
  [15,'Dobra Espacial','Marca sua posição; retorna após 2s e recupera 12 MP. O dano recebido permanece.','fold'],
- [7,'Vazio Roxo · 200%','Une os núcleos por 1,2s e dispara um feixe de 350 dano em linha de 520 unidades.','purple'],
+ [7,'Fusão Violeta','Une os núcleos por 1,2s e dispara um feixe de 350 dano em linha de 520 unidades.','purple'],
  [11,'Pedra · Punho Carregado','Por 5s, os próximos cinco ataques básicos ganham 22 dano.','rock'],
  [20,'Tesoura · Corte de Aura','Carrega por 0,7s, avança 160 unidades e atinge com 70 dano.','scissors'],
  [33,'Papel · Projeção de Aura','Projétil de 40 dano. Prende por 0,7s e cura metade do dano realmente causado.','paper'],
