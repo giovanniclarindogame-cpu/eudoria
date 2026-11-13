@@ -20,12 +20,31 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=r
   reworkState(p).barrier=false;reworkState(p).barrierBroken=3.8;paint30();check(integratedDepth().some(e=>e.kind==='eclipse-barrier'),'broken barrier renders');
   setup30();b.x=550;check(cast(p,p.kit[5],0),'domain accepted');advance30(.6);paint30();check(!objects.some(o=>o.v10Domain),'domain warning precedes zone');state='fight';advance30(.5);paint30();check(objects.some(o=>o.v10Domain),'domain zone');check(integratedDepth().some(e=>e.kind==='eclipse-domain'),'new domain renders');check(!integratedDepth().some(e=>e.kind==='domain'),'old domain removed');state='fight';advance30(1);paint30();check(p.hits>0,'domain damage');p.hp=0;check(!integratedDepth().some(e=>e.kind==='eclipse-domain'||e.kind==='eclipse-barrier'),'death clears persistent visuals');
   for(const key of ['repulse','attract','red','teleport','barrier','domain','impact'])check(seen30.has(key),key+' rendered');
-  check(championArt(CHAMPIONS[4])==='assets/portraits/campeao_05.webp','fixed portrait');for(let i=0;i<6;i++)check(icon(CHAMPIONS[4].kit[i]).includes('eclipse_v30/icon-'+i),'icon '+i);
+  check(championArt(CHAMPIONS[4])==='assets/eclipse_v30/portrait.webp?v=31','unique Eclipse portrait');for(let i=0;i<6;i++)check(icon(CHAMPIONS[4].kit[i]).includes('eclipse_v30/icon-'+i),'icon '+i);
  },legacy);
+ if(!legacy){
+  const scale=await page.evaluate(()=>{
+   const canvas=document.createElement('canvas');canvas.width=1100;canvas.height=220;const g=canvas.getContext('2d'),heights=[],soles=[];
+   g.fillStyle='#26372b';g.fillRect(0,0,1100,220);
+   for(let skin=0;skin<5;skin++){
+    const a=actor(0,0,CHAMPIONS[skin].kit,'white');a.skin=skin;
+    const cell=document.createElement('canvas');cell.width=cell.height=180;const ink=cell.getContext('2d');ink.translate(90,140);rwPaintBody(ink,a,72,0);
+    const d=ink.getImageData(0,0,180,180).data;let top=180,bottom=-1;
+    for(let y=0;y<180;y++)for(let x=0;x<180;x++)if(d[(y*180+x)*4+3]>170){top=Math.min(top,y);bottom=Math.max(bottom,y);}
+    heights.push(bottom-top+1);soles.push(bottom);g.imageSmoothingEnabled=false;g.drawImage(cell,skin*220,0,220,200);
+    g.fillStyle='#ffe2a0';g.font='15px sans-serif';g.fillText(CHAMPIONS[skin].name,skin*220+12,212);
+   }
+   return {heights,soles,url:canvas.toDataURL()};
+  });
+  assert.ok(scale.heights.every(h=>Math.abs(h-scale.heights[4])<=2),'Eclipse matches roster height: '+scale.heights);
+  assert.ok(scale.soles.every(y=>Math.abs(y-scale.soles[4])<=1),'Eclipse shares ground baseline: '+scale.soles);
+  fs.writeFileSync('/tmp/eclipse-five-fighters.png',Buffer.from(scale.url.split(',')[1],'base64'));
+  console.log('PASS Eclipse roster scale and ground alignment:',scale.heights,scale.soles);
+ }
  if(!legacy)for(const width of [1280,844]){
   await page.setViewportSize({width,height:width===1280?720:390});await page.evaluate(()=>{setup30();state='paused';openChampionDetails(4)});await page.waitForFunction(()=>[...document.querySelectorAll('#heroDetail img')].every(i=>i.complete&&i.naturalWidth));
   assert.ok(await page.locator('#heroDetail').evaluate(e=>getComputedStyle(e).backgroundImage.includes('eclipse_v30')));assert.equal(await page.locator('#heroDetail [data-hero-skill]').count(),4);
   await page.screenshot({path:`/tmp/eclipse-selection-${width}.png`});await page.evaluate(()=>{closeHeroDetail();setup30();advance30(.1);paint30()});await page.screenshot({path:`/tmp/eclipse-arena-${width}.png`});
  }
- assert.deepEqual(errors,[]);await page.close();console.log('PASS Eclipse '+(legacy?'legacy':'v3')+': seven effects, pushes/pulls, projectile damage, teleport, barrier, domain, death cleanup, fixed portrait, six icons, selection');
+ assert.deepEqual(errors,[]);await page.close();console.log('PASS Eclipse '+(legacy?'legacy':'v3')+': seven effects, pushes/pulls, projectile damage, teleport, barrier, domain, death cleanup, unique portrait, six icons, selection');
  }}finally{await browser.close()}})().catch(e=>{console.error(e);process.exit(1)});

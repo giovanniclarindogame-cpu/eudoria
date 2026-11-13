@@ -1,6 +1,6 @@
 'use strict';
 // Visual adapters only: damage, movement, resources and cooldowns stay in the combat engine.
-const ECLIPSE30_BODY=rwImage('assets/eclipse_v30/body.webp?v=30');
+const ECLIPSE30_BODY=rwImage('assets/eclipse_v30/body.webp?v=31');
 const ECLIPSE30_KEYS=['repulse','attract','red','teleport','barrier','domain'];
 const ECLIPSE30_FX=Object.fromEntries([...ECLIPSE30_KEYS,'impact'].map(k=>[k,rwImage(`assets/eclipse_v30/${k}.webp?v=30`)]));
 let eclipse30Registration=null;
@@ -87,7 +87,7 @@ rwPaintFX=function(e){if(e.kind==='eclipse-contact')return eclipse30Effect(ctx,'
 const eclipse30OldIcon=icon;
 icon=function(id){const s=skills[id];return s?.champion===4?`<span class="skill-art reforged-icon" aria-hidden="true" style="background-image:url('assets/eclipse_v30/icon-${s.slot}.webp?v=30')"></span>`:eclipse30OldIcon(id);};
 const eclipse30OldArt=championArt;
-championArt=c=>c.id===4?'assets/portraits/campeao_05.webp':eclipse30OldArt(c);
-CHAMPION_HEROES.eclipse='assets/portraits/campeao_05.webp';
+championArt=c=>c.id===4?'assets/eclipse_v30/portrait.webp?v=31':eclipse30OldArt(c);
+CHAMPION_HEROES.eclipse='assets/eclipse_v30/portrait.webp?v=31';
 const eclipse30OldDetail=openChampionDetails;
 openChampionDetails=function(id){eclipse30OldDetail(id);$('#heroDetail')?.classList.toggle('eclipse-detail',Number(id)===4);};

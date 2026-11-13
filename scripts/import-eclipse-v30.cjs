@@ -1,5 +1,5 @@
-// Usage: node scripts/import-eclipse-v30.cjs /path/to/source-pngs
-// Technical packing only. The canonical portrait is never read or overwritten here.
+// Usage: node scripts/import-eclipse-v30.cjs /path/to/source-pngs [--character-only]
+// Technical packing only. Optional portrait.png becomes the new selection portrait.
 const sharp=require('sharp'),fs=require('node:fs/promises'),path=require('node:path');
 const source=process.argv[2],out=path.resolve(__dirname,'../assets/eclipse_v30');
 if(!source)throw Error('Provide source PNG folder');
@@ -19,6 +19,8 @@ function bodyCell(d){
  const scale=Math.min(173/Math.max(...frames.slice(0,6).map(f=>f.height)),189/Math.max(...frames.map(f=>f.height)),193/Math.max(...frames.map(f=>f.width))),tiles=[];
  for(let i=0;i<36;i++){const f=frames[i],h=i<6?[172,173,173,172,171,171][i]:Math.round(f.height*scale),w=Math.round(f.width*(i<6?h/f.height:scale));tiles.push({input:await sharp(f.d,{raw:{width:209,height:209,channels:4}}).extract({left:f.left,top:f.top,width:f.width,height:f.height}).resize(w,h,{kernel:'nearest'}).png().toBuffer(),left:i%6*209+Math.floor((209-w)/2),top:Math.floor(i/6)*209+194-h});}
  await sharp({create:{width:1254,height:1254,channels:4,background:'#0000'}}).composite(tiles).webp(webp).toFile(path.join(out,'body.webp'));
+ try{await fs.access(input('portrait'));await sharp(input('portrait')).resize(760,1140,{fit:'contain',background:'#0000'}).webp(webp).toFile(path.join(out,'portrait.webp'));}catch(e){if(e.code!=='ENOENT')throw e;}
+ if(process.argv.includes('--character-only')){console.log('Packed revised Eclipse body and optional portrait.');return;}
  await dimensions('icons',1536,1024);
  for(let i=0;i<6;i++)await sharp(input('icons')).extract({left:i%3*512,top:Math.floor(i/3)*512,width:512,height:512}).resize(256,256).webp(webp).toFile(path.join(out,`icon-${i}.webp`));
  await dimensions('background',1536,1024);await sharp(input('background')).webp(webp).toFile(path.join(out,'background.webp'));
