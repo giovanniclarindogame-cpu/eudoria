@@ -29,10 +29,32 @@ function eclipse30Body(g,a,size=72,t=vfxTime){
 }
 const eclipse30OldBody=rwPaintBody;
 rwPaintBody=function(g,a,size=72,t=vfxTime){return a.skin===4?eclipse30Body(g,a,size,t)||eclipse30OldBody(g,a,size,t):eclipse30OldBody(g,a,size,t);};
+// Limpa a névoa branca de baixa opacidade das folhas (ela aparecia como uma placa quadrada) e suaviza as bordas da célula.
+// A barreira usa máscara circular para a bolha não ficar com cara de quadrado.
+const eclipse30Clean=new Map();
+function eclipse30Cell(key,f){
+ const id=key+':'+f;let c=eclipse30Clean.get(id);if(c)return c;
+ const im=ECLIPSE30_FX[key];
+ c=document.createElement('canvas');c.width=c.height=256;const g=c.getContext('2d');
+ g.drawImage(im,f%6*256,Math.floor(f/6)*256,256,256,0,0,256,256);
+ const data=g.getImageData(0,0,256,256),d=data.data,round=key==='barrier';
+ for(let y=0;y<256;y++)for(let x=0;x<256;x++){
+  const i=(y*256+x)*4;let a=d[i+3];if(!a)continue;
+  const r=d[i],gg=d[i+1],b=d[i+2],mx=Math.max(r,gg,b),mn=Math.min(r,gg,b);
+  // névoa: quase branca e pouco opaca
+  if(!round&&a<=64&&mn>190&&mx-mn<40)a=0;
+  else if(!round&&a<=64&&mn>190)a*=.4;
+  let f2;
+  if(round){const rr=Math.hypot(x-127.5,y-127.5)/128;f2=Math.max(0,Math.min(1,(1-rr)/.22))}
+  else{const e=Math.min(x,y,255-x,255-y);f2=Math.max(0,Math.min(1,e/22))}
+  d[i+3]=a*f2;
+ }
+ g.putImageData(data,0,0);eclipse30Clean.set(id,c);return c;
+}
 function eclipse30Effect(g,key,frame,x,y,size,angle=0,directional=false,alpha=1){
  const im=ECLIPSE30_FX[key];if(!im?.complete||!im.naturalWidth)return false;const f=clamp(Math.floor(frame),0,23);
  g.save();g.translate(x,y);g.globalAlpha*=alpha;g.imageSmoothingEnabled=false;if(directional)orientSkillSprite(g,angle);
- g.drawImage(im,f%6*256,Math.floor(f/6)*256,256,256,-size/2,-size/2,size,size);g.restore();return true;
+ g.drawImage(eclipse30Cell(key,f),0,0,256,256,-size/2,-size/2,size,size);g.restore();return true;
 }
 const eclipse30OldSprite=rwSprite;
 rwSprite=function(g,skin,slot,x,y,size,phase,angle=0,directional=false,alpha=1,stage=0){
