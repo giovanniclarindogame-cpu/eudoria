@@ -1,6 +1,6 @@
 'use strict';
 // Solar artwork only: the existing Chama/burn/collision/balance rules stay in combate_seis/v3.
-const SOLAR29_BODY=rwImage('assets/solar_v29/body.webp?v=29');
+const SOLAR29_BODY=rwImage('assets/solar_v29/body.webp?v=31');
 const SOLAR29_FX=Object.fromEntries(['slash','tiger','pillar','dash','phoenix','impact','aura'].map(key=>[key,rwImage(`assets/solar_v29/${key}.webp?v=29`)]));
 const solar29Cells=new Map();
 let solar29Registration=null;
@@ -17,7 +17,8 @@ function solar29Register(){
   if(bottom<0)return null;
   frames.push({x,y,top,bottom});
  }
- return solar29Registration={frames,height:Math.max(...frames.slice(0,6).map(f=>f.bottom-f.top+1))};
+ // Use the neutral frame for body scale; breathing must not shrink the whole atlas.
+ return solar29Registration={frames,height:frames[0].bottom-frames[0].top+1};
 }
 function solar29Pose(a,t){
  const q=a.rwCast,angle=q?.angle??a.rwFacing??a.a??0;
@@ -43,7 +44,8 @@ function solar29Body(g,a,size=72,t=vfxTime){
  const reg=solar29Register();if(!reg)return false;
  const pose=solar29Pose(a,t),f=reg.frames[pose.frame],k=size/72*73/reg.height;
  g.save();g.imageSmoothingEnabled=false;
- g.translate(0,9*size/72);g.scale(Math.cos(pose.angle)<0?-1:1,1);
+ // Align the exported foot baseline with the actor origin (9px higher at size 72).
+ g.scale(Math.cos(pose.angle)<0?-1:1,1);
  const breath=pose.idle?Math.sin(t*2.6)*.012:0;
  g.scale(1-breath*.25,1+breath);
  // Fixed root and exported baseline: a long sword or fluttering cape never recenters the body.
@@ -173,8 +175,8 @@ ultimateCinematicActor=function(){return solar29OldCinematic()||actors.find(a=>a
 const solar29OldIcon=icon;
 icon=function(id){const s=skills[id];return s?.champion===3?`<span class="skill-art reforged-icon" aria-hidden="true" style="background-image:url('assets/solar_v29/icon-${s.slot}.webp?v=29')"></span>`:solar29OldIcon(id);};
 const solar29OldArt=championArt;
-championArt=c=>c.id===3?'assets/solar_v29/portrait.webp?v=29':solar29OldArt(c);
-CHAMPION_HEROES.solar='assets/solar_v29/portrait.webp?v=29';
+championArt=c=>c.id===3?'assets/solar_v29/portrait.webp?v=31':solar29OldArt(c);
+CHAMPION_HEROES.solar='assets/solar_v29/portrait.webp?v=31';
 SKINS[3].desc='Cabelo laranja-dourado, capa branca com detalhes solares, armadura dourada e espada com brilho de brasa.';
 const solar29OldDetail=openChampionDetails;
 openChampionDetails=function(id){solar29OldDetail(id);$('#heroDetail')?.classList.toggle('solar-detail',Number(id)===3);};

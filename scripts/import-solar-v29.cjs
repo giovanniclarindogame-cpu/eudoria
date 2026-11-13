@@ -1,6 +1,7 @@
 // Pack the generated PNG artwork without changing its painted design.
 // Usage: node scripts/import-solar-v29.cjs /path/to/png-sources
 // Expected: body.png, portrait.png, background.png, icons.png and the seven FX PNGs.
+// Add --character-only to replace just the portrait and body atlas.
 const sharp=require('sharp');
 const fs=require('node:fs/promises');
 const path=require('node:path');
@@ -35,6 +36,7 @@ function bounds(data,width,height){
  }
  await sharp({create:{width:1254,height:1254,channels:4,background:'#0000'}}).composite(bodyTiles).webp(webp).toFile(path.join(out,'body.webp'));
  await sharp(png('portrait')).resize(760,1140,{fit:'contain',background:'#0000'}).webp(webp).toFile(path.join(out,'portrait.webp'));
+ if(process.argv.includes('--character-only'))return;
  await sharp(png('background')).resize(1536,1024).webp(webp).toFile(path.join(out,'background.webp'));
  for(let i=0;i<6;i++)await sharp(png('icons')).extract({left:i%3*512,top:Math.floor(i/3)*512,width:512,height:512}).resize(256,256).webp(webp).toFile(path.join(out,`icon-${i}.webp`));
  for(const key of effects){
