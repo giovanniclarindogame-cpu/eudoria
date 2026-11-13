@@ -34,6 +34,15 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  await p.waitForTimeout(900);
  const alN=await p.evaluate(()=>objects.length-window.__n0);
  ok(alN>=1,'Alquimista: dash deixa um bloco de pedra');
+ // Lutador do Eclipse: combo, barreira pelo dash, anel de energia
+ await FIGHT(4);await p.waitForTimeout(300);
+ const cb=await p.evaluate(()=>{b.skin=0;b.kit=[...CHAMPIONS[0].kit];b.hp=b.max=5000;b.inv=0;b.guard=false;b.x=p.x+60;b.y=p.y;const r=()=>{const h=b.hp;hit(b,100,p,0,0,p.kit[2]);return h-b.hp};b.v3pulled=0;const base=r();b.v3pulled=clock;texts=[];const combo=r();return{base,combo,txt:texts.some(t=>t.t==='COMBO!')}});
+ ok(cb.combo>cb.base*1.15&&cb.txt,`Atração + Esfera Rubra: combo causa +20% (${cb.base.toFixed(0)} → ${cb.combo.toFixed(0)}) e mostra COMBO!`);
+ const bar=await p.evaluate(async()=>{const s=reworkState(p);s.barrier=false;s.barrierEnergy=240;s.barrierBroken=0;for(let i=0;i<30;i++)step(1/60);const idle=s.barrier;p.v3dashCD=0;p.cast=0;p.root=0;joy.x=1;joy.y=0;V3API.doDash(p);const on=s.barrier;for(let i=0;i<60;i++)step(1/60);const still=s.barrier;for(let i=0;i<60;i++)step(1/60);return{idle,on,still,off:s.barrier,t:s.v3BarrierT}});
+ ok(bar.idle===false,'barreira do jogador não liga sozinha');
+ ok(bar.on===true&&bar.still===true&&bar.off===false,'teleporte levanta a barreira por ~1,6 s e ela desliga');
+ const ring=await p.evaluate(()=>integratedDepth().some(e=>e.kind==='v3-barring'));
+ ok(ring,'anel de energia da barreira desenhado aos pés');
  ok(errs.length===0,'sem erros '+errs.slice(0,2));
  await br.close();
 })();
