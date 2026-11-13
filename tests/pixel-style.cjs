@@ -12,7 +12,22 @@ const{chromium}=require('playwright');const assert=require('node:assert/strict')
    if(!g.imageSmoothingEnabled||g.getTransform().e!==160)throw Error('Renderer leaked canvas state');
    const data=g.getImageData(0,0,320,320).data;let pixels=0,uneven=0;
    for(let y=0;y<320;y+=2)for(let x=0;x<320;x+=2){let i=(y*320+x)*4;if(data[i+3])pixels++;for(const offset of [4,320*4,320*4+4])for(let c=0;c<4;c++)if(data[i+c]!==data[i+offset+c])uneven++;}
-   if(pixels<100||uneven)throw Error(`Inconsistent pixel grid for ${skin}/${mode}: ${pixels}, ${uneven}`);reports.push({skin,mode,pixels});
+   if(pixels<100)throw Error(`Empty fighter for ${skin}/${mode}`);
+   if(skin<4){
+    // The detailed fighters must retain the source art at both normal and high
+    // screen densities, instead of being reduced to the legacy 56px surface.
+    for(const density of [1,2]){
+     const render=paint=>{
+      const c=document.createElement('canvas');c.width=c.height=320*density;
+      const ink=c.getContext('2d');ink.scale(density,density);ink.translate(160,240);
+      paint(ink,p,112,0);return ink.getImageData(0,0,c.width,c.height).data;
+     };
+     const actual=render(drawAnimatedFighter),expected=render(rwPaintBody);
+     if(actual.some((v,i)=>v!==expected[i]))throw Error(`Lost source detail for ${skin}/${mode} at ${density}x`);
+    }
+    if(!uneven)throw Error(`Detailed fighter still uses coarse 2x2 grid: ${skin}/${mode}`);
+   }else if(uneven)throw Error(`Inconsistent pixel grid for ${skin}/${mode}: ${pixels}, ${uneven}`);
+   reports.push({skin,mode,pixels});
   }state='paused';return reports;
- });assert.equal(result.length,50);assert.deepEqual(errors,[]);console.log('PASS: all ten fighters × five combat states share crisp 2×2 pixels, with visible sprites and preserved canvas state');await browser.close();
+ });assert.equal(result.length,50);assert.deepEqual(errors,[]);console.log('PASS: four detailed fighters preserve atlas detail at 1x/2x; six legacy fighters retain their pixel grid; all five states visible with preserved canvas state');await browser.close();
 })().catch(e=>{console.error(e);process.exit(1)});

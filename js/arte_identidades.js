@@ -41,7 +41,13 @@ function rwPaintBody(g,a,size=72,t=vfxTime){
  const m=rwBodyPose(a,t),factor=size/85*rwSizeFactors[a.skin];g.save();g.imageSmoothingEnabled=false;g.scale(m.facing,1);g.translate(m.dx*size/72,m.dy*size/72);g.rotate(m.tilt);
  g.drawImage(im,m.frame%6*128,Math.floor(m.frame/6)*128,128,128,-64*factor,9-118*factor,128*factor,128*factor);g.restore();return true;
 }
-drawAnimatedFighter=function(g,a,size=72,t=vfxTime){if(!a)return false;return EldoriaPixels.paint(g,(ink,native)=>rwPaintBody(ink,a,native,t),size);};
+drawAnimatedFighter=function(g,a,size=72,t=vfxTime){
+ if(!a)return false;
+ // Detailed atlases render directly at the destination canvas resolution, like
+ // the training dummy. The 56px intermediate grid discards their painted detail.
+ if(a.skin>=0&&a.skin<4)return rwPaintBody(g,a,size,t);
+ return EldoriaPixels.paint(g,(ink,native)=>rwPaintBody(ink,a,native,t),size);
+};
 function rwSprite(g,skin,slot,x,y,size,phase,angle=0,directional=false,alpha=1){
  const k=identityKit(skin);if(!k)return;const im=rwImage(`assets/${k.assets||'reforged_v9'}/${k.key}-${slot}.webp`);if(!im.naturalWidth)return;
  const f=clamp(Math.floor(phase*24),0,23);g.save();g.translate(Math.round(x),Math.round(y));if(directional)orientSkillSprite(g,angle);else if(Math.cos(angle)<0)g.scale(-1,1);g.globalAlpha*=alpha;g.imageSmoothingEnabled=false;
