@@ -25,12 +25,12 @@ const ORIGINAL_REWORK_KITS=[
 ['Lua Crescente Final','Exige 70 de Pressão e consome toda a barra. Meia-lua de 210 + 1,6 por ponto de dano, que atravessa lutadores e para nas paredes.',27,560,.65,1.5,'crescent']
 ]},
 {skin:3,key:'solar',resource:'Chama',style:'Presença e dano contínuo',color:'#ffad5c',summary:'Acumule queimaduras e mantenha a ofensiva. Até cinco marcas aumentam o próximo especial; a Chama esfria sem acertos.',skills:[
-['Corte Flamejante','Corte horizontal de 55 de dano. Aplica queimadura e alimenta a Chama Viva.',3,115,.18,.55,'slash'],
-['Tigre de Fogo','Lança um tigre de chamas de 95 de dano até 420. Aplica queimadura; o número de marcas no alvo fortalece o lançamento.',7,420,.3,.8,'tiger'],
-['Pilar Ardente','Marca o chão e, após 0,5s, ergue uma coluna de 100 de dano em raio 65, até 320 de distância.',9,320,.3,.85,'ground'],
-['Investida Solar','Avança até 260 atravessando o inimigo. Causa 80 de dano uma vez por alvo e deixa queimadura.',7,260,.16,.75,'dash'],
-['Respiração Ardente','Por 7s: +30% de dano de fogo. Novas queimaduras duram 7s em vez de 4s. Mantém a postura por um instante ao ativar.',17,0,.3,.65,'aura'],
-['Fênix Ardente','Exige 50 de Chama e consome a reserva. Cruza até 600 unidades como uma fênix, causando 240 de dano, com quatro marcas de queimadura em cada alvo atingido.',28,600,.45,1.6,'phoenix']
+['Lâmina Ígnea','Corte horizontal de 55 de dano. Aplica queimadura e alimenta a Chama Viva.',3,115,.18,.55,'slash'],
+['Fera de Brasa','Lança um tigre de chamas de 95 de dano até 420. Aplica queimadura; o número de marcas no alvo fortalece o lançamento.',7,420,.3,.8,'tiger'],
+['Coluna Solar','Marca o chão e, após 0,5s, ergue uma coluna de 100 de dano em raio 65, até 320 de distância.',9,320,.3,.85,'ground'],
+['Passo do Amanhecer','Avança até 260 atravessando o inimigo. Causa 80 de dano uma vez por alvo e deixa queimadura.',7,260,.16,.75,'dash'],
+['Chama Interior','Por 7s: +30% de dano de fogo. Novas queimaduras duram 7s em vez de 4s. Mantém a postura por um instante ao ativar.',17,0,.3,.65,'aura'],
+['Fênix do Amanhecer','Exige 50 de Chama e consome a reserva. Cruza até 600 unidades como uma fênix, causando 240 de dano, com quatro marcas de queimadura em cada alvo atingido.',28,600,.45,1.6,'phoenix']
 ]},
 {skin:4,key:'eclipse',resource:'Barreira',style:'Controle de espaço',color:'#9ccaff',summary:'Absorva projéteis com a barreira, controle a distância e proteja sua energia. Se a barreira quebrar, você fica exposto.',skills:[
 ['Repulsão','Onda curta de 65 de dano que empurra fortemente. Alcance 135, ideal para abrir distância.',6,135,.2,.6,'push'],
