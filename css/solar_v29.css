@@ -1,0 +1,7 @@
+#heroDetail.solar-detail{background:#44281b url('../assets/solar_v29/background.webp?v=29') center/cover no-repeat}
+.solar-detail.simple-detail .hero-detail-inner{background:linear-gradient(90deg,#38231608 25%,#20140fcc 65%,#211712ed)}
+.solar-detail.simple-detail .hero-stage{background:none}
+.solar-detail .hero-halo{display:none}
+.solar-detail .hero-heading,.solar-detail .simple-kit-heading{text-shadow:0 2px 5px #201208,0 0 14px #29150ccc}
+.solar-detail.simple-detail .hero-skill-copy{background:#281b13ef;border-color:#c28a4877}
+.solar-detail .hero-stage img{object-fit:contain;filter:drop-shadow(0 8px 16px #4b241b88)}
