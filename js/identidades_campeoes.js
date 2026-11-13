@@ -19,15 +19,15 @@ const REWORK_KITS=[
  ]},
  {key:'star',skin:8,resource:'Cosmo',style:'Combos e energia cósmica',color:'#a8dcff',summary:'Acertar e receber dano alimenta o Cosmo. Gaste-o em golpes encadeados ou acumule para uma virada.',skills:[
   ['Rajada Estelar','Três socos de 20 de dano. Acertos seguidos aceleram a próxima sequência; errar ou ficar 1,4s sem acertar reinicia o combo. Sem custo de Cosmo.',0,105,.12,.65,'barrage'],
-  ['Cometa Alado','Gasta 18 de Cosmo. Soco com cometa de 100 de dano, alcance 390. Sem recarga além da execução.',0,390,.22,.55,'shot'],
+  ['Cometa Veloz','Gasta 18 de Cosmo. Soco com cometa de 100 de dano, alcance 390. Sem recarga além da execução.',0,390,.22,.55,'shot'],
   ['Chute Crescente','Gasta 12 de Cosmo. Chute de 65 de dano que suspende o inimigo por 0,7s e abre espaço para continuar o combo.',0,110,.15,.5,'kick'],
   ['Investida Galopante','Gasta 14 de Cosmo. Atravessa o rival por até 230, causa 55 de dano e o deixa exposto a +25% de dano por 2s.',0,230,.14,.55,'leap'],
-  ['Cosmo Desperto','Consome o Cosmo guardado (mínimo 25). Converte-o em até +65% de dano e 25% de redução de dano por 4 a 8s.',0,0,.2,.5,'buff'],
-  ['Constelação do Corcel','Consome o Cosmo guardado (mínimo 35). Chuva de 5 a 11 meteoros de 32 de dano numa área; mais Cosmo aumenta a chuva.',0,350,.5,1.45,'summon']
+  ['Brilho Estelar','Consome o Cosmo guardado (mínimo 25). Converte-o em até +65% de dano e 25% de redução de dano por 4 a 8s.',0,0,.2,.5,'buff'],
+  ['Constelação Radiante','Consome o Cosmo guardado (mínimo 35). Chuva de 5 a 11 meteoros de 32 de dano numa área; mais Cosmo aumenta a chuva.',0,350,.5,1.45,'summon']
  ]},
  {key:'steel',skin:9,resource:'Material',style:'Controlador de terreno',color:'#dfc58e',summary:'Crie pedra e metal, recicle seus blocos e use o campo preparado para formar um Colosso destrutível.',skills:[
   ['Palma Forjadora','Cria um bloco de 180 HP à frente, até 10 materiais próprios. Se houver um bloco seu na mira, recicla-o num projétil de 95 de dano.',3,260,.26,.7,'forge'],
-  ['Braço Lâmina','Corte em arco de 75 de dano. Causa 250 de dano contra construções inimigas.',4,115,.2,.65,'slash'],
+  ['Lâmina de Pedra','Corte em arco de 75 de dano. Causa 250 de dano contra construções inimigas.',4,115,.2,.65,'slash'],
   ['Espinhos do Subsolo','Linha de espinhos de 85 de dano. Blocos seus no caminho explodem em estilhaços de 65 de dano. Deixa dois novos blocos no chão.',8,330,.35,1.05,'forge'],
   ['Muralha Instantânea','Ergue parede de 320 HP por 24s. Bloqueia movimento e projéteis. Use a habilidade mirando sua parede para empurrá-la; ataques básicos também a movem.',7,190,.25,.7,'forge'],
   ['Punho de Ferro','Por 6s: +35% de dano e 30% de redução de dano, mas −25% de velocidade.',13,0,.18,.45,'buff'],

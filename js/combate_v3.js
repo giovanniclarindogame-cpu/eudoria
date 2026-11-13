@@ -20,16 +20,16 @@ document.body.classList.add('v3');
 // s = posições do kit (0..5) usadas como habilidade 1, 2 e 3 (a 1ª é a "principal", de recarga curta); a ultimate é sempre a posição 5.
 // dash = posição do kit que vira o dash; 'generico' = herói sem habilidade de movimento (usa um deslize próprio).
 const V2={
- 0:{s:[0,1,2],dash:3},           // Goku: Rajada de Ki · Combo Relâmpago · Onda Concentrada · dash = Passo Instantâneo
+ 0:{s:[0,1,2],dash:3},           // Goku: Rajada Astral · Combo Relâmpago · Onda Concentrada · dash = Salto Estelar
  1:{s:[0,1,4],dash:'kakashi'},   // Kakashi: Lâmina Rápida (corte duplo) · Clone de Fumaça (toque de novo = troca) · Olho Copiador
  2:{s:[0,2,4],dash:3},           // Ronin Carmesim: Corte Rápido · Onda Lunar · Despertar Carmesim · dash = Passo Carmesim
  3:{s:[0,1,2],dash:3},           // Guardião Solar: Lâmina Ígnea · Fera de Brasa · Coluna Solar · dash = Passo do Amanhecer
- 4:{s:[0,1,2],dash:'blink'},    // Gojo: Repulsão · Atração · Esfera Vermelha · dash = Teleporte livre (a Barreira vira passiva)
+ 4:{s:[0,1,2],dash:'blink'},    // Gojo: Repulsão · Atração · Esfera Rubra · dash = Teleporte livre (a Barreira vira passiva)
  5:{s:[1,0,2],dash:3},           // Gon: Pedra Rápida · Soco Carregado · Vara Giratória · dash = Salto Selvagem
  6:{s:[1,0,2],dash:'generico'}, // Herdeiro: Chute Relâmpago · Impacto Esmeralda · Salto Ricochete · dash = deslize de vento
  7:{s:[0,1,2],dash:3},           // Corsário: Soco Elástico · Rajada Flexível · Estouro Duplo · dash = Catapulta Humana
- 8:{s:[0,1,2],dash:3},           // Cavaleiro: Rajada Estelar · Cometa Alado · Chute Crescente · dash = Investida Galopante
- 9:{s:[0,1,3],dash:'generico'}   // Alquimista: Palma Forjadora · Braço Lâmina · Muralha Instantânea · dash = deslize
+ 8:{s:[0,1,2],dash:3},           // Cavaleiro: Rajada Estelar · Cometa Veloz · Chute Crescente · dash = Investida Galopante
+ 9:{s:[0,1,3],dash:'generico'}   // Alquimista: Palma Forjadora · Lâmina de Pedra · Muralha Instantânea · dash = deslize
 };
 // recarga da habilidade principal (substitui o golpe básico): rápida, mas não a ponto de ser a única usada
 const PRIMARY_CD={0:2.6,1:1.3,2:1.8,3:1.8,4:2.6,5:1.8,6:1.6,7:1.8,8:1.6,9:1.8};
@@ -190,7 +190,7 @@ step=function(dt){
   }
   if(a.skin===4){
    const s=reworkState(a);
-   if(!s.barrier&&(s.barrierBroken||0)<=0&&(s.barrierEnergy||0)>=50){s.barrier=true;rwFx(a,4,a.x,a.y,'cast',.4,{follow:true})}   // a Barreira Infinita agora liga sozinha
+   if(!s.barrier&&(s.barrierBroken||0)<=0&&(s.barrierEnergy||0)>=50){s.barrier=true;rwFx(a,4,a.x,a.y,'cast',.4,{follow:true})}   // a Barreira Cósmica agora liga sozinha
   }
  }
 };

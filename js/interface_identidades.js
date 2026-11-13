@@ -33,7 +33,7 @@ renderLobbyBuild=function(){rwPriorBuild();const c=currentChampion();if(c?.id<6)
 const rwPriorUI=updateUI;
 updateUI=function(){rwPriorUI();if(!p)return;
  for(const [prefix,a]of [['p',p],['b',b]]){const r=a&&reworkResource(a),bar=$('#'+prefix+'mbar');if(!bar)continue;bar.style.background=r?r.color:'';bar.parentElement.setAttribute('aria-label',r?`${r.label}: ${Math.floor(r.value)} de ${r.max}`:'Mana');if(r){bar.style.width=100*r.value/r.max+'%';bar.parentElement.title=r.label;}}
- const r=reworkResource(p);if(r){const s=reworkState(p),status=s.arm>0?' · BRAÇO '+Math.ceil(s.arm)+'s':s.finger>0?' · DEDO '+Math.ceil(s.finger)+'s':s.tired>0?' · CANSADO':s.turbo>0?' · TURBO':s.empowered?' · ENERGIZADO':s.cosmic>0?' · COSMO DESPERTO':'';$('#resText').textContent=`${r.label.toUpperCase()} ${Math.floor(r.value)}/${r.max}${status}`;}
+ const r=reworkResource(p);if(r){const s=reworkState(p),status=s.arm>0?' · BRAÇO '+Math.ceil(s.arm)+'s':s.finger>0?' · DEDO '+Math.ceil(s.finger)+'s':s.tired>0?' · CANSADO':s.turbo>0?' · TURBO':s.empowered?' · ENERGIZADO':s.cosmic>0?' · BRILHO ESTELAR':'';$('#resText').textContent=`${r.label.toUpperCase()} ${Math.floor(r.value)}/${r.max}${status}`;}
  const enemyLabel=$('#enemyResource');if(enemyLabel){const er=b&&reworkResource(b);enemyLabel.textContent=er?er.label+' '+Math.floor(er.value)+'/'+er.max:'';}
 };
 const rwPriorPracticeSettings=practiceSettingsMarkup;
