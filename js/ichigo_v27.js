@@ -70,10 +70,11 @@ function ichigo27Body(g,a,size=72,t=vfxTime){
 }
 const ichigo27OldBody=rwPaintBody;rwPaintBody=function(g,a,size=72,t=vfxTime){return a.skin===2?ichigo27Body(g,a,size,t)||ichigo27OldBody(g,a,size,t):ichigo27OldBody(g,a,size,t);};
 // All effects use 24 painted frames; the same transparent edge treatment as Astral.
-function ichigo27Effect(g,key,frame,x,y,size,angle=0,directional=false,alpha=1){
+function ichigo27Effect(g,key,frame,x,y,size,angle=0,directional=false,alpha=1,flipY=false){
  const im=ICHIGO27_FX[key];if(!im?.naturalWidth)return false;
  g.save();g.translate(x,y);g.globalAlpha*=alpha;g.imageSmoothingEnabled=false;
  if(directional)orientSkillSprite(g,angle);else if(Math.cos(angle)<0)g.scale(-1,1);
+ if(flipY)g.scale(1,-1);   // o arco desce da guarda alta até a frente, como a espada
  g.drawImage(astralSoftCell(im,clamp(Math.floor(frame),0,23)),-size/2,-size/2,size,size);
  g.restore();return true;
 }
@@ -97,7 +98,7 @@ rwPaintFX=function(e){
  }else if(e.kind==='ichigo-cut'||e.kind==='ichigo-heavy'){
   const heavy=e.kind==='ichigo-heavy',offset=heavy?38:32;
   // Start on the sword at contact; follow-through is handed to the painted frames.
-  ichigo27Effect(ctx,'slash',u*24,x+Math.cos(angle)*offset,y+Math.sin(angle)*offset-28,heavy?126:104,angle+(heavy?.75:e.reverse?-.55:0),true);
+  ichigo27Effect(ctx,'slash',u*24,x+Math.cos(angle)*offset,y+Math.sin(angle)*offset-(heavy?28:20),heavy?126:104,angle+(heavy?.75:e.reverse?-.55:0),true,1,!heavy&&!e.reverse);
  }else if(e.kind==='ichigo-impact'||e.kind==='impact'){
   ichigo27Effect(ctx,'impact',u*24,x,y-28,e.kind==='ichigo-impact'?150:e.size||80,angle,false);
  }else if(e.kind==='ichigo-awaken'){
