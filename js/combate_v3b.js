@@ -38,6 +38,11 @@ hit=function(t,n,o,k,an,id){
  if(isHero(t)&&t.inv>0&&o&&o.team!==t.team&&n>0&&t===p&&clock-lastDodgeFx>.7){
   lastDodgeFx=clock;float(t.x,t.y-58,'ESQUIVOU!','#8fe8ff');combatImpact?.(.5);
  }
+ // Lutador do Eclipse: Atração marca o alvo; a Esfera Rubra em até 2,5 s causa +20% e mostra COMBO
+ if(isHero(o)&&o.skin===4&&t&&t!==o&&o.team!==t.team){
+  if(id===o.kit[1])t.v3pulled=clock;
+  else if(id===o.kit[2]&&t.v3pulled&&clock-t.v3pulled<=2.5){n*=1.2;t.v3pulled=0;float(t.x,t.y-70,'COMBO!','#d9b8ff');combatImpact?.(1.3)}
+ }
  if(isHero(o)&&DMG[o.skin])n*=DMG[o.skin];
  if(isHero(t)&&TAKE[t.skin])n*=TAKE[t.skin];
  const before=t&&t.hp,r=prevHit(t,n,o,k,an,id);
@@ -73,6 +78,19 @@ integratedDepth=function(){
    ctx.save();ctx.translate(T.o.hp>0?T.o.x:T.x,T.o.hp>0?T.o.y:T.y);
    ctx.fillStyle=`rgba(255,${T.ult?60:90},60,${.10+.20*k})`;ctx.strokeStyle=`rgba(255,120,80,${.35+.4*k})`;ctx.lineWidth=2;
    ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,T.r*(.55+.45*k),T.ang-.42,T.ang+.42);ctx.closePath();ctx.fill();ctx.stroke();
+   ctx.restore();
+  }});
+ }
+ // Lutador do Eclipse: anel de energia da barreira aos pés
+ for(const a of actors){
+  if(a.skin!==4||!isHero(a)||a.hp<=0)continue;
+  const s=reworkState(a);
+  list.push({kind:'v3-barring',y:a.y-1,priority:0,paint(){
+   const frac=clampN((s.barrierEnergy||0)/240,0,1),up=!!s.barrier,broken=s.barrierBroken>0;
+   ctx.save();ctx.translate(a.x,a.y+11);ctx.scale(1,.42);ctx.lineWidth=5;ctx.lineCap='round';
+   ctx.strokeStyle='#14091f99';ctx.beginPath();ctx.arc(0,0,27,0,TAU);ctx.stroke();
+   ctx.strokeStyle=broken?'#ff6b6b':up?'#efe3ff':'#b48cff';ctx.shadowColor=up?'#d9b8ff':'#8a5cf0';ctx.shadowBlur=up?8:0;
+   ctx.beginPath();ctx.arc(0,0,27,-Math.PI/2,-Math.PI/2+TAU*(broken?clampN(1-s.barrierBroken/4,0,1):frac));ctx.stroke();
    ctx.restore();
   }});
  }
