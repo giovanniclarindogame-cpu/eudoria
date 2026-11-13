@@ -71,10 +71,11 @@ function solar29Cell(key,frame){
  }
  solar29Cells.set(id,c);return c;
 }
-function solar29Effect(g,key,frame,x,y,size,angle=0,directional=false,alpha=1){
+function solar29Effect(g,key,frame,x,y,size,angle=0,directional=false,alpha=1,flipY=false){
  const cell=solar29Cell(key,frame);if(!cell)return false;
  g.save();g.translate(x,y);g.globalAlpha*=alpha;g.imageSmoothingEnabled=false;
  if(directional)orientSkillSprite(g,angle);else if(Math.cos(angle)<0)g.scale(-1,1);
+ if(flipY)g.scale(1,-1);   // o arco desce da guarda alta até a frente, como a espada
  g.drawImage(cell,-size/2,-size/2,size,size);g.restore();return true;
 }
 const solar29OldSprite=rwSprite;
@@ -127,7 +128,7 @@ const solar29OldPaint=rwPaintFX;
 rwPaintFX=function(e){
  if(e.skin!==3)return solar29OldPaint(e);
  const u=clamp(e.age/e.duration,0,1),x=e.follow?e.owner.x:e.x,y=e.follow?e.owner.y:e.y,angle=e.angle||0;
- if(e.kind==='solar-cut')solar29Effect(ctx,'slash',u*24,x+Math.cos(angle)*32,y+Math.sin(angle)*32-28,124,angle,true);
+ if(e.kind==='solar-cut')solar29Effect(ctx,'slash',u*24,x+Math.cos(angle)*30,y+Math.sin(angle)*30-20,124,angle,true,1,true);
  else if(e.kind==='solar-pillar-warning'||e.kind==='solar-pillar'){
   const frame=e.kind==='solar-pillar-warning'?Math.min(7,u*8):8+u*16;
   solar29Effect(ctx,'pillar',frame,x,y-e.size*.33,e.size);
