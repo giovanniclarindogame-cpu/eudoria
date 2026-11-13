@@ -1,6 +1,6 @@
 'use strict';
 // Solar artwork only: the existing Chama/burn/collision/balance rules stay in combate_seis/v3.
-const SOLAR29_BODY=rwImage('assets/solar_v29/body.webp?v=31');
+const SOLAR29_BODY=rwImage('assets/solar_v29/body.webp?v=33');
 const SOLAR29_FX=Object.fromEntries(['slash','tiger','pillar','dash','phoenix','impact','aura'].map(key=>[key,rwImage(`assets/solar_v29/${key}.webp?v=29`)]));
 const solar29Cells=new Map();
 let solar29Registration=null;
@@ -44,7 +44,8 @@ function solar29Body(g,a,size=72,t=vfxTime){
  const reg=solar29Register();if(!reg)return false;
  const pose=solar29Pose(a,t),f=reg.frames[pose.frame],k=size/72*73/reg.height;
  g.save();g.imageSmoothingEnabled=false;
- // Align the exported foot baseline with the actor origin (9px higher at size 72).
+ // The arena shadow and the other three fighters share this foot anchor.
+ g.translate(0,9*size/72);
  g.scale(Math.cos(pose.angle)<0?-1:1,1);
  const breath=pose.idle?Math.sin(t*2.6)*.012:0;
  g.scale(1-breath*.25,1+breath);

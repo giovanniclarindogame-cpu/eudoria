@@ -110,20 +110,21 @@ function isLossless(bytes){
    assert.ok(mirror<1,'left effect mirrors horizontally, never upside down');
    if(!legacy){
     const scale=await page.evaluate(()=>{
-     const c=document.createElement('canvas');c.width=1000;c.height=220;const g=c.getContext('2d'),heights=[];
+     const c=document.createElement('canvas');c.width=1000;c.height=220;const g=c.getContext('2d'),heights=[],soles=[];
      g.fillStyle='#26372b';g.fillRect(0,0,1000,220);
      for(let skin=0;skin<4;skin++){
       const a=actor(0,0,CHAMPIONS[skin].kit,'white');a.skin=skin;
       const cell=document.createElement('canvas');cell.width=cell.height=180;const ink=cell.getContext('2d');ink.translate(90,140);rwPaintBody(ink,a,72,0);
       const d=ink.getImageData(0,0,180,180).data;let top=180,bottom=-1;
       for(let y=0;y<180;y++)for(let x=0;x<180;x++)if(d[(y*180+x)*4+3]>170){top=Math.min(top,y);bottom=Math.max(bottom,y);}
-      heights.push(bottom-top+1);g.imageSmoothingEnabled=false;g.drawImage(cell,skin*250,0,240,200);
+      soles.push(bottom);heights.push(bottom-top+1);g.imageSmoothingEnabled=false;g.drawImage(cell,skin*250,0,240,200);
       g.fillStyle='#ffe2a0';g.font='16px sans-serif';g.fillText(CHAMPIONS[skin].name,skin*250+20,208);
      }
-     return {heights,url:c.toDataURL()};
+     return {heights,soles,url:c.toDataURL()};
     });
     fs.writeFileSync(output+'/corpos.png',Buffer.from(scale.url.split(',')[1],'base64'));
     assert.ok(scale.heights.every(h=>Math.abs(h-scale.heights[3])<=2),JSON.stringify(scale.heights));
+    assert.ok(scale.soles.every(y=>Math.abs(y-scale.soles[3])<=1),'Solar feet must meet the same ground as the first three champions: '+JSON.stringify(scale.soles));
     for(const width of [1280,844]){
      await page.setViewportSize({width,height:width===1280?720:390});
      await page.evaluate(()=>{state='paused';openChampionDetails(3);});
