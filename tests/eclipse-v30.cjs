@@ -8,6 +8,10 @@ function lossless(d){for(let p=12;p+8<=d.length;){const tag=d.toString('ascii',p
  for(const name of ['body',...effects]){const body=name==='body',side=body?209:256,count=body?36:24,hashes=new Set();for(let i=0;i<count;i++){
   const d=await sharp(root+name+'.webp').extract({left:i%6*side,top:Math.floor(i/6)*side,width:side,height:side}).ensureAlpha().raw().toBuffer();let top=side,bottom=-1,visible=0;
   for(let y=0;y<side;y++)for(let x=0;x<side;x++){const a=d[(y*side+x)*4+3];if(a>10)visible++;if(a>170){top=Math.min(top,y);bottom=Math.max(bottom,y)}const gutter=body?4:16;if(x<gutter||y<gutter||x>=side-gutter||y>=side-gutter)assert.equal(a,0,`${name}/${i}: transparent gutter`);}
+  if(name==='repulse'){
+   assert.ok(visible<side*side*.25,`repulse/${i}: no background plate`);
+   if(i>=3&&i<=18)for(let y=124;y<132;y++)for(let x=124;x<132;x++)assert.equal(d[(y*side+x)*4+3],0,`repulse/${i}: transparent ring interior`);
+  }
   assert.ok(visible>0,`${name}/${i}: empty`);if(body){assert.equal(bottom,193,`body/${i}: feet`);if(i<6)heights.push(bottom-top+1);}hashes.add(crypto.createHash('sha256').update(d).digest('hex'));
  }assert.equal(hashes.size,count,name+': unique frames');}
  assert.equal(Math.max(...heights),173,'idle height');

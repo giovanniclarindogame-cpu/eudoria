@@ -36,3 +36,11 @@ Validação: `node tests/eclipse-v30.cjs`.
 `js/eclipse_v30.js` conecta o corpo, os ícones e os sete efeitos aos eventos existentes de combate; `css/eclipse_v30.css` aplica o cenário da seleção. O retrato de seleção aponta para `assets/eclipse_v30/portrait.webp?v=31`; a referência original fica preservada. O corpo é desenhado diretamente na resolução do canvas, como os quatro primeiros campeões. A barreira segue sua ativação, absorção e quebra; o domínio segue a duração real da zona. O modo atual mantém três habilidades + ultimate, dash dedicado e barreira passiva; o modo legado mantém os seis slots.
 
 Com um servidor em `http://127.0.0.1:8000`, execute `node tests/eclipse-v30-integration.cjs` para verificar a integração em ambos os modos, incluindo seleção em desktop e celular.
+
+## Revisão 33 — Repulsão e carga do Abismo Silente
+
+`repulse.webp` foi refeito com somente anel azul e fragmentos sobre transparência real, sem placa clara ou névoa branca. Mantém 24 células, margens transparentes e WebP sem perdas. A Repulsão usa diretamente o alfa da arte, sem a limpeza de névoa aplicada aos outros efeitos.
+
+O Abismo Silente mostra uma esfera pequena junto às mãos nos primeiros 0,2 s. Durante os 0,25 s seguintes, a esfera cresce na área marcada, antes da ativação do domínio. A zona abre em aproximadamente 0,45 s (antes: 1,05 s). Raio 150, duração ativa de 3 s e recarga de 32 s permanecem iguais. A descrição da habilidade e as versões de cache acompanham a alteração.
+
+Validação da revisão: `tests/eclipse-v30.cjs` e `tests/eclipse-v30-integration.cjs` passam, incluindo transparência do interior dos anéis, carga visível, janela de aviso e ativação do domínio nos modos atual e legado. O teste geral `tests/six-identities.cjs` ainda falha em `cast 0/4/R` (Guerreiro Astral); a mesma falha foi reproduzida com os scripts anteriores à revisão.

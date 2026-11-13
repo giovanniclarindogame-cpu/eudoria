@@ -38,7 +38,7 @@ const ORIGINAL_REWORK_KITS=[
 ['Esfera Rubra','Projétil lento de 165 de dano que explode em raio 85. Viaja até 430 e pode ser bloqueado por paredes.',12,430,.45,1,'orb'],
 ['Teleporte Curto','Aparece ao lado do alvo até 240, com breve invulnerabilidade. Precisa de espaço livre e caminho desobstruído.',10,240,.12,.45,'teleport'],
 ['Barreira Cósmica','Liga ou desliga a barreira de 240 pontos. Absorve projéteis e especiais distantes, reduz sua velocidade em 28%. Ao quebrar, fica 4s exposto. Recarrega desligada após 3s sem absorver dano.',1,0,.16,.4,'barrier'],
-['Abismo Silente','Depois de um aviso de 0,6s, cria uma zona de raio 150 por 3s. Imobiliza inimigos que permanecem dentro e causa 20 de dano por segundo.',32,300,.45,1.4,'domain']
+['Abismo Silente','Após 0,2s de carga visível e um aviso de 0,25s, cria uma zona de raio 150 por 3s. Imobiliza inimigos que permanecem dentro e causa 20 de dano por segundo.',32,300,.2,1.15,'domain']
 ]},
 {skin:5,key:'hunter',resource:'Pacto',style:'Carga e explosão',color:'#c6f27a',summary:'Escolha a abertura para carregar. Qualquer dano recebido cancela a carga e perde o poder preparado.',skills:[
 ['Soco Carregado','Segure 1 por até 1,8s: soco de 65 a 260 de dano, com empurrão crescente. Fica parado; qualquer dano recebido interrompe a carga.',4,125,.18,.75,'charge'],

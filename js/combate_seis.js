@@ -163,7 +163,7 @@ rwRelease=function(a,q){if(a.skin>=6)return originalRelease(a,q);const s=reworkS
   if(slot===2)rwLaunch(a,slot,angle,430,210,165,19,{size:105,splash:85,knock:28});
   if(slot===3)originalBlink(a,angle,240,true);
   if(slot===4){s.barrier=true;fx('cast',.7,{size:135});}
-  if(slot===5){const pt=q.target;rwFx(a,slot,pt.x,pt.y,'warning',.6,{radius:150});rwLater(a,.6,()=>{objects.push({kind:'v10domain',v10Domain:true,owner:a,x:pt.x,y:pt.y,r:150,life:3,age:0,cd:0});});}
+  if(slot===5){const pt=q.target;rwFx(a,slot,pt.x,pt.y,'warning',.25,{radius:150});rwLater(a,.25,()=>{objects.push({kind:'v10domain',v10Domain:true,owner:a,x:pt.x,y:pt.y,r:150,life:3,age:0,cd:0});});}
  }else if(a.skin===5){
   if(slot===0){rwArc(a,angle,100+(q.charge||0)*25,65+195*(q.charge||0),slot,1.8,15+(q.charge||0)*65);fx('cast',.7,{size:105+(q.charge||0)*70});}
   if(slot===1){rwArc(a,angle,85,48,slot,1.7,6);fx('cast',.35,{size:85});}

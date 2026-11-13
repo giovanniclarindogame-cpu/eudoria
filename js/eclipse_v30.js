@@ -2,7 +2,7 @@
 // Visual adapters only: damage, movement, resources and cooldowns stay in the combat engine.
 const ECLIPSE30_BODY=rwImage('assets/eclipse_v30/body.webp?v=31');
 const ECLIPSE30_KEYS=['repulse','attract','red','teleport','barrier','domain'];
-const ECLIPSE30_FX=Object.fromEntries([...ECLIPSE30_KEYS,'impact'].map(k=>[k,rwImage(`assets/eclipse_v30/${k}.webp?v=30`)]));
+const ECLIPSE30_FX=Object.fromEntries([...ECLIPSE30_KEYS,'impact'].map(k=>[k,rwImage(`assets/eclipse_v30/${k}.webp?v=${k==='repulse'?33:30}`)]));
 let eclipse30Registration=null;
 function eclipse30Register(){
  if(eclipse30Registration)return eclipse30Registration;
@@ -37,6 +37,8 @@ function eclipse30Cell(key,f){
  const im=ECLIPSE30_FX[key];
  c=document.createElement('canvas');c.width=c.height=256;const g=c.getContext('2d');
  g.drawImage(im,f%6*256,Math.floor(f/6)*256,256,256,0,0,256,256);
+ // Repulsion now has clean source alpha; do not alter its ring or fragments.
+ if(key==='repulse'){eclipse30Clean.set(id,c);return c;}
  const data=g.getImageData(0,0,256,256),d=data.data,round=key==='barrier';
  for(let y=0;y<256;y++)for(let x=0;x<256;x++){
   const i=(y*256+x)*4;let a=d[i+3];if(!a)continue;
@@ -67,8 +69,10 @@ rwPaintFX=function(e){
  if(e.skin!==4)return eclipse30OldPaint(e);
  const u=clamp(e.age/e.duration,0,1),x=e.follow?e.owner.x:e.x,y=e.follow?e.owner.y:e.y;
  if(e.kind==='warning'){
-  // Preserve the actual dodge window and area indicator.
-  return eclipse30OldPaint(e);
+  eclipse30OldPaint(e);
+  // Grow the domain visibly throughout its remaining dodge window.
+  if(e.slot===5&&e.owner.hp>0)eclipse30Effect(ctx,'domain',8,x,y-40,50+u*((e.radius||150)*2.3-50),0,false,.85);
+  return;
  }
  if(e.slot===4)return;
  if(e.kind==='departure'||e.kind==='arrival')return eclipse30Effect(ctx,'teleport',u*24,x,y-30,115);
@@ -86,10 +90,15 @@ integratedDepth=function(){
   eclipse30Effect(ctx,'red',e.age<.16?e.age/.16*8:8+Math.floor(e.age*24)%8,e.x,e.y-28,e.size||105,e.angle,true);
  }});
  for(const o of objects)if(o.v10Domain&&o.life>0&&o.owner.hp>0)list.push({kind:'eclipse-domain',y:o.y-180,priority:-1,paint(){
-  const f=o.age<.35?o.age/.35*8:o.life<.6?16+(1-o.life/.6)*8:8+Math.floor(o.age*16)%8;
+  const f=o.life<.6?16+(1-o.life/.6)*8:8+Math.floor(o.age*16)%8;
   eclipse30Effect(ctx,'domain',f,o.x,o.y-40,o.r*2.3,0,false,.85);
  }});
  for(const a of actors){if(a.skin!==4||a.hp<=0)continue;const s=reworkState(a);
+  const q=a.rwCast;
+  if(q?.slot===5&&q.age<q.release)list.push({kind:'eclipse-charge',y:a.y+.4,priority:4,paint(){
+   const u=clamp(q.age/q.release,0,1);
+   eclipse30Effect(ctx,'domain',8,a.x+Math.cos(q.angle)*20,a.y-23+Math.sin(q.angle)*8,24+u*26,0,false,.9);
+  }});
   const birth=Reforged.effects.find(e=>e.owner===a&&e.slot===4&&e.kind==='cast'&&e.age<e.duration);
   if(s.barrier||s.barrierBroken>3.5)list.push({kind:'eclipse-barrier',y:a.y+.3,priority:3,paint(){
    const f=!s.barrier?16+(4-s.barrierBroken)/.5*8:birth?birth.age/birth.duration*8:clock-s.barrierHit<.4?8+(1-s.barrierEnergy/240)*7:6+Math.floor(vfxTime*4)%2;

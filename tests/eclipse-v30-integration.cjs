@@ -16,13 +16,19 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=r
   setup30();b.x=580;cast(p,p.kit[1],0);advance30(.35);paint30();check(b.x<580&&p.hits>0,'attract pulls and damages');
   setup30();b.x=650;cast(p,p.kit[2],0);advance30(.5);paint30();check(Reforged.projectiles.length>0,'red projectile');state='fight';advance30(1.4);paint30();check(p.hits>0,'red hits');
   setup30();b.x=550;joy.x=1;check(legacy?cast(p,p.kit[3],0):V3API.doDash(p),'teleport accepted');advance30(.15);paint30();check(p.x>350,'teleport moves');check(Reforged.effects.filter(e=>e.skin===4&&['departure','arrival'].includes(e.kind)).length===2,'one departure and arrival');
-  setup30();if(legacy){cast(p,p.kit[4],0);advance30(.2)}else advance30(.1);paint30();check(reworkState(p).barrier,'barrier active');check(integratedDepth().some(e=>e.kind==='eclipse-barrier'),'new barrier renders');
+  setup30();if(legacy){cast(p,p.kit[4],0);advance30(.2)}else{joy.x=1;V3API.doDash(p);advance30(.15)}paint30();check(reworkState(p).barrier,'barrier active');check(integratedDepth().some(e=>e.kind==='eclipse-barrier'),'new barrier renders');
   reworkState(p).barrier=false;reworkState(p).barrierBroken=3.8;paint30();check(integratedDepth().some(e=>e.kind==='eclipse-barrier'),'broken barrier renders');
-  setup30();b.x=550;check(cast(p,p.kit[5],0),'domain accepted');advance30(.6);paint30();check(!objects.some(o=>o.v10Domain),'domain warning precedes zone');state='fight';advance30(.5);paint30();check(objects.some(o=>o.v10Domain),'domain zone');check(integratedDepth().some(e=>e.kind==='eclipse-domain'),'new domain renders');check(!integratedDepth().some(e=>e.kind==='domain'),'old domain removed');state='fight';advance30(1);paint30();check(p.hits>0,'domain damage');p.hp=0;check(!integratedDepth().some(e=>e.kind==='eclipse-domain'||e.kind==='eclipse-barrier'),'death clears persistent visuals');
+  setup30();b.x=550;check(cast(p,p.kit[5],0),'domain accepted');advance30(.05);paint30();check(integratedDepth().some(e=>e.kind==='eclipse-charge'),'visible charge immediately');check(!objects.some(o=>o.v10Domain),'no premature domain');state='fight';advance30(.25);paint30();check(!objects.some(o=>o.v10Domain),'domain warning precedes zone');check(Reforged.effects.some(e=>e.kind==='warning'&&e.slot===5),'target warning visible');state='fight';advance30(.2);paint30();check(objects.some(o=>o.v10Domain),'domain zone');check(integratedDepth().some(e=>e.kind==='eclipse-domain'),'new domain renders');check(!integratedDepth().some(e=>e.kind==='domain'),'old domain removed');state='fight';advance30(1);paint30();check(p.hits>0,'domain damage');p.hp=0;check(!integratedDepth().some(e=>e.kind==='eclipse-domain'||e.kind==='eclipse-barrier'),'death clears persistent visuals');
   for(const key of ['repulse','attract','red','teleport','barrier','domain','impact'])check(seen30.has(key),key+' rendered');
   check(championArt(CHAMPIONS[4])==='assets/eclipse_v30/portrait.webp?v=31','unique Eclipse portrait');for(let i=0;i<6;i++)check(icon(CHAMPIONS[4].kit[i]).includes('eclipse_v30/icon-'+i),'icon '+i);
  },legacy);
  if(!legacy){
+  await page.evaluate(()=>{setup30();cast(p,p.kit[0],0);advance30(.45);paint30()});
+  await page.screenshot({path:'/tmp/eclipse-repulse-fixed.png'});
+  for(const [label,time] of [['charge',.1],['warning',.3],['domain',.5]]){
+   await page.evaluate(time=>{setup30();b.x=550;cast(p,p.kit[5],0);advance30(time);paint30()},time);
+   await page.screenshot({path:`/tmp/eclipse-ultimate-${label}.png`});
+  }
   const scale=await page.evaluate(()=>{
    const canvas=document.createElement('canvas');canvas.width=1100;canvas.height=220;const g=canvas.getContext('2d'),heights=[],soles=[];
    g.fillStyle='#26372b';g.fillRect(0,0,1100,220);
