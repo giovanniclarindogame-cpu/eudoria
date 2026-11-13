@@ -13,7 +13,7 @@ const{chromium}=require('playwright');const assert=require('node:assert/strict')
    const data=g.getImageData(0,0,320,320).data;let pixels=0,uneven=0;
    for(let y=0;y<320;y+=2)for(let x=0;x<320;x+=2){let i=(y*320+x)*4;if(data[i+3])pixels++;for(const offset of [4,320*4,320*4+4])for(let c=0;c<4;c++)if(data[i+c]!==data[i+offset+c])uneven++;}
    if(pixels<100)throw Error(`Empty fighter for ${skin}/${mode}`);
-   if(skin<4){
+   if(skin<5){
     // The detailed fighters must retain the source art at both normal and high
     // screen densities, instead of being reduced to the legacy 56px surface.
     for(const density of [1,2]){
@@ -29,5 +29,5 @@ const{chromium}=require('playwright');const assert=require('node:assert/strict')
    }else if(uneven)throw Error(`Inconsistent pixel grid for ${skin}/${mode}: ${pixels}, ${uneven}`);
    reports.push({skin,mode,pixels});
   }state='paused';return reports;
- });assert.equal(result.length,50);assert.deepEqual(errors,[]);console.log('PASS: four detailed fighters preserve atlas detail at 1x/2x; six legacy fighters retain their pixel grid; all five states visible with preserved canvas state');await browser.close();
+ });assert.equal(result.length,50);assert.deepEqual(errors,[]);console.log('PASS: five detailed fighters preserve atlas detail at 1x/2x; five legacy fighters retain their pixel grid; all five states visible with preserved canvas state');await browser.close();
 })().catch(e=>{console.error(e);process.exit(1)});

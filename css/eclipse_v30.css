@@ -1,0 +1,7 @@
+#heroDetail.eclipse-detail{background:#10132c url('../assets/eclipse_v30/background.webp?v=30') center/cover no-repeat}
+.eclipse-detail.simple-detail .hero-detail-inner{background:linear-gradient(90deg,#14173108 25%,#101027c9 65%,#0e1024ed)}
+.eclipse-detail.simple-detail .hero-stage{background:none}
+.eclipse-detail .hero-halo{display:none}
+.eclipse-detail .hero-heading,.eclipse-detail .simple-kit-heading{text-shadow:0 2px 5px #09091d,0 0 14px #171031cc}
+.eclipse-detail.simple-detail .hero-skill-copy{background:#11132bef;border-color:#a68ad877}
+.eclipse-detail .hero-stage img{object-fit:contain;filter:drop-shadow(0 8px 16px #100a2588)}
