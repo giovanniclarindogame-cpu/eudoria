@@ -51,7 +51,10 @@ updateArenaCamera=function(){
  if(!bt||bt.dataset.arena||W>1500||arenaModeId)return;
  scale=Math.max(cw/W,ch/H);
  const f=p.hp>0?p:actors.find(a=>a.team===p.team&&a.hp>0)||p;
- const mx=46*scale,mt=70*scale,mb=60*scale;   // a arte continua além da borda jogável: a câmera pode ir um pouco além
+ // margens com arte desenhada em volta do piso jogável (esquerda/direita ~58, topo ~190, base ~120 unidades do mapa)
+ let mxw=52,mtw=180,mbw=110;
+ try{const im=SANCTUARY_ART.scene,fl=SANCTUARY_FLOOR;if(im&&im.naturalWidth){const sx=W/fl.w,sy=H/fl.h;mxw=fl.x*sx-6;mtw=fl.y*sy-10;mbw=(im.naturalHeight-fl.y-fl.h)*sy-8}}catch{}
+ const mx=mxw*scale,mt=mtw*scale,mb=mbw*scale;
  ox=clamp(cw/2-f.x*scale,cw-W*scale-mx,mx);oy=clamp(ch/2-f.y*scale,ch-H*scale-mb,mt);
 };
 
@@ -114,6 +117,54 @@ window.v3FaceSrc=function(a){
  return null;
 };
 window.v3FaceCrop=faceCrop;
+
+
+/* nome do rival sem o prefixo "FOCO ·" */
+const prevUI2=updateUI;
+updateUI=function(){
+ prevUI2();
+ const n=document.querySelector('.fighterhud.enemy .title b');
+ if(n&&/^FOCO · /.test(n.textContent))n.textContent=n.textContent.replace(/^FOCO · /,'');
+};
+
+/* ícones de estado e marca de ultimate pronta sobre os lutadores */
+function statusIcons(a){
+ const out=[];
+ try{
+  if(typeof OriginalCombat!=='undefined'&&OriginalCombat.burns.some(e=>e.target===a&&e.remaining>0))out.push(['🔥','#ff9a3c']);
+  if(a.slow>0)out.push(['❄','#8fd8ff']);
+  if(a.root>0)out.push(['⛓','#c6b6e8']);
+  if(a.skin===4&&reworkState(a).barrier)out.push(['🛡','#c4a5ff']);
+  else if(a.inv>.15&&a.hp>0)out.push(['✦','#fff1b0']);
+ }catch{}
+ return out;
+}
+function ultReady(a){
+ try{
+  if(!a.kit||a.kit.length!==6||a.hp<=0)return false;
+  const id=a.kit[5];
+  return a.cd[id]<=0&&!rwResourceReason(a,5)&&!a.rwCast;
+ }catch{return false}
+}
+const prevDepth2=integratedDepth;
+integratedDepth=function(){
+ const list=prevDepth2();
+ for(const a of actors){
+  if(!isFighter(a))continue;
+  const ic=statusIcons(a),ur=ultReady(a);
+  if(!ic.length&&!ur)continue;
+  list.push({kind:'v3-status',y:99991+a.y*.001,priority:8,paint(){
+   const n=ic.length+(ur?1:0),x0=a.x-(n-1)*8,y=a.y-74;
+   ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='11px system-ui';
+   let i=0;
+   for(const [g,col] of ic){const x=x0+i*16;ctx.fillStyle='#08141eb8';ctx.strokeStyle=col;ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(x,y,7.5,0,TAU);ctx.fill();ctx.stroke();ctx.fillStyle='#fff';ctx.fillText(g,x,y+.5);i++}
+   if(ur){const x=x0+i*16,pulse=.75+.25*Math.sin(clock*8);ctx.fillStyle='#2a1a05d0';ctx.strokeStyle='#ffd34d';ctx.lineWidth=1.4;ctx.shadowColor='#ffd34d';ctx.shadowBlur=6*pulse;ctx.beginPath();ctx.arc(x,y,7.5,0,TAU);ctx.fill();ctx.stroke();ctx.shadowBlur=0;ctx.fillStyle='#ffe28a';ctx.font='bold 10px system-ui';ctx.fillText('★',x,y+.5)}
+   ctx.restore();
+  }});
+ }
+ return list.sort((u,v)=>u.y-v.y||(u.priority||0)-(v.priority||0));
+};
+window.v3Status={statusIcons,ultReady};
 
 window.HudV3={isFighter,resourceOf,home};
 })();

@@ -19,6 +19,15 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  const fc=await p.evaluate(()=>[...document.querySelectorAll('.hud .arena-portrait')].map(i=>i.getAttribute('src').slice(0,11)));
  ok(fc.length===2&&fc.every(s=>s==='data:image/'),'cartões do HUD mostram o recorte do rosto dos dois campeões '+fc);
  await p.screenshot({path:'/tmp/claude-0/s/hudface.png',clip:{x:0,y:0,width:844,height:90}});
+ // HUD colado nas bordas, pausa sob o tempo, câmera com margem no topo, ícones de estado e ultimate pronta
+ const flush=await p.evaluate(()=>{const r=s=>document.querySelector(s).getBoundingClientRect();const a=r('.hud .fighterhud:not(.enemy)'),e=r('.hud .fighterhud.enemy'),m=r('.hud .mid-hud'),ps=r('#pauseBtn');return{top:a.top,left:a.left,eTop:e.top,eRight:innerWidth-e.right,mTop:m.top,pCx:ps.left+ps.width/2,pTop:ps.top,mBottom:m.bottom,iw:innerWidth}});
+ ok(flush.top<=1&&flush.left<=1&&flush.eTop<=1&&flush.eRight<=1&&flush.mTop<=1,'cartões e tempo colados no topo e nas laterais');
+ ok(flush.pCx>flush.iw/2+40&&flush.pCx<flush.iw/2+90&&flush.pTop<20,'pausa ao lado do tempo, no topo');
+ const cam=await p.evaluate(()=>{p.y=60;p.x=W/2;updateArenaCamera();return{oy,top:oy>0}});
+ ok(cam.top,'ao subir no mapa a câmera acompanha e mostra a arte acima do piso (oy '+Math.round(cam.oy)+')');
+ const st=await p.evaluate(()=>{p.slow=3;p.cd=p.cd.map(()=>0);const s=v3Status.statusIcons(p).map(x=>x[0]).join('');return{s,ult:v3Status.ultReady(p)}});
+ ok(st.s.includes('❄'),'ícone de estado (lento) aparece sobre o lutador');
+ ok(typeof st.ult==='boolean','indicador de ultimate pronta funciona ('+st.ult+')');
  // analógico flutuante
  const home=await p.evaluate(()=>{const r=document.getElementById('stick').getBoundingClientRect();return[r.left,r.top]});
  await p.evaluate(()=>{const t=document.getElementById('arena');for(const type of ['pointerdown']){t.dispatchEvent(new PointerEvent(type,{pointerId:7,pointerType:'touch',clientX:200,clientY:150,bubbles:true,cancelable:true}))}});
@@ -37,6 +46,10 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  await p.evaluate(()=>document.querySelector('#resume').click());await p.waitForTimeout(200);
  ok(await p.evaluate(()=>getComputedStyle(document.getElementById('arenaZoom')).display==='none'),'botão de zoom (−) removido');
  await p.screenshot({path:'/tmp/claude-0/s/hud.png'});
+ // 2×2: pausa e faixa de times não invadem a arena nem os cartões
+ await p.evaluate(()=>{matchMode='2v2';start();state='fight';count=0;document.getElementById('countdown').style.display='none'});await p.waitForTimeout(800);
+ const v2=await p.evaluate(()=>{const r=s=>document.querySelector(s).getBoundingClientRect();const ps=r('#pauseBtn'),a=r('.hud .fighterhud:not(.enemy)'),tm=r('#teamHud');return{pTop:ps.top,aBottom:a.bottom,tmTop:tm.top,teamVisible:!document.getElementById('teamHud').hidden}});
+ ok(v2.pTop<70&&v2.teamVisible&&v2.tmTop>=v2.aBottom-2,`2×2: pausa no topo (${Math.round(v2.pTop)}px) e faixa de times abaixo dos cartões`);
  ok(errs.length===0,'sem erros '+errs.slice(0,2));
  await br.close();
 })();

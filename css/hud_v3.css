@@ -24,3 +24,18 @@ body.v3 #battle #stick.floating{opacity:1}
 body.v3 #battle #practiceMeter{top:78px!important;left:10px!important;z-index:5}
 body.v3 #battle #toast{top:78px!important}
 body.v3 #battle .hud #pauseBtn{pointer-events:auto!important}
+
+/* v3.2: HUD colado no topo e nas laterais (mais área de arena), pausa embaixo do tempo, faixa de times abaixo dos cartões */
+body.v3 #battle .hud{inset:0 0 auto 0!important;padding:0!important;min-height:0!important;height:0!important}
+body.v3 #battle .hud .fighterhud{top:0!important;height:52px!important;padding:6px 8px 6px 56px!important;border-top:0!important;box-shadow:0 3px 8px #0009!important}
+body.v3 #battle .hud .fighterhud:not(.enemy){left:env(safe-area-inset-left,0px)!important;border-left:0!important;border-radius:0 0 8px 0!important}
+body.v3 #battle .hud .fighterhud.enemy{right:env(safe-area-inset-right,0px)!important;border-right:0!important;border-radius:0 0 0 8px!important;padding:6px 56px 6px 8px!important}
+body.v3 #battle .hud .fighterhud .arena-portrait{width:40px!important;height:40px!important;left:6px!important}
+body.v3 #battle .hud .fighterhud.enemy .arena-portrait{right:6px!important;left:auto!important}
+body.v3 #battle .hud .mid-hud{top:0!important;border-top:0!important;border-radius:0 0 8px 8px!important;box-shadow:0 3px 8px #0009!important;padding:2px 12px!important}
+body.v3 #battle .hud #pauseBtn,body.v3 #battle[data-mode="2v2"]:has(#teamHud:not([hidden])) .hud #pauseBtn{top:8px!important;left:calc(50% + 52px)!important;right:auto!important;transform:none!important;width:32px!important;height:32px!important}
+body.v3 #battle #arenaZoom{display:none!important}
+body.v3 #battle .teamhud{top:56px!important;left:6px!important;right:6px!important}
+body.v3 #battle #practiceMeter{top:60px!important;left:6px!important}
+body.v3 #battle #toast{top:62px!important}
+body.v3 #battle .teamhud{background:linear-gradient(#0a121aa6,#0a121a00);border-radius:0 0 6px 6px}
