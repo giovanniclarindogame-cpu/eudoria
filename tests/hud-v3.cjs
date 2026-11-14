@@ -28,6 +28,14 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  const st=await p.evaluate(()=>{p.slow=3;p.cd=p.cd.map(()=>0);const s=v3Status.statusIcons(p).map(x=>x[0]).join('');return{s,ult:v3Status.ultReady(p)}});
  ok(st.s.includes('❄'),'ícone de estado (lento) aparece sobre o lutador');
  ok(typeof st.ult==='boolean','indicador de ultimate pronta funciona ('+st.ult+')');
+ // cartões encostam em ambas as laterais em vários tamanhos de tela
+ for(const [w,h] of [[915,412],[1000,450],[667,375]]){
+  const q=await (await br.newContext({viewport:{width:w,height:h},hasTouch:true})).newPage();
+  await q.goto('http://localhost:8000/index.html');await q.waitForTimeout(700);await q.getByText('ENTRAR',{exact:true}).click();await q.fill('input','Giovanni');await q.getByText('Continuar',{exact:true}).click();await q.waitForTimeout(1200);
+  await q.evaluate(()=>{matchMode='1v1';start();state='fight';count=0;document.getElementById('countdown').style.display='none'});await q.waitForTimeout(500);
+  const e=await q.evaluate(()=>{const a=document.querySelector('.hud .fighterhud:not(.enemy)').getBoundingClientRect(),b=document.querySelector('.hud .fighterhud.enemy').getBoundingClientRect();return{l:a.left,r:innerWidth-b.right}});
+  ok(e.l<=1&&e.r<=1,`cartões colados nas duas laterais em ${w}x${h} (${Math.round(e.l)} e ${Math.round(e.r)})`);await q.close();
+ }
  // analógico flutuante
  const home=await p.evaluate(()=>{const r=document.getElementById('stick').getBoundingClientRect();return[r.left,r.top]});
  await p.evaluate(()=>{const t=document.getElementById('arena');for(const type of ['pointerdown']){t.dispatchEvent(new PointerEvent(type,{pointerId:7,pointerType:'touch',clientX:200,clientY:150,bubbles:true,cancelable:true}))}});

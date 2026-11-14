@@ -34,7 +34,7 @@ openChampionDetails=function(id){
  const kit=el.querySelector('.hero-kit');if(!kit)return;
  kit.setAttribute('aria-label','Três habilidades e ultimate');
  const btns=[...kit.querySelectorAll('[data-hero-skill]')];
- btns.forEach(b=>{const i=+b.dataset.heroSkill;if(!sl.includes(i)){b.remove();return}const lab=b.querySelector('small');if(lab)lab.textContent=i===5?'ULT':String(sl.indexOf(i)+1)});
+ btns.forEach(b=>{const i=+b.dataset.heroSkill;if(!sl.includes(i)){b.remove();return}const lab=b.querySelector('small');if(lab)lab.textContent=i===5?'ULT':''});
  sl.forEach(i=>{const b=kit.querySelector(`[data-hero-skill="${i}"]`);if(b)kit.appendChild(b)});   // ordem de uso: 1, 2, 3, ULT
  const first=kit.querySelector('[data-hero-skill]');
  if(first){

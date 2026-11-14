@@ -45,5 +45,16 @@ body.v3 #battle #equipped .skill .v3-ring[hidden]{display:none}
 .simple-champion-art img,.simple-current img{object-fit:contain;object-position:50% 100%;transform:none}
 
 /* texto da marca passiva no detalhe do campeão */
-#heroDetail .v3-marca-txt{position:absolute;z-index:2;box-sizing:border-box;height:54px;overflow:hidden;margin:0;padding:5px 10px;font-size:11px;line-height:1.3;color:#e9e0c3;background:#0b1a1699;border-left:3px solid var(--hero,#e8c787);border-radius:3px}
+#heroDetail .v3-marca-txt-old{position:absolute;z-index:2;box-sizing:border-box;height:54px;overflow:hidden;margin:0;padding:5px 10px;font-size:11px;line-height:1.3;color:#e9e0c3;background:#0b1a1699;border-left:3px solid var(--hero,#e8c787);border-radius:3px}
 #heroDetail .v3-marca-txt b{display:block;font-size:11px;letter-spacing:.04em;color:var(--hero,#e8c787);text-transform:uppercase}
+
+/* tela principal: ícones das habilidades centralizados (4 em vez de 6) */
+#homeScreen .lobby-build-icons,.lobby-build-icons{display:flex!important;justify-content:center;gap:10px}
+#homeScreen .lobby-build-icons>span,.lobby-build-icons>span{flex:none;width:min(58px,21%)!important;height:auto!important;aspect-ratio:1/1!important;max-width:none!important;max-height:none!important;margin:0!important;border-radius:50%}
+/* detalhe do campeão: sem números nos botões das habilidades; botão da marca passiva no fim da fila */
+#heroDetail .hero-kit>button small:empty{display:none}
+#heroDetail .hero-kit>button.mark-btn{position:relative;border-radius:50%;color:var(--hero,#e8c787);background:radial-gradient(circle at 50% 35%,#24372d,#0c1a14);border:2px solid var(--hero,#e8c787);box-shadow:0 0 0 2px #0a140f,inset 0 0 8px #0006;padding:0;display:grid;place-items:center}
+#heroDetail .hero-kit>button.mark-btn svg{width:62%;height:62%}
+#heroDetail .hero-kit>button.mark-btn.active{box-shadow:0 0 0 2px #0a140f,0 0 12px var(--hero,#e8c787)}
+#heroDetail .hero-kit>button.mark-btn::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:1px dashed color-mix(in srgb,var(--hero,#e8c787) 60%,transparent);pointer-events:none}
+#heroDetail .hero-kit{align-items:center}

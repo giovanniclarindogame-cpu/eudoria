@@ -60,3 +60,13 @@ body.v3 #battle .hud .mini-card .mc-bar i{display:block;height:100%;background:#
 body.v3 #battle .hud .mini-card.ally .mc-bar.hp i{background:#59d98e}
 body.v3 #battle .hud .mini-card.down{opacity:.45;filter:grayscale(.8)}
 body.v3 #battle .teamhud{display:none!important}
+
+/* v3.3: os cartões encostam na borda (fundo até o limite da tela); a área do notch só recua o conteúdo */
+body.v3 #battle .hud .fighterhud:not(.enemy){left:0!important;padding-left:calc(56px + env(safe-area-inset-left,0px))!important}
+body.v3 #battle .hud .fighterhud.enemy{right:0!important;padding-right:calc(56px + env(safe-area-inset-right,0px))!important}
+body.v3 #battle .hud .fighterhud:not(.enemy) .arena-portrait{left:calc(6px + env(safe-area-inset-left,0px))!important}
+body.v3 #battle .hud .fighterhud.enemy .arena-portrait{right:calc(6px + env(safe-area-inset-right,0px))!important;left:auto!important}
+body.v3 #battle .hud .mini-card.ally{left:0!important;padding-left:calc(4px + env(safe-area-inset-left,0px))!important}
+body.v3 #battle .hud .mini-card.foe{right:0!important;padding-right:calc(4px + env(safe-area-inset-right,0px))!important}
+body.v3 #battle .hud .mini-card.ally{width:calc(140px + env(safe-area-inset-left,0px))!important}
+body.v3 #battle .hud .mini-card.foe{width:calc(140px + env(safe-area-inset-right,0px))!important}
