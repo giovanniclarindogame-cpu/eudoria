@@ -82,3 +82,14 @@ body.v3 #battle .hud .mini-card.foe{padding-right:0!important}
 body.v3 #battle .hud .mini-card .mc-face{width:30px;height:30px;border-width:0!important;border-radius:0!important;margin:-2px 0 -2px 0}
 body.v3 #battle .hud .mini-card.ally .mc-face{margin-left:-2px;border-right:2px solid #5fd2ee!important}
 body.v3 #battle .hud .mini-card.foe .mc-face{margin-right:-2px;border-left:2px solid #ee7c7c!important}
+
+/* v3.5: foto de perfil um pouco afastada da borda (a moldura do cartão continua colada) */
+body.v3 #battle .hud .fighterhud:not(.enemy){padding-left:68px!important}
+body.v3 #battle .hud .fighterhud.enemy{padding-right:68px!important}
+body.v3 #battle .hud .fighterhud:not(.enemy) .arena-portrait{left:8px!important;top:4px!important;width:44px!important;height:44px!important;border:2px solid var(--fc)!important;border-radius:3px!important}
+body.v3 #battle .hud .fighterhud.enemy .arena-portrait{right:8px!important;top:4px!important;width:44px!important;height:44px!important;border:2px solid var(--fc)!important;border-radius:3px!important}
+body.v3 #battle .hud .mini-card.ally{padding-left:6px!important}
+body.v3 #battle .hud .mini-card.foe{padding-right:6px!important}
+body.v3 #battle .hud .mini-card .mc-face{width:24px!important;height:24px!important;margin:0!important;border:1px solid!important;border-radius:2px!important}
+body.v3 #battle .hud .mini-card.ally .mc-face{border-color:#5fd2ee!important}
+body.v3 #battle .hud .mini-card.foe .mc-face{border-color:#ee7c7c!important}
