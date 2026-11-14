@@ -43,3 +43,7 @@ body.v3 #battle #equipped .skill .v3-ring[hidden]{display:none}
 #heroDetail.simple-detail .hero-stage>img{height:100%!important;width:100%!important;object-fit:contain!important;object-position:50% 100%!important;transform:none!important}
 .hero-card .hero-card-art img{object-fit:contain!important;object-position:50% 100%!important;transform:none!important}
 .simple-champion-art img,.simple-current img{object-fit:contain;object-position:50% 100%;transform:none}
+
+/* texto da marca passiva no detalhe do campeão */
+#heroDetail .v3-marca-txt{margin:6px 0 0;padding:6px 10px;font-size:12px;line-height:1.35;color:#e9e0c3;background:#0b1a1699;border-left:3px solid var(--hero,#e8c787);border-radius:3px}
+#heroDetail .v3-marca-txt b{display:block;font-size:11px;letter-spacing:.04em;color:var(--hero,#e8c787);text-transform:uppercase}
