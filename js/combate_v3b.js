@@ -107,11 +107,14 @@ integratedDepth=function(){
 
 /* ---------- 4. ajuste fino de equilíbrio por herói (multiplicador de dano) ---------- */
 // multiplicador de dano por herói (índice do herói → fator), ajustado por simulação de duelos entre todos os heróis
-const DMG={0:.97,1:1.02,2:1.75,3:.38,4:.75,5:2,6:1.25,7:.76,8:.76,9:1.27};
+const DMG={0:.97,1:1.02,2:1.75,3:.38,4:.75,5:3.15,6:1.25,7:.76,8:.76,9:1.27};
 try{const q=new URLSearchParams(location.search).get('dmg');if(q)q.split(',').forEach(kv=>{const [k,v]=kv.split(':');if(+v>0)DMG[+k]=+v})}catch{}
 const TAKE={0:1,1:1,2:1,3:1,4:1,5:.6,6:1,7:1,8:1,9:1};   // dano recebido (menor = mais resistente)
 try{const q=new URLSearchParams(location.search).get('take');if(q)q.split(',').forEach(kv=>{const [k,v]=kv.split(':');if(+v>0)TAKE[+k]=+v})}catch{}
-window.V3_DMG_MUL=DMG;window.V3_TAKE_MUL=TAKE;
+window.V3_DMG_MUL=DMG;
+// As descrições passam a mostrar o dano real de cada herói (valor base × multiplicador de equilíbrio)
+const scaleDesc=(d,f)=>d.replace(/(\d+)(?: a (\d+))?(?= (?:de )?dano)/g,(m,a,b)=>b?Math.round(a*f)+' a '+Math.round(b*f):String(Math.round(a*f))).replace(/Soco de (\d+)/g,(m,a)=>'Soco de '+Math.round(a*f));
+for(const c of CHAMPIONS){const f=DMG[c.id];if(!f||Math.abs(f-1)<.01)continue;for(const id of c.kit){const sk=skills[id];if(sk&&sk.desc&&!sk.v3scaled){sk.desc=scaleDesc(sk.desc,f);sk.v3scaled=true}}}window.V3_TAKE_MUL=TAKE;
 
 /* ---------- 5. Goku: anel de ki / Modo Poder no botão da habilidade 1 ---------- */
 function ensureRing(){

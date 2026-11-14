@@ -33,7 +33,7 @@ const V2={
 };
 // recarga da habilidade principal (substitui o golpe básico): rápida, mas não a ponto de ser a única usada
 const PRIMARY_CD={0:2.6,1:1.3,2:1.8,3:1.8,4:2.6,5:1.8,6:1.6,7:1.8,8:1.6,9:1.8};
-const CD_MUL={0:1.2,1:.5,5:.7};   // equilíbrio (simulação Kakashi × Goku)
+const CD_MUL={0:1.2,1:.5};   // equilíbrio (simulação Kakashi × Goku)
 const DASH_CD=4,DASH_INV=.28,GENERIC_DASH_CD=3.5;
 // posições (px, a partir do centro do canto) escolhidas no editor de layout: [dx,dy] por habilidade (1, 2, 3, ultimate) e do dash
 const POS=[[42,-20.8],[-87.5,7.4],[-46.1,-60.2],[22.8,-100.3]],DASH_POS=[-20.6,10.7];                 // ângulos (graus) dos 4 botões da meia-lua ao redor do dash
