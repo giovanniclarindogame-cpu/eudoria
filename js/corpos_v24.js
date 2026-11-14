@@ -19,7 +19,7 @@ function body24Register(key){
 function body24Draw(g,a,size,t){
  const name=a.skin===0?'astral':'ninja',q=a.rwCast,angle=q?.angle??a.rwFacing??a.a??0;
  let key=name+'-base',frame=0,idle=false;
- if(a.hp<=0||a.knockedDown)frame=33;
+ if(a.hp<=0||a.knockedDown)frame=(a.hp<=0&&typeof v3KoFrame==='function')?v3KoFrame(a):33;
  else if(a.hitReact>0)frame=30+Math.min(1,Math.floor((.3-a.hitReact)*8));
  else if(a.guard)frame=34;
  else if(a.dodgeTime>0)frame=35;

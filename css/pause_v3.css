@@ -1,0 +1,35 @@
+/* Pausa v3: tudo numa tela só, sem rolagem */
+body.v3 #battle #pause .dialog{width:min(520px,94vw)!important;max-height:calc(100*var(--dvh,1dvh) - 14px)!important;overflow:hidden!important;padding:12px 16px!important;display:grid!important;grid-template-columns:1fr 1fr;gap:6px 10px;align-content:center;text-align:center}
+body.v3 #battle #pause .dialog>h2{grid-column:1/-1;margin:0 0 2px!important;font-size:22px!important}
+body.v3 #battle #pause .dialog>details.simple-extra,body.v3 #battle #pause .dialog>.eyebrow,body.v3 #battle #pause .dialog>p{display:none!important}
+body.v3 #battle #pause .dialog>button{margin:0!important;height:38px;min-height:0;padding:0 10px;font-size:13px}
+body.v3 #battle #pause .dialog>#resume{grid-column:1/-1}
+body.v3 #battle #pause .dialog>.pause-fullscreen{width:100%!important;height:38px!important;padding:6px!important;margin:0!important}
+body.v3 #battle #pause .dialog>.pause-fullscreen svg{height:100%;width:auto;max-width:100%}
+body.v3 #battle #pause .dialog>#trainingPause[hidden]{display:none!important}
+/* treino: botões à esquerda, ajustes do treino à direita */
+body.v3 #battle #pause .dialog:has(#trainingPause:not([hidden])){width:min(760px,96vw)!important;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr)}
+body.v3 #battle #pause .dialog:has(#trainingPause:not([hidden]))>:not(#trainingPause){grid-column:1}
+body.v3 #battle #pause .dialog:has(#trainingPause:not([hidden]))>#trainingPause{grid-column:2;grid-row:1/8;margin:0!important;padding:0 0 0 12px!important;border-top:0!important;border-left:1px solid #48604a;text-align:left;display:grid;gap:5px;align-content:center}
+body.v3 #battle #pause #trainingPause h3{margin:0 0 2px!important;font-size:16px!important}
+body.v3 #battle #pause #trainingPause .setting-label{font-size:11px;margin:0}
+body.v3 #battle #pause #trainingPause .exchange-select{height:32px;padding:0 8px;font-size:12px;margin:0}
+body.v3 #battle #pause #trainingPause .practice-check{font-size:11px;margin:0}
+body.v3 #battle #pause #trainingPause .setting-hint,body.v3 #battle #pause #trainingPause p{display:none}
+body.v3 #battle #pause #trainingPause button{height:32px;min-height:0;margin:0!important;padding:0 8px;font-size:12px}
+body.v3 #battle #pause .dialog>#resume{order:1}
+body.v3 #battle #pause .dialog>#vfxQuality{order:2}
+body.v3 #battle #pause .dialog>#howTo{order:3}
+body.v3 #battle #pause .dialog>#leave{order:4}
+body.v3 #battle #pause .dialog>.pause-fullscreen{order:5;background:transparent!important;border:1px solid #83976b!important;color:#dfe9d2!important}
+body.v3 #battle #pause .dialog>h2{order:0}
+body.v3 #battle #pause .dialog>#trainingPause{order:6}
+
+/* Resultado da partida: também numa tela só */
+body.v3 #battle #outcome .dialog{width:min(560px,94vw)!important;max-height:calc(100*var(--dvh,1dvh) - 14px)!important;overflow:hidden!important;padding:12px 16px!important;display:grid!important;grid-template-columns:1fr 1fr;gap:6px 10px;align-content:center;text-align:center}
+body.v3 #battle #outcome .dialog>.eyebrow{grid-column:1/-1;margin:0!important;font-size:10px}
+body.v3 #battle #outcome .dialog>h2{grid-column:1/-1;margin:0!important;font-size:24px!important}
+body.v3 #battle #outcome .dialog>p{grid-column:1/-1;margin:0!important;font-size:12px!important;line-height:1.35;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+body.v3 #battle #outcome .dialog>.ribbon{grid-column:1/-1;margin:0!important;font-size:12px}
+body.v3 #battle #outcome .dialog>button{margin:0!important;height:38px;min-height:0;padding:0 10px;font-size:13px}
+body.v3 #battle #outcome .dialog>#rematch{grid-column:1/-1}
