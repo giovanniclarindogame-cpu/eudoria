@@ -40,13 +40,14 @@ function hunter32Pose(a,t){
  else if(a.moving)frame=(Math.abs(Math.sin(angle))>.65?(Math.sin(angle)>0?12:18):6)+Math.floor(a.rwStride??a.gait??t*10)%6;
  // A hit reaction must use the normal atlas, whose final row contains these states.
  const dash=Reforged.dashes.find(d=>d.owner===a&&!d.finished);
- const skillFrame=a.hp<=0||a.knockedDown||a.hitReact>0||a.guard||adult?undefined:dash?18+combat35Phase(dash.age,.08,dash.duration):q?q.slot*6+combat35Phase(q.age,q.release,q.duration,q.holding):undefined;
+ const skillFrame=a.hp<=0||a.knockedDown||a.hitReact>0||a.guard||adult?undefined:dash?18+(()=>{const ph=combat35Phase(dash.age,.08,dash.duration);return ph===4?5:ph})():q?q.slot*6+combat35Phase(q.age,q.release,q.duration,q.holding):undefined;
  return {adult:adult&&a.hitReact<=0,frame,angle,skillFrame};
 }
 function hunter32Body(g,a,size=72,t=vfxTime){
  const pose=hunter32Pose(a,t),reg=hunter32Register(pose.adult);if(!reg)return false;
  const q=a.rwCast,skillHeight=pose.skillFrame!==undefined?combat35Height(HUNTER35_SKILLS):0,im=skillHeight?HUNTER35_SKILLS:pose.adult?HUNTER32_ADULT:HUNTER32_BODY,frame=skillHeight?pose.skillFrame:pose.frame;
- const grown=pose.adult?clamp(((q?.age??1)-.14)/.22,0,1):0,k=size/72*(73+grown*30)/(skillHeight||reg.height);
+ const gNow=pose.adult?clamp(((q?.age??1)-.14)/.22,0,1):0,nowMs=performance.now(),gDt=Math.min(.1,(nowMs-(a.h32t||nowMs))/1000);a.h32t=nowMs;
+ const grown=a.h32g=gNow>=(a.h32g||0)?gNow:Math.max(gNow,(a.h32g||0)-gDt/.28),k=size/72*(73+grown*30)/(skillHeight||reg.height);
  const leap=Reforged.dashes.find(d=>d.owner===a&&d.leap&&!d.finished);
  g.save();g.imageSmoothingEnabled=false;g.translate(0,9*size/72-(leap?Math.sin(clamp(leap.age/leap.duration,0,1)*Math.PI)*28*size/72:0));g.scale(Math.cos(pose.angle)<0?-1:1,1);
  g.drawImage(im,frame%6*209,Math.floor(frame/6)*209,209,209,-104.5*k,-193*k,209*k,209*k);g.restore();return true;
