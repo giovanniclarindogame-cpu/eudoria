@@ -232,7 +232,7 @@ function layout(){
  }
  const d=document.getElementById('attack');
  d.style.setProperty('--dx',DASH_POS[0]+'px');d.style.setProperty('--dy',DASH_POS[1]+'px');
- const id=dashIdOf(p),vis=id!=null?id:(p.skin===1||p.skin===6?p.kit[3]:null);
+ const id=dashIdOf(p),vis=id!=null?id:(p.skin===1||p.skin===4||p.skin===6?p.kit[3]:null);
  d.innerHTML=(vis!=null?icon(vis):'<span class="skill-art v3-arrow"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 20l9-9 4 4 9-9M19 6h8v8"/></svg></span>')+'<small>DASH</small><span class="v3-cd" aria-hidden="true"></span>';
  d.dataset.hero=String(p.skin);
 }

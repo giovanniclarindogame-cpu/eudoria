@@ -50,7 +50,10 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=r
  if(!legacy)for(const width of [1280,844]){
   await page.setViewportSize({width,height:width===1280?720:390});await page.evaluate(()=>{setup30();state='paused';openChampionDetails(4)});await page.waitForFunction(()=>[...document.querySelectorAll('#heroDetail img')].every(i=>i.complete&&i.naturalWidth));
   assert.ok(await page.locator('#heroDetail').evaluate(e=>getComputedStyle(e).backgroundImage.includes('eclipse_v30')));assert.equal(await page.locator('#heroDetail [data-hero-skill]').count(),4);
-  await page.screenshot({path:`/tmp/eclipse-selection-${width}.png`});await page.evaluate(()=>{closeHeroDetail();setup30();advance30(.1);paint30()});await page.screenshot({path:`/tmp/eclipse-arena-${width}.png`});
+  await page.screenshot({path:`/tmp/eclipse-selection-${width}.png`});await page.evaluate(()=>{closeHeroDetail();setup30();advance30(.1);paint30()});
+  assert.ok(await page.locator('#attack .skill-art').evaluate(e=>getComputedStyle(e).backgroundImage.includes('eclipse_v30/icon-3.webp')),'Eclipse dash shows teleport artwork');
+  assert.equal(await page.locator('#attack .v3-arrow').count(),0,'no generic dash arrow for Eclipse');
+  await page.screenshot({path:`/tmp/eclipse-arena-${width}.png`});
  }
  assert.deepEqual(errors,[]);await page.close();console.log('PASS Eclipse '+(legacy?'legacy':'v3')+': seven effects, pushes/pulls, projectile damage, teleport, barrier, domain, death cleanup, unique portrait, six icons, selection');
  }}finally{await browser.close()}})().catch(e=>{console.error(e);process.exit(1)});
