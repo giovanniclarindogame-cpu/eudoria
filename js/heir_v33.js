@@ -1,6 +1,7 @@
 'use strict';
 // Art-only adapters: the existing engine owns damage, overload and movement.
-const HEIR33_BODY=rwImage('assets/spark_v34/body.webp?v=34');
+const HEIR33_BODY=rwImage('assets/combat_v35/heir-body.webp?v=35');
+const HEIR35_SKILLS=rwImage('assets/combat_v35/heir-skills.webp?v=35');
 const HEIR33_KEYS=['kick','charge','punch','leap','dash','aura','limit','impact'];
 const HEIR33_FX=Object.fromEntries(HEIR33_KEYS.map(k=>[k,rwImage(`assets/heir_v33/${k}.webp?v=33`)]));
 let heir33Height=0;
@@ -40,13 +41,15 @@ function heir33Pose(a,t=vfxTime){
  }else if(a.punchTime>0)frame=24+clamp(Math.floor((1-a.punchTime/.24)*6),0,5);
  else if(a.moving)frame=(Math.abs(Math.sin(angle))>.65?(Math.sin(angle)>0?12:18):6)+Math.floor(a.rwStride??a.gait??t*10)%6;
  const air=a.identity?.air||0,lift=dash?.leap?Math.sin(clamp(dash.age/dash.duration,0,1)*Math.PI)*26:air>0?Math.sin(Math.PI*air/(a.identity.airTotal||.7))*25:0;
- return {frame,angle,lift};
+ const skillFrame=a.hitReact>0||a.guard?undefined:dash?(dash.leap?2:3)*6+combat35Phase(dash.age,.08,dash.duration):q?q.slot*6+combat35Phase(q.age,q.release,q.duration,q.holding):a.dodgeTime>0?21:undefined;
+ return {frame,angle,lift,skillFrame};
 }
 function heir33Body(g,a,size=72,t=vfxTime){
  const height=heir33Register();if(!height)return false;
- const pose=heir33Pose(a,t),k=size/72*73/height;
+ const pose=heir33Pose(a,t),skillHeight=pose.skillFrame!==undefined?combat35Height(HEIR35_SKILLS):0;
+ const im=skillHeight?HEIR35_SKILLS:HEIR33_BODY,frame=skillHeight?pose.skillFrame:pose.frame,k=size/72*73/(skillHeight||height);
  g.save();g.imageSmoothingEnabled=false;g.translate(0,(9-pose.lift)*size/72);g.scale(Math.cos(pose.angle)<0?-1:1,1);
- g.drawImage(HEIR33_BODY,pose.frame%6*209,Math.floor(pose.frame/6)*209,209,209,-104.5*k,-193*k,209*k,209*k);g.restore();return true;
+ g.drawImage(im,frame%6*209,Math.floor(frame/6)*209,209,209,-104.5*k,-193*k,209*k,209*k);g.restore();return true;
 }
 const heir33OldBody=rwPaintBody;
 rwPaintBody=function(g,a,size=72,t=vfxTime){return a.skin===6?heir33Body(g,a,size,t)||heir33OldBody(g,a,size,t):heir33OldBody(g,a,size,t);};
@@ -128,4 +131,4 @@ CHAMPION_HEROES.spark='assets/heir_v33/portrait.webp?v=33';
 const heir33OldDetail=openChampionDetails;
 openChampionDetails=function(id){heir33OldDetail(id);$('#heroDetail')?.classList.toggle('heir-detail',Number(id)===6);};
 const heir33OldPreload=reworkPreload;
-reworkPreload=function(skin){if(skin!==6)return heir33OldPreload(skin);for(const key of ['body','portrait',...HEIR33_KEYS,...Array.from({length:6},(_,i)=>'icon-'+i)])rwImage(key==='body'?'assets/spark_v34/body.webp?v=34':`assets/heir_v33/${key}.webp?v=33`);};
+reworkPreload=function(skin){if(skin!==6)return heir33OldPreload(skin);for(const key of ['body','portrait',...HEIR33_KEYS,...Array.from({length:6},(_,i)=>'icon-'+i)])rwImage(key==='body'?'assets/combat_v35/heir-body.webp?v=35':`assets/heir_v33/${key}.webp?v=33`);};
