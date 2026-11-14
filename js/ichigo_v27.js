@@ -45,7 +45,7 @@ function ichigo27Register(){if(ichigo27Registration)return ichigo27Registration;
 function ichigo27Body(g,a,size=72,t=vfxTime){
  const reg=ichigo27Register();if(!reg)return false;
  const q=a.rwCast,angle=q?.angle??a.rwFacing??a.a??0;let frame=Math.floor(t*4)%6,idle=false;
- if(a.hp<=0||a.knockedDown)frame=33;
+ if(a.hp<=0||a.knockedDown)frame=(a.hp<=0&&typeof v3KoFrame==='function')?v3KoFrame(a):33;
  else if(a.hitReact>0)frame=a.hitReact>.12?30:31;
  else if(a.guard)frame=34;
  else if(a.dodgeTime>0)frame=35;

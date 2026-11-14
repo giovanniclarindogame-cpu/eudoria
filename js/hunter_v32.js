@@ -17,7 +17,7 @@ function hunter32Pose(a,t){
  const q=a.rwCast,angle=q?.angle??a.rwFacing??a.a??0,s=reworkState(a);
  const adult=a.hp>0&&!a.knockedDown&&(q?.slot===5&&q.age>=.14||s.pactAdult>0);
  let frame=Math.floor(t*4)%6;
- if(a.hp<=0||a.knockedDown)frame=33;
+ if(a.hp<=0||a.knockedDown)frame=(a.hp<=0&&typeof v3KoFrame==='function')?v3KoFrame(a):33;
  else if(a.hitReact>0)frame=a.hitReact>.12?30:31;
  else if(adult){
   if(q?.slot===5){
