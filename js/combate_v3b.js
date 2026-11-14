@@ -38,6 +38,11 @@ hit=function(t,n,o,k,an,id){
  if(isHero(t)&&t.inv>0&&o&&o.team!==t.team&&n>0&&t===p&&clock-lastDodgeFx>.7){
   lastDodgeFx=clock;float(t.x,t.y-58,'ESQUIVOU!','#8fe8ff');combatImpact?.(.5);
  }
+ // Carga de ultimate por acerto (Ronin: Pressão; Herdeiro: Sobrecarga), já que as habilidades que enchiam a barra saíram do kit
+ if(isHero(o)&&t&&t!==o&&o.team!==t.team&&n>0&&o.kit.includes(id)){
+  if(o.skin===2){const rs=reworkState(o);if(id===o.kit[2])rs.value=Math.min(100,rs.value+8)}
+  if(o.skin===6&&!o.v3NoGain){const rs=reworkState(o);rs.value=Math.min(99,rs.value+3);rs.lastGain=clock}
+ }
  // Lutador do Eclipse: Atração marca o alvo; a Esfera Rubra em até 2,5 s causa +20% e mostra COMBO
  if(isHero(o)&&o.skin===4&&t&&t!==o&&o.team!==t.team){
   if(id===o.kit[1])t.v3pulled=clock;
@@ -107,7 +112,7 @@ integratedDepth=function(){
 
 /* ---------- 4. ajuste fino de equilíbrio por herói (multiplicador de dano) ---------- */
 // multiplicador de dano por herói (índice do herói → fator), ajustado por simulação de duelos entre todos os heróis
-const DMG={0:.97,1:1.02,2:1.75,3:.38,4:.75,5:3.15,6:1.25,7:.76,8:.76,9:1.27};
+const DMG={0:.97,1:1.02,2:1.2,3:.38,4:.75,5:3.15,6:1.35,7:.76,8:.76,9:1.27};
 try{const q=new URLSearchParams(location.search).get('dmg');if(q)q.split(',').forEach(kv=>{const [k,v]=kv.split(':');if(+v>0)DMG[+k]=+v})}catch{}
 const TAKE={0:1,1:1,2:1,3:1,4:1,5:.6,6:1,7:1,8:1,9:1};   // dano recebido (menor = mais resistente)
 try{const q=new URLSearchParams(location.search).get('take');if(q)q.split(',').forEach(kv=>{const [k,v]=kv.split(':');if(+v>0)TAKE[+k]=+v})}catch{}
@@ -161,6 +166,7 @@ hit=function(t,n,o,k,an,id){
  if(o&&o.skin===6&&o.v3WindUntil>clock&&id===o.kit[0])n*=.75;
  return prevHitWind(t,n,o,k,an,id);
 };
+for(const [ci,pairs] of [[2,[['Custa 25 de Pressão','Custa 15 de Pressão'],['Custa 40 de Pressão','Custa 25 de Pressão'],['Exige 70 de Pressão','Exige 45 de Pressão']]],[6,[['Exige 100 de Sobrecarga','Exige 85 de Sobrecarga']]]])for(const id of CHAMPIONS[ci].kit){const sk=skills[id];if(!sk||sk.v3res)continue;for(const [a,b] of pairs)sk.desc=sk.desc.replace(a,b);sk.v3res=true}
 {const sk=skills[CHAMPIONS[6].kit[0]];if(sk&&!sk.v3wind){sk.desc+=' Com 30% de carga ou mais, também solta uma rajada de vento que alcança o inimigo à distância.';sk.v3wind=true}}
 window.V3B={tele,assistAngle,DMG};
 })();
