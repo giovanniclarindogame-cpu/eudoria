@@ -1,0 +1,7 @@
+#heroDetail.hunter-detail{background:#172d20 url('../assets/hunter_v32/background.webp?v=32') center/cover no-repeat}
+.hunter-detail.simple-detail .hero-detail-inner{background:linear-gradient(90deg,#18281808 25%,#102516c9 65%,#102318ed)}
+.hunter-detail.simple-detail .hero-stage{background:none}
+.hunter-detail .hero-halo{display:none}
+.hunter-detail .hero-heading,.hunter-detail .simple-kit-heading{text-shadow:0 2px 5px #091b10,0 0 14px #17351bcc}
+.hunter-detail.simple-detail .hero-skill-copy{background:#142b1def;border-color:#c2a45f77}
+.hunter-detail .hero-stage img{object-fit:contain;filter:drop-shadow(0 8px 16px #122b1888)}

@@ -45,7 +45,7 @@ drawAnimatedFighter=function(g,a,size=72,t=vfxTime){
  if(!a)return false;
  // Detailed atlases render directly at the destination canvas resolution, like
  // the training dummy. The 56px intermediate grid discards their painted detail.
- if(a.skin>=0&&a.skin<5)return rwPaintBody(g,a,size,t);
+ if(a.skin>=0&&a.skin<6)return rwPaintBody(g,a,size,t);
  return EldoriaPixels.paint(g,(ink,native)=>rwPaintBody(ink,a,native,t),size);
 };
 function rwSprite(g,skin,slot,x,y,size,phase,angle=0,directional=false,alpha=1){
