@@ -1,6 +1,6 @@
 'use strict';
 // Hunter artwork adapters. Combat damage, charge interruption, costs and cooldowns stay in the engine.
-const HUNTER32_BODY=rwImage('assets/hunter_v32/body.webp?v=32');
+const HUNTER32_BODY=rwImage('assets/hunter_v32/body.webp?v=34');
 const HUNTER32_ADULT=rwImage('assets/hunter_v32/adult.webp?v=32');
 const HUNTER32_KEYS=['punch','charge','heavy','rod','jump','oath','impact'];
 const HUNTER32_FX=Object.fromEntries(HUNTER32_KEYS.map(k=>[k,rwImage(`assets/hunter_v32/${k}.webp?v=32`)]));
@@ -108,4 +108,4 @@ CHAMPION_HEROES.hunter='assets/hunter_v32/portrait.webp?v=32';
 const hunter32OldDetail=openChampionDetails;
 openChampionDetails=function(id){hunter32OldDetail(id);$('#heroDetail')?.classList.toggle('hunter-detail',Number(id)===5);};
 const hunter32OldPreload=reworkPreload;
-reworkPreload=function(skin){if(skin!==5)return hunter32OldPreload(skin);for(const key of ['body','adult','portrait',...HUNTER32_KEYS,...Array.from({length:6},(_,i)=>'icon-'+i)])rwImage(`assets/hunter_v32/${key}.webp?v=32`);};
+reworkPreload=function(skin){if(skin!==5)return hunter32OldPreload(skin);for(const key of ['body','adult','portrait',...HUNTER32_KEYS,...Array.from({length:6},(_,i)=>'icon-'+i)])rwImage(`assets/hunter_v32/${key}.webp?v=${key==='body'?34:32}`);};

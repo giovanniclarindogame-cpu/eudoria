@@ -1,6 +1,6 @@
 'use strict';
 // Art-only adapters: the existing engine owns damage, overload and movement.
-const HEIR33_BODY=rwImage('assets/heir_v33/body.webp?v=33');
+const HEIR33_BODY=rwImage('assets/spark_v34/body.webp?v=34');
 const HEIR33_KEYS=['kick','charge','punch','leap','dash','aura','limit','impact'];
 const HEIR33_FX=Object.fromEntries(HEIR33_KEYS.map(k=>[k,rwImage(`assets/heir_v33/${k}.webp?v=33`)]));
 let heir33Height=0;
@@ -128,4 +128,4 @@ CHAMPION_HEROES.spark='assets/heir_v33/portrait.webp?v=33';
 const heir33OldDetail=openChampionDetails;
 openChampionDetails=function(id){heir33OldDetail(id);$('#heroDetail')?.classList.toggle('heir-detail',Number(id)===6);};
 const heir33OldPreload=reworkPreload;
-reworkPreload=function(skin){if(skin!==6)return heir33OldPreload(skin);for(const key of ['body','portrait',...HEIR33_KEYS,...Array.from({length:6},(_,i)=>'icon-'+i)])rwImage(`assets/heir_v33/${key}.webp?v=33`);};
+reworkPreload=function(skin){if(skin!==6)return heir33OldPreload(skin);for(const key of ['body','portrait',...HEIR33_KEYS,...Array.from({length:6},(_,i)=>'icon-'+i)])rwImage(key==='body'?'assets/spark_v34/body.webp?v=34':`assets/heir_v33/${key}.webp?v=33`);};

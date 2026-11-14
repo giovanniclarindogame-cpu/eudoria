@@ -28,6 +28,8 @@ Cada efeito tem **1536 × 1024**, com **24 quadros de 256 × 256**, 6 colunas ×
 
 Corpo: altura máxima de repouso **173 px**, apoio na linha **y = 193**, eixo horizontal **104,5**. Na arena, a forma jovem mede aproximadamente **73 px** como os outros campeões; a adulta cresce até **103 px** mantendo o apoio no chão. São 36 poses jovens, 24 adultas e 168 quadros de efeitos distintos.
 
+Revisão v34: as 36 poses jovens foram redesenhadas usando `assets/corpos_v24/astral-base.webp` como referência de proporções. Tronco, braços e pernas mais robustos, cabeça menor em relação ao corpo; identidade, ordem das poses, tamanho de célula e apoio no chão preservados. A forma adulta permanece no atlas próprio. O corpo revisado usa `?v=34` para atualizar o cache.
+
 Integração: `js/hunter_v32.js` conecta as artes aos eventos existentes; `css/hunter_v32.css` aplica o cenário. Mantém dano, recargas, cancelamento de carga por dano, custo de vida da ultimate e controles atuais. A forma adulta acompanha o preparo, golpe e recuperação do Juramento Total; o golpe pesado explode somente no contato. As artes detalhadas são desenhadas na resolução do canvas.
 
 Empacotamento técnico dos PNGs gerados: `node scripts/pack-hunter-v32.cjs /pasta/dos/pngs`. O retrato aprovado é preservado separadamente.
