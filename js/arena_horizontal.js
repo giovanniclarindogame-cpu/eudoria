@@ -99,7 +99,7 @@ updateUI=function(){
  for(const [selector,a] of [['.fighterhud:not(.enemy)',p],['.fighterhud.enemy',enemy(p)]]){
   const hud=document.querySelector(selector);if(!hud)continue;
   let portrait=hud.querySelector('.arena-portrait');if(!portrait){portrait=document.createElement('img');portrait.className='arena-portrait';portrait.alt='';hud.prepend(portrait);}
-  const src=a.trainingDummy?'assets/arena_v15/fantoche-retrato.webp':'assets/portraits/campeao_'+String(a.skin+1).padStart(2,'0')+'.webp';if(portrait.getAttribute('src')!==src)portrait.src=src;
+  const src=(window.v3FaceSrc&&window.v3FaceSrc(a))||(a.trainingDummy?'assets/arena_v15/fantoche-retrato.webp':'assets/portraits/campeao_'+String(a.skin+1).padStart(2,'0')+'.webp');if(portrait.getAttribute('src')!==src)portrait.src=src;
  }
 };
 document.querySelector('.arena-caption').textContent='PÁTIO DAS CEREJEIRAS';

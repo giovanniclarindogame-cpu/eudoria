@@ -83,5 +83,37 @@ document.addEventListener('pointerdown',e=>{
  stickID=e.pointerId;try{stick.setPointerCapture(e.pointerId)}catch{}stickMove(e);
 },true);
 for(const type of ['pointerup','pointercancel','lostpointercapture'])stick.addEventListener(type,e=>{if(e.pointerId===undefined||stickID===null||e.pointerId===stickID||true){setTimeout(()=>{if(stickID===null)home()},0)}});
+
+/* foto do rosto do campeão nos cartões do HUD: recorte automático da cabeça do retrato atual de cada herói */
+const faceCache=new Map(),faceBusy=new Set();
+function faceCrop(img){
+ const W=img.naturalWidth,H=img.naturalHeight,sc=Math.min(1,160/W),w=Math.max(8,Math.round(W*sc)),h=Math.max(8,Math.round(H*sc));
+ const c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d');g.drawImage(img,0,0,w,h);
+ const d=g.getImageData(0,0,w,h).data;
+ let y0=0;for(;y0<h;y0++){let n=0;for(let x=0;x<w;x++)if(d[(y0*w+x)*4+3]>60)n++;if(n>2)break}
+ const band0=y0+Math.round(h*.04),band1=y0+Math.round(h*.13),xs=[];
+ for(let y=band0;y<band1&&y<h;y++)for(let x=0;x<w;x++)if(d[(y*w+x)*4+3]>60)xs.push(x);
+ xs.sort((a,b)=>a-b);
+ const lo=xs[Math.floor(xs.length*.1)]??0,hi=xs[Math.floor(xs.length*.9)]??w-1,cx=(lo+hi)/2;
+ const side=Math.min(Math.max((hi-lo)*2.05,h*.33),w,h);
+ let sx=clamp(cx-side/2,0,w-side),sy=clamp(y0-h*.02,0,h-side);
+ const out=document.createElement('canvas');out.width=out.height=96;const o=out.getContext('2d');
+ o.imageSmoothingEnabled=true;o.imageSmoothingQuality='high';
+ o.drawImage(img,sx/sc,sy/sc,side/sc,side/sc,0,0,96,96);
+ return out.toDataURL('image/webp',.92);
+}
+window.v3FaceSrc=function(a){
+ if(!a||a.trainingDummy||a.boss||a.mob||a.rmob||!Array.isArray(a.kit)||a.kit.length!==6)return null;
+ const c=CHAMPIONS[a.skin];if(!c)return null;
+ const src=championArt(c);if(!src)return null;
+ if(faceCache.has(src))return faceCache.get(src);
+ if(!faceBusy.has(src)){
+  faceBusy.add(src);
+  const im=new Image();im.onload=()=>{try{faceCache.set(src,faceCrop(im))}catch(e){faceCache.set(src,null)}};im.onerror=()=>faceCache.set(src,null);im.src=src;
+ }
+ return null;
+};
+window.v3FaceCrop=faceCrop;
+
 window.HudV3={isFighter,resourceOf,home};
 })();
