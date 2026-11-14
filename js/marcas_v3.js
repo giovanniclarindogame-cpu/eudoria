@@ -117,8 +117,12 @@ openChampionDetails=function(id){
  prevDetails(id);
  const el=document.getElementById('heroDetail'),m=MARCAS[Number(id)];if(!el||!m)return;
  const kit=el.querySelector('.hero-kit');if(!kit||el.querySelector('.v3-marca-txt'))return;
+ const copy=el.querySelector('#heroSkillCopy');if(!copy)return;
  const p=document.createElement('p');p.className='v3-marca-txt';p.innerHTML=`<b>Marca · ${m[0]}</b> ${m[1]}`;
- kit.after(p);
+ // fica sobre o fim da caixa de descrição (sem ocupar espaço do layout, para o retrato não encolher)
+ copy.after(p);
+ const place=()=>{if(!p.isConnected)return;p.style.top=(copy.offsetTop+copy.offsetHeight-p.offsetHeight-6)+'px';p.style.left=(copy.offsetLeft+8)+'px';p.style.width=(copy.offsetWidth-16)+'px'};
+ requestAnimationFrame(()=>{place();setTimeout(place,250)});
 };
 window.MarcasV3={MARCAS,THRESH,stateOn,nearOwnBlocks};
 })();

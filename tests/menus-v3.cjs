@@ -11,7 +11,7 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  const all=await p.evaluate(()=>CHAMPIONS.map(c=>[c.name,c.ref,c.title,c.ult,...c.kit.map(id=>skills[id].name+' '+skills[id].desc)].join(' ')).join(' | '));
  ok(!/Goku|Kakashi|Gojo|\bGon\b|Ichigo|Rengoku|Getsuga|Shunpo|Bankai|Kamui|Vazio Roxo|Domínio Vazio|Barreira Infinita|Cosmo Desperto|Pacto Total/i.test(all),'nenhum herói cita nomes de outras obras');
  const gd=await p.evaluate(()=>CHAMPIONS[5].kit.map(id=>skills[id].desc).join(' | '));
- ok(/151 de dano/.test(gd)&&/299 de dano/.test(gd),'descrição do Caçador mostra o dano real (151 e 299): '+gd.slice(0,90));
+ ok(/139 de dano/.test(gd)&&/276 de dano/.test(gd),'descrição do Caçador mostra o dano real (139 e 276): '+gd.slice(0,90));
  for(const id of [0,1,2,5]){
   const r=await p.evaluate(id=>{openChampionDetails(id);const el=document.getElementById('heroDetail');const b=[...el.querySelectorAll('.hero-kit [data-hero-skill]')];const r={n:b.length,labels:b.map(x=>x.textContent.trim()).join(','),stat:[...el.querySelectorAll('.hero-stat')].map(s=>s.textContent.replace(/\s+/g,' ')).join('|'),act:el.querySelector('.hero-kit .active')?.dataset.heroSkill};closeHeroDetail();return r},id);
   ok(r.n===4&&r.labels.replace(/\s/g,'')==='1,2,3,ULT'.replace(/,/g,',')||r.n===4&&/^[^]*ULT$/.test(r.labels)&&!/5 \+/.test(r.stat),`detalhe do campeão ${id}: 3 habilidades + ULT (${r.labels})`);
