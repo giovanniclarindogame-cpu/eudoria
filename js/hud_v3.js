@@ -119,6 +119,42 @@ window.v3FaceSrc=function(a){
 window.v3FaceCrop=faceCrop;
 
 
+
+/* mini-cartões do aliado e do segundo rival (modos de equipe): ficam logo abaixo dos cartões principais, colados na borda */
+const hudEl=document.querySelector('#battle .hud');
+function mkMini(id,cls){
+ const d=document.createElement('div');d.id=id;d.className='mini-card '+cls;d.hidden=true;
+ d.innerHTML='<img class="mc-face" alt=""><div class="mc-body"><div class="mc-top"><b class="mc-name"></b><span class="mc-hp"></span></div><div class="mc-bar hp"><i></i></div><div class="mc-bar res"><i></i></div></div>';
+ hudEl?.appendChild(d);return d;
+}
+const allyCard=mkMini('allyCard','ally'),foeCard=mkMini('foe2Card','foe');
+function fillMini(el,a){
+ if(!a||a.hp===undefined){el.hidden=true;return}
+ el.hidden=false;
+ el.classList.toggle('down',a.hp<=0);
+ const face=el.querySelector('.mc-face'),src=(window.v3FaceSrc&&window.v3FaceSrc(a))||'assets/portraits/campeao_'+String(a.skin+1).padStart(2,'0')+'.webp';
+ if(face.getAttribute('src')!==src)face.src=src;
+ el.querySelector('.mc-name').textContent=(a.label||'').replace(/^FOCO · /,'');
+ el.querySelector('.mc-hp').textContent=Math.max(0,Math.ceil(a.hp));
+ el.querySelector('.hp i').style.width=(100*clamp(a.hp/a.max,0,1))+'%';
+ let rv=0,rc='#7fb8d8';
+ try{const r=reworkResource(a);if(r&&r.max){rv=clamp(r.value/r.max,0,1);rc=r.color||rc}else rv=clamp(a.mp/120,0,1)}catch{rv=clamp((a.mp||0)/120,0,1)}
+ const ri=el.querySelector('.res i');ri.style.width=(100*rv)+'%';ri.style.background=rc;
+}
+function updateMini(){
+ const royale=document.getElementById('battle').dataset.arena==='survival';
+ if(!p||royale||modeRun&&!modeRun.hunt&&!modeRun.gb&&false){allyCard.hidden=true;foeCard.hidden=true;return}
+ const allies=actors.filter(a=>a!==p&&a.team===p.team&&isHeroLike(a));
+ const foes=actors.filter(a=>a.team!==p.team&&isHeroLike(a));
+ const focus=typeof enemy==='function'?enemy(p):null;
+ const second=foes.filter(a=>a!==focus)[0];
+ fillMini(allyCard,allies[0]);
+ fillMini(foeCard,matchMode==='2v2'||foes.length>1?second:null);
+}
+const isHeroLike=a=>!!a&&!a.boss&&!a.mob&&!a.rmob&&!a.trainingDummy&&Array.isArray(a.kit)&&a.kit.length===6;
+const prevUI3=updateUI;
+updateUI=function(){prevUI3();try{updateMini()}catch(e){}};
+
 /* nome do rival sem o prefixo "FOCO ·" */
 const prevUI2=updateUI;
 updateUI=function(){

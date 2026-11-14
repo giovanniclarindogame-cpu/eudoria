@@ -39,3 +39,24 @@ body.v3 #battle .teamhud{top:56px!important;left:6px!important;right:6px!importa
 body.v3 #battle #practiceMeter{top:60px!important;left:6px!important}
 body.v3 #battle #toast{top:62px!important}
 body.v3 #battle .teamhud{background:linear-gradient(#0a121aa6,#0a121a00);border-radius:0 0 6px 6px}
+
+/* mini-cartões (50% do tamanho) do aliado e do segundo rival */
+body.v3 #battle .hud .mini-card{position:absolute;top:52px;width:140px;height:30px;box-sizing:border-box;display:flex;align-items:center;gap:5px;padding:2px 6px 2px 4px;background:#08141ee6;border:2px solid #5fd2ee;border-top:0;border-radius:0 0 6px 0;box-shadow:0 2px 6px #0009;pointer-events:none}
+body.v3 #battle .hud .mini-card[hidden]{display:none}
+body.v3 #battle .hud .mini-card.ally{left:env(safe-area-inset-left,0px);border-left:0}
+body.v3 #battle .hud .mini-card.foe{right:env(safe-area-inset-right,0px);border-right:0;border-color:#ee7c7c;background:#1a0c12e6;border-radius:0 0 0 6px;flex-direction:row-reverse;padding:2px 4px 2px 6px}
+body.v3 #battle .hud .mini-card .mc-face{width:22px;height:22px;object-fit:cover;object-position:50% 30%;border:1px solid currentColor;border-radius:2px;background:#15283a;flex:none}
+body.v3 #battle .hud .mini-card.ally .mc-face{border-color:#5fd2ee}
+body.v3 #battle .hud .mini-card.foe .mc-face{border-color:#ee7c7c}
+body.v3 #battle .hud .mini-card .mc-body{flex:1;min-width:0;display:grid;gap:2px}
+body.v3 #battle .hud .mini-card .mc-top{display:flex;justify-content:space-between;gap:4px;font:600 9px/1 system-ui;color:#eef3f6;white-space:nowrap;min-width:0}
+body.v3 #battle .hud .mini-card.foe .mc-top{flex-direction:row-reverse}
+body.v3 #battle .hud .mini-card .mc-name{overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1 1 0}
+body.v3 #battle .hud .mini-card .mc-hp{flex:none}
+body.v3 #battle .hud .mini-card .mc-hp{font-variant-numeric:tabular-nums;color:#cfe3ea}
+body.v3 #battle .hud .mini-card .mc-bar{height:5px;background:#2a1417;border-radius:1px;overflow:hidden}
+body.v3 #battle .hud .mini-card .mc-bar.res{height:3px;background:#101a24}
+body.v3 #battle .hud .mini-card .mc-bar i{display:block;height:100%;background:#ee5c5c}
+body.v3 #battle .hud .mini-card.ally .mc-bar.hp i{background:#59d98e}
+body.v3 #battle .hud .mini-card.down{opacity:.45;filter:grayscale(.8)}
+body.v3 #battle .teamhud{display:none!important}
