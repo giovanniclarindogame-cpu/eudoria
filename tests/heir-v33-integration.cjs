@@ -15,7 +15,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=r
   const check=(v,m)=>{if(!v)throw Error(m)};
   for(const angle of [0,Math.PI]){
    setup33();p.a=angle;b.x=p.x+Math.cos(angle)*70;reworkState(p).value=40;
-   check(cast(p,p.kit[1],angle),'kick accepted');advance33(.16);paint33();check(p.hits>0,'kick damages in both directions');check(reworkState(p).value===26,'kick reduces overload by14');check(heir33Pose(p).frame===26,'kick uses kick pose');
+   check(cast(p,p.kit[1],angle),'kick accepted');advance33(.16);paint33();check(p.hits>0,'kick damages in both directions');check(window.COMBAT_V3?reworkState(p).value>=40:reworkState(p).value===26,'kick reduces overload by14 (legacy) / no longer empties it (v3)');check(heir33Pose(p).frame===26,'kick uses kick pose');
    setup33();b.x=p.x+Math.cos(angle)*70;check(rwBeginCharge(p,angle,0),'charge accepted');advance33(.8);paint33();check(p.rwCast.holding&&p.hits===0,'holding has no premature damage');
    state='fight';check(rwReleaseCharge(p,angle),'charge releases');advance33(.22);paint33();check(p.hits>0,'charged punch hits');check(Reforged.effects.some(e=>e.kind==='heir-contact'&&e.slot===0),'punch contact at enemy');check(reworkState(p).value>20&&reworkState(p).value<30,'charge overload retained');
   }
