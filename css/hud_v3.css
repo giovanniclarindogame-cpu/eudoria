@@ -70,3 +70,15 @@ body.v3 #battle .hud .mini-card.ally{left:0!important;padding-left:calc(4px + en
 body.v3 #battle .hud .mini-card.foe{right:0!important;padding-right:calc(4px + env(safe-area-inset-right,0px))!important}
 body.v3 #battle .hud .mini-card.ally{width:calc(140px + env(safe-area-inset-left,0px))!important}
 body.v3 #battle .hud .mini-card.foe{width:calc(140px + env(safe-area-inset-right,0px))!important}
+
+/* v3.4: a foto do perfil também encosta na borda e no topo (ocupa a altura do cartão) */
+body.v3 #battle .hud .fighterhud:not(.enemy){padding-left:60px!important}
+body.v3 #battle .hud .fighterhud.enemy{padding-right:60px!important}
+body.v3 #battle .hud .fighterhud .arena-portrait{top:0!important;width:52px!important;height:52px!important;transform:none!important;border-radius:0!important;border-width:0!important;object-position:50% 28%!important}
+body.v3 #battle .hud .fighterhud:not(.enemy) .arena-portrait{left:0!important;border-right:2px solid var(--fc)!important;border-radius:0 0 8px 0!important}
+body.v3 #battle .hud .fighterhud.enemy .arena-portrait{right:0!important;left:auto!important;transform:scaleX(-1)!important;border-right:2px solid var(--fc)!important;border-radius:0 0 8px 0!important}
+body.v3 #battle .hud .mini-card.ally{padding-left:0!important}
+body.v3 #battle .hud .mini-card.foe{padding-right:0!important}
+body.v3 #battle .hud .mini-card .mc-face{width:30px;height:30px;border-width:0!important;border-radius:0!important;margin:-2px 0 -2px 0}
+body.v3 #battle .hud .mini-card.ally .mc-face{margin-left:-2px;border-right:2px solid #5fd2ee!important}
+body.v3 #battle .hud .mini-card.foe .mc-face{margin-right:-2px;border-left:2px solid #ee7c7c!important}

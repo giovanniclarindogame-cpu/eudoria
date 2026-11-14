@@ -34,7 +34,8 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
   await q.goto('http://localhost:8000/index.html');await q.waitForTimeout(700);await q.getByText('ENTRAR',{exact:true}).click();await q.fill('input','Giovanni');await q.getByText('Continuar',{exact:true}).click();await q.waitForTimeout(1200);
   await q.evaluate(()=>{matchMode='1v1';start();state='fight';count=0;document.getElementById('countdown').style.display='none'});await q.waitForTimeout(500);
   const e=await q.evaluate(()=>{const a=document.querySelector('.hud .fighterhud:not(.enemy)').getBoundingClientRect(),b=document.querySelector('.hud .fighterhud.enemy').getBoundingClientRect();return{l:a.left,r:innerWidth-b.right}});
-  ok(e.l<=1&&e.r<=1,`cartões colados nas duas laterais em ${w}x${h} (${Math.round(e.l)} e ${Math.round(e.r)})`);await q.close();
+  const f=await q.evaluate(()=>{const a=document.querySelector('.hud .fighterhud:not(.enemy) .arena-portrait').getBoundingClientRect(),b=document.querySelector('.hud .fighterhud.enemy .arena-portrait').getBoundingClientRect();return{l:a.left,t:a.top,r:innerWidth-b.right,t2:b.top}});
+  ok(e.l<=1&&e.r<=1&&f.l<=1&&f.r<=1&&f.t<=1&&f.t2<=1,`cartões e fotos de perfil colados nas bordas em ${w}x${h} (foto: ${Math.round(f.l)}, ${Math.round(f.r)}, topo ${Math.round(f.t)})`);await q.close();
  }
  // analógico flutuante
  const home=await p.evaluate(()=>{const r=document.getElementById('stick').getBoundingClientRect();return[r.left,r.top]});
