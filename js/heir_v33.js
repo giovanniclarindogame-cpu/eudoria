@@ -1,7 +1,7 @@
 'use strict';
 // Art-only adapters: the existing engine owns damage, overload and movement.
 const HEIR33_BODY=rwImage('assets/combat_v35/heir-body.webp?v=35');
-const HEIR35_SKILLS=rwImage('assets/combat_v35/heir-skills.webp?v=35');
+const HEIR35_SKILLS=rwImage('assets/combat_v35/heir-skills.webp?v=36');
 const HEIR33_KEYS=['kick','charge','punch','leap','dash','aura','limit','impact'];
 const HEIR33_FX=Object.fromEntries(HEIR33_KEYS.map(k=>[k,rwImage(`assets/heir_v33/${k}.webp?v=33`)]));
 let heir33Height=0;
@@ -47,7 +47,8 @@ function heir33Pose(a,t=vfxTime){
 function heir33Body(g,a,size=72,t=vfxTime){
  const height=heir33Register();if(!height)return false;
  const pose=heir33Pose(a,t),skillHeight=pose.skillFrame!==undefined?combat35Height(HEIR35_SKILLS):0;
- const im=skillHeight?HEIR35_SKILLS:HEIR33_BODY,frame=skillHeight?pose.skillFrame:pose.frame,k=size/72*73/(skillHeight||height);
+ const im=skillHeight?HEIR35_SKILLS:HEIR33_BODY,frame=skillHeight?pose.skillFrame:pose.frame,k=size/72*73/height;   // mesma escala do corpo base: sem salto de tamanho ao começar/terminar uma habilidade
+ 
  g.save();g.imageSmoothingEnabled=false;g.translate(0,(9-pose.lift)*size/72);g.scale(Math.cos(pose.angle)<0?-1:1,1);
  g.drawImage(im,frame%6*209,Math.floor(frame/6)*209,209,209,-104.5*k,-193*k,209*k,209*k);g.restore();return true;
 }

@@ -50,6 +50,11 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  ok(hw.proj>=1&&hw.hp<5000,`Herdeiro: soco carregado lança rajada de vento e atinge o alvo a 300 de distância (dano ${5000-hw.hp})`);
  const lw=await p.evaluate(async()=>{b.hp=b.max=5000;b.x=p.x+300;p.cd=p.cd.map(()=>0);p.cast=0;p.actionRecovery=0;p.skillLock=0;p.root=0;rwBeginCharge(p,0,0);await new Promise(r=>setTimeout(r,120));rwReleaseCharge(p,0);await new Promise(r=>setTimeout(r,1000));return{hp:b.hp}});
  ok(lw.hp===5000,'carga curta não lança rajada (só golpe de perto)');
+ // Herdeiro: ultimate com ondas de impacto à frente e impacto no alvo
+ await FIGHT(6);await p.waitForTimeout(300);
+ const ul=await p.evaluate(async()=>{b.skin=0;b.kit=[...CHAMPIONS[0].kit];b.cd=b.cd.map(()=>999);b.root=999;b.hp=b.max=5000;b.inv=0;p.x=W/2-150;p.y=H/2;b.x=p.x+110;b.y=p.y;p.cd=p.cd.map(()=>0);p.cast=0;p.actionRecovery=0;p.skillLock=0;p.root=0;reworkState(p).value=100;reworkState(p).arm=0;
+  const n0=Reforged.effects.length;cast(p,p.kit[5],0);await new Promise(r=>setTimeout(r,1100));const imp=Reforged.effects.filter(e=>e.owner===p&&e.slot===5&&e.kind==='impact').length;return{imp,hp:b.hp,n0}});
+ ok(ul.imp>=4&&ul.hp<5000,`Herdeiro: ultimate cria ondas de impacto à frente e no alvo (${ul.imp} impactos, dano ${5000-ul.hp})`);
  ok(errs.length===0,'sem erros '+errs.slice(0,2));
  await br.close();
 })();

@@ -161,6 +161,22 @@ rwRelease=function(a,q){
  }
  return r;
 };
+/* Herdeiro, ultimate Limite Rompido: ondas de impacto à frente (o golpe alcança 150)  e impacto grande em cada alvo atingido */
+const prevRelease2=rwRelease;
+rwRelease=function(a,q){
+ const r=prevRelease2(a,q);
+ if(isHero(a)&&a.skin===6&&q.slot===5){
+  const an=q.angle;
+  [[60,.0,200],[110,.08,210],[150,.16,190]].forEach(([d,delay,size])=>rwLater(a,delay,()=>{try{rwFx(a,5,a.x+Math.cos(an)*d,a.y+Math.sin(an)*d,'impact',.55,{size,angle:an})}catch{}}));
+ }
+ return r;
+};
+const prevHitUlt=hit;
+hit=function(t,n,o,k,an,id){
+ const r=prevHitUlt(t,n,o,k,an,id);
+ if(r&&o&&o.skin===6&&isHero(o)&&id===o.kit[5]&&t&&t!==o){try{rwFx(o,5,t.x,t.y,'impact',.7,{size:200,angle:an})}catch{}}
+ return r;
+};
 const prevHitWind=hit;
 hit=function(t,n,o,k,an,id){
  if(o&&o.skin===6&&o.v3WindUntil>clock&&id===o.kit[0])n*=.75;
