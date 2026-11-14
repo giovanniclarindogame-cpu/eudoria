@@ -16,6 +16,8 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
   const r=await p.evaluate(id=>{openChampionDetails(id);const el=document.getElementById('heroDetail');const b=[...el.querySelectorAll('.hero-kit [data-hero-skill]')];const r={n:b.length,labels:b.map(x=>x.textContent.trim()).join(','),stat:[...el.querySelectorAll('.hero-stat')].map(s=>s.textContent.replace(/\s+/g,' ')).join('|'),act:el.querySelector('.hero-kit .active')?.dataset.heroSkill};closeHeroDetail();return r},id);
   ok(r.n===4&&r.labels.replace(/\s/g,'')==='1,2,3,ULT'.replace(/,/g,',')||r.n===4&&/^[^]*ULT$/.test(r.labels)&&!/5 \+/.test(r.stat),`detalhe do campeão ${id}: 3 habilidades + ULT (${r.labels})`);
  }
+ const rects=await p.evaluate(()=>{const s=new Set();for(let i=0;i<10;i++){openChampionDetails(i);const r=document.querySelector('#heroDetail .hero-stage img').getBoundingClientRect();s.add(Math.round(r.top)+','+Math.round(r.bottom)+','+Math.round(r.width)+'x'+Math.round(r.height));closeHeroDetail()}return[...s]});
+ ok(rects.length===1,'retratos do detalhe têm a mesma caixa nos 10 campeões '+rects);
  const lb=await p.evaluate(()=>{showScreen('home');renderLobbyBuild();return document.querySelectorAll('#lobbyBuild .lobby-build-icons>span').length});
  ok(lb===4,'início mostra 4 ícones');
  const kp=await p.evaluate(()=>(kitPreview(CHAMPIONS[3].kit).match(/ title=/g)||[]).length);
