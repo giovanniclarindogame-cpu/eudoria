@@ -169,9 +169,20 @@ originalGainKi=function(a,n){if(isHero(a)&&a.skin===0){gokuGain(a,n*.2);return}r
 const prevReason=rwResourceReason;
 rwResourceReason=function(a,slot){if(isHero(a)&&a.skin===0)return '';return prevReason(a,slot)};   // habilidades do Goku não gastam ki
 const prevReason2=rwResourceReason;
-rwResourceReason=function(a,slot){if(isHero(a)&&a.skin===8&&slot===3)return '';return prevReason2(a,slot)};   // o dash do Cavaleiro não gasta energia
+rwResourceReason=function(a,slot){if(isHero(a)&&a.skin===8&&slot===3)return '';return prevReason2(a,slot)};
+// Ultimates que dependiam de habilidades que saíram do kit v3 passam a exigir menos recurso e a ter ganho por acerto
+const ULT_RES={2:45,6:85};   // Ronin: 45 de Pressão · Herdeiro: 85 de Sobrecarga
+const prevReason3=rwResourceReason;
+rwResourceReason=function(a,slot){
+ if(isHero(a)&&a.skin===2){const st=reworkState(a),cost=[0,0,15,0,25,ULT_RES[2]][slot];if(st.value<cost)return cost+' PRE';if(slot===4&&st.spiritForm>0)return 'Ativo';return ''}
+ if(isHero(a)&&a.skin===6&&slot===5){const r=prevReason3(a,slot);if(r==='100 SOB'&&reworkState(a).value>=ULT_RES[6])return '';return r}
+ return prevReason3(a,slot);
+};   // o dash do Cavaleiro não gasta energia
 const prevCommit=rwCommit;
 rwCommit=function(a,q){
+ if(isHero(a)&&a.skin===2&&q.slot!==5){const st=reworkState(a),v0=st.value;prevCommit(a,q);st.value=clamp(v0-(q.slot===2?15:q.slot===4?25:0),0,100);return}   // gasto menor e sem zerar a barra
+ if(isHero(a)&&a.skin===6&&q.slot===1){const st=reworkState(a),v0=st.value;prevCommit(a,q);st.value=clamp(v0+3,0,100);return}   // o chute não esvazia mais a Sobrecarga
+
  if(isHero(a)&&a.skin===0){const s=gokuState(a),v0=s.value,st=s.stage;prevCommit(a,q);s.value=v0;s.stage=st;gokuGain(a,KI_GAIN[q.slot]||0);if(s.powerT>0)q.stage=2;return}
  if(isHero(a)&&a.skin===8&&q.slot===3){const st=reworkState(a),v0=st.value;prevCommit(a,q);st.value=v0;return}
  return prevCommit(a,q);
