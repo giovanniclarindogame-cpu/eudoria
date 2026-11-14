@@ -1,0 +1,7 @@
+#heroDetail.heir-detail{background:#102c20 url('../assets/heir_v33/background.webp?v=33') center/cover no-repeat}
+.heir-detail.simple-detail .hero-detail-inner{background:linear-gradient(90deg,#10281808 25%,#0c2019c9 65%,#0c2019ed)}
+.heir-detail.simple-detail .hero-stage{background:none}
+.heir-detail .hero-halo{display:none}
+.heir-detail .hero-heading,.heir-detail .simple-kit-heading{text-shadow:0 2px 5px #061a10,0 0 14px #103e25cc}
+.heir-detail.simple-detail .hero-skill-copy{background:#10251bef;border-color:#c2a45f77}
+.heir-detail .hero-stage img{object-fit:contain;filter:drop-shadow(0 8px 16px #0a241888)}
