@@ -18,6 +18,9 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  }
  const rects=await p.evaluate(()=>{const s=new Set();for(let i=0;i<10;i++){openChampionDetails(i);const r=document.querySelector('#heroDetail .hero-stage img').getBoundingClientRect();s.add(Math.round(r.top)+','+Math.round(r.bottom)+','+Math.round(r.width)+'x'+Math.round(r.height));closeHeroDetail()}return[...s]});
  ok(rects.length===1,'retratos do detalhe têm a mesma caixa nos 10 campeões '+rects);
+ const mk=await p.evaluate(()=>{const o=[];for(let i=0;i<10;i++){openChampionDetails(i);const b=document.querySelector('#heroDetail .mark-btn');b.click();const txt=document.getElementById('heroSkillCopy').textContent;const nums=[...document.querySelectorAll('#heroDetail .hero-kit>button small')].map(s=>s.textContent.trim()).filter(Boolean);o.push({id:i,has:!!b&&!!b.querySelector('svg'),txt:/MARCA/.test(txt),nums:nums.join(),last:b===document.querySelector('#heroDetail .hero-kit').lastElementChild});closeHeroDetail()}return o});
+ ok(mk.every(x=>x.has&&x.txt&&x.last),'os 10 heróis têm ícone de marca no fim da fila e o clique mostra os detalhes');
+ ok(mk.every(x=>x.nums===''||x.nums==='ULT'),'botões das habilidades sem números (só ULT)');
  const lb=await p.evaluate(()=>{showScreen('home');renderLobbyBuild();return document.querySelectorAll('#lobbyBuild .lobby-build-icons>span').length});
  ok(lb===4,'início mostra 4 ícones');
  const kp=await p.evaluate(()=>(kitPreview(CHAMPIONS[3].kit).match(/ title=/g)||[]).length);

@@ -111,18 +111,39 @@ ai=function(dt,a=b){
  return r;
 };
 
-/* ---------- texto da marca no detalhe do campeão ---------- */
+/* ---------- ícone da marca no fim da fila de habilidades; clicar mostra os detalhes como nas habilidades ---------- */
+const ICON={
+ 0:'<path d="M17 3 7 18h7l-2 11 11-16h-7z" fill="currentColor" fill-opacity=".25"/><circle cx="16" cy="16" r="12" fill="none" stroke-dasharray="3 3"/>',
+ 1:'<path d="M5 12h17M17 7l5 5-5 5M27 21H10M15 16l-5 5 5 5" fill="none"/>',
+ 2:'<path d="M6 26 22 6l4 3L10 28z" fill="currentColor" fill-opacity=".25"/><circle cx="8" cy="7" r="1.6" fill="currentColor"/><circle cx="14" cy="5" r="1.6" fill="currentColor"/><circle cx="20" cy="3.6" r="1.6" fill="currentColor"/>',
+ 3:'<path d="M16 3c1 5-5 7-5 13a5 5 0 0 0 10 0c0-2-1-3-2-4 0 2-1 3-2 3 2-4 1-8-1-12z" fill="currentColor" fill-opacity=".3"/><path d="M12 24a4 4 0 0 0 8 0" fill="none"/>',
+ 4:'<circle cx="16" cy="16" r="11" fill="currentColor" fill-opacity=".12"/><path d="m16 8 2 6 6 .5-4.6 4 1.6 6-5-3.4-5 3.4 1.6-6-4.6-4 6-.5z" fill="currentColor" fill-opacity=".35"/>',
+ 5:'<path d="M8 6c0 9 3 15 8 20 5-5 8-11 8-20-3 3-5 4-8 4s-5-1-8-4z" fill="currentColor" fill-opacity=".25"/><path d="M13 12l3 7 3-7" fill="none"/>',
+ 6:'<circle cx="16" cy="16" r="12" fill="none" stroke-dasharray="2 3"/><path d="M18 5 9 17h6l-2 10 10-14h-6z" fill="currentColor" fill-opacity=".35"/>',
+ 7:'<path d="M5 22c4-9 6 5 10-4s6 5 12-6" fill="none"/><path d="M23 7l5 5-6 2" fill="none"/>',
+ 8:'<path d="m16 3 3.5 8.5L28 12l-6.5 5.5L23.5 27 16 22l-7.5 5 2-9.5L4 12l8.5-.5z" fill="currentColor" fill-opacity=".3"/>',
+ 9:'<rect x="4" y="18" width="10" height="9" rx="1" fill="currentColor" fill-opacity=".3"/><rect x="16" y="18" width="10" height="9" rx="1" fill="currentColor" fill-opacity=".3"/><rect x="10" y="7" width="10" height="9" rx="1" fill="currentColor" fill-opacity=".3"/>'
+};
+window.v3MarkIcon=id=>`<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[id]||''}</svg>`;
 const prevDetails=openChampionDetails;
 openChampionDetails=function(id){
  prevDetails(id);
  const el=document.getElementById('heroDetail'),m=MARCAS[Number(id)];if(!el||!m)return;
- const kit=el.querySelector('.hero-kit');if(!kit||el.querySelector('.v3-marca-txt'))return;
- const copy=el.querySelector('#heroSkillCopy');if(!copy)return;
- const p=document.createElement('p');p.className='v3-marca-txt';p.innerHTML=`<b>Marca · ${m[0]}</b> ${m[1]}`;
- // fica sobre o fim da caixa de descrição (sem ocupar espaço do layout, para o retrato não encolher)
- copy.after(p);
- const place=()=>{if(!p.isConnected)return;p.style.top=(copy.offsetTop+copy.offsetHeight-p.offsetHeight-6)+'px';p.style.left=(copy.offsetLeft+8)+'px';p.style.width=(copy.offsetWidth-16)+'px'};
- requestAnimationFrame(()=>{place();setTimeout(place,250)});
+ const kit=el.querySelector('.hero-kit');if(!kit||kit.querySelector('.mark-btn'))return;
+ const b=document.createElement('button');b.type='button';b.className='mark-btn';b.dataset.heroMark=String(id);
+ b.setAttribute('aria-label','Marca: '+m[0]);b.setAttribute('aria-pressed','false');b.title='Marca · '+m[0];
+ b.innerHTML=window.v3MarkIcon(Number(id));
+ kit.appendChild(b);
 };
+document.addEventListener('click',e=>{
+ const kit=e.target.closest&&e.target.closest('#heroDetail .hero-kit');if(!kit)return;
+ const mb=e.target.closest('.mark-btn');
+ if(!mb){kit.querySelector('.mark-btn')?.classList.remove('active');kit.querySelector('.mark-btn')?.setAttribute('aria-pressed','false');return}
+ const m=MARCAS[+mb.dataset.heroMark];if(!m)return;
+ kit.querySelectorAll('.active').forEach(x=>{x.classList.remove('active');x.setAttribute('aria-pressed','false')});
+ mb.classList.add('active');mb.setAttribute('aria-pressed','true');
+ const t=document.getElementById('heroSkillCopy');
+ if(t)t.innerHTML=`<b>MARCA · ${m[0]}</b><p>${m[1]}</p><span>Passiva <i>·</i> sem botão, vale durante toda a luta</span>`;
+});
 window.MarcasV3={MARCAS,THRESH,stateOn,nearOwnBlocks};
 })();
