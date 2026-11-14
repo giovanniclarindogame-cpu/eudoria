@@ -2,7 +2,7 @@
 const { chromium } = require('playwright');
 const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else console.log('ok  -',m)};
 const BOOT=async p=>{await p.goto('http://localhost:8000/index.html');await p.waitForTimeout(900);await p.getByText('ENTRAR',{exact:true}).click();await p.fill('input','Teste');await p.getByText('Continuar',{exact:true}).click();await p.waitForTimeout(1400)};
-const FIGHT=(p,s)=>p.evaluate(s=>{matchMode='1v1';battleActivity='casual';account.champions=[0,1,2,3,4,5,6,7,8,9];account.activeChampion=s;selected=[...CHAMPIONS[s].kit];selected.forEach(i=>{if(!account.owned.includes(i))account.owned.push(i)});account.build=[...selected];start();state='fight';count=0;document.getElementById('countdown').style.display='none';p.hp=p.max;b.skin=4;b.kit=[...CHAMPIONS[4].kit];b.x=p.x+420;b.hp=b.max=5000},s);
+const FIGHT=(p,s)=>p.evaluate(s=>{matchMode='1v1';battleActivity='casual';account.champions=[0,1,2,3,4,5,6,7,8,9];account.activeChampion=s;selected=[...CHAMPIONS[s].kit];selected.forEach(i=>{if(!account.owned.includes(i))account.owned.push(i)});account.build=[...selected];start();state='fight';count=0;document.getElementById('countdown').style.display='none';p.hp=p.max;b.skin=4;b.kit=[...CHAMPIONS[4].kit];b.x=p.x+420;b.hp=b.max=5000;b.cd=b.cd.map(()=>999);b.root=999},s);
 (async()=>{
  const br=await chromium.launch();const ctx=await br.newContext({viewport:{width:844,height:390},hasTouch:true});const p=await ctx.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
  await BOOT(p);
