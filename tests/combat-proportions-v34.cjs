@@ -1,7 +1,7 @@
 const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=require('node:fs'),sharp=require('sharp');
 (async()=>{
  // Both packed atlases must keep every pose inside its own cell.
- for(const file of ['assets/hunter_v32/body.webp','assets/spark_v34/body.webp']){
+ for(const file of ['assets/combat_v35/hunter-body.webp','assets/combat_v35/heir-body.webp','assets/combat_v35/hunter-skills.webp','assets/combat_v35/heir-skills.webp']){
   const im=sharp(file),meta=await im.metadata();assert.deepEqual([meta.width,meta.height],[1254,1254]);
   for(let f=0;f<36;f++){
    const d=await im.clone().extract({left:f%6*209,top:Math.floor(f/6)*209,width:209,height:209}).ensureAlpha().raw().toBuffer();let visible=0;
@@ -20,7 +20,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=r
   await page.goto('http://127.0.0.1:8000');await page.waitForFunction(()=>window.arenaQA&&!document.querySelector('#integrationLoading'));
   await page.locator('#welcomeEnter').click();await page.locator('#profileName').fill('Proporções');await page.locator('#profileForm button[type=submit]').click();
   const report=await page.evaluate(async()=>{
-   await Promise.all([HUNTER32_BODY,HUNTER32_ADULT,HEIR33_BODY,...Object.values(BODY24)].map(im=>im.decode()));
+   await Promise.all([HUNTER32_BODY,HUNTER32_ADULT,HEIR33_BODY,HEIR35_SKILLS,HUNTER35_SKILLS,...Object.values(BODY24)].map(im=>im.decode()));
    state='paused';
    const sheet=document.createElement('canvas');sheet.width=960;sheet.height=720;const g=sheet.getContext('2d');
    g.fillStyle='#24342e';g.fillRect(0,0,sheet.width,sheet.height);const idle=[],samples=[];
@@ -49,6 +49,6 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=r
    await page.evaluate(()=>{equipChampion(6,false);beginProgression('training');arenaQA.begin();state='paused';p.x=400;p.y=300;b.x=600;b.y=300;updateUI();draw()});
    await page.screenshot({path:`/tmp/spark-v34-arena-${viewport.width}.png`});
   }
-  assert.deepEqual(errors,[]);console.log('PASS 72 atlas cells, 48 rendered poses/directions, matched reference height/feet, desktop/mobile arena, no asset or JS errors.');
+  assert.deepEqual(errors,[]);console.log('PASS 144 atlas cells, 48 rendered poses/directions, matched reference height/feet, desktop/mobile arena, no asset or JS errors.');
  }finally{await browser.close()}
 })().catch(e=>{console.error(e);process.exit(1)});
