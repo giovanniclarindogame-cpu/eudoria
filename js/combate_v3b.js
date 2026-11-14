@@ -177,6 +177,16 @@ hit=function(t,n,o,k,an,id){
  if(r&&o&&o.skin===6&&isHero(o)&&id===o.kit[5]&&t&&t!==o){try{rwFx(o,5,t.x,t.y,'impact',.7,{size:200,angle:an})}catch{}}
  return r;
 };
+/* Caçador Espectral, ultimate Juramento Total: ondas de impacto à frente (o soco alcança 165) */
+const prevRelease3=rwRelease;
+rwRelease=function(a,q){
+ const r=prevRelease3(a,q);
+ if(isHero(a)&&a.skin===5&&q.slot===5){
+  const an=q.angle;
+  [[70,.0,210],[120,.07,240],[165,.14,220]].forEach(([d,delay,size])=>rwLater(a,delay,()=>{try{rwFx(a,0,a.x+Math.cos(an)*d,a.y+Math.sin(an)*d,'hunter-contact',.55,{size,angle:an})}catch{}}));   // folha 'heavy': anel de fogo e explosão
+ }
+ return r;
+};
 const prevHitWind=hit;
 hit=function(t,n,o,k,an,id){
  if(o&&o.skin===6&&o.v3WindUntil>clock&&id===o.kit[0])n*=.75;
