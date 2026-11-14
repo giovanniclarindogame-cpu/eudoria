@@ -144,5 +144,23 @@ step=function(dt){
  if(!swapTipShown&&p&&p.skin===1&&isHero(p)&&state==='fight'&&V3API.hasClone(p)){swapTipShown=true;toast('Toque na habilidade 2 de novo para trocar de lugar com o clone')}
 };
 
+/* ---------- Herdeiro da Centelha: o soco carregado também solta uma rajada de vento até o inimigo ---------- */
+const WIND_MIN=.3;
+const prevRelease=rwRelease;
+rwRelease=function(a,q){
+ const r=prevRelease(a,q);
+ if(isHero(a)&&a.skin===6&&q.slot===0&&(q.charge||0)>=WIND_MIN){
+  const c=q.charge,boost=1+(q.snapshot||0)*.004;
+  a.v3WindUntil=clock+.3;   // o golpe de perto fica um pouco mais fraco, porque a rajada leva parte do dano
+  try{rwLaunch(a,3,q.angle,230+c*230,520,(30+60*c)*boost,13,{size:70+c*30})}catch(e){console.error('[Eldoria] rajada do soco',e)}
+ }
+ return r;
+};
+const prevHitWind=hit;
+hit=function(t,n,o,k,an,id){
+ if(o&&o.skin===6&&o.v3WindUntil>clock&&id===o.kit[0])n*=.75;
+ return prevHitWind(t,n,o,k,an,id);
+};
+{const sk=skills[CHAMPIONS[6].kit[0]];if(sk&&!sk.v3wind){sk.desc+=' Com 30% de carga ou mais, também solta uma rajada de vento que alcança o inimigo à distância.';sk.v3wind=true}}
 window.V3B={tele,assistAngle,DMG};
 })();
