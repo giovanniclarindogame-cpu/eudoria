@@ -49,7 +49,12 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  // 2×2: pausa e faixa de times não invadem a arena nem os cartões
  await p.evaluate(()=>{matchMode='2v2';start();state='fight';count=0;document.getElementById('countdown').style.display='none'});await p.waitForTimeout(800);
  const v2=await p.evaluate(()=>{const r=s=>document.querySelector(s).getBoundingClientRect();const ps=r('#pauseBtn'),a=r('.hud .fighterhud:not(.enemy)'),tm=r('#teamHud');return{pTop:ps.top,aBottom:a.bottom,tmTop:tm.top,teamVisible:!document.getElementById('teamHud').hidden}});
- ok(v2.pTop<70&&v2.teamVisible&&v2.tmTop>=v2.aBottom-2,`2×2: pausa no topo (${Math.round(v2.pTop)}px) e faixa de times abaixo dos cartões`);
+ ok(v2.pTop<70,`2×2: pausa no topo (${Math.round(v2.pTop)}px)`);
+ const mc=await p.evaluate(()=>{const r=id=>{const e=document.getElementById(id);const b=e.getBoundingClientRect();return{hidden:e.hidden,left:b.left,right:innerWidth-b.right,top:b.top,w:b.width,name:e.querySelector('.mc-name').textContent}};const m=document.querySelector('.hud .fighterhud:not(.enemy)').getBoundingClientRect();return{ally:r('allyCard'),foe:r('foe2Card'),mainW:m.width,mainBottom:m.bottom}});
+ ok(!mc.ally.hidden&&!mc.foe.hidden&&mc.ally.left<=1&&mc.foe.right<=1&&mc.ally.top>=mc.mainBottom-6,`2×2: mini-cartões do aliado (${mc.ally.name}) e do 2º rival (${mc.foe.name}) colados nas bordas, abaixo dos cartões`);
+ ok(mc.ally.w<mc.mainW*.6,`mini-cartões têm cerca de metade do tamanho (${Math.round(mc.ally.w)} contra ${Math.round(mc.mainW)} px)`);
+ await p.evaluate(()=>{matchMode='1v1';start();state='fight';count=0;document.getElementById('countdown').style.display='none'});await p.waitForTimeout(600);
+ ok(await p.evaluate(()=>document.getElementById('allyCard').hidden&&document.getElementById('foe2Card').hidden),'no 1×1 os mini-cartões ficam escondidos');
  ok(errs.length===0,'sem erros '+errs.slice(0,2));
  await br.close();
 })();
