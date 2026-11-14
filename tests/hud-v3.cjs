@@ -14,6 +14,11 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  ok(await p.evaluate(()=>document.getElementById('lowHpFx').classList.contains('on')&&getComputedStyle(document.getElementById('lowHpFx')).animationName==='lowHp'),'com 25% ou menos as bordas piscam em vermelho');
  await p.evaluate(()=>{p.hp=p.max;updateUI()});
  ok(await p.evaluate(()=>!document.getElementById('lowHpFx').classList.contains('on')),'alerta some ao recuperar vida');
+ // foto do rosto do campeão no cartão do HUD
+ await p.evaluate(()=>{b.skin=2;b.kit=[...CHAMPIONS[2].kit];p.skin=1;p.kit=[...CHAMPIONS[1].kit];updateUI()});await p.waitForTimeout(1200);await p.evaluate(()=>updateUI());await p.waitForTimeout(300);
+ const fc=await p.evaluate(()=>[...document.querySelectorAll('.hud .arena-portrait')].map(i=>i.getAttribute('src').slice(0,11)));
+ ok(fc.length===2&&fc.every(s=>s==='data:image/'),'cartões do HUD mostram o recorte do rosto dos dois campeões '+fc);
+ await p.screenshot({path:'/tmp/claude-0/s/hudface.png',clip:{x:0,y:0,width:844,height:90}});
  // analógico flutuante
  const home=await p.evaluate(()=>{const r=document.getElementById('stick').getBoundingClientRect();return[r.left,r.top]});
  await p.evaluate(()=>{const t=document.getElementById('arena');for(const type of ['pointerdown']){t.dispatchEvent(new PointerEvent(type,{pointerId:7,pointerType:'touch',clientX:200,clientY:150,bubbles:true,cancelable:true}))}});
