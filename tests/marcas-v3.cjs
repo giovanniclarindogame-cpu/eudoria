@@ -6,7 +6,7 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  await p.goto('http://localhost:8000/index.html');await p.waitForTimeout(900);await p.getByText('ENTRAR',{exact:true}).click();await p.fill('input','Giovanni');await p.getByText('Continuar',{exact:true}).click();await p.waitForTimeout(1500);
  const FIGHT=s=>p.evaluate(s=>{matchMode='1v1';battleActivity='casual';account.champions=[0,1,2,3,4,5,6,7,8,9];account.activeChampion=s;selected=[...CHAMPIONS[s].kit];selected.forEach(i=>{if(!account.owned.includes(i))account.owned.push(i)});account.build=[...selected];start();state='fight';count=0;document.getElementById('countdown').style.display='none';b.skin=0;b.kit=[...CHAMPIONS[0].kit];b.cd=b.cd.map(()=>999);b.root=999;b.hp=b.max=100000;b.inv=0;b.x=p.x+70;b.y=p.y},s);
  // texto no detalhe
- for(let i=0;i<10;i++){const t=await p.evaluate(i=>{openChampionDetails(i);const e=document.querySelector('#heroDetail .v3-marca-txt');const r=e?e.textContent:'';closeHeroDetail();return r},i);ok(/Marca ·/.test(t),`herói ${i}: detalhe mostra a marca (${t.slice(8,40)})`)}
+ for(let i=0;i<10;i++){const t=await p.evaluate(i=>{openChampionDetails(i);document.querySelector('#heroDetail .mark-btn').click();const r=document.getElementById('heroSkillCopy').textContent;closeHeroDetail();return r},i);ok(/MARCA/.test(t),`herói ${i}: ícone da marca mostra os detalhes (${t.slice(0,28)})`)}
  // Ronin: marcas e bônus de dano; levar dano zera
  await FIGHT(2);await p.waitForTimeout(300);
  const r=await p.evaluate(()=>{const dmg=()=>{const h=b.hp;hit(b,100,p,0,0,p.kit[0]);return h-b.hp};const base=dmg();for(let i=0;i<4;i++)dmg();const five=p.v3m;const bonus=dmg();const before=p.v3m;hit(p,10,b,0,0,-1);return{base,five,bonus,before,after:p.v3m}});
