@@ -1,7 +1,7 @@
 {
   "source_file": "ELDORIA_ARENA_10_CAMPEOES_LAYOUT_SEGURO.html",
   "image_occurrences": 166,
-  "unique_files": 124,
+  "unique_files": 112,
   "files": [
     {
       "source_index": 0,
@@ -94,12 +94,6 @@
       "sha256": "88c73f12becefecf282742c39e57113e7e068874824b8f409c014bb727ce14ee"
     },
     {
-      "source_index": 15,
-      "file": "assets/sprites/arte_015.webp",
-      "bytes": 23080,
-      "sha256": "72bd88a73833fd6b639b633e0ada70f62a40d7bed8756abf4b670aade992330e"
-    },
-    {
       "source_index": 16,
       "file": "assets/sprites/arte_016.webp",
       "bytes": 123380,
@@ -140,36 +134,6 @@
       "file": "assets/sprites/arte_022.webp",
       "bytes": 65470,
       "sha256": "ea0b74efdf909c3333717f3a90800d6233fca4e875ad9cfb982937871f572d9c"
-    },
-    {
-      "source_index": 23,
-      "file": "assets/sprites/arte_023.webp",
-      "bytes": 34258,
-      "sha256": "b2a751286afbc2eb77d43a7241be3606ec8ba2570174005eedbad911c0e3ed41"
-    },
-    {
-      "source_index": 24,
-      "file": "assets/sprites/arte_024.webp",
-      "bytes": 32010,
-      "sha256": "22cfe320419f8469a1e9245bf55cbfe479db0a2ccd2148a36289e6df627b0cb1"
-    },
-    {
-      "source_index": 25,
-      "file": "assets/sprites/arte_025.webp",
-      "bytes": 36038,
-      "sha256": "1262b5a9b36714f82bd22d6d305adcb31af6c23c2c83e3bc8890f6e08af01de7"
-    },
-    {
-      "source_index": 26,
-      "file": "assets/sprites/arte_026.webp",
-      "bytes": 38640,
-      "sha256": "94db7f69feded981e1f60df268aed361ddd2ace87105bb8cee9359dc60f5ed25"
-    },
-    {
-      "source_index": 27,
-      "file": "assets/sprites/arte_027.webp",
-      "bytes": 38908,
-      "sha256": "738ce24170ecde8fd6b38d125f2782141aa2b4e37849f1fd5cda0037db8c9bc5"
     },
     {
       "source_index": 28,
@@ -710,42 +674,6 @@
       "file": "assets/sprites/arte_159.webp",
       "bytes": 93444,
       "sha256": "03493bcbccf4a6021863cf473072fdd5061d8f8b3e7224beaf235d7bb86ab2a2"
-    },
-    {
-      "source_index": 160,
-      "file": "assets/sprites/arte_160.webp",
-      "bytes": 128054,
-      "sha256": "8fb66659af876613edebb2fbc15ef3299aefd0b3dc58c47cce61a3b950a966a2"
-    },
-    {
-      "source_index": 161,
-      "file": "assets/sprites/arte_161.webp",
-      "bytes": 126328,
-      "sha256": "1cd24ac9327cf6b52778afbdb88e00cb02c6d1ac67945a5d125ca676a3b90043"
-    },
-    {
-      "source_index": 162,
-      "file": "assets/sprites/arte_162.webp",
-      "bytes": 128558,
-      "sha256": "67d0062617b27079abbdf11b214f1812aaec61ccda5dc8ba19716de4722004cf"
-    },
-    {
-      "source_index": 163,
-      "file": "assets/sprites/arte_163.webp",
-      "bytes": 156340,
-      "sha256": "2c15207ddb10f1f4f3042fb37c99d8123d99cb58af29e1033f4c8d648102ab43"
-    },
-    {
-      "source_index": 164,
-      "file": "assets/sprites/arte_164.webp",
-      "bytes": 128942,
-      "sha256": "3a640af524fb67b91e5d13cb4981010f029d4219a7a8043113f5054dc3bde554"
-    },
-    {
-      "source_index": 165,
-      "file": "assets/sprites/arte_165.webp",
-      "bytes": 107060,
-      "sha256": "6bbe0f03ac1f27f49b27763ad4682b44a83225e22c319eacac5ccef14d08fdf9"
     }
   ]
 }
