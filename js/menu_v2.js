@@ -26,11 +26,8 @@
   */
  function heroArtURL(){try{return championArt(currentChampion())}catch{return''}}
  function paintHeroArt(){
-  const btn=document.querySelector('.royal-hero');if(!btn)return;
-  let img=btn.querySelector('.royal-hero-art');
-  if(!img){btn.innerHTML='<img class="royal-hero-art" alt="" draggable="false">';img=btn.firstElementChild}
-  const url=heroArtURL();if(img.getAttribute('src')!==url)img.setAttribute('src',url);
-  img.alt=currentChampion().name;
+  // Tela inicial: o campeão é desenhado no canvas #lobbyHero com a arte de combate animada (lobby_real.js); remove a ilustração estática antiga
+  const old=document.querySelector('.royal-hero .royal-hero-art');if(old)old.remove();
  }
  const prevHomeArt=renderLobbyHome;
  renderLobbyHome=function(){prevHomeArt.apply(this,arguments);paintHeroArt()};

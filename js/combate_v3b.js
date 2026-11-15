@@ -64,7 +64,7 @@ const tele=[];
 const prevCastB=cast;
 cast=function(a,id,manual){
  const r=prevCastB(a,id,manual);
- if(r&&p&&a&&a!==p&&a.team!==p.team&&a.hp>0&&state==='fight'){
+ if(r&&p&&a&&a!==p&&a.team!==p.team&&a.hp>0&&state==='fight'&&!isHero(a)){   // só mobs e chefes avisam o golpe; rival herói (outro jogador) não mostra a intenção
   const s=skills[id],dur=clampN(a.cast||.45,.3,1.1);
   if(s&&(s.range||0)>0&&!s.dash){
    const ang=aim(a,typeof manual==='number'?manual:undefined);
@@ -72,6 +72,12 @@ cast=function(a,id,manual){
   }
  }
  return r;
+};
+// zonas de aviso vermelhas de rivais heróis também ficam ocultas (mobs e chefes continuam com o aviso)
+const prevTeleDraw=vfxDrawTelegraphs;
+vfxDrawTelegraphs=function(){
+ const all=zones;zones=all.filter(z=>!(z.owner&&z.owner!==p&&z.owner.team!==p?.team&&isHero(z.owner)));
+ try{return prevTeleDraw.apply(this,arguments)}finally{zones=all}
 };
 const prevDepth=integratedDepth;
 integratedDepth=function(){

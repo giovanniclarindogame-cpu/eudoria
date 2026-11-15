@@ -15,7 +15,9 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  ok(d,'dash que esquiva um golpe mostra ESQUIVOU!');
  // aviso de golpes
  const tl=await p.evaluate(async()=>{V3B.tele.length=0;p.hp=p.max=5000;b.x=p.x+100;b.y=p.y;let seen=false,list=false;for(let i=0;i<150&&!seen;i++){await new Promise(r=>setTimeout(r,40));b.x=p.x+100;b.y=p.y;if(V3B.tele.length){seen=true;list=integratedDepth().some(e=>e.kind==='v3-tele')}}return{n:seen?1:0,list}});
- ok(tl.n===1&&tl.list,'golpe do inimigo cria aviso no chão');
+ ok(tl.n===0&&!tl.list,'rival herói (outro jogador) NÃO mostra aviso do golpe');
+ const tm=await p.evaluate(()=>{V3B.tele.length=0;b.mob=true;b.cd=b.cd.map(()=>0);b.cast=0;b.actionRecovery=0;b.x=p.x+100;b.y=p.y;cast(b,b.kit[0],Math.PI);const n=V3B.tele.length;b.mob=false;return n});
+ ok(tm===1,'mob/chefe continua mostrando o aviso do golpe');
  // anel do Goku
  const g=await p.evaluate(()=>{reworkState(p).value=40;updateUI();const r=document.querySelector('#equipped .skill[data-arc="0"] .v3-ring');return r&&r.style.getPropertyValue('--pw')});
  ok(g==='0.4','anel do botão 1 mostra o ki do Goku');
