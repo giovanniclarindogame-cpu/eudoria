@@ -10,7 +10,7 @@ const TAU=Math.PI*2;
 const nowT=()=>clock;
 
 const MARCAS={
- 0:['Modo Poder','Usar habilidades enche o ki; no máximo, ganha poder extra por 4 s.'],
+ 0:['Modo Poder','Usar habilidades enche o ki; no máximo, ganha poder extra por 6 s.'],
  1:['Troca Ardilosa','O clone troca de lugar com ele e o dash deixa uma imagem residual.'],
  2:['Ritmo da Lâmina','Cortes seguidos acumulam até 5 marcas (+6% de dano cada); levar dano zera.'],
  3:['Brasa Viva','Com Chama em 80 ou mais: +30% de dano de fogo e +10% de velocidade.'],
