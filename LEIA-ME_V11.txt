@@ -217,3 +217,5 @@ O equilíbrio da dificuldade é estimado (testado só com IA e simulações): aj
   · Tela inicial: o campeão escolhido aparece com a arte de combate animada (canvas #lobbyHero, tamanho 220) em vez da ilustração estática (js/menu_v2.js, js/lobby_real.js, css/menu_v2.css).
 
 - CENÁRIO VIVO (js/cenario_v3.js): 46 pétalas de cerejeira caindo e girando com vento variável, brilho quente pulsante nas 4 lanternas (e luz no chão) e 16 vagalumes que orbitam as lanternas/bordas. Calculado só pelo tempo da simulação (pausar congela). Custo medido ≈0,3–0,5 ms por quadro no desktop. Desliga com ?cenario=0 ou com "reduzir movimento" do aparelho.
+
+- LANTERNAS NOS CANTOS: as 4 lanternas (obstáculos com colisão) saíram do meio da arena e foram para os cantos, sobre os quadrados amarelos da moldura, para não atrapalhar o combate (js/arena_horizontal.js: pillars). O brilho do cenário acompanha.
