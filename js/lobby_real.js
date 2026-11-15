@@ -53,7 +53,7 @@ drawLobbyHero=function(t){
  const canvas=$('#lobbyHero'),g=canvas?.getContext('2d');if(!g)return;
  lobbyPaintAt=t;g.clearRect(0,0,440,440);g.save();g.translate(220,350);
  g.fillStyle='#041b1580';g.beginPath();g.ellipse(0,8,64,17,0,0,TAU);g.fill();
- const drawn=drawAnimatedFighter(g,lobbyActor,180,animated?t/1000:0);g.restore();$('#lobbyHeroFallback').hidden=drawn;
+ const drawn=drawAnimatedFighter(g,lobbyActor,220,animated?t/1000:0);g.restore();$('#lobbyHeroFallback').hidden=drawn;
  if(drawn){lobbyPainted=true;lobbyRenderCount++;}
 };
 document.addEventListener('click',event=>{
