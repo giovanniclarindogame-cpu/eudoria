@@ -228,3 +228,5 @@ O equilíbrio da dificuldade é estimado (testado só com IA e simulações): aj
 
 - TELA DO KOF NO ESTILO "MEMBER SELECT" (js/kof_v3.js, css/modos_v3.css): título em moldura, ilustração grande do herói em foco à esquerda, sprite de combate animado sobre plataforma azul, silhueta misteriosa do rival (muda como sorteio) na plataforma vermelha, VS no centro, listas JOGADOR/RIVAL com a ordem de entrada (◀ ▶), barras de nome azul/vermelha e grade 5×2 de retratos com marcador 1/2/3.
 - ROUNDS/KOF/TORNEIO: no início de cada round/luta todos voltam a encarar o rival (V3Modes.faceOff); antes quem tinha caído ficava virado para trás.
+
+- KOF · AJUSTES DA TELA: retratos de baixo agora são retângulos em pé só com o rosto (como no KOF), lado a lado, sem nome e sem piscar/trocar de imagem ao tocar (os rostos ficam em cache antes de aparecer); o rival na sombra vermelha está espelhado, olhando para o seu herói; os bonecos do centro usam o mesmo repouso da tela inicial (sem inclinação).
