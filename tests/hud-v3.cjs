@@ -22,7 +22,7 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  // HUD colado nas bordas, pausa sob o tempo, câmera com margem no topo, ícones de estado e ultimate pronta
  const flush=await p.evaluate(()=>{const r=s=>document.querySelector(s).getBoundingClientRect();const a=r('.hud .fighterhud:not(.enemy)'),e=r('.hud .fighterhud.enemy'),m=r('.hud .mid-hud'),ps=r('#pauseBtn');return{top:a.top,left:a.left,eTop:e.top,eRight:innerWidth-e.right,mTop:m.top,pCx:ps.left+ps.width/2,pTop:ps.top,mBottom:m.bottom,iw:innerWidth}});
  ok(flush.top<=1&&flush.left<=1&&flush.eTop<=1&&flush.eRight<=1&&flush.mTop<=1,'cartões e tempo colados no topo e nas laterais');
- ok(flush.pCx>flush.iw/2+40&&flush.pCx<flush.iw/2+90&&flush.pTop<20,'pausa ao lado do tempo, no topo');
+ ok(Math.abs(flush.pCx-flush.iw/2)<3&&flush.pTop>=flush.mBottom,'pausa centralizado logo abaixo do tempo');
  const cam=await p.evaluate(()=>{p.y=60;p.x=W/2;updateArenaCamera();return{oy,top:oy>0}});
  ok(cam.top,'ao subir no mapa a câmera acompanha e mostra a arte acima do piso (oy '+Math.round(cam.oy)+')');
  const st=await p.evaluate(()=>{p.slow=3;p.cd=p.cd.map(()=>0);const s=v3Status.statusIcons(p).map(x=>x[0]).join('');return{s,ult:v3Status.ultReady(p)}});

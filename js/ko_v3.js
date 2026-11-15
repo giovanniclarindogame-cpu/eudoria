@@ -47,10 +47,12 @@ finish=function(){
 };
 const prevStep=step;
 step=function(dt){
+ // quem cai (também no meio de uma luta em dupla) continua visível, caído no chão
+ if(state==='fight'||seq)for(const a of actors){if(a.hp<=0&&!a.boss&&!a.trainingDummy)a.koAge=(a.koAge||0)+dt}
  if(seq){
   clearInputs();
   const t=(now()-seq.t0)/1000;
-  for(const a of actors){if(a.hp<=0){a.koAge=(a.koAge||0)+dt;a.inv=Math.max(a.inv,0)}}
+  for(const a of actors){if(a.hp<=0){a.inv=Math.max(a.inv,0)}}
   if(seq.phase===0&&t>1.1){seq.phase=1;dojoSpeed=1}
   if(seq.phase===1&&t>2.3){seq.phase=2;{const L=window.V3Hooks?.label?.(seq.win);show(seq.win?'win':'lose',L?L[0]:(seq.win?'VOCÊ VENCEU':'VOCÊ PERDEU'),L?L[1]:(seq.win?'A arena é sua.':'Tente de novo.'))}}
   if(seq.phase===2&&t>4){const w=seq;seq=null;dojoSpeed=1;banner.hidden=true;settle();return}
