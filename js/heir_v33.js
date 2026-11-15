@@ -75,6 +75,7 @@ const heir33OldPaint=rwPaintFX;
 rwPaintFX=function(e){
  if(e.skin!==6)return heir33OldPaint(e);
  const u=clamp(e.age/e.duration,0,1),x=e.follow?e.owner.x:e.x,y=e.follow?e.owner.y:e.y,angle=e.angle||0;
+ if(e.kind==='heir-punch')return heir33Effect(ctx,'punch',u*24,x,y-28,e.size||80,angle,false);
  if(e.kind==='heir-contact')return heir33Effect(ctx,e.slot===0?'punch':'impact',u*24,x,y-28,e.size||80,angle,false);
  if(e.kind==='heir-takeoff')return heir33Effect(ctx,'leap',u*8,x,y-20,100);
  if(e.kind==='heir-landing'||e.slot===2&&e.kind==='impact')return heir33Effect(ctx,'leap',14+u*10,x,y-24,e.size||115);

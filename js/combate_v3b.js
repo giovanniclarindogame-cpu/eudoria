@@ -211,5 +211,22 @@ rwPaintBody=function(g,a,size=72,t=vfxTime){
  const r=prevPaintBody(g,a,size,t);g.restore();return r;
 };
 window.V3B_IDLE_SCALE=IDLE_SCALE;
+
+/* ---------- alcance e largura do dano combinando com a área do efeito (auditoria de hitbox) ---------- */
+const ARC_CAP={'2:0':[85,1.4],'3:0':[56,1.4],'4:0':[100,2.0],'5:2':[92,null],'9:1':[90,1.95],'1:0':[73,null]};   // [alcance máx., abertura máx. em rad]
+const prevArc=rwArc;
+rwArc=function(a,angle,range,damage,slot,arc=1.7,knock=8,extra={}){
+ const c=isHero(a)&&ARC_CAP[a.skin+':'+slot];
+ if(c){if(c[0]!=null)range=Math.min(range,c[0]);if(c[1]!=null)arc=Math.min(arc,c[1])}
+ return prevArc(a,angle,range,damage,slot,arc,knock,extra);
+};
+window.V3_ARC_CAP=ARC_CAP;
+/* Herdeiro: o Impacto Esmeralda ganha o efeito de soco na área do golpe (antes só aparecia no alvo) */
+const prevRelease4=rwRelease;
+rwRelease=function(a,q){
+ const r=prevRelease4(a,q);
+ if(isHero(a)&&a.skin===6&&q.slot===0){const c=q.charge||0;try{rwFx(a,0,a.x+Math.cos(q.angle)*62,a.y+Math.sin(q.angle)*62,'heir-punch',.4,{size:90+c*60,angle:q.angle})}catch{}}
+ return r;
+};
 window.V3B={tele,assistAngle,DMG};
 })();
