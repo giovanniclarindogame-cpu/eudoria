@@ -10,17 +10,34 @@ const FIGHT_TIME=99;
 let K=null,pick=[],sel=-1;
 
 const faceOf=id=>championArt(CHAMPIONS[id]);
+// arte de combate em repouso (animada) nos cartões de seleção
+const sprite=id=>`<canvas class="kof-sprite" data-skin="${id}" width="200" height="200" aria-hidden="true"></canvas>`;
+const idleActors={};
+const idleActor=id=>idleActors[id]||(idleActors[id]={...skinPreviewActor,skin:id,color:CHAMPIONS[id].color});
+let spriteLoop=false;
+function paintSprites(){
+ const cs=document.querySelectorAll('.kof-screen canvas.kof-sprite');
+ if(!cs.length){spriteLoop=false;return}
+ const t=performance.now()/1000;
+ cs.forEach(c=>{const g=c.getContext('2d');g.clearRect(0,0,200,200);g.save();g.translate(100,172);g.fillStyle='#04120d88';g.beginPath();g.ellipse(0,8,34,9,0,0,6.2832);g.fill();g.imageSmoothingEnabled=false;
+  // repouso: o corpo respira e balança de leve (o pose do combate é um quadro fixo, então a animação é feita aqui)
+  const id=+c.dataset.skin,ph=id*1.7,w=Math.sin(t*2.1+ph);
+  g.rotate(w*.03);g.scale(1+.012*Math.sin(t*4.2+ph),1+.02*Math.sin(t*4.2+ph+1.57));g.translate(0,-Math.abs(Math.sin(t*2.1+ph))*2.2);
+  try{drawAnimatedFighter(g,idleActor(id),150,t)}catch{}g.restore()});
+ requestAnimationFrame(paintSprites);
+}
+function startSprites(){if(spriteLoop)return;spriteLoop=true;for(const c of CHAMPIONS){try{reworkPreload(c.id)}catch{}}try{loadSkinAtlas()}catch{}requestAnimationFrame(paintSprites)}
 function slotHtml(i){
  const id=pick[i];
- return `<div class="kof-slot ${id!==undefined?'full':''} ${sel===i?'sel':''}" data-kof-slot="${i}"><span class="kof-n">${i+1}º</span>${id!==undefined?`<img src="${faceOf(id)}" alt=""><b>${CHAMPIONS[id].name}</b><span class="kof-mv"><button data-kof-mv="${i},-1" aria-label="Mover para antes">◀</button><button data-kof-mv="${i},1" aria-label="Mover para depois">▶</button></span>`:'<em>vazio</em>'}</div>`;
+ return `<div class="kof-slot ${id!==undefined?'full':''} ${sel===i?'sel':''}" data-kof-slot="${i}"><span class="kof-n">${i+1}º</span>${id!==undefined?`${sprite(id)}<b>${CHAMPIONS[id].name}</b><span class="kof-mv"><button data-kof-mv="${i},-1" aria-label="Mover para antes">◀</button><button data-kof-mv="${i},1" aria-label="Mover para depois">▶</button></span>`:'<em>vazio</em>'}</div>`;
 }
 function selectHtml(){
  return `<div class="kof-screen"><header class="kof-head"><button class="ghost" data-kof-back>← Arenas</button><div><span class="eyebrow">KOF · 3 CONTRA 3</span><h1>Monte seu time</h1></div><button class="gold" data-kof-go ${pick.length===3?'':'disabled'}>Lutar</button></header>
  <p class="kof-hint">Toque em 3 lutadores. A ordem dos espaços é a ordem de entrada: use ◀ ▶ para trocar. Quem vence continua com a vida que tem.</p>
  <div class="kof-slots">${[0,1,2].map(slotHtml).join('')}</div>
- <div class="kof-grid">${CHAMPIONS.map(c=>`<button class="kof-hero ${pick.includes(c.id)?'picked':''}" data-kof-pick="${c.id}" style="--hero:${c.color}"><img src="${faceOf(c.id)}" alt=""><span>${c.name}</span></button>`).join('')}</div></div>`;
+ <div class="kof-grid">${CHAMPIONS.map(c=>`<button class="kof-hero ${pick.includes(c.id)?'picked':''}" data-kof-pick="${c.id}" style="--hero:${c.color}">${sprite(c.id)}<span>${c.name}</span></button>`).join('')}</div></div>`;
 }
-function render(){const el=$q('#modeScreen');el.innerHTML=selectHtml();el.hidden=false}
+function render(){const el=$q('#modeScreen');el.innerHTML=selectHtml();el.hidden=false;startSprites()}
 function open(){
  pick=[];sel=-1;
  showScreen('home');appScreen='arenas';document.body.dataset.screen='arenas';

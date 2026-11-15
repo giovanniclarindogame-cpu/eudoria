@@ -22,6 +22,7 @@ body.v3 #battle #roundPips i.on.r{background:#ee7c7c;box-shadow:0 0 6px #ee7c7c}
 .kof-slot{position:relative;display:flex;align-items:center;gap:8px;min-height:58px;padding:6px 8px;border:2px dashed #6f8b72;border-radius:8px;background:#0a1d16;color:#cfe0c8;font-size:12px}
 .kof-slot.full{border-style:solid;border-color:#e8c787;background:#122b21}
 .kof-slot img{width:44px;height:50px;object-fit:cover;object-position:50% 12%;border-radius:4px;background:#15283a}
+.kof-slot canvas.kof-sprite{width:64px;height:64px;margin:-6px 0 -6px -2px;image-rendering:pixelated;flex:none}
 .kof-slot b{flex:1;font-size:12px}
 .kof-slot .kof-n{position:absolute;top:2px;left:6px;font:700 10px system-ui;color:#e8c787}
 .kof-slot em{margin:auto;opacity:.6}
@@ -29,6 +30,7 @@ body.v3 #battle #roundPips i.on.r{background:#ee7c7c;box-shadow:0 0 6px #ee7c7c}
 .kof-mv button{width:26px;height:20px;padding:0;font-size:10px;border:1px solid #6f8b72;border-radius:4px;background:#17382b;color:#f2e2b5}
 .kof-grid{flex:1;min-height:0;display:grid;grid-template-columns:repeat(5,1fr);gap:7px;overflow:hidden}
 .kof-hero{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:0;border:2px solid #3c5b49;border-radius:8px;background:radial-gradient(circle at 50% 30%,color-mix(in srgb,var(--hero) 22%,#10281f),#071510);overflow:hidden;color:#f2e2b5}
+.kof-hero canvas.kof-sprite{position:absolute;inset:0;width:100%;height:calc(100% - 18px);object-fit:contain;object-position:50% 100%;image-rendering:pixelated}
 .kof-hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:50% 100%;padding:4px 4px 20px}
 .kof-hero span{position:relative;z-index:1;width:100%;padding:3px 2px;font:700 10px system-ui;text-align:center;background:#06100cd9}
 .kof-hero.picked{border-color:#e8c787;box-shadow:0 0 10px #e8c78788}
