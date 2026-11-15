@@ -24,17 +24,19 @@ function paintSprites(){
  const fid=Math.floor(t*1.3)%CHAMPIONS.length;
  if(fid!==foeShown){foeShown=fid;document.querySelectorAll('.kof-screen [data-foe]').forEach(c=>{c.dataset.skin=fid});const im=document.querySelector('.kx-art.right img');if(im)im.src=faceOf(fid)}
  // retratos recortados do rosto (ficam prontos depois de carregar)
- if(t-faceT>.7){faceT=t;document.querySelectorAll('.kx-tile img[data-face]').forEach(im=>{try{const id=+im.dataset.face,u=window.v3FaceSrc&&v3FaceSrc({skin:id,kit:CHAMPIONS[id].kit});if(u&&im.getAttribute('src')!==u)im.setAttribute('src',u)}catch{}})}
+ if(t-faceT>.25){faceT=t;document.querySelectorAll('.kx-tile img[data-face]').forEach(im=>{try{const id=+im.dataset.face,u=window.v3FaceSrc&&v3FaceSrc({skin:id,kit:CHAMPIONS[id].kit});if(u&&im.getAttribute('src')!==u)im.setAttribute('src',u)}catch{}})}
  cs.forEach(c=>{const g=c.getContext('2d');g.clearRect(0,0,200,200);g.save();g.translate(100,172);g.fillStyle='#04120d88';g.beginPath();g.ellipse(0,8,34,9,0,0,6.2832);g.fill();g.imageSmoothingEnabled=false;
-  // repouso: o corpo respira e balança de leve (o pose do combate é um quadro fixo, então a animação é feita aqui)
-  const id=+c.dataset.skin,ph=id*1.7,w=Math.sin(t*2.1+ph);
-  g.rotate(w*.03);g.scale(1+.012*Math.sin(t*4.2+ph),1+.02*Math.sin(t*4.2+ph+1.57));g.translate(0,-Math.abs(Math.sin(t*2.1+ph))*2.2);
-  try{drawAnimatedFighter(g,idleActor(id),150,t)}catch{}g.restore()});
+  // mesmo repouso da tela inicial: usa o ator do santuário (só ele recebe a animação de repouso), sem inclinar nem deformar
+  const id=+c.dataset.skin,keep=lobbyActor.skin;lobbyActor.skin=id;
+  try{drawAnimatedFighter(g,lobbyActor,150,t)}catch{}lobbyActor.skin=keep;g.restore()});
  requestAnimationFrame(paintSprites);
 }
 function startSprites(){if(spriteLoop)return;spriteLoop=true;for(const c of CHAMPIONS){try{reworkPreload(c.id)}catch{}}try{loadSkinAtlas()}catch{}requestAnimationFrame(paintSprites)}
 let focus=0;
-const tileHtml=c=>{const n=pick.indexOf(c.id);return `<button class="kx-tile ${n>=0?'picked':''} ${focus===c.id?'focus':''}" data-kof-pick="${c.id}" style="--hero:${c.color}"><img data-face="${c.id}" src="${faceOf(c.id)}" alt=""><b>${c.name}</b>${n>=0?`<i class="kx-n">${n+1}</i>`:''}</button>`};
+const BLANK='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+const faceReady=id=>{try{return(window.v3FaceSrc&&v3FaceSrc({skin:id,kit:CHAMPIONS[id].kit}))||null}catch{return null}};
+// retratos recortados no rosto (como no KOF): sem nome, sem trocar de imagem ao tocar
+const tileHtml=c=>{const n=pick.indexOf(c.id);return `<button class="kx-tile ${n>=0?'picked':''} ${focus===c.id?'focus':''}" data-kof-pick="${c.id}" title="${c.name}" aria-label="${c.name}" style="--hero:${c.color}"><img data-face="${c.id}" src="${faceReady(c.id)||BLANK}" alt="">${n>=0?`<i class="kx-n">${n+1}</i>`:''}</button>`};
 function rowHtml(i){
  const id=pick[i];
  return `<div class="kx-row ${id!==undefined?'full':''}" data-kof-slot="${i}"><i>${i+1}º</i><span>${id!==undefined?CHAMPIONS[id].name:'— vazio —'}</span>${id!==undefined?`<em><button data-kof-mv="${i},-1" aria-label="Mover para antes">◀</button><button data-kof-mv="${i},1" aria-label="Mover para depois">▶</button></em>`:''}</div>`;
