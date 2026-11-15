@@ -40,9 +40,9 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  await pg.click('[data-arena-mode="kof"]');await pg.waitForTimeout(300);
  ok(await pg.evaluate(()=>!!document.querySelector('.kof-screen')),'KOF abre a escolha de time');
  await pg.click('[data-kof-pick="1"]');await pg.click('[data-kof-pick="4"]');await pg.click('[data-kof-pick="6"]');
- ok(await pg.evaluate(()=>V3Kof&&document.querySelectorAll('.kof-slot.full').length===3&&!document.querySelector('[data-kof-go]').disabled),'3 lutadores escolhidos, botão Lutar liberado');
+ ok(await pg.evaluate(()=>V3Kof&&document.querySelectorAll('.kx-row.full').length===3&&!document.querySelector('[data-kof-go]').disabled),'3 lutadores escolhidos, botão Lutar liberado');
  await pg.click('[data-kof-mv="0,1"]');
- ok(await pg.evaluate(()=>document.querySelectorAll('.kof-slot b')[0].textContent===CHAMPIONS[4].name),'ordem de entrada pode ser trocada com ◀ ▶');
+ ok(await pg.evaluate(()=>document.querySelectorAll('.kx-row.full span')[0].textContent===CHAMPIONS[4].name),'ordem de entrada pode ser trocada com ◀ ▶');
  await pg.click('[data-kof-go]');await pg.waitForTimeout(500);
  const k0=await pg.evaluate(()=>({pSkin:p.skin,bSkin:b.skin,mine:V3Kof.state.mine.join(),foes:V3Kof.state.foes.join(),sp:V3Modes.special,rounds:V3Series.state.on,strip:document.querySelectorAll('.kof-strip span').length}));
  ok(k0.mine==='4,1,6'&&k0.pSkin===4&&k0.bSkin===+k0.foes.split(',')[0]&&k0.sp==='kof'&&!k0.rounds&&k0.strip===6,'KOF começa com o 1º da ordem escolhida, sem rounds e com as faixas dos times');

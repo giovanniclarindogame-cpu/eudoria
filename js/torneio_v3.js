@@ -92,7 +92,7 @@ function startFight(){
  M.pending='tour';battleActivity='casual';matchMode='1v1';arenaModeId=null;modeRun=null;
  $q('#modeScreen').hidden=true;
  start();M.special='tour';
- M.swapHero(p,T.hero,1000);M.swapHero(b,opp,1000);
+ M.swapHero(p,T.hero,1000);M.swapHero(b,opp,1000);M.faceOff();
  p.label=account.profile?.name||'Você';b.label=name(opp);
  M.rebuildPlayerUI();time=FIGHT_TIME;
  M.banner(STAGES[r],p.label+' × '+name(opp),2400);

@@ -43,6 +43,16 @@ function resetFighter(a,{keepHp=true}={}){
  for(const k of Object.keys(a))if(/^v3/.test(k)||k==='bot')delete a[k];
  if(!keepHp)a.hp=a.max;
 }
+// todos voltam a encarar o rival no início de uma luta/round (quem caiu ficava virado para trás)
+function faceOff(){
+ for(const a of actors){
+  if(a.boss||a.trainingDummy)continue;
+  const f=actors.find(e=>e!==a&&e.team!==a.team&&!e.boss);if(!f)continue;
+  const ang=Math.atan2(f.y-a.y,f.x-a.x);
+  a.a=ang;a.dodgeA=ang;a.dashA=ang;
+  for(const k of Object.keys(a))if(/facing$/i.test(k)&&typeof a[k]==='number')a[k]=ang;
+ }
+}
 function swapHero(a,id,hp){
  const c=CHAMPIONS[id];
  resetFighter(a,{keepHp:true});
@@ -84,7 +94,7 @@ window.V3Hooks={
  round(cb){for(const h of handlers){try{if(h(cb))return true}catch(e){console.error('[Eldoria] modo',e)}}return false},
  label(win){for(const h of handlers){const l=h.label&&h.label(win);if(l)return l}return null}
 };
-window.V3Modes={swapHero,resetFighter,clearField,rebuildPlayerUI,startCount,banner,heroName,special:null};
+window.V3Modes={faceOff,swapHero,resetFighter,clearField,rebuildPlayerUI,startCount,banner,heroName,special:null};
 
 /* ---------- melhor de 3 rounds (1×1 e 2×2) ---------- */
 const ROUND_TIME=90;
@@ -116,6 +126,7 @@ function teamAlive(t){return actors.filter(a=>a.team===t&&a.hp>0).length}
 function nextRound(replay){
  clearField();
  for(const {a,x,y} of S.init){resetFighter(a,{keepHp:false});a.x=x;a.y=y;a.hp=a.max}
+ faceOff();
  if(!replay)S.round++;
  time=ROUND_TIME;startCount(2.8);drawPips();
  banner(replay?'REPETIR O ROUND':'ROUND '+S.round,S.w[0]+' × '+S.w[1],2000);
