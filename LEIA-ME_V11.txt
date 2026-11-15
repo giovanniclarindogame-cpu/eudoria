@@ -223,3 +223,5 @@ O equilíbrio da dificuldade é estimado (testado só com IA e simulações): aj
 - CENÁRIO VIVO · 2ª LEVA (js/cenario_v3.js): névoa baixa deslizando pelo chão (7 manchas), 3 raios de luz dourados bem fracos, poeira nos golpes fortes (dano ≥ 6% da vida máxima), pétalas sopradas para longe quando alguém solta a ultimate, e escurecimento suave do cenário no K.O. Sem vermelho, para não confundir com avisos de golpe.
 
 - CONTAGEM INICIAL (js/modos_v3.js): antes do "LUTE" o jogo não fica mais congelado — personagens e cenário continuam se mexendo (animação de repouso, pétalas, névoa) e a barra de vida já mostra a vida cheia no início de cada round (antes só atualizava quando a luta começava).
+
+- KOF (seleção do time): os cartões e os espaços de ordem mostram a arte de combate de cada herói em repouso, animada (respira e balança de leve), em vez da ilustração estática (js/kof_v3.js, css/modos_v3.css).
