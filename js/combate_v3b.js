@@ -112,7 +112,7 @@ integratedDepth=function(){
 
 /* ---------- 4. ajuste fino de equilíbrio por herói (multiplicador de dano) ---------- */
 // multiplicador de dano por herói (índice do herói → fator), ajustado por simulação de duelos entre todos os heróis
-const DMG={0:.88,1:1.02,2:1.2,3:.38,4:.85,5:2.9,6:1.25,7:.76,8:.76,9:1.27};
+const DMG={0:.8,1:1.05,2:1.2,3:.52,4:.85,5:2.9,6:1.25,7:.76,8:.76,9:1.15};
 try{const q=new URLSearchParams(location.search).get('dmg');if(q)q.split(',').forEach(kv=>{const [k,v]=kv.split(':');if(+v>0)DMG[+k]=+v})}catch{}
 const TAKE={0:1,1:1,2:1,3:1,4:1,5:.6,6:1,7:1,8:1,9:1};   // dano recebido (menor = mais resistente)
 try{const q=new URLSearchParams(location.search).get('take');if(q)q.split(',').forEach(kv=>{const [k,v]=kv.split(':');if(+v>0)TAKE[+k]=+v})}catch{}
@@ -194,5 +194,39 @@ hit=function(t,n,o,k,an,id){
 };
 for(const [ci,pairs] of [[2,[['Custa 25 de Pressão','Custa 15 de Pressão'],['Custa 40 de Pressão','Custa 25 de Pressão'],['Exige 70 de Pressão','Exige 45 de Pressão']]],[6,[['Exige 100 de Sobrecarga','Exige 85 de Sobrecarga']]]])for(const id of CHAMPIONS[ci].kit){const sk=skills[id];if(!sk||sk.v3res)continue;for(const [a,b] of pairs)sk.desc=sk.desc.replace(a,b);sk.v3res=true}
 {const sk=skills[CHAMPIONS[6].kit[0]];if(sk&&!sk.v3wind){sk.desc+=' Com 30% de carga ou mais, também solta uma rajada de vento que alcança o inimigo à distância.';sk.v3wind=true}}
+
+/* ---------- personagem parado um pouco maior (pivô nos pés), voltando suave ao tamanho normal ao agir ---------- */
+const IDLE_SCALE=1.07;
+const prevPaintBody=rwPaintBody;
+rwPaintBody=function(g,a,size=72,t=vfxTime){
+ if(!a||a.skin>6||!['fight','count','paused','end'].includes(state)||!actors.includes(a))return prevPaintBody(g,a,size,t);
+ const dash=Reforged.dashes.some(d=>d.owner===a&&!d.finished);
+ const idle=a.hp>0&&!a.knockedDown&&!a.moving&&!a.rwCast&&!(a.hitReact>0)&&!a.guard&&!(a.dodgeTime>0)&&!(a.punchTime>0)&&!dash;
+ const now=performance.now(),dt=Math.min(.1,(now-(a.v3idleT||now))/1000);a.v3idleT=now;
+ const tgt=idle?IDLE_SCALE:1,cur=a.v3idleF||1;
+ const f=a.v3idleF=cur<tgt?Math.min(tgt,cur+dt*.5):Math.max(tgt,cur-dt*.9);
+ if(Math.abs(f-1)<.002)return prevPaintBody(g,a,size,t);
+ const py=9*size/72;
+ g.save();g.translate(0,py);g.scale(f,f);g.translate(0,-py);
+ const r=prevPaintBody(g,a,size,t);g.restore();return r;
+};
+window.V3B_IDLE_SCALE=IDLE_SCALE;
+
+/* ---------- alcance e largura do dano combinando com a área do efeito (auditoria de hitbox) ---------- */
+const ARC_CAP={'2:0':[85,1.4],'3:0':[56,1.4],'4:0':[100,2.0],'5:2':[92,null],'9:1':[90,1.95],'1:0':[73,null]};   // [alcance máx., abertura máx. em rad]
+const prevArc=rwArc;
+rwArc=function(a,angle,range,damage,slot,arc=1.7,knock=8,extra={}){
+ const c=isHero(a)&&ARC_CAP[a.skin+':'+slot];
+ if(c){if(c[0]!=null)range=Math.min(range,c[0]);if(c[1]!=null)arc=Math.min(arc,c[1])}
+ return prevArc(a,angle,range,damage,slot,arc,knock,extra);
+};
+window.V3_ARC_CAP=ARC_CAP;
+/* Herdeiro: o Impacto Esmeralda ganha o efeito de soco na área do golpe (antes só aparecia no alvo) */
+const prevRelease4=rwRelease;
+rwRelease=function(a,q){
+ const r=prevRelease4(a,q);
+ if(isHero(a)&&a.skin===6&&q.slot===0){const c=q.charge||0;try{rwFx(a,0,a.x+Math.cos(q.angle)*62,a.y+Math.sin(q.angle)*62,'heir-punch',.4,{size:90+c*60,angle:q.angle})}catch{}}
+ return r;
+};
 window.V3B={tele,assistAngle,DMG};
 })();
