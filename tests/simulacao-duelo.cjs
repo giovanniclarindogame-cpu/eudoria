@@ -3,10 +3,10 @@
 const {chromium}=require('playwright');
 const A=process.argv[2]!==undefined?+process.argv[2]:1,B=process.argv[3]!==undefined?+process.argv[3]:0,N=+process.argv[4]||20;
 (async()=>{const br=await chromium.launch();const ctx=await br.newContext({viewport:{width:844,height:390}});const pg=await ctx.newPage();const errs=[];pg.on('pageerror',e=>errs.push(e.message));
- await pg.goto('http://localhost:8000/index.html'+(process.env.DMG?'?dmg='+process.env.DMG+(process.env.TAKE?'&take='+process.env.TAKE:''):''));await pg.waitForTimeout(800);
+ await pg.goto('http://localhost:8000/index.html'+(process.env.OLDBOT?'?botai=0':'')+(process.env.DMG?'?dmg='+process.env.DMG+(process.env.TAKE?'&take='+process.env.TAKE:''):''));await pg.waitForTimeout(800);
  await pg.getByText('ENTRAR',{exact:true}).click();await pg.fill('input','Teste');await pg.getByText('Continuar',{exact:true}).click();await pg.waitForTimeout(1400);
  const res=await pg.evaluate(async({A,B,N,SEED})=>{
-  let seed=SEED;Math.random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
+  window.BOT_SIM_P=true;let seed=SEED;Math.random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
   const out={A:{wins:0,hpSum:0,dmg:0,copies:0,ultCopies:0},B:{wins:0,hpSum:0,dmg:0},draws:0,dur:0,n:0,asP:{A:0,B:0}};
   const origCast=rwCast;
   for(let side=0;side<2;side++)for(let m=0;m<N;m++){
