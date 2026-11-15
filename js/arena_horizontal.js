@@ -2,7 +2,7 @@
 // Wide arena: keep the full battlefield visible and reserve space for the HUD.
 configureArenaSize=function(){
  W=matchMode==='2v2'?1440:1280;H=matchMode==='2v2'?630:560;
- pillars=[{x:88,y:130,r:23},{x:W-88,y:130,r:23},{x:88,y:H-130,r:23},{x:W-88,y:H-130,r:23}];
+ pillars=[{x:52,y:44,r:23},{x:W-52,y:44,r:23},{x:30,y:H-24,r:23},{x:W-30,y:H-24,r:23}];   // lanternas nos cantos (onde fica o quadrado amarelo da moldura), fora do caminho do combate
 };
 let courtyardWide=false;
 updateArenaCamera=function(){
