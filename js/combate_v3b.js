@@ -194,5 +194,22 @@ hit=function(t,n,o,k,an,id){
 };
 for(const [ci,pairs] of [[2,[['Custa 25 de Pressão','Custa 15 de Pressão'],['Custa 40 de Pressão','Custa 25 de Pressão'],['Exige 70 de Pressão','Exige 45 de Pressão']]],[6,[['Exige 100 de Sobrecarga','Exige 85 de Sobrecarga']]]])for(const id of CHAMPIONS[ci].kit){const sk=skills[id];if(!sk||sk.v3res)continue;for(const [a,b] of pairs)sk.desc=sk.desc.replace(a,b);sk.v3res=true}
 {const sk=skills[CHAMPIONS[6].kit[0]];if(sk&&!sk.v3wind){sk.desc+=' Com 30% de carga ou mais, também solta uma rajada de vento que alcança o inimigo à distância.';sk.v3wind=true}}
+
+/* ---------- personagem parado um pouco maior (pivô nos pés), voltando suave ao tamanho normal ao agir ---------- */
+const IDLE_SCALE=1.07;
+const prevPaintBody=rwPaintBody;
+rwPaintBody=function(g,a,size=72,t=vfxTime){
+ if(!a||a.skin>6||!['fight','count','paused','end'].includes(state)||!actors.includes(a))return prevPaintBody(g,a,size,t);
+ const dash=Reforged.dashes.some(d=>d.owner===a&&!d.finished);
+ const idle=a.hp>0&&!a.knockedDown&&!a.moving&&!a.rwCast&&!(a.hitReact>0)&&!a.guard&&!(a.dodgeTime>0)&&!(a.punchTime>0)&&!dash;
+ const now=performance.now(),dt=Math.min(.1,(now-(a.v3idleT||now))/1000);a.v3idleT=now;
+ const tgt=idle?IDLE_SCALE:1,cur=a.v3idleF||1;
+ const f=a.v3idleF=cur<tgt?Math.min(tgt,cur+dt*.5):Math.max(tgt,cur-dt*.9);
+ if(Math.abs(f-1)<.002)return prevPaintBody(g,a,size,t);
+ const py=9*size/72;
+ g.save();g.translate(0,py);g.scale(f,f);g.translate(0,-py);
+ const r=prevPaintBody(g,a,size,t);g.restore();return r;
+};
+window.V3B_IDLE_SCALE=IDLE_SCALE;
 window.V3B={tele,assistAngle,DMG};
 })();
