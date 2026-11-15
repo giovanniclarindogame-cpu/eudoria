@@ -112,7 +112,7 @@ integratedDepth=function(){
 
 /* ---------- 4. ajuste fino de equilíbrio por herói (multiplicador de dano) ---------- */
 // multiplicador de dano por herói (índice do herói → fator), ajustado por simulação de duelos entre todos os heróis
-const DMG={0:.8,1:1.05,2:1.2,3:.52,4:.85,5:2.9,6:1.25,7:.76,8:.76,9:1.15};
+const DMG={0:.72,1:1.05,2:1.35,3:.45,4:.95,5:2.5,6:.95,7:.76,8:.82,9:1.25};
 try{const q=new URLSearchParams(location.search).get('dmg');if(q)q.split(',').forEach(kv=>{const [k,v]=kv.split(':');if(+v>0)DMG[+k]=+v})}catch{}
 const TAKE={0:1,1:1,2:1,3:1,4:1,5:.6,6:1,7:1,8:1,9:1};   // dano recebido (menor = mais resistente)
 try{const q=new URLSearchParams(location.search).get('take');if(q)q.split(',').forEach(kv=>{const [k,v]=kv.split(':');if(+v>0)TAKE[+k]=+v})}catch{}
@@ -167,7 +167,7 @@ rwRelease=function(a,q){
  const r=prevRelease2(a,q);
  if(isHero(a)&&a.skin===6&&q.slot===5){
   const an=q.angle;
-  [[60,.0,200],[110,.08,210],[150,.16,190]].forEach(([d,delay,size])=>rwLater(a,delay,()=>{try{rwFx(a,5,a.x+Math.cos(an)*d,a.y+Math.sin(an)*d,'impact',.55,{size,angle:an})}catch{}}));
+  [[70,.0,210],[130,.08,230],[200,.16,210]].forEach(([d,delay,size])=>rwLater(a,delay,()=>{try{rwFx(a,5,a.x+Math.cos(an)*d,a.y+Math.sin(an)*d,'impact',.55,{size,angle:an})}catch{}}));
  }
  return r;
 };
@@ -183,7 +183,7 @@ rwRelease=function(a,q){
  const r=prevRelease3(a,q);
  if(isHero(a)&&a.skin===5&&q.slot===5){
   const an=q.angle;
-  [[70,.0,210],[120,.07,240],[165,.14,220]].forEach(([d,delay,size])=>rwLater(a,delay,()=>{try{rwFx(a,0,a.x+Math.cos(an)*d,a.y+Math.sin(an)*d,'hunter-contact',.55,{size,angle:an})}catch{}}));   // folha 'heavy': anel de fogo e explosão
+  [[80,.0,220],[145,.07,250],[210,.14,230]].forEach(([d,delay,size])=>rwLater(a,delay,()=>{try{rwFx(a,0,a.x+Math.cos(an)*d,a.y+Math.sin(an)*d,'hunter-contact',.55,{size,angle:an})}catch{}}));   // folha 'heavy': anel de fogo e explosão
  }
  return r;
 };
@@ -214,8 +214,10 @@ window.V3B_IDLE_SCALE=IDLE_SCALE;
 
 /* ---------- alcance e largura do dano combinando com a área do efeito (auditoria de hitbox) ---------- */
 const ARC_CAP={'2:0':[85,1.4],'3:0':[56,1.4],'4:0':[100,2.0],'5:2':[92,null],'9:1':[90,1.95],'1:0':[73,null]};   // [alcance máx., abertura máx. em rad]
+const ARC_BOOST={'5:5':[235,2.9],'6:5':[215,2.9]};   // ultimates do Caçador e do Herdeiro: o dano vai até quase o fim da explosão
 const prevArc=rwArc;
 rwArc=function(a,angle,range,damage,slot,arc=1.7,knock=8,extra={}){
+ const bo=isHero(a)&&ARC_BOOST[a.skin+':'+slot];if(bo){range=bo[0];arc=Math.max(arc,bo[1])}
  const c=isHero(a)&&ARC_CAP[a.skin+':'+slot];
  if(c){if(c[0]!=null)range=Math.min(range,c[0]);if(c[1]!=null)arc=Math.min(arc,c[1])}
  return prevArc(a,angle,range,damage,slot,arc,knock,extra);
@@ -227,6 +229,44 @@ rwRelease=function(a,q){
  const r=prevRelease4(a,q);
  if(isHero(a)&&a.skin===6&&q.slot===0){const c=q.charge||0;try{rwFx(a,0,a.x+Math.cos(q.angle)*62,a.y+Math.sin(q.angle)*62,'heir-punch',.4,{size:90+c*60,angle:q.angle})}catch{}}
  return r;
+};
+
+/* ---------- Herdeiro: a ultimate não tira mais vida; fratura permanente no braço ---------- */
+const prevReleaseF=rwRelease;
+rwRelease=function(a,q){
+ if(isHero(a)&&a.skin===6&&q.slot===5){const hp0=a.hp;const r=prevReleaseF(a,q);a.hp=Math.max(a.hp,hp0);return r}   // devolve a vida que o golpe tiraria
+ return prevReleaseF(a,q);
+};
+const prevCommitF=rwCommit;
+rwCommit=function(a,q){
+ const r=prevCommitF(a,q);
+ if(isHero(a)&&a.skin===6&&q.slot===5){const st=reworkState(a);st.arm=999999;st.fractured=true;if(a===p)toast('FRATURA! O braço não funciona mais nesta luta')}
+ return r;
+};
+const prevReasonF=rwResourceReason;
+rwResourceReason=function(a,slot){const r=prevReasonF(a,slot);return isHero(a)&&a.skin===6&&/^Braço/.test(r)?'Fratura':r};
+for(const id of CHAMPIONS[6].kit){const sk=skills[id];if(!sk||sk.v3frac)continue;
+ sk.desc=sk.desc.replace('e braço recuperado','').replace(/, deixa no máximo 5% de HP e lesiona o braço por 4s/,' e causa Fratura no braço até o fim da luta (os ataques com o braço ficam inutilizados)').replace('continua disponível com o braço lesionado','continua disponível mesmo com Fratura').replace('desliga e lesiona o braço','desliga e causa Fratura temporária');
+ sk.v3frac=true}
+// símbolo de fratura sobre o personagem
+const prevDepthF=integratedDepth;
+integratedDepth=function(){
+ const list=prevDepthF();
+ for(const a of actors){
+  if(a.skin!==6||!isHero(a)||a.hp<=0)continue;
+  let s;try{s=reworkState(a)}catch{continue}
+  if(!(s.arm>0))continue;
+  list.push({kind:'v3-fratura',y:99992+a.y*.001,priority:9,paint(){
+   const x=a.x,y=a.y-92,perm=!!s.fractured,pulse=.8+.2*Math.sin(clock*9);
+   ctx.save();ctx.translate(x,y);ctx.globalAlpha=perm?1:.75*pulse;
+   ctx.fillStyle='#2a0b0be8';ctx.strokeStyle='#ff5a4d';ctx.lineWidth=1.6;ctx.beginPath();ctx.arc(0,0,9,0,TAU);ctx.fill();ctx.stroke();
+   ctx.strokeStyle='#fff1e0';ctx.lineWidth=1.8;ctx.lineCap='round';ctx.lineJoin='round';
+   ctx.beginPath();ctx.moveTo(-6,-4);ctx.lineTo(-1,-1);ctx.lineTo(-3,2);ctx.lineTo(2,1);ctx.lineTo(0,5);ctx.lineTo(6,4);ctx.stroke();   // rachadura
+   ctx.strokeStyle='#ff5a4d';ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(-1,-1);ctx.lineTo(4,-5);ctx.stroke();
+   ctx.restore();
+  }});
+ }
+ return list.sort((u,v)=>u.y-v.y||(u.priority||0)-(v.priority||0));
 };
 window.V3B={tele,assistAngle,DMG};
 })();

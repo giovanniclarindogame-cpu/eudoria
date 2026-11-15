@@ -157,7 +157,7 @@ cast=function(a,id,manual){
 };
 
 /* ------------------------------ Goku: ki sobe ao usar habilidades; no máximo vira Modo Poder por um tempo ------------------------------ */
-const KI_GAIN={0:6,1:7,2:8,3:3.5,5:13},POWER_TIME=4;
+const KI_GAIN={0:6,1:7,2:8,3:3.5,5:13},POWER_TIME=6;
 const gokuState=a=>reworkState(a);
 function gokuGain(a,n){
  const s=gokuState(a);if(s.powerT>0)return;

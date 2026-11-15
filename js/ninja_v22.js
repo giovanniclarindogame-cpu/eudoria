@@ -28,7 +28,7 @@ function ninja22Smoke(a,x=a.x,y=a.y){rwFx(a,1,x,y,'ninja-smoke',.65,{size:100});
 const ninja22Release=rwRelease;
 rwRelease=function(a,q){if(a.skin!==1)return ninja22Release(a,q);const s=reworkState(a),angle=q.angle,slot=q.slot;
  if(slot===0){if(!q.returnCut)move(a,Math.cos(angle)*20,Math.sin(angle)*20);const hits=rwArc(a,angle,95,q.returnCut?40:60,0,1.9,5);s.ninjaFollowUntil=hits&&!q.returnCut?clock+.7:0;rwFx(a,0,a.x,a.y,'ninja-cut',.25,{angle,reverse:q.returnCut,follow:true});}
- if(slot===1){const old=originalClone(a);if(old){old.life=0;ninja22Smoke(a,old.x,old.y);}const o=actor(a.x,a.y,[],a.color);Object.assign(o,{ninja22:true,v10Clone:true,owner:a,skin:1,team:a.team,hp:1,max:1,life:3,age:0,attacks:0,inv:0,kit:[]});objects.push(o);ninja22Smoke(a);move(a,-Math.cos(angle)*38,-Math.sin(angle)*38);}
+ if(slot===1){const old=originalClone(a);if(old){old.life=0;ninja22Smoke(a,old.x,old.y);}const o=actor(a.x,a.y,[],a.color);Object.assign(o,{ninja22:true,v10Clone:true,owner:a,skin:1,team:a.team,hp:1,max:1,life:window.COMBAT_V3?1e9:3,age:0,attacks:0,inv:0,kit:[],v3smart:!!window.COMBAT_V3});objects.push(o);ninja22Smoke(a);move(a,-Math.cos(angle)*38,-Math.sin(angle)*38);}
  if(slot===2){const own=objects.filter(o=>o.v10Trap&&o.owner===a&&o.life>0);if(own.length>=2)own[0].life=0;const pt=q.target;if(pt&&!rwObstacle(pt.x,pt.y,12))objects.push({ninja22:true,v10Trap:true,owner:a,x:pt.x,y:pt.y,r:30,hp:45,max:45,life:8,age:0});}
  if(slot===3){const clone=originalClone(a),from={x:a.x,y:a.y};if(clone){if(dist(a,clone)>340||!originalFreePoint(a,clone.x,clone.y)){a.cd[q.id]=1;return;}a.x=clone.x;a.y=clone.y;clone.x=from.x;clone.y=from.y;}else{rwDash(a,angle+Math.PI,90,.18,()=>{}, {slot});rwFx(a,3,from.x,from.y,'ninja-afterimage',.35,{angle});}a.inv=.25;ninja22Smoke(a,from.x,from.y);ninja22Smoke(a);}
  if(slot===4){if(s.copy){const copy=s.copy;s.copy=null;originalCopy(a,copy,angle);a.cd[q.id]=Math.max(1,skills[copy.id].cd*.5);}else s.eye=4;rwFx(a,4,a.x,a.y,'ninja-eye',.5,{follow:true});}
@@ -49,7 +49,7 @@ rwRelease=function(a,q){if(a.skin!==1)return ninja22Release(a,q);const s=reworkS
  }
 };
 const ninja22Step=step;step=function(dt){const active=state==='fight';ninja22Step(dt);if(!active||state!=='fight')return;
- for(const o of objects){if(!o.ninja22||o.life<=0)continue;o.age+=dt;
+ for(const o of objects){if(!o.ninja22||o.life<=0)continue;o.age+=dt;if(o.v3smart)continue;   // clone inteligente: js/clone_v3.js
  if(o.v10Clone){if(o.owner.hp<=0){o.life=0;ninja22Smoke(o.owner,o.x,o.y);continue;}const t=opponents(o.owner).filter(t=>t.hp>0).sort((a,b)=>dist(o,a)-dist(o,b))[0];if(!t)continue;o.a=o.dojoFacingAngle=Math.atan2(t.y-o.y,t.x-o.x);o.moving=!o.attacks&&dist(o,t)>65;o.gait=(o.gait||0)+dt*14;if(o.moving)move(o,Math.cos(o.a)*180*dt,Math.sin(o.a)*180*dt);if(!o.attacks&&dist(o,t)<90&&rwVisible(o,t)){o.attacks=1;o.strikeAge=0;hit(t,35,o.owner,3,o.a,o.owner.kit[1]);rwFx(o.owner,0,t.x,t.y,'ninja-cut',.25,{angle:o.a});}if(o.attacks){o.strikeAge+=dt;if(o.strikeAge>.28){o.life=0;ninja22Smoke(o.owner,o.x,o.y);}}else if(o.life<dt*2)ninja22Smoke(o.owner,o.x,o.y);}
  if(o.v10Trap&&o.age>=.45){const t=opponents(o.owner).find(t=>t.hp>0&&dist(t,o)<o.r+t.r&&rwVisible(o,t));if(t){if(hit(t,55,o.owner,0,0,o.owner.kit[2])){t.root=Math.max(t.root,1.2);rwCancelCharge(t);}rwFx(o.owner,2,t.x,t.y,'ninja-electric',.6,{size:95});o.life=0;}}
  }

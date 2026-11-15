@@ -10,7 +10,7 @@ function rwGain(a,amount,payHealth=true){
  const s=reworkState(a);s.lastGain=clock;
  if(a.skin===6&&amount>0){
   const before=s.value;if(payHealth&&before>=70)rwSelfDamage(a,a.max*(.018+amount*.001));
-  if(before+amount>100){s.arm=Math.max(s.arm,3);s.empowered=false;if(a===p)toast('Sobrecarga: braço lesionado por 3s');}
+  if(before+amount>100){s.arm=Math.max(s.arm,3);s.empowered=false;if(a===p)toast('Sobrecarga: Fratura no braço por 3s');}
  }
  s.value=clamp(s.value+amount,0,100);return s.value;
 }
