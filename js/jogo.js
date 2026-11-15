@@ -1380,11 +1380,8 @@ function refreshIncomeUI(){
 const ARENA_MODES={
  zone:{name:'Controle de Zona',w:1400,h:1300,seconds:240,prize:200,copy:'2×2 · ocupe a zona sem rivais dentro. Primeiro a 90 pontos. A zona muda a cada 40s; reaparecimento em 5s.'},
  guardian:{name:'Caçada ao Guardião',w:1500,h:1400,seconds:300,prize:200,copy:'Você e um aliado bot contra o Guardião. Saia das áreas vermelhas antes do impacto. Duas fases; sem reaparecimento.'},
- survival:{name:'Sobrevivência',w:3600,h:2800,seconds:720,prize:200,copy:'Battle royale solo com 8 lutadores. Todos começam sem habilidade: mate monstros e rivais, suba de nível e libere uma habilidade por ponto (a ultimate por último). A zona segura fecha para um ponto aleatório do mapa; seja o último de pé.'},
  stage:{name:'Cruzada Arcade',w:4400,h:430,seconds:900,prize:150,copy:'Fase de rolagem horizontal, como nos fliperamas: derrote as ondas de monstros, pegue comida no caminho e enfrente o chefe no fim. Solo ou em dupla.'},
  tournament:{name:'Torneio dos Campeões',w:1100,h:1100,seconds:540,prize:250,copy:'Três adversários em sequência. Recupere 25% do HP máximo entre duelos. Recompensa ao concluir a disputa.'},
- mirror:{name:'Espelho',w:1000,h:1100,seconds:180,prize:100,copy:'Um duelo com builds idênticas. Vence quem aproveitar melhor as mesmas ferramentas.'},
- daily:{name:'Desafio Diário',w:1200,h:1200,seconds:180,prize:100,copy:'Uma regra comum aos dois lutadores muda à meia-noite local. Sua build e sua coleção são preservadas.'},
  ffa:{name:'Todos contra Todos',w:1600,h:1500,seconds:180,prize:150,copy:'Quatro lutadores, cada um por si. Eliminações valem um ponto; reaparecimento em 5s. Maior pontuação vence.'}
 };
 let arenaModeId=null,modeRun=null;
@@ -1585,7 +1582,7 @@ renderTraining=function(){const c=currentChampion();$('#trainingScreen').innerHT
 const championPrepareProgression=prepareProgressionMatch;
 prepareProgressionMatch=function(){championPrepareProgression();if(battleActivity==='training')$('#trainingPause').insertAdjacentHTML('beforeend','<button class="gold" data-test-ultimate>Testar ultimate · ajustar HP para 20%</button>')};
 for(let i=0;i<LEAGUE_RIVALS.length;i++){LEAGUE_RIVALS[i].kit=[...CHAMPIONS[i].kit];LEAGUE_RIVALS[i].name=CHAMPIONS[i].name;LEAGUE_RIVALS[i].tip='Observe a preparação da ultimate quando o rival estiver com 20% de HP ou menos.'}
-ARENA_MODES.mirror.copy='Você e o rival usam o mesmo campeão e suas seis habilidades.';
+
 const championOriginalPrepareArena=prepareArenaMode;
 prepareArenaMode=function(){championOriginalPrepareArena();for(const a of actors){if(a.boss||a.trainingDummy)continue;const c=championForKit(a.kit)||CHAMPIONS[validSkin(a.skin)];a.kit=[...c.kit];a.skin=c.id;a.champion=c.id;if(a!==p)a.label=c.name;a.ultActive=false;a.ultimateDashHits=null;}if(['mirror','daily'].includes(arenaModeId)&&!b.boss){b.kit=[...p.kit];b.skin=p.skin;b.champion=p.skin;b.label=CHAMPIONS[p.skin].name}};
 const championOldSpawn=spawnModeActor;

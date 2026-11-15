@@ -16,7 +16,7 @@ const run=(p,fn,arg)=>p.evaluate(fn,arg);
   const tag=`${vp.width}x${vp.height}`;
   const {ctx,p,errs}=await boot(b,vp);
   await p.evaluate(()=>showArenaModes());await p.waitForTimeout(400);
-  ok(await p.locator('[data-arena-mode]').count()===8,`${tag}: 8 modos na tela de Arenas`);
+  ok(await p.locator('[data-arena-mode]').count()===6,`${tag}: 6 modos na tela de Arenas`);
   ok(await p.locator('[data-arena-mode="draft"]').count()===0,`${tag}: "Escolha de Campeão" foi removido`);
   ok(await p.locator('[data-arena-mode="stage"]').count()===1,`${tag}: "Cruzada Arcade" no lugar dele`);
   await p.click('[data-arena-mode="stage"]');await p.waitForTimeout(600);

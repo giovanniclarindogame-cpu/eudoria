@@ -30,12 +30,14 @@ function show(kind,text,subtext){
  void banner.offsetWidth;banner.classList.add('in');
 }
 const prevFinish=finish;
+// modos com várias lutas (rounds, KOF, torneio) decidem o que acontece ao fim de cada luta; os demais vão direto ao resultado
+const settle=()=>{if(window.V3Hooks&&V3Hooks.round(prevFinish))return;prevFinish()};
 finish=function(){
  if(modeRun||battleActivity==='training'||state==='end')return;
  if(seq)return;
  const ours=actors.filter(a=>a.team===0&&a.hp>0).length,theirs=actors.filter(a=>a.team===1&&a.hp>0).length;
  const ko=(ours===0)!==(theirs===0);   // só um lado caiu
- if(!ko||time<=0)return prevFinish();
+ if(!ko||time<=0)return settle();
  const win=ours>0;
  seq={t0:now(),phase:0,win};
  clearInputs();
@@ -50,8 +52,8 @@ step=function(dt){
   const t=(now()-seq.t0)/1000;
   for(const a of actors){if(a.hp<=0){a.koAge=(a.koAge||0)+dt;a.inv=Math.max(a.inv,0)}}
   if(seq.phase===0&&t>1.1){seq.phase=1;dojoSpeed=1}
-  if(seq.phase===1&&t>2.3){seq.phase=2;show(seq.win?'win':'lose',seq.win?'VOCÊ VENCEU':'VOCÊ PERDEU',seq.win?'A arena é sua.':'Tente de novo.')}
-  if(seq.phase===2&&t>4){const w=seq;seq=null;dojoSpeed=1;banner.hidden=true;prevFinish();return}
+  if(seq.phase===1&&t>2.3){seq.phase=2;{const L=window.V3Hooks?.label?.(seq.win);show(seq.win?'win':'lose',L?L[0]:(seq.win?'VOCÊ VENCEU':'VOCÊ PERDEU'),L?L[1]:(seq.win?'A arena é sua.':'Tente de novo.'))}}
+  if(seq.phase===2&&t>4){const w=seq;seq=null;dojoSpeed=1;banner.hidden=true;settle();return}
  }
  prevStep(dt);
 };
