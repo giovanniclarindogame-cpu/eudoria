@@ -143,5 +143,11 @@ seriesHandler.label=win=>S.on?[win?'ROUND VENCIDO':'ROUND PERDIDO',(S.w[win?0:1]
 // o rótulo do round precisa do placar já contado: calcula pelo estado atual
 seriesHandler.label=win=>S.on?[win?'ROUND VENCIDO':'ROUND PERDIDO','Melhor de 3 · placar '+(S.w[0]+(win?1:0))+' × '+(S.w[1]+(win?0:1))]:null;
 handlers.push(seriesHandler);
+// contagem inicial: o jogo não congela — personagens e cenário se mexem e a barra de vida já mostra a vida cheia
+const prevStepCount=step;
+step=function(dt){
+ if(state==='count'){try{vfxStep(dt);updateUI()}catch{}}
+ return prevStepCount.apply(this,arguments);
+};
 window.V3Series={state:S,eligible};
 })();
