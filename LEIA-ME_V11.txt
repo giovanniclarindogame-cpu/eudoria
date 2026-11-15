@@ -205,3 +205,9 @@ O equilíbrio da dificuldade é estimado (testado só com IA e simulações): aj
   · assets/reforged_v10/hunter-0..5.webp e hunter-0..5-icon.webp (arte antiga do Caçador, substituída por assets/hunter_v32)
   · assets/sprites/arte_015, 023–027 (ícones antigos do Ninja) e arte_160–165 (retratos antigos, todos sobrescritos por arte nova)
   · Verificação: busca por referência no código/CSS/HTML + registro das imagens realmente carregadas no jogo (10 heróis, todas as skills, dash, K.O.). Imagens montadas por nome dinâmico foram mantidas.
+
+- AJUSTES DE BATALHA (HUD/bots):
+  · Removido o aviso "Você caiu. Seu aliado continua na luta."; quem cai nas lutas em dupla fica caído no chão, visível (js/ko_v3.js).
+  · Pause centralizado logo abaixo do tempo. Barra de estamina/defesa removida dos cartões (fica só a barra do recurso do herói).
+  · Cartão do rival e mini-cartões da dupla com a mesma altura/largura dos nossos (alinhados nos dois lados).
+  · Bots (js/bot_v3.js): direção e velocidade suavizadas (curvas em vez de inverter de uma vez), troca do lado de contorno menos frequente e só após ficar preso na parede. Inversões bruscas de direção caíram cerca de 55% numa simulação de 5 duelos.

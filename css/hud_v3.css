@@ -33,7 +33,7 @@ body.v3 #battle .hud .fighterhud.enemy{right:env(safe-area-inset-right,0px)!impo
 body.v3 #battle .hud .fighterhud .arena-portrait{width:40px!important;height:40px!important;left:6px!important}
 body.v3 #battle .hud .fighterhud.enemy .arena-portrait{right:6px!important;left:auto!important}
 body.v3 #battle .hud .mid-hud{top:0!important;border-top:0!important;border-radius:0 0 8px 8px!important;box-shadow:0 3px 8px #0009!important;padding:2px 12px!important}
-body.v3 #battle .hud #pauseBtn,body.v3 #battle[data-mode="2v2"]:has(#teamHud:not([hidden])) .hud #pauseBtn{top:8px!important;left:calc(50% + 52px)!important;right:auto!important;transform:none!important;width:32px!important;height:32px!important}
+body.v3 #battle .hud #pauseBtn,body.v3 #battle[data-mode="2v2"]:has(#teamHud:not([hidden])) .hud #pauseBtn{top:58px!important;left:50%!important;right:auto!important;transform:translateX(-50%)!important;width:32px!important;height:32px!important}
 body.v3 #battle #arenaZoom{display:none!important}
 body.v3 #battle .teamhud{top:56px!important;left:6px!important;right:6px!important}
 body.v3 #battle #practiceMeter{top:60px!important;left:6px!important}
@@ -93,3 +93,12 @@ body.v3 #battle .hud .mini-card.foe{padding-right:6px!important}
 body.v3 #battle .hud .mini-card .mc-face{width:24px!important;height:24px!important;margin:0!important;border:1px solid!important;border-radius:2px!important}
 body.v3 #battle .hud .mini-card.ally .mc-face{border-color:#5fd2ee!important}
 body.v3 #battle .hud .mini-card.foe .mc-face{border-color:#ee7c7c!important}
+
+/* v3.6: pause centralizado sob o tempo; sem barra de estamina; sem aviso 'Você caiu' (o lutador caído fica visível); minis alinhados */
+body.v3 #battle .hud #pauseBtn{left:50%!important;transform:translateX(-50%)!important;top:58px!important}
+body.v3 #battle .hud .fighterhud .resources .bar.st,body.v3 #battle #enemyResource .bar.st{display:none!important}
+body.v3 #battle .hud .fighterhud .resources{display:block!important}
+body.v3 #battle .hud .fighterhud .resources .bar.mp{width:100%!important}
+body.v3 #battle #spectating{display:none!important}
+body.v3 #battle .hud .fighterhud,body.v3 #battle .hud .fighterhud.enemy{height:52px!important;overflow:hidden}
+body.v3 #battle .hud .mini-card.ally,body.v3 #battle .hud .mini-card.foe{top:52px!important;width:calc(140px + max(env(safe-area-inset-left,0px),env(safe-area-inset-right,0px)))!important}

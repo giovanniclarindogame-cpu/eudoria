@@ -91,7 +91,7 @@ function hardAI(dt,a){
  b.think-=dt;b.strafeT-=dt;b.threat=windup(f)&&dist(a,f)<threatRange(f)?b.threat+dt:Math.max(0,b.threat-dt*3);
  const d=dist(a,f),ang=aimAt(a,f,b),base=Math.atan2(f.y-a.y,f.x-a.x),open=opening(f),danger=incoming(a);
  const holding=!!(a.rwCast&&a.rwCast.holding);
- if(b.strafeT<=0){b.strafe*=-1;b.strafeT=.8+Math.random()*1.4}
+ if(b.strafeT<=0){b.strafe*=-1;b.strafeT=2.6+Math.random()*2.6}
  a.a=holding?ang:base;
  /* carga em andamento: solta no ponto certo ou cancela se estiver em perigo */
  if(holding){
@@ -133,10 +133,17 @@ function hardAI(dt,a){
  else if(d<prefer-35&&RANGED.has(a.skin)){mv=base+Math.PI+b.strafe*.35;sp=1}
  else{mv=base+b.strafe*Math.PI/2;sp=.55}                                          // contorna
  const obs=pillars.find(o=>dist(o,a)<o.r+75&&Math.cos(Math.atan2(o.y-a.y,o.x-a.x)-mv)>.5);if(obs)mv+=1.25*b.strafe;
+ /* suaviza a direção e a velocidade: o bot faz curvas em vez de inverter o sentido de uma vez (sem tremedeira) */
+ const urgent=(b.threat>0&&d<threatRange(f))||danger;
+ if(b.mvA===undefined)b.mvA=mv;
+ {const df=Math.atan2(Math.sin(mv-b.mvA),Math.cos(mv-b.mvA)),turn=(urgent?16:4.5)*dt;b.mvA+=Math.max(-turn,Math.min(turn,df));mv=b.mvA}
+ b.spA=b.spA===undefined?sp:b.spA+(sp-b.spA)*Math.min(1,dt*7);sp=b.spA;
  const speed=140*(typeof identitySpeed==='function'?identitySpeed(a):1)*(a.slow>0?.55:1)*(a.buff?.storm>0?1.25:1)*(a.buff?.wings>0?1.35:1)*sp;
  const old={x:a.x,y:a.y};
  if(move(a,Math.cos(mv)*speed*dt,Math.sin(mv)*speed*dt))move(a,Math.cos(mv+1.1)*speed*dt,Math.sin(mv+1.1)*speed*dt);
  a.moving=dist(old,a)>.01;
+ // encostou na parede/obstáculo: troca o lado do contorno só depois de ficar preso um instante
+ if(sp>.3&&!a.moving){b.stuckT=(b.stuckT||0)+dt;if(b.stuckT>.35){b.strafe*=-1;b.strafeT=2.6+Math.random()*2.6;b.stuckT=0}}else b.stuckT=0;
 }
 
 const prevAI=ai;
