@@ -225,3 +225,6 @@ O equilíbrio da dificuldade é estimado (testado só com IA e simulações): aj
 - CONTAGEM INICIAL (js/modos_v3.js): antes do "LUTE" o jogo não fica mais congelado — personagens e cenário continuam se mexendo (animação de repouso, pétalas, névoa) e a barra de vida já mostra a vida cheia no início de cada round (antes só atualizava quando a luta começava).
 
 - KOF (seleção do time): os cartões e os espaços de ordem mostram a arte de combate de cada herói em repouso, animada (respira e balança de leve), em vez da ilustração estática (js/kof_v3.js, css/modos_v3.css).
+
+- TELA DO KOF NO ESTILO "MEMBER SELECT" (js/kof_v3.js, css/modos_v3.css): título em moldura, ilustração grande do herói em foco à esquerda, sprite de combate animado sobre plataforma azul, silhueta misteriosa do rival (muda como sorteio) na plataforma vermelha, VS no centro, listas JOGADOR/RIVAL com a ordem de entrada (◀ ▶), barras de nome azul/vermelha e grade 5×2 de retratos com marcador 1/2/3.
+- ROUNDS/KOF/TORNEIO: no início de cada round/luta todos voltam a encarar o rival (V3Modes.faceOff); antes quem tinha caído ficava virado para trás.
