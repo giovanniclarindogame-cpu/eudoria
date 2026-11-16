@@ -37,17 +37,13 @@ if(!source||!['body','skills','icons','background',...effects].includes(name))th
   if(b<0)throw Error('Empty frame '+f);frames.push({d,w,h,box:{left:l,top:t,width:r-l+1,height:b-t+1}});
  }
  if(name==='icons'){
-  for(const [f,{d,w,h}]of frames.entries())await sharp(d,{raw:{width:w,height:h,channels:4}}).resize(256,256,{kernel:'nearest'}).webp(options).toFile(path.join(out,`icon-${f}.webp`));return;
+  for(const [f,{d,w,h}]of frames.entries())await sharp(d,{raw:{width:w,height:h,channels:4}}).resize(256,256,{kernel:'lanczos3'}).webp(options).toFile(path.join(out,`icon-${f}.webp`));return;
  }
  const reference=body?(name==='body'?Math.max(...frames.slice(0,6).map(f=>f.box.height)):frames[5].box.height):1;
  const k=body?Math.min(173/reference,186/Math.max(...frames.map(f=>f.box.height)),193/Math.max(...frames.map(f=>f.box.width))):1;
  const side=body?209:256,tiles=[];
  for(const [f,{d,w,h,box}]of frames.entries()){
   const raw=sharp(d,{raw:{width:w,height:h,channels:4}});
-  if(name==='skills'&&f<6){
-   // Arpão and the basic attack share the same six water-punch drawings.
-   tiles.push({input:await sharp(path.join(out,'body.webp')).extract({left:f*209,top:4*209,width:209,height:209}).png().toBuffer(),left:f*209,top:0});continue;
-  }
   if(body){
    const width=Math.round(box.width*k),height=Math.round(box.height*k);
    const x=Math.max(8,Math.min(201-width,Math.round(104.5+(box.left-w/2)*k)));

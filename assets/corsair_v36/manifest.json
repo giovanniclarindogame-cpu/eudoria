@@ -1,7 +1,6 @@
 {
   "character": "Corsário da Maré",
-  "version": 36,
-  "visualApproved": true,
+  "version": 37,
   "body": {
     "columns": 6,
     "rows": 6,
@@ -68,8 +67,8 @@
       "height": 1254,
       "alpha": true,
       "lossless": true,
-      "bytes": 991394,
-      "sha256": "02fd620e095b72bb90181355310e09b1cd4a40b10f9ff0a40bb09d59858ddb14"
+      "bytes": 1214110,
+      "sha256": "b3c72ca3c2ad854de0d016a8d82d9bbc352439c3e5026d4a0b745548ff16610f"
     },
     {
       "file": "burst.webp",
@@ -102,55 +101,55 @@
       "file": "icon-0.webp",
       "width": 256,
       "height": 256,
-      "alpha": true,
+      "alpha": false,
       "lossless": true,
-      "bytes": 83546,
-      "sha256": "ed8f75791940429cd95b05c49f35a61c3b343f374f3064de83ecbd53b4aaf2c4"
+      "bytes": 108482,
+      "sha256": "87f33036ec66dfbf63110b8464f98b1beb8a82260a17df43a281328bb21a4a74"
     },
     {
       "file": "icon-1.webp",
       "width": 256,
       "height": 256,
-      "alpha": true,
+      "alpha": false,
       "lossless": true,
-      "bytes": 83854,
-      "sha256": "4288c62f104629164033f844ecee2c6e0a96915b30bd0a4d4568b26d57bace1e"
+      "bytes": 114906,
+      "sha256": "62f3c2365bd23470cbc80ce721438b7f1828a59f8c3cdc22813c226b36a85e23"
     },
     {
       "file": "icon-2.webp",
       "width": 256,
       "height": 256,
-      "alpha": true,
+      "alpha": false,
       "lossless": true,
-      "bytes": 92772,
-      "sha256": "c4fd54a9317b43b95d9c2644ab4db3180d8e1663743853c48f10236b3e8a00c9"
+      "bytes": 113898,
+      "sha256": "340a601ec21f49f7aafa28e19b09a5d2b6b44e22e3a2e3b12bfe2d85c0a71cb9"
     },
     {
       "file": "icon-3.webp",
       "width": 256,
       "height": 256,
-      "alpha": true,
+      "alpha": false,
       "lossless": true,
-      "bytes": 87218,
-      "sha256": "4a8a2cbce63e78dd9077ee5df8c3b34a6f206e85d078c6e6d363662ef92b880d"
+      "bytes": 114014,
+      "sha256": "917cfe9471a087356fb598cf7ba7410d0cfb7ab442981faf9ec89a8fb5f1a7ee"
     },
     {
       "file": "icon-4.webp",
       "width": 256,
       "height": 256,
-      "alpha": true,
+      "alpha": false,
       "lossless": true,
-      "bytes": 92452,
-      "sha256": "4b3fda23237bf7948a1680e1df1fccf71ae7dc7bc272ebab977bc8e5f4c78815"
+      "bytes": 117110,
+      "sha256": "b06939a2222ff5999ba2a94ad4a80c462c6ab62a4bd73ce0f8f080711d643aef"
     },
     {
       "file": "icon-5.webp",
       "width": 256,
       "height": 256,
-      "alpha": true,
+      "alpha": false,
       "lossless": true,
-      "bytes": 91444,
-      "sha256": "0148f4f28ffcb27876526c9c36f43df091fdde690be544af40a3606b7ff0c938"
+      "bytes": 117752,
+      "sha256": "2e5a337f13b67fe2f2af4836a8c6c7011a26e2fa7a9282e74886bc8018d497e4"
     },
     {
       "file": "impact.webp",
@@ -176,8 +175,8 @@
       "height": 1140,
       "alpha": true,
       "lossless": true,
-      "bytes": 658128,
-      "sha256": "7bf0b3727a82cc055b9dc35ebf9e102b25a5e6ef3a0ece84b1d5e5f643d1c8c7"
+      "bytes": 832794,
+      "sha256": "ae325b795a54251a09677762a5e04abf67356027a0d3ee73845cab66114cbbf8"
     },
     {
       "file": "punch.webp",
@@ -194,8 +193,8 @@
       "height": 1024,
       "alpha": true,
       "lossless": true,
-      "bytes": 1107418,
-      "sha256": "758fcbf30d054562b125e6025de53401b472b70433bf487e3b62c91e0d94245b"
+      "bytes": 1482330,
+      "sha256": "25c9b70c58e2b86e064f681600f57198bd9e583505d8ecc40249910a0537113c"
     },
     {
       "file": "skills.webp",
@@ -203,8 +202,13 @@
       "height": 1254,
       "alpha": true,
       "lossless": true,
-      "bytes": 1220254,
-      "sha256": "7512e1b1558f1e5473cde32e9330524e290bbfbb865f18c18cd8bbeafd25c8f2"
+      "bytes": 1335744,
+      "sha256": "0792d7be81d8242f3ec71fe35fa648bcace0200adfc4642d91fa84eb3fc4ece8"
     }
+  ],
+  "styleReferences": [
+    "assets/ninja_v23/portrait.webp",
+    "assets/astral_v18/portrait.webp",
+    "assets/corpos_v24/ninja-base.webp"
   ]
 }

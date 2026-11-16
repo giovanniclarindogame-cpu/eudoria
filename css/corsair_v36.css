@@ -5,3 +5,6 @@
 .corsair-detail .hero-heading,.corsair-detail .simple-kit-heading{text-shadow:0 2px 5px #061a10,0 0 14px #103e25cc}
 .corsair-detail.simple-detail .hero-skill-copy{background:#102734ef;border-color:#c2a45f77}
 .corsair-detail .hero-stage img{object-fit:contain;filter:drop-shadow(0 8px 16px #0a241888)}
+
+/* Painted action portraits stay readable when reduced to small HUD buttons. */
+.skill-art.corsair-skill-art{image-rendering:auto}

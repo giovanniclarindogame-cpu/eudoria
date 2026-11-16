@@ -1,10 +1,10 @@
 'use strict';
 // Corsário da Maré: original water-ribbon artwork, using the existing combat events.
 const CORSAIR36_ROOT='assets/corsair_v36/';
-const CORSAIR36_BODY=rwImage(CORSAIR36_ROOT+'body.webp?v=36');
-const CORSAIR36_SKILLS=rwImage(CORSAIR36_ROOT+'skills.webp?v=36');
+const CORSAIR36_BODY=rwImage(CORSAIR36_ROOT+'body.webp?v=37');
+const CORSAIR36_SKILLS=rwImage(CORSAIR36_ROOT+'skills.webp?v=37');
 const CORSAIR36_KEYS=['punch','barrage','burst','launch','aura','charge','giant','impact'];
-const CORSAIR36_FX=Object.fromEntries(CORSAIR36_KEYS.map(k=>[k,rwImage(CORSAIR36_ROOT+k+'.webp?v=36')]));
+const CORSAIR36_FX=Object.fromEntries(CORSAIR36_KEYS.map(k=>[k,rwImage(CORSAIR36_ROOT+k+'.webp?v=37')]));
 const corsair36Falls=new WeakMap();
 function corsair36Pose(a,t=vfxTime){
  const q=a.rwCast,angle=q?.angle??a.rwFacing??a.a??0;
@@ -91,11 +91,11 @@ integratedDepth=function(){
  return list.sort((a,b)=>a.y-b.y||(a.priority||0)-(b.priority||0));
 };
 const corsair36OldIcon=icon;
-icon=function(id){const s=skills[id];return s?.champion===7?`<span class="skill-art reforged-icon" aria-hidden="true" style="background-image:url('${CORSAIR36_ROOT}icon-${s.slot}.webp?v=36')"></span>`:corsair36OldIcon(id);};
+icon=function(id){const s=skills[id];return s?.champion===7?`<span class="skill-art reforged-icon corsair-skill-art" aria-hidden="true" style="background-image:url('${CORSAIR36_ROOT}icon-${s.slot}.webp?v=37')"></span>`:corsair36OldIcon(id);};
 const corsair36OldArt=championArt;
-championArt=c=>c.id===7?CORSAIR36_ROOT+'portrait.webp?v=36':corsair36OldArt(c);
-CHAMPION_HEROES.tide=CORSAIR36_ROOT+'portrait.webp?v=36';
+championArt=c=>c.id===7?CORSAIR36_ROOT+'portrait.webp?v=37':corsair36OldArt(c);
+CHAMPION_HEROES.tide=CORSAIR36_ROOT+'portrait.webp?v=37';
 const corsair36OldDetail=openChampionDetails;
 openChampionDetails=function(id){corsair36OldDetail(id);$('#heroDetail')?.classList.toggle('corsair-detail',Number(id)===7);};
 const corsair36OldPreload=reworkPreload;
-reworkPreload=function(skin){if(skin!==7)return corsair36OldPreload(skin);for(const key of ['body','skills','portrait',...CORSAIR36_KEYS,...Array.from({length:6},(_,i)=>'icon-'+i)])rwImage(CORSAIR36_ROOT+key+'.webp?v=36');};
+reworkPreload=function(skin){if(skin!==7)return corsair36OldPreload(skin);for(const key of ['body','skills','portrait',...CORSAIR36_KEYS,...Array.from({length:6},(_,i)=>'icon-'+i)])rwImage(CORSAIR36_ROOT+key+'.webp?v=37');};

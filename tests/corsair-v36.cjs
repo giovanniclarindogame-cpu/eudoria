@@ -3,7 +3,7 @@ const root='assets/corsair_v36/',effects=['punch','barrage','burst','launch','au
 function lossless(d){for(let p=12;p+8<=d.length;){const tag=d.toString('ascii',p,p+4),n=d.readUInt32LE(p+4);if(tag==='VP8L')return true;if(tag==='VP8 ')return false;p+=8+n+(n&1)}return false}
 (async()=>{
  const files={portrait:[760,1140],body:[1254,1254],skills:[1254,1254],reference:[1536,1024],background:[1536,1024]};for(let i=0;i<6;i++)files['icon-'+i]=[256,256];for(const k of effects)files[k]=[1536,1024];
- for(const [name,size]of Object.entries(files)){const p=root+name+'.webp',m=await sharp(p).metadata();assert.deepEqual([m.width,m.height],size,name);assert.ok(lossless(fs.readFileSync(p)),name+' lossless');if(name!=='background')assert.ok(m.hasAlpha,name+' alpha');}
+ for(const [name,size]of Object.entries(files)){const p=root+name+'.webp',m=await sharp(p).metadata();assert.deepEqual([m.width,m.height],size,name);assert.ok(lossless(fs.readFileSync(p)),name+' lossless');if(name!=='background'&&!name.startsWith('icon-'))assert.ok(m.hasAlpha,name+' alpha');}
  for(const name of ['body','skills',...effects]){
   const body=name==='body'||name==='skills',side=body?209:256,count=body?36:24,hashes=new Set(),heights=[];
   for(let f=0;f<count;f++){
