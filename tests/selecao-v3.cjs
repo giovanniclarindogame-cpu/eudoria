@@ -3,7 +3,7 @@ const { chromium } = require('playwright');
 const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else console.log('ok  -',m)};
 (async()=>{
  const br=await chromium.launch();const p=await (await br.newContext({viewport:{width:1000,height:450},hasTouch:true})).newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
- const boot=async()=>{await p.goto('http://localhost:8000/index.html');await p.waitForTimeout(900);
+ const boot=async()=>{await p.goto('http://localhost:8000/index.html?allheroes=1');await p.waitForTimeout(900);
   const en=p.getByText('ENTRAR',{exact:true}).first();if(await en.isVisible()){await en.click();await p.waitForTimeout(500)}
   if(await p.locator('#profileName').isVisible()){await p.fill('#profileName','Teste');await p.getByText('Continuar',{exact:true}).click()}
   await p.waitForTimeout(1400)};

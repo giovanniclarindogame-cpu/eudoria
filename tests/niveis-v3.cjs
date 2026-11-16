@@ -3,7 +3,7 @@ const { chromium } = require('playwright');
 const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else console.log('ok  -',m)};
 (async()=>{
  const br=await chromium.launch();const p=await (await br.newContext({viewport:{width:1000,height:450}})).newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
- await p.goto('http://localhost:8000/index.html');await p.waitForTimeout(900);await p.getByText('ENTRAR',{exact:true}).click();await p.fill('input','Teste');await p.getByText('Continuar',{exact:true}).click();await p.waitForTimeout(1400);
+ await p.goto('http://localhost:8000/index.html?allheroes=1');await p.waitForTimeout(900);await p.getByText('ENTRAR',{exact:true}).click();await p.fill('input','Teste');await p.getByText('Continuar',{exact:true}).click();await p.waitForTimeout(1400);
  // curva de atributos
  const st=await p.evaluate(()=>{const a=V3Levels.stats(1),b=V3Levels.stats(10);return{a,b}});
  ok(st.a.hp===1000&&st.a.atk===1&&st.b.hp===1450&&Math.abs(st.b.atk-1.36)<1e-9&&Math.abs(st.b.crit-.113)<1e-9,'nível 1 = atributos base; nível 10 = +45% vida, +36% ataque/defesa, crítico 11,3%');

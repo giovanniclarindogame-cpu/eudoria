@@ -6,7 +6,7 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  const b=await chromium.launch();
  for(const vp of [{width:1000,height:450},{width:844,height:390},{width:1280,height:720}]){
   const p=await b.newPage({viewport:vp});const errs=[];p.on('pageerror',e=>errs.push(e.message));
-  await p.goto('http://localhost:8000/index.html');await p.waitForTimeout(1200);
+  await p.goto('http://localhost:8000/index.html?allheroes=1');await p.waitForTimeout(1200);
   await p.getByText('ENTRAR',{exact:true}).click();await p.fill('input','Teste');await p.getByText('Continuar',{exact:true}).click();await p.waitForTimeout(1500);
   const tag=`${vp.width}x${vp.height}`;
   ok(await p.locator('#lobbyNav').isVisible(),`${tag}: menu lateral visível na tela inicial`);

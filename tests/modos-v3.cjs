@@ -3,7 +3,7 @@ const { chromium } = require('playwright');
 const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else console.log('ok  -',m)};
 (async()=>{
  const br=await chromium.launch();const pg=await (await br.newContext({viewport:{width:844,height:390},hasTouch:true})).newPage();const errs=[];pg.on('pageerror',e=>errs.push(e.message));pg.on('console',m=>{if(m.type()==='error')errs.push('c:'+m.text().slice(0,160))});
- await pg.goto('http://localhost:8000/index.html');await pg.waitForTimeout(900);await pg.getByText('ENTRAR',{exact:true}).click();await pg.fill('input','Giovanni');await pg.getByText('Continuar',{exact:true}).click();await pg.waitForTimeout(1500);
+ await pg.goto('http://localhost:8000/index.html?allheroes=1');await pg.waitForTimeout(900);await pg.getByText('ENTRAR',{exact:true}).click();await pg.fill('input','Giovanni');await pg.getByText('Continuar',{exact:true}).click();await pg.waitForTimeout(1500);
  const pump=(cond,ms=9000)=>pg.evaluate(async({cond,ms})=>{const f=new Function('return ('+cond+')');const t0=performance.now();while(performance.now()-t0<ms){if(f())return true;for(let i=0;i<4;i++)step(1/60);await new Promise(r=>setTimeout(r,16))}return f()},{cond,ms});
  const go=(extra='')=>pg.evaluate(()=>{matchMode='1v1';battleActivity='casual';start();state='fight';count=0;document.getElementById('countdown').style.display='none';b.cd=b.cd.map(()=>999);b.root=9999;p.cd=p.cd.map(()=>0);window.requestAnimationFrame=()=>0});
  const kill=(who)=>pg.evaluate(w=>{const t=w==='b'?b:p,o=w==='b'?p:b;t.hp=2;t.inv=0;t.guard=false;t.v3dashCD=9;hit(t,50,o,0,0,-1)},who);

@@ -3,7 +3,7 @@ const { chromium } = require('playwright');
 const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else console.log('ok  -',m)};
 (async()=>{
  const br=await chromium.launch();const pg=await (await br.newContext({viewport:{width:844,height:390}})).newPage();const errs=[];pg.on('pageerror',e=>errs.push(e.message));
- await pg.goto('http://localhost:8000/index.html');await pg.waitForTimeout(900);await pg.getByText('ENTRAR',{exact:true}).click();await pg.fill('input','Giovanni');await pg.getByText('Continuar',{exact:true}).click();await pg.waitForTimeout(1500);
+ await pg.goto('http://localhost:8000/index.html?allheroes=1');await pg.waitForTimeout(900);await pg.getByText('ENTRAR',{exact:true}).click();await pg.fill('input','Giovanni');await pg.getByText('Continuar',{exact:true}).click();await pg.waitForTimeout(1500);
  const SETUP=(me,foe,mode='1v1')=>pg.evaluate(({me,foe,mode})=>{matchMode=mode;battleActivity='casual';account.champions=[0,1,2,3,4,5,6,7,8,9];account.activeChampion=foe;selected=[...CHAMPIONS[foe].kit];selected.forEach(i=>{if(!account.owned.includes(i))account.owned.push(i)});account.build=[...selected];start();state='fight';count=0;document.getElementById('countdown').style.display='none';window.requestAnimationFrame=()=>0;
   // p = alvo do bot (rival humano parado); b = bot difícil
   b.skin=me;b.kit=[...CHAMPIONS[me].kit];b.hp=b.max=5000;b.cd=b.cd.map(()=>0);b.root=0;b.cast=0;b.actionRecovery=0;b.skillLock=0;b.rwCast=null;b.v3dashCD=0;b.oldBot=false;

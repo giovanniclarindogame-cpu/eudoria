@@ -5,7 +5,7 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
 async function boot(b,vp,qs=''){
  const ctx=await b.newContext({viewport:vp,permissions:['clipboard-read','clipboard-write']});
  const p=await ctx.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
- await p.goto('http://localhost:8000/index.html?boss=zorvath'+qs);await p.waitForTimeout(900);
+ await p.goto('http://localhost:8000/index.html?allheroes=1&boss=zorvath'+qs);await p.waitForTimeout(900);
  await p.getByText('ENTRAR',{exact:true}).click();await p.fill('input','Teste');await p.getByText('Continuar',{exact:true}).click();await p.waitForTimeout(1400);
  return{ctx,p,errs};
 }

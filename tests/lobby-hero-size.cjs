@@ -8,7 +8,7 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  for(const [w,h] of [[844,390],[1280,720],[667,375]]){
   const ctx=await b.newContext({viewport:{width:w,height:h}});
   const p=await ctx.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
-  await p.goto('http://localhost:8000/index.html');await p.waitForTimeout(1200);
+  await p.goto('http://localhost:8000/index.html?allheroes=1');await p.waitForTimeout(1200);
   await p.getByText('ENTRAR',{exact:true}).click();await p.fill('input','Teste');await p.getByText('Continuar',{exact:true}).click();await p.waitForTimeout(1800);
   const tag=`${w}x${h}`;
   const info=()=>p.evaluate(()=>{const i=document.querySelector('.royal-hero-art'),s=document.querySelector('.royal-sanctuary').getBoundingClientRect();if(!i)return null;const r=i.getBoundingClientRect();return{src:i.getAttribute('src'),nat:i.naturalWidth,hRatio:r.height/s.height,canvas:!!document.getElementById('lobbyHero'),name:currentChampion().name}});
