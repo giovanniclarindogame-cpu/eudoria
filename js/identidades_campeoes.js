@@ -9,13 +9,13 @@ const REWORK_KITS=[
   ['Corpo Energizado','Liga ou desliga o poder. +30% de velocidade e +25% de dano; gera 18 de Sobrecarga e perde 15 HP por segundo. Ao exceder 100, desliga e lesiona o braço.',1,0,.18,.45,'buff'],
   ['Limite Rompido','Exige 100 de Sobrecarga e braço recuperado. Soco de 410 de dano; consome a barra, deixa no máximo 5% de HP e lesiona o braço por 4s.',25,150,.6,1.35,'smash']
  ]},
- {key:'tide',skin:7,resource:'Elasticidade',style:'Alcance e ritmo',color:'#ffc18c',summary:'Estique os golpes para ganhar alcance e velocidade. Elasticidade alta também aumenta o dano e o empurrão recebidos.',skills:[
-  ['Soco Elástico','Soco em linha: 65 de dano e alcance de 220 a 380. Gera 4 de Elasticidade ao esticar e mais 8 ao acertar.',2.5,380,.22,.65,'punch'],
-  ['Rajada Flexível','De 3 a 8 socos curtos de 20 de dano, conforme a Elasticidade. Cada acerto acrescenta 3 à barra.',6,260,.18,1.15,'barrage'],
-  ['Estouro Duplo','Consome metade da Elasticidade. Dois punhos causam 120 de dano, mais 1,4 por ponto consumido, e forte empurrão.',8,340,.35,.9,'punch'],
-  ['Catapulta Humana','Usa uma coluna, parede ou borda como âncora e se lança até 320. Acertar causa 90 de dano e devolve 18 de Elasticidade.',9,320,.22,.95,'leap'],
-  ['Modo Turbo','Por 5s: +35% de velocidade e recargas 60% mais rápidas. Perde 15 HP por segundo; depois fica lento e causa menos dano por 2s.',15,0,.18,.45,'buff'],
-  ['Punho Titã','Exige ao menos 40 de Elasticidade e consome toda a barra. O soco em área ganha alcance, tamanho e dano com o recurso acumulado.',26,570,.65,1.5,'smash']
+ {key:'tide',skin:7,resource:'Elasticidade',style:'Alcance e ritmo',color:'#4de2ce',summary:'Estique os braços em fitas de água para ganhar alcance e velocidade. Elasticidade alta também aumenta o dano e o empurrão recebidos.',skills:[
+  ['Arpão de Maré','Braço em fita de água, em linha: 65 de dano e alcance de 220 a 380. Gera 4 de Elasticidade ao esticar e mais 8 ao acertar.',2.5,380,.22,.65,'punch'],
+  ['Chuva de Ondas','De 3 a 8 socos curtos de 20 de dano, conforme a Elasticidade. Cada acerto acrescenta 3 à barra.',6,260,.18,1.15,'barrage'],
+  ['Quebra-Mar','Consome metade da Elasticidade. Dois punhos de água causam 120 de dano, mais 1,4 por ponto consumido, e forte empurrão.',8,340,.35,.9,'punch'],
+  ['Impulso da Âncora','Prende a fita de água a uma coluna, parede ou borda e se lança até 320. Acertar causa 90 de dano e devolve 18 de Elasticidade.',9,320,.22,.95,'leap'],
+  ['Maré Alta','Por 5s: +35% de velocidade e recargas 60% mais rápidas. Perde 15 HP por segundo; depois fica lento e causa menos dano por 2s.',15,0,.18,.45,'buff'],
+  ['Punho Abissal','Exige ao menos 40 de Elasticidade e consome toda a barra. O punho gigante de água em área ganha alcance, tamanho e dano com o recurso acumulado.',26,570,.65,1.5,'smash']
  ]},
  {key:'star',skin:8,resource:'Cosmo',style:'Combos e energia cósmica',color:'#a8dcff',summary:'Acertar e receber dano alimenta o Cosmo. Gaste-o em golpes encadeados ou acumule para uma virada.',skills:[
   ['Rajada Estelar','Três socos de 20 de dano. Acertos seguidos aceleram a próxima sequência; errar ou ficar 1,4s sem acertar reinicia o combo. Sem custo de Cosmo.',0,105,.12,.65,'barrage'],
