@@ -8,6 +8,14 @@ if(!window.COMBAT_V3||!window.V3Modes)return;
 const M=window.V3Modes,$q=s=>document.querySelector(s);
 const FIGHT_TIME=99;
 let K=null,pick=[],sel=-1;
+// tipos de seleção: KOF (3 lutadores) e os modos do lobby (1×1, liga, 2×2) com a mesma tela
+const KINDS={
+ kof:{kind:'kof',max:3,min:3,label:'KOF · 3 CONTRA 3',title:'SELEÇÃO DE TIME',vs:'3×3',labels:['1º','2º','3º'],foe:3,side:'JOGADOR',hint:'Toque para escolher 3 · ◀ ▶ muda a ordem de entrada'},
+ '1v1':{kind:'1v1',max:1,min:1,label:'DUELO 1×1',title:'SELEÇÃO DE LUTADOR',vs:'1×1',labels:['VOCÊ'],foe:1,side:'JOGADOR',hint:'Toque para escolher seu lutador'},
+ league:{kind:'league',max:1,min:1,label:'LIGA OFFLINE',title:'SELEÇÃO DE LUTADOR',vs:'1×1',labels:['VOCÊ'],foe:1,side:'JOGADOR',hint:'Toque para escolher seu lutador'},
+ '2v2':{kind:'2v2',max:2,min:1,label:'EQUIPES 2×2',title:'SELEÇÃO DE DUPLA',vs:'2×2',labels:['VOCÊ','ALIADO'],foe:2,side:'SUA DUPLA',hint:'Escolha você e seu aliado (opcional) · ◀ ▶ troca'}
+};
+let PK=KINDS.kof,bypass=false,allyPick=null;
 
 const faceOf=id=>championArt(CHAMPIONS[id]);
 // arte de combate em repouso (animada) nos cartões de seleção
@@ -39,46 +47,75 @@ const faceReady=id=>{try{return(window.v3FaceSrc&&v3FaceSrc({skin:id,kit:CHAMPIO
 const tileHtml=c=>{const n=pick.indexOf(c.id);return `<button class="kx-tile ${n>=0?'picked':''} ${focus===c.id?'focus':''}" data-kof-pick="${c.id}" title="${c.name}" aria-label="${c.name}" style="--hero:${c.color}"><img data-face="${c.id}" src="${faceReady(c.id)||BLANK}" alt="">${n>=0?`<i class="kx-n">${n+1}</i>`:''}</button>`};
 function rowHtml(i){
  const id=pick[i];
- return `<div class="kx-row ${id!==undefined?'full':''}" data-kof-slot="${i}"><i>${i+1}º</i><span>${id!==undefined?CHAMPIONS[id].name:'— vazio —'}</span>${id!==undefined?`<em><button data-kof-mv="${i},-1" aria-label="Mover para antes">◀</button><button data-kof-mv="${i},1" aria-label="Mover para depois">▶</button></em>`:''}</div>`;
+ return `<div class="kx-row ${id!==undefined?'full':''}" data-kof-slot="${i}"><i>${PK.labels[i]}</i><span>${id!==undefined?CHAMPIONS[id].name:'— vazio —'}</span>${id!==undefined?`<em><button data-kof-mv="${i},-1" aria-label="Mover para antes">◀</button><button data-kof-mv="${i},1" aria-label="Mover para depois">▶</button></em>`:''}</div>`;
 }
 function selectHtml(){
  const c=CHAMPIONS[focus]||CHAMPIONS[0];
  return `<div class="kof-screen kx" style="--hero:${c.color}"><div class="kx-bg"></div>
- <button class="kx-back" data-kof-back>← Arenas</button>
- <div class="kx-title"><small>KOF · 3 CONTRA 3</small><h1>SELEÇÃO DE TIME</h1></div>
- <button class="kx-go" data-kof-go ${pick.length===3?'':'disabled'}>${pick.length===3?'LUTAR':pick.length+'/3'}</button>
+ <button class="kx-back" data-kof-back>${PK.kind==='kof'?'← Arenas':'← Início'}</button>
+ <div class="kx-title"><small>${PK.label}</small><h1>${PK.title}</h1></div>
+ <button class="kx-go" data-kof-go ${pick.length>=PK.min?'':'disabled'}>${pick.length>=PK.min?'LUTAR':pick.length+'/'+PK.max}</button>
  <div class="kx-stage">
   <div class="kx-art left"><img src="${faceOf(c.id)}" alt=""></div>
   <div class="kx-mid">
    <div class="kx-fighter"><div class="kx-plat blue"></div><canvas class="kof-sprite" data-skin="${c.id}" width="200" height="200"></canvas></div>
-   <div class="kx-vs"><b>VS</b><small>3×3</small></div>
+   <div class="kx-vs"><b>VS</b><small>${PK.vs}</small></div>
    <div class="kx-fighter foe"><div class="kx-plat red"></div><canvas class="kof-sprite" data-foe="1" data-skin="0" width="200" height="200"></canvas></div>
   </div>
   <div class="kx-art right"><img src="${faceOf(0)}" alt=""></div>
-  <div class="kx-team left"><h3>JOGADOR</h3>${[0,1,2].map(rowHtml).join('')}</div>
-  <div class="kx-team right"><h3>RIVAL</h3>${[0,1,2].map(i=>`<div class="kx-row foe"><i>${i+1}º</i><span>? ? ?</span></div>`).join('')}</div>
+  <div class="kx-team left"><h3>${PK.side}</h3>${Array.from({length:PK.max},(_,i)=>rowHtml(i)).join('')}</div>
+  <div class="kx-team right"><h3>RIVAL</h3>${Array.from({length:PK.foe},(_,i)=>`<div class="kx-row foe"><i>${PK.kind==='kof'?(i+1)+'º':''}</i><span>? ? ?</span></div>`).join('')}</div>
  </div>
- <div class="kx-names"><div class="kx-name blue">${c.name}</div><div class="kx-hint">Toque para escolher 3 · ◀ ▶ muda a ordem de entrada</div><div class="kx-name red">? ? ?</div></div>
+ <div class="kx-names"><div class="kx-name blue">${c.name}</div><div class="kx-hint">${PK.hint}</div><div class="kx-name red">? ? ?</div></div>
  <div class="kx-grid">${CHAMPIONS.map(tileHtml).join('')}</div></div>`;
 }
 function render(){const el=$q('#modeScreen');el.innerHTML=selectHtml();el.hidden=false;startSprites()}
-function open(){
- pick=[];sel=-1;focus=Math.max(0,Math.min(CHAMPIONS.length-1,account.activeChampion||0));
+function open(kind='kof'){
+ PK=KINDS[kind]||KINDS.kof;
+ const act=Math.max(0,Math.min(CHAMPIONS.length-1,account.activeChampion||0));
+ pick=PK.kind==='kof'?[]:[act];sel=-1;focus=act;
  showScreen('home');appScreen='arenas';document.body.dataset.screen='arenas';
  $q('#homeScreen').hidden=true;document.body.style.overflow='hidden';
  render();try{renderLobbyNav()}catch{}
 }
 document.addEventListener('click',e=>{
  const el=$q('#modeScreen');if(!el||el.hidden||!el.querySelector('.kof-screen'))return;
- if(e.target.closest('[data-kof-back]')){e.stopImmediatePropagation();showArenaModes();return}
+ if(e.target.closest('[data-kof-back]')){e.stopImmediatePropagation();if(PK.kind==='kof')showArenaModes();else showScreen('home');return}
  const mv=e.target.closest('[data-kof-mv]');
  if(mv){e.stopImmediatePropagation();const [i,d]=mv.dataset.kofMv.split(',').map(Number),j=i+d;if(j>=0&&j<pick.length){[pick[i],pick[j]]=[pick[j],pick[i]]}render();return}
  const hero=e.target.closest('[data-kof-pick]');
- if(hero){e.stopImmediatePropagation();const id=+hero.dataset.kofPick;const k=pick.indexOf(id);focus=id;if(k>=0)pick.splice(k,1);else if(pick.length<3)pick.push(id);render();return}
+ if(hero){e.stopImmediatePropagation();const id=+hero.dataset.kofPick;const k=pick.indexOf(id);focus=id;if(k>=0){if(PK.kind==='kof'||pick.length>1)pick.splice(k,1)}else if(pick.length<PK.max)pick.push(id);else if(PK.kind!=='kof')pick[pick.length-1]=id;render();return}
  const slot=e.target.closest('[data-kof-slot]');
  if(slot&&!e.target.closest('button')){e.stopImmediatePropagation();const i=+slot.dataset.kofSlot;if(pick[i]!==undefined){pick.splice(i,1);render()}return}
- if(e.target.closest('[data-kof-go]')){e.stopImmediatePropagation();if(pick.length===3)begin([...pick]);return}
+ if(e.target.closest('[data-kof-go]')){e.stopImmediatePropagation();if(pick.length>=PK.min){if(PK.kind==='kof')begin([...pick]);else launchPick()}return}
 },true);
+
+// 1×1, liga e 2×2: usa o lutador escolhido (e o aliado, no 2×2) e segue o fluxo normal do lobby
+function launchPick(){
+ const hero=pick[0];
+ try{equipChampion(hero,false)}catch{}
+ allyPick=PK.kind==='2v2'&&pick[1]!==undefined?pick[1]:null;
+ $q('#modeScreen').hidden=true;
+ bypass=true;try{playLobbyMode()}finally{bypass=false}
+}
+const prevPlay=playLobbyMode;
+playLobbyMode=function(){
+ const sel=$q('#lobbyModeSelect');
+ if(!bypass&&sel&&sel.value!=='arenas'&&KINDS[lobbyPrefs.mode]&&lobbyPrefs.mode!=='kof'){open(lobbyPrefs.mode);return true}
+ return prevPlay.apply(this,arguments);
+};
+const prevStartK=start;
+start=function(){
+ const r=prevStartK.apply(this,arguments);
+ try{
+  if(allyPick!==null&&matchMode==='2v2'&&!arenaModeId){
+   const ally=actors.find(a=>a.team===0&&a!==p);
+   if(ally){M.swapHero(ally,allyPick,1000);ally.label=M.heroName(allyPick)}
+  }
+ }catch(e){console.error('[Eldoria] aliado escolhido',e)}
+ allyPick=null;
+ return r;
+};
 
 function begin(mine){
  const pool=CHAMPIONS.map(c=>c.id).filter(id=>!mine.includes(id));
