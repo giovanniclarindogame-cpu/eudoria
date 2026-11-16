@@ -269,3 +269,10 @@ O equilíbrio da dificuldade é estimado (testado só com IA e simulações): aj
   · RIVAIS COM NOME por divisão em Duplas e Trio (Dupla do Pátio … Herdeiros do Eclipse / Trio Iniciante … Coroa do Eclipse), mostrados na tela da Liga.
   · NOVO NOME DO KOF: "Trio de Campeões" (marca registrada trocada em todos os textos; o id interno continua 'kof').
   · AINDA NÃO FEITO: dificuldade dos bots variando por divisão; lutas ranqueadas de Duplas/Trio ainda usam heróis sorteados para os rivais (o nome do rival é só informativo).
+
+- MONSTROS v3 (js/monstros_v3.js = motor; js/monstros_familias.js = desenhos; teste: tests/monstros-v3.cjs):
+  · Os 41 monstros pequenos da Cruzada (10 famílias × soldado/atirador/brutamontes/especial + a formiguinha) ganharam arte própria. Antes todos usavam o mesmo molde de humanoide do BossSprite (64×64) trocando cabelo e cor.
+  · Motor novo de pixel art em 96×96: rampas de 5 tons com desvio de matiz, formas sombreadas (esfera, cápsula, polígono), contorno por peça na cor da própria peça, brilhos aditivos e 4 esqueletos (bípede, espectro flutuante, inseto, criatura amorfa). Poses: idle 4, walk 6, punch 6 (4 de preparo + 2 de golpe), s0 4 (carga do disparo), hit 2, dead 1.
+  · Cada família segue a paleta e os materiais do chefe: Zorvath (alienígenas de cristal), Vhalor (ninjas e samurai), Kuroen (almas de máscara de osso e brasas), Nyxar (demônios), Ryoku (maldições de muitos olhos), Xerath (formigas), Rapina (vilões), Malrath (piratas), Hadrion (espectros), Gênesis (homúnculos e armaduras).
+  · A fase (js/fase_arcade.js) usa MobArt.paint quando existe a arte (a.mob.art = 'familia:tipo'); sem ela cai no pintor antigo. Vale para o monstro, o corpo caído e as prévias do lobby. Os 943 quadros são gerados sob demanda e ficam em cache (≈1,2 s para gerar todos no desktop).
+  · Os CHEFES continuam com a arte antiga (BossSprite/Zorvath próprio): para eles o plano é arte gerada pelo ChatGPT.

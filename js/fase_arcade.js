@@ -116,6 +116,8 @@ function spawnMob(type,x,y,opt={}){
  const kind=isE?el.kind:null;
  a.mob={type,kind,small,ranged:type==='r'||(isE&&RANGED_KINDS.includes(kind)),shield:kind==='shield'?Math.round(110*S.mul):0,cfg,look:L,cd:rnd(.4,1.2),windup:0,t:0,face:Math.PI,walk:Math.random()*6,strafe:Math.random()<.5?-1:1,strafeT:rnd(1,2.5),pose:null,flash:0,drop:type==='b',blinkCd:rnd(1.5,3)};
  a.mob.shieldMax=a.mob.shield;
+ // arte própria de cada monstro (js/monstros_v3.js); sem ela, cai no pintor antigo
+ {const k=S.def.id+':'+(small?'s':type);a.mob.art=window.MobArt&&MobArt.has(k)?k:(small&&window.MobArt&&MobArt.has(S.def.id+':g')?S.def.id+':g':null)}
  actors.push(a);S.mobs.push(a);S.total++;S.minionHP+=a.max;S.minionHP0+=a.max;
  return a;
 }
@@ -289,7 +291,8 @@ function drawMob(a){
  if(m.windup>0&&!m.ranged&&m.kind!=='lunge'){const k=clamp(m.t/m.windup,0,1),rad=m.cfg.reach+10;ctx.globalAlpha=.18+.3*k;ctx.fillStyle=th.bg.line;ctx.beginPath();ctx.arc(0,6,rad,0,TAU);ctx.fill();ctx.globalAlpha=.55;ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.setLineDash([8,6]);ctx.beginPath();ctx.arc(0,6,rad,0,TAU);ctx.stroke();ctx.setLineDash([]);ctx.globalAlpha=1}
  ctx.translate(0,10);
  const f=a.flash>0||m.flash>0?'brightness(2.1) saturate(.5)':'';   // sem filtro no estado normal (ctx.filter é caro)
- BossSprite.paint(ctx,m.look,pose.name,pose.i,{x:0,y:0,scale:m.cfg.scale,flip:Math.cos(m.face)<0,side:pose.side||0,filter:f});
+ if(m.art)MobArt.paint(ctx,m.art,pose.name,pose.i,{x:0,y:0,scale:m.cfg.scale,flip:Math.cos(m.face)<0,filter:f});
+ else BossSprite.paint(ctx,m.look,pose.name,pose.i,{x:0,y:0,scale:m.cfg.scale,flip:Math.cos(m.face)<0,side:pose.side||0,filter:f});
  ctx.restore();
  if(a.hp<a.max||m.type==='e'){const w=m.type==='b'?40:m.type==='e'?34:m.small?18:28,h=4;ctx.save();ctx.translate(a.x,a.y-(m.type==='b'?86:m.type==='e'?70:m.small?44:60));ctx.fillStyle='#10061be0';ctx.fillRect(-w/2,0,w,h+2);ctx.fillStyle=m.type==='b'?'#ff9a5a':m.type==='e'?theme(S.def).bg.line:'#e86a6a';ctx.fillRect(-w/2+1,1,(w-2)*clamp(a.hp/a.max,0,1),h);ctx.restore()}
 }
@@ -312,7 +315,8 @@ function paintCorpse(c){
  const k=clamp(c.t/.9,0,1);
  ctx.save();ctx.translate(c.x,c.y);ctx.fillStyle='#06100c99';ctx.globalAlpha=1-k;ctx.beginPath();ctx.ellipse(0,12,c.r+6,8,0,0,TAU);ctx.fill();
  ctx.translate(0,10);ctx.globalAlpha=(1-k)*(Math.floor(c.t*18)%2?.55:1);
- BossSprite.paint(ctx,c.look,'dead',0,{scale:c.scale,flip:c.flip,filter:'brightness('+(1+(1-k)*1.4)+')'});
+ if(c.art)MobArt.paint(ctx,c.art,'dead',0,{scale:c.scale,flip:c.flip,filter:'brightness('+(1+(1-k)*1.4)+')'});
+ else BossSprite.paint(ctx,c.look,'dead',0,{scale:c.scale,flip:c.flip,filter:'brightness('+(1+(1-k)*1.4)+')'});
  ctx.restore();
 }
 
@@ -381,7 +385,7 @@ function stageStep(dt){
  for(const a of S.mobs){
   if(a.hp<=0&&!a.dead){
    a.dead=true;S.kills++;const m=a.mob;
-   S.corpses.push({x:a.x,y:a.y,t:0,look:m.look,scale:m.cfg.scale,r:m.cfg.r,flip:Math.cos(m.face)<0});
+   S.corpses.push({x:a.x,y:a.y,t:0,look:m.look,art:m.art,scale:m.cfg.scale,r:m.cfg.r,flip:Math.cos(m.face)<0});
    ring(a.x,a.y,50,theme(S.def).bg.line,.4);spark(a.x,a.y,theme(S.def).bg.orb,14);
    if(m.drop)dropFood('apple',a.x,clamp(a.y,BAND_TOP+10,BAND_BOT-8));
    if(m.kind==='split'&&!m.small){for(const dx of [-26,26])spawnMob('g',clamp(a.x+dx,40,WORLD_W-40),a.y,{small:true});banner('A RAINHA-GUARDA SOLTOU FORMIGAS','','wave')}
@@ -626,7 +630,9 @@ function paintMobPreviews(){
  const def=roster().find(d=>d.id===save.sel)||roster()[0],L=mobLooks(def);
  document.querySelectorAll('[data-arc-mob]').forEach(c=>{
   const k=+c.dataset.arcMob,g=c.getContext('2d');g.clearRect(0,0,76,76);g.imageSmoothingEnabled=false;
-  BossSprite.paint(g,L[k],'idle',0,{x:38,y:70,scale:k===2?1.3:k===3?1.15:1.0});
+  const art=def.id+':'+['g','r','b','e'][k];
+  if(window.MobArt&&MobArt.has(art))MobArt.paint(g,art,'idle',0,{x:38,y:72,scale:k===2?1.05:k===3?1.1:1.15});
+  else BossSprite.paint(g,L[k],'idle',0,{x:38,y:70,scale:k===2?1.3:k===3?1.15:1.0});
  });
 }
 function openLobby(){
