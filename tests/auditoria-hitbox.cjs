@@ -6,7 +6,7 @@ const HEROES=(process.argv[2]||'0,1,2,3,4,5,6,7,8,9').split(',').map(Number);
 (async()=>{
  const br=await chromium.launch();
  const p=await (await br.newContext({viewport:{width:1000,height:450},deviceScaleFactor:1})).newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
- await p.goto('http://localhost:8000/index.html');await p.waitForTimeout(900);await p.getByText('ENTRAR',{exact:true}).click();await p.fill('input','Audit');await p.getByText('Continuar',{exact:true}).click();await p.waitForTimeout(1400);
+ await p.goto('http://localhost:8000/index.html?allheroes=1');await p.waitForTimeout(900);await p.getByText('ENTRAR',{exact:true}).click();await p.fill('input','Audit');await p.getByText('Continuar',{exact:true}).click();await p.waitForTimeout(1400);
  const rows=[];
  for(const h of HEROES){
   const r=await p.evaluate(async({h,AUD_SLOTS})=>{

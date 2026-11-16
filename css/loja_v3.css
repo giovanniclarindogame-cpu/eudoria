@@ -1,0 +1,43 @@
+.lj{max-width:980px;margin:0 auto;padding:10px 16px 40px;color:#f2e2b5}
+.lj-head{display:flex;align-items:center;gap:14px;padding-right:64px}
+.lj-head>div:nth-child(2){flex:1}
+.lj-head h1{margin:2px 0 0;font:800 26px Georgia,serif;color:#f7ecc8}
+.lj-wallet{display:flex;gap:10px;font:800 14px system-ui}
+.lj-coin{padding:6px 12px;border-radius:20px;background:#1c1706;border:1px solid #d9a63c;color:#ffe28a}
+.lj-gem{padding:6px 12px;border-radius:20px;background:#0c1a26;border:1px solid #2c4a63;color:#7fa6c4;opacity:.75}
+.lj-gem small{font:600 9px system-ui;color:#9fb3a6}
+.lj-sec{margin-top:12px}
+.lj-sec h2{margin:0 0 6px;font:800 14px system-ui;letter-spacing:1.5px;color:#e8c787}
+.lj-sec h2 small{font:600 10px system-ui;color:#9fb3a6;letter-spacing:0;margin-left:8px}
+.lj-free{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.lj-freecard{position:relative;display:flex;align-items:center;gap:10px;padding:6px 10px;text-align:left;color:#f2e2b5;background:linear-gradient(90deg,color-mix(in srgb,var(--hero) 26%,#0b1c2c),#07121e);border:2px solid #7dffb099;border-radius:10px;overflow:hidden}
+.lj-freecard img{width:54px;height:62px;object-fit:cover;object-position:50% 15%;border-radius:6px}
+.lj-freecard strong{display:block;font:800 13px system-ui}
+.lj-freecard small{font:600 10px system-ui;color:#7dffb0}
+.lj-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.lj-card{display:grid;gap:4px;padding:6px;text-align:center;background:linear-gradient(#0f2438,#07121e);border:2px solid #2c4a63;border-radius:10px}
+.lj-card.own{border-color:#5fd2ee}
+.lj-art{position:relative;height:96px;border-radius:6px;overflow:hidden;background:radial-gradient(circle at 50% 30%,color-mix(in srgb,var(--hero) 30%,#10283c),#06101a)}
+.lj-art img{width:100%;height:100%;object-fit:cover;object-position:50% 18%}
+.lj-tag{position:absolute;left:0;right:0;bottom:0;padding:2px;font:800 8px system-ui;letter-spacing:.5px;color:#06210f;background:#7dffb0}
+.lj-card strong{font:800 11px system-ui;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lj-own{font:800 11px system-ui;color:#5fd2ee;padding:6px 0}
+.lj-buy{padding:5px 4px;font:800 12px system-ui}
+.lj-gem-btn{padding:3px;font:700 9px system-ui;color:#6f8798;background:#0a1620;border:1px dashed #2c4a63;border-radius:6px}
+.hero-card.locked .hero-card-art img{filter:grayscale(.85) brightness(.55)}
+.hero-card.week-free{box-shadow:0 0 0 2px #7dffb088}
+.lj-badge{position:absolute;left:6px;top:6px;z-index:3;padding:2px 6px;font:800 9px system-ui;border-radius:10px}
+.lj-badge.lock{background:#1c1706e6;border:1px solid #d9a63c;color:#ffe28a}
+.lj-badge.free{background:#7dffb0;color:#06210f}
+.hero-card{position:relative}
+.lj-modal{position:fixed;inset:0;z-index:600;display:grid;place-items:center;background:#02060bcc}
+.lj-dialog{width:min(380px,90vw);display:grid;gap:8px;justify-items:center;padding:16px 18px;text-align:center;background:linear-gradient(#10283c,#07121e);border:2px solid #d9a63c;border-radius:14px;color:#f2e2b5;box-shadow:0 0 30px #d9a63c55}
+.lj-dialog h2{margin:0;font:800 20px Georgia,serif;color:#f7ecc8}
+.lj-dialog p{margin:0;font:500 12px/1.4 system-ui;color:#c9d6c4}
+.lj-dialog img{height:150px;width:auto;filter:drop-shadow(0 0 14px #ffe28a88)}
+.lj-gift-tag{font:800 12px system-ui;letter-spacing:3px;color:#ffe28a}
+.lj-actions{display:flex;gap:10px}
+.lj-actions button{min-width:110px;padding:8px 14px}
+.kx-tile.locked img{filter:grayscale(.9) brightness(.45)}
+.kx-tile.locked::after{content:"🔒";position:absolute;inset:0;display:grid;place-content:center;font-size:20px}
+@media(max-height:480px){.lj-art{height:70px}.lj-head h1{font-size:20px}.lj-freecard img{width:44px;height:50px}}

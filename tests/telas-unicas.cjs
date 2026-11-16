@@ -6,7 +6,7 @@ const SIZES=[[844,390],[667,375],[740,360],[932,430],[1000,450],[1280,720]];
  const b=await chromium.launch();
  for(const [w,h] of SIZES){
   const ctx=await b.newContext({viewport:{width:w,height:h},reducedMotion:'reduce'});const p=await ctx.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
-  await p.goto('http://localhost:8000/index.html');await p.waitForTimeout(700);
+  await p.goto('http://localhost:8000/index.html?allheroes=1');await p.waitForTimeout(700);
   await p.getByText('ENTRAR',{exact:true}).click();await p.fill('input','Giovanni');await p.getByText('Continuar',{exact:true}).click();await p.waitForTimeout(1500);
   const screens=[
    ['início',()=>showScreen('home')],

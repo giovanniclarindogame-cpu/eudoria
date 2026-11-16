@@ -4,7 +4,7 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
 async function boot(b,vp){
  const ctx=await b.newContext({viewport:vp,reducedMotion:'reduce'});const p=await ctx.newPage();const errs=[];
  p.on('pageerror',e=>errs.push(e.message));p.on('console',m=>{if(m.type()==='error')errs.push('c:'+m.text().slice(0,150))});
- await p.goto('http://localhost:8000/index.html');await p.waitForTimeout(800);
+ await p.goto('http://localhost:8000/index.html?allheroes=1');await p.waitForTimeout(800);
  await p.getByText('ENTRAR',{exact:true}).click();await p.fill('input','Teste');await p.getByText('Continuar',{exact:true}).click();await p.waitForTimeout(1400);
  return{ctx,p,errs};
 }

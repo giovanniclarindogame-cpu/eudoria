@@ -2,7 +2,7 @@
 const {chromium}=require('playwright');
 const [id,team,N,skin]=[process.argv[2]||'zorvath',process.argv[3]||'solo',+process.argv[4]||5,+(process.argv[5]??0)];
 (async()=>{const br=await chromium.launch();const ctx=await br.newContext({viewport:{width:844,height:390}});const pg=await ctx.newPage();const errs=[];pg.on('pageerror',e=>errs.push(e.message));pg.on('console',m=>{if(m.type()==='error')errs.push('c:'+m.text().slice(0,200))});
- await pg.goto('http://localhost:8000/index.html');await pg.waitForTimeout(800);
+ await pg.goto('http://localhost:8000/index.html?allheroes=1');await pg.waitForTimeout(800);
  await pg.getByText('ENTRAR',{exact:true}).click();await pg.fill('input','Teste');await pg.getByText('Continuar',{exact:true}).click();await pg.waitForTimeout(1400);
  const res=await pg.evaluate(async({id,team,N,skin,skip})=>{window.__skip=skip;
   let seed=11;Math.random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};

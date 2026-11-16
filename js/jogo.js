@@ -50,6 +50,14 @@ function freshAccount(){return{version:8,profile:null,owned:[...STARTERS],build:
 let account=freshAccount(),storageAvailable=true;
 try{const saved=JSON.parse(localStorage.getItem(SAVE_KEY)||localStorage.getItem('eldoria-ecos-v8')||'null');if(saved&&saved.version===8){account={...account,...saved};account.owned=[...new Set((Array.isArray(saved.owned)?saved.owned:STARTERS).filter(id=>Number.isInteger(id)&&id>=0&&id<50))];for(let id of STARTERS)if(!account.owned.includes(id))account.owned.push(id);account.build=(Array.isArray(saved.build)?saved.build:STARTERS).filter(id=>account.owned.includes(id));account.build=[...new Set(account.build)].slice(0,6);for(let key of ['coins','crystals','pityA','pityS','wins','matches','lastSeen'])if(!Number.isFinite(account[key])||account[key]<0)account[key]=0;if(account.profile&&(typeof account.profile.name!=='string'||account.profile.name.trim().length<2||!Number.isInteger(account.profile.avatar)||account.profile.avatar<0||account.profile.avatar>5))account.profile=null;if(account.profile)account.profile.name=account.profile.name.slice(0,16);if(typeof account.lastFreeDay!=='string')account.lastFreeDay=''}}catch{storageAvailable=false}
 if(account.profile)account.profile.skin=Number.isInteger(account.profile.skin)&&account.profile.skin>=0&&account.profile.skin<6?account.profile.skin:0;
+/* Progressão v3: contas antigas são reiniciadas uma única vez (mantém só nome e símbolo) e passam a ganhar o herói de presente.
+   Parâmetro ?allheroes=1 libera os dez campeões (usado nos testes automáticos). */
+const ALL_HEROES_DEBUG=/[?&]allheroes=1/.test(location.search);
+if(account.progVer!==3){
+ const keepProfile=account.profile?{name:account.profile.name,avatar:account.profile.avatar,skin:0}:null;
+ try{for(const k of ['eldoria.cacada.v1','eldoria.arcade.v1','eldoria.retencao.v1'])localStorage.removeItem(k)}catch{}
+ account=freshAccount();account.profile=keepProfile;account.progVer=3;account.ownedHeroes=[];account.giftPending=true;
+}
 selected=[...account.build];
 let rankFilter='Todas',appScreen='home',profileAvatar=account.profile?.avatar||0,matchMode='1v1',rewardGranted=false,spinBusy=false;
 function saveAccount(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(account));storageAvailable=true;return true}catch{storageAvailable=false;return false}}
@@ -2459,7 +2467,27 @@ function championArt(c){return CHAMPION_HEROES[HERO_KEYS[c.id]]||IMPORTED_CHAMPI
 const HERO_ROLES=['Lutador · Energia','Assassino · Relâmpago','Duelista · Lâminas','Guerreiro · Fogo','Mago · Espaço','Lutador · Aura'];
 const HERO_STORIES=['Punhos firmes, energia sem limites. Alterna rajadas à distância, teletransporte e golpes de impacto.','Um sentinela entre o trovão e a névoa. Confunde o adversário com cópias elétricas, matilhas e fendas.','Um espadachim de capa carmesim. Encadeia cortes e desperta uma forma sombria quando a luta chega ao limite.','Uma chama que se recusa a apagar. Abre caminho com sua espada, cercado por fogo e determinação.','O espaço se curva diante dele. Aproxima, afasta e prende os adversários em um horizonte sem saída.','Cada golpe carrega uma promessa. Combina punhos de aura, defesa de jade e força colossal.'];
 const integrationNormalize=normalizeChampions;
-normalizeChampions=function(){account.champions=CHAMPIONS.map(c=>c.id);account.championFirstDone=true;account.championVersion=1;if(!Number.isInteger(account.activeChampion)||!CHAMPIONS[account.activeChampion])account.activeChampion=validSkin(account.profile?.skin);integrationNormalize();account.champions=CHAMPIONS.map(c=>c.id);account.owned=[...new Set([...account.owned,...CHAMPIONS.flatMap(c=>c.kit)])];};
+// ---- Roster v3: heróis comprados na Loja + 3 grátis que mudam toda semana ----
+const HERO_PRICE=7000;   // ≈ 1 semana de jogo diário (limite de 1.000 moedas/dia)
+function weekIndex(now=Date.now()){const d=new Date(now);const days=Math.floor((Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()))/864e5);return Math.floor((days+3)/7)}   // semanas começando na segunda
+function heroesFreeThisWeek(now=Date.now()){
+ let a=(weekIndex(now)*2654435761)>>>0;const rnd=()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296};
+ const ids=CHAMPIONS.map(c=>c.id);for(let k=ids.length-1;k>0;k--){const r=Math.floor(rnd()*(k+1));[ids[k],ids[r]]=[ids[r],ids[k]]}
+ return ids.slice(0,3);
+}
+function nextFreeRotation(now=Date.now()){const d=new Date(now);const days=Math.floor(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/864e5);const nextMon=(Math.floor((days+3)/7)+1)*7-3;const t=new Date(d.getFullYear(),d.getMonth(),d.getDate()+(nextMon-days));return t.getTime()}
+const heroOwned=id=>ALL_HEROES_DEBUG||(account.ownedHeroes||[]).includes(id);
+const heroUsable=id=>account.champions.includes(id);
+normalizeChampions=function(){
+ account.progVer=3;
+ account.ownedHeroes=[...new Set((Array.isArray(account.ownedHeroes)?account.ownedHeroes:[]).filter(id=>Number.isInteger(id)&&CHAMPIONS[id]))];
+ if(ALL_HEROES_DEBUG){account.ownedHeroes=CHAMPIONS.map(c=>c.id);account.giftPending=false}
+ account.champions=[...new Set([...account.ownedHeroes,...heroesFreeThisWeek()])];
+ account.championFirstDone=true;account.championVersion=1;
+ if(!Number.isInteger(account.activeChampion)||!account.champions.includes(account.activeChampion))account.activeChampion=account.champions[0]??null;
+ integrationNormalize();
+ account.champions=[...new Set([...account.ownedHeroes,...heroesFreeThisWeek()])];
+};
 function rosterCard(c){return `<button class="hero-card ${account.activeChampion===c.id?'selected':''}" data-hero-open="${c.id}" style="--hero:${c.color}" aria-label="Conhecer ${c.name}"><span class="hero-card-art"><img src="${championArt(c)}" alt="" draggable="false"></span><span class="hero-card-number">0${c.id+1}</span><span class="hero-card-copy"><small>${(HERO_ROLES[c.id]?.split(' · ')[1]||c.weapon)}</small><strong>${c.name}</strong><span>${account.activeChampion===c.id?'✓ SELECIONADO':'DESBLOQUEADO'}</span></span></button>`;}
 renderSelection=function(){normalizeChampions();$('#selection').innerHTML=`<div class="roster-page"><header class="roster-head"><button class="icon-back" data-nav="home" aria-label="Voltar ao início">←</button><div><span class="eyebrow">ELDORIA · ARENA DOS CAMPEÕES</span><h1>Escolha sua lenda.</h1></div><span class="roster-count">${CHAMPIONS.length}<span>/ ${CHAMPIONS.length}</span></span></header><p class="roster-intro">Dez caminhos. Uma arena.<br>Todos liberados em todos os modos.</p><label class="hero-search"><span aria-hidden="true">⌕</span><input id="heroSearch" type="search" placeholder="Buscar campeão" value="${escapeHTML(rosterQuery)}" aria-label="Buscar campeão"></label><div class="hero-grid" id="heroGrid">${CHAMPIONS.filter(c=>c.name.toLocaleLowerCase('pt-BR').includes(rosterQuery.toLocaleLowerCase('pt-BR'))).map(rosterCard).join('')}</div><p class="roster-foot">Toque em um avatar para conhecer o campeão e suas seis habilidades.</p></div>`;$('#loadout').hidden=true;$('#loadout').style.display='none';$('#heroSearch').oninput=e=>{rosterQuery=e.target.value;const shown=CHAMPIONS.filter(c=>c.name.toLocaleLowerCase('pt-BR').includes(rosterQuery.toLocaleLowerCase('pt-BR')));$('#heroGrid').innerHTML=shown.map(rosterCard).join('')||'<p class="empty-roster">Nenhum campeão encontrado.</p>';};};
 function closeHeroDetail(){detailChampion=null;$('#heroDetail')?.remove();document.body.classList.remove('hero-detail-open');}

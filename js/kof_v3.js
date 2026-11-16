@@ -44,7 +44,7 @@ let focus=0;
 const BLANK='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 const faceReady=id=>{try{return(window.v3FaceSrc&&v3FaceSrc({skin:id,kit:CHAMPIONS[id].kit}))||null}catch{return null}};
 // retratos recortados no rosto (como no KOF): sem nome, sem trocar de imagem ao tocar
-const tileHtml=c=>{const n=pick.indexOf(c.id);return `<button class="kx-tile ${n>=0?'picked':''} ${focus===c.id?'focus':''}" data-kof-pick="${c.id}" title="${c.name}" aria-label="${c.name}" style="--hero:${c.color}"><img data-face="${c.id}" src="${faceReady(c.id)||BLANK}" alt="">${n>=0?`<i class="kx-n">${n+1}</i>`:''}</button>`};
+const tileHtml=c=>{const n=pick.indexOf(c.id),lock=!heroUsable(c.id);return `<button class="kx-tile ${n>=0?'picked':''} ${focus===c.id?'focus':''} ${lock?'locked':''}" data-kof-pick="${c.id}" title="${c.name}" aria-label="${c.name}" style="--hero:${c.color}"><img data-face="${c.id}" src="${faceReady(c.id)||BLANK}" alt="">${n>=0?`<i class="kx-n">${n+1}</i>`:''}</button>`};
 function rowHtml(i){
  const id=pick[i];
  return `<div class="kx-row ${id!==undefined?'full':''}" data-kof-slot="${i}"><i>${PK.labels[i]}</i><span>${id!==undefined?CHAMPIONS[id].name:'— vazio —'}</span>${id!==undefined?`<em><button data-kof-mv="${i},-1" aria-label="Mover para antes">◀</button><button data-kof-mv="${i},1" aria-label="Mover para depois">▶</button></em>`:''}</div>`;
@@ -84,7 +84,7 @@ document.addEventListener('click',e=>{
  const mv=e.target.closest('[data-kof-mv]');
  if(mv){e.stopImmediatePropagation();const [i,d]=mv.dataset.kofMv.split(',').map(Number),j=i+d;if(j>=0&&j<pick.length){[pick[i],pick[j]]=[pick[j],pick[i]]}render();return}
  const hero=e.target.closest('[data-kof-pick]');
- if(hero){e.stopImmediatePropagation();const id=+hero.dataset.kofPick;const k=pick.indexOf(id);focus=id;if(k>=0){if(PK.kind==='kof'||pick.length>1)pick.splice(k,1)}else if(pick.length<PK.max)pick.push(id);else if(PK.kind!=='kof')pick[pick.length-1]=id;render();return}
+ if(hero){e.stopImmediatePropagation();const id=+hero.dataset.kofPick;if(!heroUsable(id)){focus=id;toast('Campeão bloqueado · libere na Loja ('+HERO_PRICE.toLocaleString('pt-BR')+' moedas)');render();return}const k=pick.indexOf(id);focus=id;if(k>=0){if(PK.kind==='kof'||pick.length>1)pick.splice(k,1)}else if(pick.length<PK.max)pick.push(id);else if(PK.kind!=='kof')pick[pick.length-1]=id;render();return}
  const slot=e.target.closest('[data-kof-slot]');
  if(slot&&!e.target.closest('button')){e.stopImmediatePropagation();const i=+slot.dataset.kofSlot;if(pick[i]!==undefined){pick.splice(i,1);render()}return}
  if(e.target.closest('[data-kof-go]')){e.stopImmediatePropagation();if(pick.length>=PK.min){if(PK.kind==='kof')begin([...pick]);else launchPick()}return}

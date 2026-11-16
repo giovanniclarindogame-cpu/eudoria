@@ -3,7 +3,7 @@ const { chromium } = require('playwright');
 const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else console.log('ok  -',m)};
 (async()=>{
  const br=await chromium.launch();const p=await (await br.newContext({viewport:{width:844,height:390},hasTouch:true})).newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
- await p.goto('http://localhost:8000/index.html');await p.waitForTimeout(900);await p.getByText('ENTRAR',{exact:true}).click();await p.fill('input','Teste');await p.getByText('Continuar',{exact:true}).click();await p.waitForTimeout(1400);
+ await p.goto('http://localhost:8000/index.html?allheroes=1');await p.waitForTimeout(900);await p.getByText('ENTRAR',{exact:true}).click();await p.fill('input','Teste');await p.getByText('Continuar',{exact:true}).click();await p.waitForTimeout(1400);
  await p.evaluate(()=>{matchMode='1v1';start();state='fight';count=0;document.getElementById('countdown').style.display='none'});await p.waitForTimeout(600);
  const d=await p.evaluate(()=>{const l=integratedDepth().filter(e=>e.kind==='v3-bar').length;const r=s=>document.querySelector(s).getBoundingClientRect();const me=r('.hud .fighterhud:not(.enemy)'),en=r('.hud .fighterhud.enemy'),mid=r('.hud .mid-hud');return{bars:l,meRight:me.right,enLeft:en.left,midL:mid.left,midR:mid.right,iw:innerWidth,meL:me.left,enR:en.right,hudH:Math.max(me.bottom,en.bottom)}});
  ok(d.bars===2,'barra de vida desenhada sobre os 2 lutadores');
@@ -31,7 +31,7 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  // cartões encostam em ambas as laterais em vários tamanhos de tela
  for(const [w,h] of [[915,412],[1000,450],[667,375]]){
   const q=await (await br.newContext({viewport:{width:w,height:h},hasTouch:true})).newPage();
-  await q.goto('http://localhost:8000/index.html');await q.waitForTimeout(700);await q.getByText('ENTRAR',{exact:true}).click();await q.fill('input','Giovanni');await q.getByText('Continuar',{exact:true}).click();await q.waitForTimeout(1200);
+  await q.goto('http://localhost:8000/index.html?allheroes=1');await q.waitForTimeout(700);await q.getByText('ENTRAR',{exact:true}).click();await q.fill('input','Giovanni');await q.getByText('Continuar',{exact:true}).click();await q.waitForTimeout(1200);
   await q.evaluate(()=>{matchMode='1v1';start();state='fight';count=0;document.getElementById('countdown').style.display='none'});await q.waitForTimeout(500);
   const e=await q.evaluate(()=>{const a=document.querySelector('.hud .fighterhud:not(.enemy)').getBoundingClientRect(),b=document.querySelector('.hud .fighterhud.enemy').getBoundingClientRect();return{l:a.left,r:innerWidth-b.right}});
   const f=await q.evaluate(()=>{const a=document.querySelector('.hud .fighterhud:not(.enemy) .arena-portrait').getBoundingClientRect(),b=document.querySelector('.hud .fighterhud.enemy .arena-portrait').getBoundingClientRect();return{l:a.left,t:a.top,r:innerWidth-b.right,t2:b.top}});

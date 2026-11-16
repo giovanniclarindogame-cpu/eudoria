@@ -10,7 +10,7 @@ const rect=s=>{const e=document.querySelector(s);if(!e)return null;const r=e.get
  for(const [w,h] of SIZES){
   const tag=`${w}x${h}`;
   const p=await b.newPage({viewport:{width:w,height:h}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
-  await p.goto('http://localhost:8000/index.html');await p.waitForTimeout(900);
+  await p.goto('http://localhost:8000/index.html?allheroes=1');await p.waitForTimeout(900);
   await p.getByText('ENTRAR',{exact:true}).click();await p.fill('input','Teste');await p.getByText('Continuar',{exact:true}).click();await p.waitForTimeout(1500);
   const ui=await p.evaluate(()=>+getComputedStyle(document.documentElement).getPropertyValue('--ui'));
   const exp=Math.min(1.8,Math.max(1,Math.min(w/844,h/390)));
