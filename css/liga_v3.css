@@ -9,7 +9,8 @@
 .lg-tabs button.on{color:#2b1c00;background:linear-gradient(#ffe28a,#d9a63c);border-color:#fff2c0}
 .lg-tabs button.soon{opacity:.6}
 .lg-tabs small{display:block;font:600 8px system-ui}
-.lg-body{display:grid;grid-template-columns:1.3fr .7fr;grid-template-areas:"rank side" "stats side" "foot foot";gap:8px}
+.lg-promo{grid-area:promo;padding:5px 10px;text-align:center;font:800 11px system-ui;letter-spacing:1px;color:#2b1c00;background:linear-gradient(90deg,#ffe28a,#d9a63c);border-radius:8px}
+.lg-body{display:grid;grid-template-columns:1.3fr .7fr;grid-template-areas:"promo promo" "rank side" "stats side" "foot foot";gap:8px}
 .lg-rank{grid-area:rank;display:flex;align-items:center;gap:14px;padding:10px 14px;background:linear-gradient(90deg,#10283c,#07121e);border:2px solid #2c4a63;border-radius:12px}
 .lg-emblem{width:84px;height:92px;color:#d9a63c;flex:none}
 .lg-emblem[data-div="0"]{color:#b87a4b}.lg-emblem[data-div="1"]{color:#c7d2dc}.lg-emblem[data-div="2"]{color:#ffd36b}.lg-emblem[data-div="3"]{color:#7fe0d0}.lg-emblem[data-div="4"]{color:#7fb6ff}.lg-emblem[data-div="5"]{color:#e0a8ff}

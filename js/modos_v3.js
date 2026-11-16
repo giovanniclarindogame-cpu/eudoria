@@ -14,11 +14,12 @@ const OLD=Object.assign({},ARENA_MODES);
 for(const k of Object.keys(ARENA_MODES))delete ARENA_MODES[k];
 ARENA_MODES.guardian=OLD.guardian;
 ARENA_MODES.stage=OLD.stage;
-ARENA_MODES.kof={name:'KOF · 3 contra 3',w:1280,h:560,seconds:99,prize:250,copy:'Cada lado escolhe 3 lutadores e a ordem de entrada. Um de cada vez luta; quem vence continua com a vida que tem e quem cai dá lugar ao próximo do time. Vence o time que derrubar os 3 rivais.'};
+ARENA_MODES.kof={name:'Trio de Campeões · 3×3',w:1280,h:560,seconds:99,prize:250,copy:'Cada lado escolhe 3 lutadores e a ordem de entrada. Um de cada vez luta; quem vence continua com a vida que tem e quem cai dá lugar ao próximo do time. Vence o time que derrubar os 3 rivais.'};
 ARENA_MODES.tournament={...OLD.tournament,name:'Torneio dos Campeões',copy:'Oito lutadores, sorteio de chaves, quartas, semifinais e final. Sem rounds: perdeu, está fora.'};
-ARENA_MODES.ffa=OLD.ffa;
+ARENA_MODES.ffa={...OLD.ffa,name:'Disputa da Coroa',seconds:120,copy:'Quatro lutadores, cada um por si, numa arena só. Sem reaparecer: quem cai está fora. Quem derruba um rival recupera 15% de vida. Em 120 s, quem tiver mais vida fica à frente. O último de pé leva a coroa.'};
 ARENA_MODES.zone={...OLD.zone,suspended:true,copy:'Em reformulação: voltará em uma arena maior.'};
 if(typeof SIMPLE_MODE_COPY!=='undefined'){
+ SIMPLE_MODE_COPY.ffa=['4 lutadores','Cada um por si. Quem cai está fora; o último de pé leva a coroa.'];
  SIMPLE_MODE_COPY.kof=['3 contra 3','Escolha 3 lutadores e a ordem de entrada. Quem vence continua com a vida que tem.'];
  SIMPLE_MODE_COPY.tournament=['8 lutadores','Sorteio das chaves, quartas, semifinais e final. Perdeu, está fora.'];
  SIMPLE_MODE_COPY.zone=['Em reformulação','Voltará em uma arena maior.'];
@@ -35,6 +36,7 @@ document.addEventListener('click',e=>{
  if(id==='zone'){e.stopImmediatePropagation();e.preventDefault();toast('Controle de Zona está em reformulação (voltará em uma arena maior)');return}
  if(id==='kof'){e.stopImmediatePropagation();e.preventDefault();window.V3Kof?.open();return}
  if(id==='tournament'){e.stopImmediatePropagation();e.preventDefault();window.V3Tour?.open();return}
+ if(id==='ffa'){e.stopImmediatePropagation();e.preventDefault();window.V3Kof?.open('crown');return}
 },true);
 
 /* ---------- utilitários de luta ---------- */

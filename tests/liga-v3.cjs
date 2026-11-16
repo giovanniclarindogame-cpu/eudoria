@@ -7,7 +7,7 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  // tela e abas
  await pg.evaluate(()=>showScreen('league'));await pg.waitForTimeout(500);
  let r=await pg.evaluate(()=>({tabs:[...document.querySelectorAll('[data-lg-tab]')].map(b=>b.dataset.lgTab),soon:document.querySelector('[data-lg-tab="ffa"]').classList.contains('soon'),title:document.querySelector('.lg-head h1')?.textContent,season:document.querySelector('.lg-season')?.textContent,play:document.querySelector('[data-lg-play]')?.textContent}));
- ok(r.tabs.join()==='1v1,2v2,kof,ffa'&&r.soon&&r.title==='Liga'&&/Temporada 1/.test(r.season)&&/\+25/.test(r.play),'tela da Liga: abas 1×1, Duplas, Trio e Disputa da Coroa (em breve); temporada 1; botão mostra +25/−10');
+ ok(r.tabs.join()==='1v1,2v2,kof,ffa'&&!r.soon&&r.title==='Liga'&&/Temporada 1/.test(r.season)&&/\+25/.test(r.play),'tela da Liga: abas 1×1, Duplas, Trio e Disputa da Coroa; temporada 1; botão mostra +25/−10');
  // pontuação por modo (cada modo com seu ranking)
  r=await pg.evaluate(()=>{const out={};const sim=(mode,win,draw)=>{if(mode==='1v1'){battleActivity='league';leagueMatch={index:0,settled:false}}else{battleActivity='casual';V3Liga.state.ranked=mode}return settleLeague(win,draw)};
   account.league.points=0;
@@ -23,8 +23,8 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
   sim('2v2',false,false);sim('2v2',false,false);out.j=V3Liga.rec('2v2').points;   // nunca abaixo de 0
   out.ranked=V3Liga.state.ranked;out.one=V3Liga.rec('1v1').points;
   return out});
- ok(r.a===25&&r.b===55&&r.c===90&&r.d===80&&r.e===80,`1×1: +25, depois bônus de sequência (+30, +35), derrota −10, empate 0 (${r.a},${r.b},${r.c},${r.d},${r.e})`);
- ok(r.f===20&&r.g===30&&r.h===18&&r.i===4&&r.j===0&&r.one===80,`cada modo tem seu ranking: Duplas +20/−8, Trio +30/−12, mínimo 0, o 1×1 não mistura (${r.f},${r.g},${r.h},${r.i},${r.j})`);
+ ok(r.a===25&&r.b===55&&r.c===74&&r.d===74&&r.e===74,`1×1: +25, depois bônus de sequência (+30); ao passar de 75 os pontos param em 74 (série de promoção); derrota e empate na série não mexem nos pontos (${r.a},${r.b},${r.c},${r.d},${r.e})`);
+ ok(r.f===20&&r.g===30&&r.h===18&&r.i===4&&r.j===0&&r.one===74,`cada modo tem seu ranking: Duplas +20/−8, Trio +30/−12, mínimo 0, o 1×1 não mistura (${r.f},${r.g},${r.h},${r.i},${r.j})`);
  ok(r.ranked===null,'a marca de luta ranqueada é limpa depois de pontuar');
  // subdivisões e histórico
  r=await pg.evaluate(()=>({n:[0,24,25,49,50,74,75,150,374,375,9999].map(p=>V3Liga.rankName(p)),hist:V3Liga.rec('1v1').hist.length,first:V3Liga.rec('1v1').hist[0]}));
