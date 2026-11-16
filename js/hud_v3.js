@@ -98,8 +98,12 @@ function faceCrop(img){
  for(let y=band0;y<band1&&y<h;y++)for(let x=0;x<w;x++)if(d[(y*w+x)*4+3]>60)xs.push(x);
  xs.sort((a,b)=>a-b);
  const lo=xs[Math.floor(xs.length*.1)]??0,hi=xs[Math.floor(xs.length*.9)]??w-1,cx=(lo+hi)/2;
- const side=Math.min(Math.max((hi-lo)*2.05,h*.33),w,h);
+ let side=Math.min(Math.max((hi-lo)*2.05,h*.33),w,h);
  let sx=clamp(cx-side/2,0,w-side),sy=clamp(y0-h*.02,0,h-side);
+ // Caçador: a vara de pescar sobe acima da cabeça e enganava o recorte automático; usa um recorte fixo só no rosto
+ if(/hunter_v32/.test(img.src||'')){const k=W/760;side=410*k;sx=165*k;sy=125*k;sx=clamp(sx,0,W-side);sy=clamp(sy,0,H-side);
+  const out2=document.createElement('canvas');out2.width=out2.height=96;const o2=out2.getContext('2d');o2.imageSmoothingEnabled=true;o2.imageSmoothingQuality='high';
+  o2.drawImage(img,sx,sy,side,side,0,0,96,96);return out2.toDataURL('image/webp',.92)}
  const out=document.createElement('canvas');out.width=out.height=96;const o=out.getContext('2d');
  o.imageSmoothingEnabled=true;o.imageSmoothingQuality='high';
  o.drawImage(img,sx/sc,sy/sc,side/sc,side/sc,0,0,96,96);

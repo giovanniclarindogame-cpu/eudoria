@@ -230,3 +230,5 @@ O equilíbrio da dificuldade é estimado (testado só com IA e simulações): aj
 - ROUNDS/KOF/TORNEIO: no início de cada round/luta todos voltam a encarar o rival (V3Modes.faceOff); antes quem tinha caído ficava virado para trás.
 
 - KOF · AJUSTES DA TELA: retratos de baixo agora são retângulos em pé só com o rosto (como no KOF), lado a lado, sem nome e sem piscar/trocar de imagem ao tocar (os rostos ficam em cache antes de aparecer); o rival na sombra vermelha está espelhado, olhando para o seu herói; os bonecos do centro usam o mesmo repouso da tela inicial (sem inclinação).
+
+- RETRATO DO CAÇADOR (js/hud_v3.js): recorte fixo no rosto (a vara de pescar enganava o recorte automático e deixava o rosto pequeno); vale para o HUD e para a seleção do KOF.
