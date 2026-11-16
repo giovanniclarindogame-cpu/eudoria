@@ -47,7 +47,7 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  // 6) segundo acesso: não reinicia nem dá outro presente
  const snap=await p.evaluate(()=>JSON.stringify({o:account.ownedHeroes,c:account.coins}));
  await p.reload();await p.waitForTimeout(1500);if(await p.getByText('ENTRAR',{exact:true}).first().isVisible())await p.getByText('ENTRAR',{exact:true}).first().click();await p.waitForTimeout(1500);
- const again=await p.evaluate(()=>({snap:JSON.stringify({o:account.ownedHeroes,c:account.coins}),modal:!!document.querySelector('#ljModal')}));
+ const again=await p.evaluate(()=>({snap:JSON.stringify({o:account.ownedHeroes,c:account.coins}),modal:/PRESENTE/.test(document.querySelector('#ljModal .lj-gift-tag')?.textContent||'')}));
  ok(again.snap===snap&&!again.modal,'ao entrar de novo nada é reiniciado e não há segundo presente');
  ok(errs.length===0,'sem erros de JavaScript '+errs.slice(0,2));
  await br.close();
