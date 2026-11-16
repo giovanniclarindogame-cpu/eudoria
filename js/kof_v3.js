@@ -1,6 +1,6 @@
 'use strict';
 /*
- * Modo KOF (3 contra 3): cada lado escolhe 3 lutadores e a ordem de entrada; um de cada vez luta.
+ * Modo Trio de Campeões (3 contra 3): cada lado escolhe 3 lutadores e a ordem de entrada; um de cada vez luta.
  * Quem vence continua com a vida que tem (não enche); quem cai dá lugar ao próximo do time. Vence o time que derrubar os 3.
  */
 (function(){
@@ -10,9 +10,10 @@ const FIGHT_TIME=99;
 let K=null,pick=[],sel=-1;
 // tipos de seleção: KOF (3 lutadores) e os modos do lobby (1×1, liga, 2×2) com a mesma tela
 const KINDS={
- kof:{kind:'kof',max:3,min:3,label:'KOF · 3 CONTRA 3',title:'SELEÇÃO DE TIME',vs:'3×3',labels:['1º','2º','3º'],foe:3,side:'JOGADOR',hint:'Toque para escolher 3 · ◀ ▶ muda a ordem de entrada'},
+ kof:{kind:'kof',max:3,min:3,label:'TRIO DE CAMPEÕES · 3×3',title:'SELEÇÃO DE TIME',vs:'3×3',labels:['1º','2º','3º'],foe:3,side:'JOGADOR',hint:'Toque para escolher 3 · ◀ ▶ muda a ordem de entrada'},
  '1v1':{kind:'1v1',max:1,min:1,label:'DUELO 1×1',title:'SELEÇÃO DE LUTADOR',vs:'1×1',labels:['VOCÊ'],foe:1,side:'JOGADOR',hint:'Toque para escolher seu lutador'},
  league:{kind:'league',max:1,min:1,label:'LIGA OFFLINE',title:'SELEÇÃO DE LUTADOR',vs:'1×1',labels:['VOCÊ'],foe:1,side:'JOGADOR',hint:'Toque para escolher seu lutador'},
+ crown:{kind:'crown',max:1,min:1,label:'DISPUTA DA COROA',title:'SELEÇÃO DE LUTADOR',vs:'4P',labels:['VOCÊ'],foe:3,side:'JOGADOR',hint:'Escolha seu lutador · 3 rivais disputam a coroa; só um fica de pé'},
  '2v2':{kind:'2v2',max:2,min:1,label:'EQUIPES 2×2',title:'SELEÇÃO DE DUPLA',vs:'2×2',labels:['VOCÊ','ALIADO'],foe:2,side:'SUA DUPLA',hint:'Escolha você e seu aliado (opcional) · ◀ ▶ troca'}
 };
 let PK=KINDS.kof,bypass=false,allyPick=null;
@@ -80,7 +81,7 @@ function open(kind='kof'){
 }
 document.addEventListener('click',e=>{
  const el=$q('#modeScreen');if(!el||el.hidden||!el.querySelector('.kof-screen'))return;
- if(e.target.closest('[data-kof-back]')){e.stopImmediatePropagation();if(PK.kind==='kof')showArenaModes();else showScreen('home');return}
+ if(e.target.closest('[data-kof-back]')){e.stopImmediatePropagation();if(PK.kind==='kof'||(PK.kind==='crown'&&!(window.V3Liga&&V3Liga.state.pending)))showArenaModes();else showScreen('home');return}
  const mv=e.target.closest('[data-kof-mv]');
  if(mv){e.stopImmediatePropagation();const [i,d]=mv.dataset.kofMv.split(',').map(Number),j=i+d;if(j>=0&&j<pick.length){[pick[i],pick[j]]=[pick[j],pick[i]]}render();return}
  const hero=e.target.closest('[data-kof-pick]');
@@ -94,6 +95,7 @@ document.addEventListener('click',e=>{
 function launchPick(){
  const hero=pick[0];
  try{equipChampion(hero,false)}catch{}
+ if(PK.kind==='crown'){$q('#modeScreen').hidden=true;window.V3Crown?.begin();return}
  allyPick=PK.kind==='2v2'&&pick[1]!==undefined?pick[1]:null;
  $q('#modeScreen').hidden=true;
  bypass=true;try{playLobbyMode()}finally{bypass=false}
@@ -129,7 +131,7 @@ function begin(mine){
  p.label=account.profile?.name||'Você';b.label=M.heroName(foes[0]);
  M.rebuildPlayerUI();time=FIGHT_TIME;
  drawStrips();
- M.banner('KOF · 3 CONTRA 3',M.heroName(mine[0])+' × '+M.heroName(foes[0]),2400);
+ M.banner('TRIO DE CAMPEÕES · 3×3',M.heroName(mine[0])+' × '+M.heroName(foes[0]),2400);
 }
 
 /* ---------- faixas com o time dos dois lados ---------- */
@@ -157,7 +159,7 @@ function handler(cb){
   if(win){b.hp=0;p.hp=Math.max(1,K.hpM[K.iM]||1)}else{p.hp=0;b.hp=Math.max(1,K.hpF[K.iF]||1)}
   const lost=win?K.foes.length:K.mine.length;
   M.special=null;drawStrips();cb();
-  const rt=$q('#resultText');if(rt)rt.textContent=(win?'KOF vencido! Os 3 rivais caíram. ':'Seu time caiu no KOF. ')+rt.textContent;
+  const rt=$q('#resultText');if(rt)rt.textContent=(win?'Trio vencido! Os 3 rivais caíram. ':'Seu trio caiu. ')+rt.textContent;
   return true;
  }
  K.iM=nm;K.iF=nf;K.fights++;
@@ -175,5 +177,5 @@ function handler(cb){
 }
 handler.label=win=>M.special==='kof'&&K?[win?'RIVAL DERRUBADO':'LUTADOR DERRUBADO',(win?'Seu time continua com a vida que tem':'Entra o próximo do seu time')]:null;
 V3Hooks.add(handler);
-window.V3Kof={open,get state(){return K},begin};
+window.V3Kof={open,PK:()=>PK,get state(){return K},begin};
 })();

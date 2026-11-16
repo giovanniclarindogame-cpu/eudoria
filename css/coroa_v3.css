@@ -1,0 +1,16 @@
+#crownStrip{position:absolute;top:0;right:max(0px,env(safe-area-inset-right,0px));display:flex;gap:3px;z-index:30;pointer-events:none}
+#crownStrip[hidden]{display:none}
+.cs-card{position:relative;display:flex;align-items:center;gap:5px;width:clamp(76px,11vw,112px);height:52px;padding:4px 5px;background:#1a0c12f0;border:2px solid #ee7c7c;border-top:0;border-radius:0 0 8px 8px}
+.cs-card:nth-child(2){border-color:#8fdc9a}
+.cs-card:nth-child(3){border-color:#c9a0ff}
+.cs-card img{width:30px;height:38px;object-fit:cover;object-position:50% 20%;border-radius:4px;background:#15283a;flex:none}
+.cs-body{min-width:0;flex:1;display:grid;gap:3px}
+.cs-body b{font:700 9px system-ui;color:#f2e2b5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cs-bar{height:6px;border-radius:3px;background:#2a1417;overflow:hidden}
+.cs-bar i{display:block;height:100%;background:#ee5c5c}
+.cs-card:nth-child(2) .cs-bar i{background:#59d98e}
+.cs-card:nth-child(3) .cs-bar i{background:#b98cff}
+.cs-out{display:none;position:absolute;inset:0;place-content:center;font:800 22px system-ui;color:#ff8b8b}
+.cs-card.dead{opacity:.5;filter:grayscale(.8)}
+.cs-card.dead .cs-out{display:grid}
+body[data-crown] #battle .hud .fighterhud.enemy,body[data-crown] #battle .hud .mini-card{display:none!important}

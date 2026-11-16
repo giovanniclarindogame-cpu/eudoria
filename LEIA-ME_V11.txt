@@ -261,3 +261,11 @@ O equilíbrio da dificuldade é estimado (testado só com IA e simulações): aj
   · Temporada de 4 semanas (termina numa segunda-feira, hora local; a 1ª contém 16/11/2026). No fim: paga moedas por modo jogado (Bronze 150, Prata 300, Ouro 500, Platina 800, Diamante 1.200, Mestre 1.800) e os pontos caem pela metade; mostra um resumo na próxima vez que a Liga é aberta.
   · Liga sempre com atributos nivelados (sem bônus de nível da campanha).
   · FALTA: série de promoção, rival com nome para Duplas/Trio, o modo Disputa da Coroa (4 jogadores) em si e a renomeação do "KOF" (marca registrada) — aguardando escolha do nome.
+
+- DISPUTA DA COROA, SÉRIE DE PROMOÇÃO, RIVAIS COM NOME E NOVO NOME DO KOF (js/coroa_v3.js, css/coroa_v3.css, js/liga_v3.js, js/kof_v3.js, js/modos_v3.js; teste: tests/coroa-v3.cjs):
+  · DISPUTA DA COROA (todos contra todos, 4 lutadores: você + 3 rivais com heróis diferentes, cada um num time): sem reaparecer; quem derruba um rival recupera 15% da vida; termina quando você cai (colocação = ordem de queda), quando sobra um só (a coroa!) ou em 120 s (mais vida fica à frente). Placar dos 3 rivais no topo à direita. Moedas por colocação: 150/75/40/25. Está em Arenas (substitui o antigo "Todos contra Todos") e na Liga.
+  · LIGA · Disputa da Coroa: ranking próprio, 1º +30 · 2º +15 · 3º −5 · 4º −20 (bônus de sequência de 1ºs).
+  · SÉRIE DE PROMOÇÃO (todos os modos): ao chegar ao topo de uma divisão os pontos param em 74/149/… e abre melhor de 3; vencer 2 promove (e dá proteção contra queda por 2 derrotas); perder 2 volta uma subdivisão. Mestre não tem série.
+  · RIVAIS COM NOME por divisão em Duplas e Trio (Dupla do Pátio … Herdeiros do Eclipse / Trio Iniciante … Coroa do Eclipse), mostrados na tela da Liga.
+  · NOVO NOME DO KOF: "Trio de Campeões" (marca registrada trocada em todos os textos; o id interno continua 'kof').
+  · AINDA NÃO FEITO: dificuldade dos bots variando por divisão; lutas ranqueadas de Duplas/Trio ainda usam heróis sorteados para os rivais (o nome do rival é só informativo).

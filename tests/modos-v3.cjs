@@ -10,7 +10,7 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  /* ---- lista de arenas ---- */
  const ids=await pg.evaluate(()=>Object.keys(ARENA_MODES));
  ok(!ids.includes('survival')&&!ids.includes('mirror')&&!ids.includes('daily'),'Sobrevivência, Espelho e Desafio Diário foram removidos: '+ids.join());
- ok(ids.includes('kof')&&ids.includes('tournament')&&ids.includes('zone'),'KOF, Torneio e Controle de Zona (suspenso) estão na lista');
+ ok(ids.includes('kof')&&ids.includes('tournament')&&ids.includes('zone'),'Trio de Campeões, Torneio e Controle de Zona (suspenso) estão na lista');
  await pg.evaluate(()=>showArenaModes());await pg.waitForTimeout(300);
  const cards=await pg.evaluate(()=>[...document.querySelectorAll('#modeScreen .simple-mode h2')].map(e=>e.textContent));
  ok(cards.length===6&&!cards.some(t=>/Sobreviv|Espelho|Desafio/.test(t)),'tela de arenas mostra 6 cartões: '+cards.join(' | '));
@@ -61,7 +61,7 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  await pg.evaluate(()=>{state='fight';count=0;document.getElementById('countdown').style.display='none';b.cd=b.cd.map(()=>999);b.root=9999});
  await kill('b');
  ok(await pump("state==='end'",14000),'derrubando os 3 rivais o KOF termina');
- ok(await pg.evaluate(()=>/KOF vencido/.test(document.getElementById('resultText').textContent)),'resultado do KOF aparece');
+ ok(await pg.evaluate(()=>/Trio vencido/.test(document.getElementById('resultText').textContent)),'resultado do KOF aparece');
  /* ---- torneio ---- */
  await pg.evaluate(()=>{showArenaModes()});await pg.waitForTimeout(200);
  await pg.click('[data-arena-mode="tournament"]');await pg.waitForTimeout(3600);

@@ -83,7 +83,7 @@ const pct=v=>Math.round(v*100)+'%';
 function panelHtml(id){
  const r=rec(id),s=stats(r.lv),need=xpNext(r.lv),maxed=r.lv>=MAX_LV,w=maxed?100:Math.round(100*r.xp/need);
  const row=(k,label,val,gain)=>`<div class="nv-stat" title="${label}: +${gain} por nível"><span>${label}</span><b>${val}</b><i>+${gain}</i></div>`;
- return `<div class="nv-box" title="Bônus de nível valem na Cruzada e na Caçada; duelos, torneio e KOF usam atributos nivelados. O XP vem da campanha."><div class="nv-lv"><b>NÍVEL ${r.lv}<small>/${MAX_LV}</small></b><div class="nv-xp"><i style="width:${w}%"></i></div><span>${maxed?'MÁXIMO':`${r.xp}/${need} XP`}</span></div>
+ return `<div class="nv-box" title="Bônus de nível valem na Cruzada e na Caçada; duelos, torneio e Trio de Campeões usam atributos nivelados. O XP vem da campanha."><div class="nv-lv"><b>NÍVEL ${r.lv}<small>/${MAX_LV}</small></b><div class="nv-xp"><i style="width:${w}%"></i></div><span>${maxed?'MÁXIMO':`${r.xp}/${need} XP`}</span></div>
  <div class="nv-stats">${row('hp','VIDA',s.hp.toLocaleString('pt-BR'),'5%')}${row('atk','ATAQUE',pct(s.atk),'4%')}${row('def','DEFESA',pct(s.def),'4%')}${row('spd','VELOC.',pct(s.spd),'1%')}${row('crit','CRÍTICO',Math.round(s.crit*1000)/10+'%','0,7')}</div>
  </div>`;
 }
