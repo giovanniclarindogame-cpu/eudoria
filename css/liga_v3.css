@@ -1,0 +1,42 @@
+.lg{max-width:980px;margin:0 auto;padding:8px 16px 30px;color:#f2e2b5}
+.lg-head{display:flex;align-items:center;gap:14px;padding-right:64px}
+.lg-head>div:nth-child(2){flex:1}
+.lg-head h1{margin:2px 0 0;font:800 26px Georgia,serif;color:#f7ecc8}
+.lg-season{padding:6px 12px;border-radius:12px;background:#1c1706;border:1px solid #d9a63c;color:#ffe28a;font:800 13px system-ui;text-align:center}
+.lg-season small{display:block;font:600 10px system-ui;color:#c9b27a}
+.lg-tabs{display:flex;gap:6px;margin:8px 0}
+.lg-tabs button{flex:1;padding:8px 6px;font:800 13px system-ui;color:#9fb3a6;background:#0a1620;border:1px solid #2c4a63;border-radius:8px}
+.lg-tabs button.on{color:#2b1c00;background:linear-gradient(#ffe28a,#d9a63c);border-color:#fff2c0}
+.lg-tabs button.soon{opacity:.6}
+.lg-tabs small{display:block;font:600 8px system-ui}
+.lg-body{display:grid;grid-template-columns:1.3fr .7fr;grid-template-areas:"rank side" "stats side" "foot foot";gap:8px}
+.lg-rank{grid-area:rank;display:flex;align-items:center;gap:14px;padding:10px 14px;background:linear-gradient(90deg,#10283c,#07121e);border:2px solid #2c4a63;border-radius:12px}
+.lg-emblem{width:84px;height:92px;color:#d9a63c;flex:none}
+.lg-emblem[data-div="0"]{color:#b87a4b}.lg-emblem[data-div="1"]{color:#c7d2dc}.lg-emblem[data-div="2"]{color:#ffd36b}.lg-emblem[data-div="3"]{color:#7fe0d0}.lg-emblem[data-div="4"]{color:#7fb6ff}.lg-emblem[data-div="5"]{color:#e0a8ff}
+.lg-emblem svg{width:100%;height:100%}
+.lg-rank-txt{flex:1;min-width:0}
+.lg-rank-txt h2{margin:2px 0 6px;font:800 24px Georgia,serif;color:#f7ecc8}
+.lg-rank-txt h2 em{font:800 16px system-ui;font-style:normal;color:#ffe28a}
+.lg-bar{height:9px;border-radius:5px;background:#0a1620;border:1px solid #3a566e;overflow:hidden}
+.lg-bar i{display:block;height:100%;background:linear-gradient(90deg,#5fd2ee,#ffe28a)}
+.lg-rank-txt small{font:600 11px system-ui;color:#9fb3a6}
+.lg-stats{grid-area:stats;display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.lg-stats div{display:grid;gap:1px;padding:6px;text-align:center;background:#0a1d2ccc;border:1px solid #2c4a63;border-radius:8px}
+.lg-stats b{font:800 18px system-ui;color:#f2e2b5}
+.lg-stats span{font:600 9px system-ui;color:#9fb3a6;letter-spacing:.5px}
+.lg-side{grid-area:side;padding:8px 10px;background:#0a1d2ccc;border:1px solid #2c4a63;border-radius:12px}
+.lg-side h3{margin:0 0 4px;font:800 11px system-ui;letter-spacing:2px;color:#e8c787}
+.lg-hist{list-style:none;margin:0;padding:0;display:grid;gap:3px}
+.lg-hist li{display:flex;align-items:center;gap:8px;padding:2px 6px;border-radius:6px;background:#06121c;font:700 11px system-ui}
+.lg-hist li b{width:18px;height:18px;display:grid;place-items:center;border-radius:50%;font-size:10px;color:#04140c}
+.lg-hist li.w b{background:#7dffb0}.lg-hist li.l b{background:#ff8b8b}.lg-hist li.d b{background:#cfd8e0}
+.lg-hist li.none{color:#8da295;background:none}
+.lg-rival{margin:6px 0 0;font:500 10px/1.3 system-ui;color:#b9cdb5}
+.lg-foot{grid-area:foot;display:flex;align-items:center;gap:12px;justify-content:space-between}
+.lg-reward{font:600 11px system-ui;color:#c9b27a}
+.lg-reward b{color:#ffe28a}
+.lg-play{padding:10px 26px;font:800 15px system-ui;letter-spacing:1px}
+.lg-soon{padding:20px;text-align:center;background:#0a1d2ccc;border:1px dashed #2c4a63;border-radius:12px}
+.lg-soon h2{margin:0 0 6px;font:800 20px Georgia,serif;color:#f7ecc8}
+.lg-soon p{margin:0;font:500 12px/1.5 system-ui;color:#b9cdb5}
+@media(max-height:480px){.lg-emblem{width:64px;height:70px}.lg-rank-txt h2{font-size:20px}.lg-tabs button{padding:5px}}
