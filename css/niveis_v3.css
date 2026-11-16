@@ -1,0 +1,14 @@
+.nv-box{grid-column:2;grid-row:4;align-self:end;z-index:2;display:grid;gap:4px;padding:5px 8px;background:#06141ccc;border:1px solid #2c4a63;border-radius:8px}
+.nv-on .hero-skill-copy{max-height:calc(100% - 66px);overflow:auto}
+.nv-lv{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;font:700 12px system-ui;color:#f2e2b5}
+.nv-lv b{font:800 13px Georgia,serif;letter-spacing:1px;color:#ffe28a;white-space:nowrap}
+.nv-lv b small{font:700 9px system-ui;color:#b9cdb5}
+.nv-xp{height:7px;border-radius:4px;background:#0a1620;border:1px solid #3a566e;overflow:hidden}
+.nv-xp i{display:block;height:100%;background:linear-gradient(90deg,#5fd2ee,#ffe28a)}
+.nv-lv>span{font:600 9px system-ui;color:#b9cdb5;white-space:nowrap}
+.nv-stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
+.nv-stat{display:grid;gap:1px;padding:3px 4px;text-align:center;background:#0a1d2ccc;border:1px solid #2c4a63;border-radius:4px}
+.nv-stat span{font:700 7px system-ui;letter-spacing:1px;color:#9fb3a6}
+.nv-stat b{font:800 12px system-ui;color:#f2e2b5}
+.nv-stat i{display:none}
+.nv-note{margin:0;font:500 8px/1.3 system-ui;color:#8da295}

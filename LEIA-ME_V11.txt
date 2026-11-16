@@ -232,3 +232,11 @@ O equilíbrio da dificuldade é estimado (testado só com IA e simulações): aj
 - KOF · AJUSTES DA TELA: retratos de baixo agora são retângulos em pé só com o rosto (como no KOF), lado a lado, sem nome e sem piscar/trocar de imagem ao tocar (os rostos ficam em cache antes de aparecer); o rival na sombra vermelha está espelhado, olhando para o seu herói; os bonecos do centro usam o mesmo repouso da tela inicial (sem inclinação).
 
 - RETRATO DO CAÇADOR (js/hud_v3.js): recorte fixo no rosto (a vara de pescar enganava o recorte automático e deixava o rosto pequeno); vale para o HUD e para a seleção do KOF.
+
+- NÍVEIS E ATRIBUTOS (js/niveis_v3.js, css/niveis_v3.css; teste: tests/niveis-v3.cjs) — FASE 1 do plano de progressão:
+  · Cada herói tem nível 1–10 (account.heroLv[id] = {lv, xp}). XP necessário: 100 (1→2) … 420 (9→10), total 2.160.
+  · 5 atributos: Vida 1000 (+5%/nível), Ataque (+4%), Defesa (+4%), Velocidade (+1%), Crítico 5% (+0,7 ponto/nível; crítico causa ×1,5). Nível 10: +45% vida, +36% ataque e defesa, +9% velocidade, 11,3% de crítico.
+  · Os bônus só valem na Cruzada e na Caçada, e só para o herói do jogador. Duelos, liga, torneio, KOF, 2×2, treino e inimigos usam atributos nivelados (como nível 1).
+  · XP no fim da Cruzada/Caçada: vitória +140 (Cruzada) / +160 (Caçada); derrota +35/+40 mais até +60 pelo tempo. O resultado mostra o XP e a subida de nível.
+  · Página do campeão mostra nível, barra de XP e os 5 atributos.
+  · PRÓXIMAS FASES (combinado): Loja + herói de presente aleatório no primeiro acesso (começa com 1 herói; 3 heróis grátis rotativos por semana para KOF/equipes; 💎 comprados e também moeda do jogo para tudo); artefatos (1 por herói, drop de chefes da Cruzada/Caçada, botão de ativação com recarga no combate); arte nova dos ícones.
