@@ -7,13 +7,13 @@
  *  - Cometa Veloz: 10 de Cosmo, recarga de 2 s, +25% de dano, preparo um pouco mais longo (legível).
  *  - Chute Crescente: 8 de Cosmo, recarga de 3 s (acaba a trava infinita); golpes no rival no ar causam +30%.
  *  - Investida Galopante (dash): grátis; deixa o rival EXPOSTO (símbolo visível). Cometa, Chute ou a ultimate consomem a marca (+20%).
- *  - Constelação Radiante: 5/7/9 meteoros que perseguem o alvo + um meteoro final grande, com a constelação desenhada no chão.
+ *  - Constelação Radiante: mínimo 50 de Cosmo e recarga de 10 s; 7/9 meteoros que perseguem o alvo + um meteoro final grande, com a constelação desenhada no chão.
  * O multiplicador de dano do herói subiu de 0,65 para o valor em V3_DMG_MUL[8] (js/combate_v3b.js).
  */
 (function(){
 if(!window.COMBAT_V3||!window.V3API)return;
 const {isHero}=V3API,H=8,KIT=CHAMPIONS[H].kit;
-const STAGE_AT=[40,80],STAGE_MUL=[1,1.15,1.3],COST={1:10,2:8};
+const STAGE_AT=[40,80],STAGE_MUL=[1,1.15,1.3],COST={1:10,2:8},ULT_MIN=50;
 const on=a=>!!a&&isHero(a)&&a.skin===H;
 const stageOf=v=>v>=STAGE_AT[1]?2:v>=STAGE_AT[0]?1:0;
 const fmt=n=>String(Math.round(n));
@@ -21,13 +21,14 @@ const fmt=n=>String(Math.round(n));
 /* ---------- recargas, tempos e textos ---------- */
 skills[KIT[1]].cd=2;skills[KIT[1]].release=.3;skills[KIT[1]].duration=.62;
 skills[KIT[2]].cd=3;
+skills[KIT[5]].cd=10;                                        // a ultimate fecha o combo: não dá para emendar uma na outra
 {
  const f=(window.V3_DMG_MUL&&V3_DMG_MUL[H])||1;
  skills[KIT[0]].desc=`Três socos de ${fmt(20*f)} de dano. Cada acerto sobe o combo (a sequência seguinte sai mais rápida) e enche o Cosmo. Rival no ar leva +30%.`;
  skills[KIT[1]].desc=`Gasta 10 de Cosmo. Cometa de ${fmt(125*f)} de dano, alcance 390, recarga de 2s. Rival no ar leva +30%; consome a marca Exposto (+20%).`;
  skills[KIT[2]].desc=`Gasta 8 de Cosmo. Chute de ${fmt(65*f)} de dano que lança o rival ao ar por 0,7s. Recarga de 3s. Consome a marca Exposto (+20%).`;
  skills[KIT[3]].desc=`Sem custo. Atravessa o rival por até 230, causa ${fmt(55*f)} de dano e o deixa Exposto por 2s (+25% de dano recebido).`;
- skills[KIT[5]].desc=`Consome todo o Cosmo (mínimo 35). 5, 7 ou 9 meteoros de ${fmt(22*f)} perseguem o alvo e um meteoro final de ${fmt(90*f)} fecha a constelação. Mais forte a cada estágio do Cosmo.`;
+ skills[KIT[5]].desc=`Consome todo o Cosmo (mínimo 50), recarga de 10s. 7 ou 9 meteoros de ${fmt(22*f)} perseguem o alvo e um meteoro final de ${fmt(90*f)} fecha a constelação. Mais forte a cada estágio do Cosmo.`;
  for(const k of [0,1,2,3,5])skills[KIT[k]].v3scaled=true;
 }
 
@@ -35,6 +36,7 @@ skills[KIT[2]].cd=3;
 const prevReason=rwResourceReason;
 rwResourceReason=function(a,slot){
  if(on(a)&&COST[slot]!==undefined)return reworkState(a).value<COST[slot]?COST[slot]+' COS':'';
+ if(on(a)&&slot===5)return reworkState(a).value<ULT_MIN?ULT_MIN+' COS':'';
  return prevReason.apply(this,arguments);
 };
 const prevCommit=rwCommit;
