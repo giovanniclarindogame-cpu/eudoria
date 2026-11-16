@@ -24,7 +24,7 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
   {const h0=b.hp;hit(b,100,p,0,0,K[1]);o.cometaExposto=+((h0-b.hp)/d0).toFixed(3);o.expostoConsumido=reworkState(b).exposed===0}
   // ultimate por estágio
   const ult=(cos)=>{reset(cos);b.x=520;let small=0,big=0;const oa=rwArea;rwArea=function(a,x,y,rr,dmg){if(a===p){if(rr>80)big++;else small++}return oa.apply(this,arguments)};const h0=b.hp;const okc=cast(p,K[5],0);for(let i=0;i<200;i++){step(1/60);b.x=520;b.y=300}rwArea=oa;return{ok:okc,small,big,dmg:Math.round(h0-b.hp),cosmo:Math.round(st().value)}};
-  o.u34=ult(34).ok;o.u36=ult(36);o.u60=ult(60);o.u100=ult(100);
+  o.u49=ult(49).ok;o.u50=ult(50);o.u100=ult(100);o.cdUlt=skills[K[5]].cd;
   o.hud=integratedDepth().some(e=>e.kind==='v3-cav-hud');
   // marca sem bônus defensivo
   reset(100);{const h0=p.hp;hit(p,100,b,0,0,0);o.take100=Math.round(h0-p.hp)}reset(0);{const h0=p.hp;hit(p,100,b,0,0,0);o.take0=Math.round(h0-p.hp)}
@@ -34,15 +34,15 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  ok(!r.cometa9&&r.cometa10&&!r.chute7&&r.chute8,'custos novos: Cometa 10 de Cosmo, Chute 8');
  ok(r.chuteDeNovo===false,'Chute não pode ser repetido em seguida (fim da trava infinita)');
  ok(r.dash0===true,'Investida continua sem custo');
- ok(Math.abs(r.stage[0]-1.15)<.01&&Math.abs(r.stage[1]-1.3)<.01&&Math.abs(r.stage[2]-1.3)<.01,`estágios do Cosmo: +15% e +30% de dano, sem empilhar com o bônus antigo de Cosmo cheio (${r.stage})`);
+ ok(Math.abs(r.stage[0]-1.1)<.01&&Math.abs(r.stage[1]-1.2)<.01&&Math.abs(r.stage[2]-1.2)<.01,`estágios do Cosmo: +10% e +20% de dano, sem empilhar com o bônus antigo de Cosmo cheio (${r.stage})`);
  ok(Math.abs(r.air-1.3)<.01,'golpe no rival que está no ar causa +30% ('+r.air+')');
  ok(r.expostoAposDash&&r.marcaVisivel,'Investida deixa o rival Exposto e a marca aparece sobre ele');
- ok(r.expostoConsumido&&r.cometaExposto>1.8,`o Cometa consome a marca Exposto com bônus (×${r.cometaExposto} sobre o golpe base)`);
- ok(r.u34===false&&r.u36.ok&&r.u36.small===5&&r.u60.small===7&&r.u100.small===9&&r.u36.big===1&&r.u100.big===1,`ultimate: mínimo 35 de Cosmo; 5, 7 ou 9 meteoros conforme o estágio + 1 meteoro final (${r.u36.small},${r.u60.small},${r.u100.small})`);
- ok(r.u100.dmg>r.u60.dmg&&r.u60.dmg>r.u36.dmg&&r.u100.cosmo<=5,`ultimate mais forte a cada estágio (${r.u36.dmg} / ${r.u60.dmg} / ${r.u100.dmg}) e gasta o Cosmo`);
+ ok(r.expostoConsumido&&r.cometaExposto>1.15,`o Cometa consome a marca Exposto com bônus (×${r.cometaExposto} sobre o golpe base)`);
+ ok(r.u49===false&&r.u50.ok&&r.u50.small===7&&r.u100.small===9&&r.u50.big===1&&r.u100.big===1&&r.cdUlt===10,`ultimate: mínimo 50 de Cosmo, recarga de 10 s; 7 ou 9 meteoros conforme o estágio + 1 meteoro final (${r.u50.small},${r.u100.small})`);
+ ok(r.u100.dmg>r.u50.dmg&&r.u100.cosmo<=5,`ultimate mais forte no estágio 3 (${r.u50.dmg} / ${r.u100.dmg}) e gasta o Cosmo sem devolver`);
  ok(r.hud,'estrelas de estágio e contador de combo desenhados sobre o herói');
  ok(r.take100===r.take0,'a marca não dá mais redução de dano por guardar Cosmo');
- ok(r.mul>=.8&&r.mul<=1.1,'multiplicador de dano do herói subiu (0,65 → '+r.mul+')');
+ ok(r.mul===.55,'multiplicador de dano do herói recalibrado para o kit novo ('+r.mul+')');
  ok(errs.length===0,'sem erros de JavaScript '+errs.slice(0,2));
  await br.close();
 })();

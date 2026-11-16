@@ -1,19 +1,19 @@
 'use strict';
 /*
  * Cavaleiro do Firmamento (herói 8) — pacote de jogabilidade v3: cavaleiro de COMBO.
- *  - O Cosmo tem 3 ESTÁGIOS (0–39 · 40–79 · 80–100): cada estágio dá +15% de dano. Gastar pouco não derruba o estágio,
+ *  - O Cosmo tem 3 ESTÁGIOS (0–39 · 40–79 · 80–100): cada estágio dá +10% de dano. Gastar pouco não derruba o estágio,
  *    porque acertar devolve Cosmo; a ultimate gasta tudo e fica mais forte no estágio alto.
  *  - Rajada Estelar: enche mais Cosmo e mostra o contador de combo.
- *  - Cometa Veloz: 10 de Cosmo, recarga de 2 s, +25% de dano, preparo um pouco mais longo (legível).
+ *  - Cometa Veloz: 10 de Cosmo, recarga de 2 s, preparo um pouco mais longo (legível).
  *  - Chute Crescente: 8 de Cosmo, recarga de 3 s (acaba a trava infinita); golpes no rival no ar causam +30%.
  *  - Investida Galopante (dash): grátis; deixa o rival EXPOSTO (símbolo visível). Cometa, Chute ou a ultimate consomem a marca (+20%).
  *  - Constelação Radiante: mínimo 50 de Cosmo e recarga de 10 s; 7/9 meteoros que perseguem o alvo + um meteoro final grande, com a constelação desenhada no chão.
  * O multiplicador de dano do herói subiu de 0,65 para o valor em V3_DMG_MUL[8] (js/combate_v3b.js).
  */
 (function(){
-if(!window.COMBAT_V3||!window.V3API)return;
+if(!window.COMBAT_V3||!window.V3API||/[?&]cav=0/.test(location.search))return;   // ?cav=0 desliga o pacote (para comparar)
 const {isHero}=V3API,H=8,KIT=CHAMPIONS[H].kit;
-const STAGE_AT=[40,80],STAGE_MUL=[1,1.15,1.3],COST={1:10,2:8},ULT_MIN=50;
+const STAGE_AT=[40,80],STAGE_MUL=[1,1.1,1.2],COST={1:10,2:8},ULT_MIN=50;
 const on=a=>!!a&&isHero(a)&&a.skin===H;
 const stageOf=v=>v>=STAGE_AT[1]?2:v>=STAGE_AT[0]?1:0;
 const fmt=n=>String(Math.round(n));
@@ -25,10 +25,10 @@ skills[KIT[5]].cd=10;                                        // a ultimate fecha
 {
  const f=(window.V3_DMG_MUL&&V3_DMG_MUL[H])||1;
  skills[KIT[0]].desc=`Três socos de ${fmt(20*f)} de dano. Cada acerto sobe o combo (a sequência seguinte sai mais rápida) e enche o Cosmo. Rival no ar leva +30%.`;
- skills[KIT[1]].desc=`Gasta 10 de Cosmo. Cometa de ${fmt(125*f)} de dano, alcance 390, recarga de 2s. Rival no ar leva +30%; consome a marca Exposto (+20%).`;
+ skills[KIT[1]].desc=`Gasta 10 de Cosmo. Cometa de ${fmt(100*f)} de dano, alcance 390, recarga de 2s. Rival no ar leva +30%; consome a marca Exposto (+20%).`;
  skills[KIT[2]].desc=`Gasta 8 de Cosmo. Chute de ${fmt(65*f)} de dano que lança o rival ao ar por 0,7s. Recarga de 3s. Consome a marca Exposto (+20%).`;
  skills[KIT[3]].desc=`Sem custo. Atravessa o rival por até 230, causa ${fmt(55*f)} de dano e o deixa Exposto por 2s (+25% de dano recebido).`;
- skills[KIT[5]].desc=`Consome todo o Cosmo (mínimo 50), recarga de 10s. 7 ou 9 meteoros de ${fmt(22*f)} perseguem o alvo e um meteoro final de ${fmt(90*f)} fecha a constelação. Mais forte a cada estágio do Cosmo.`;
+ skills[KIT[5]].desc=`Consome todo o Cosmo (mínimo 50), recarga de 10s. 7 ou 9 meteoros de ${fmt(16*f)} perseguem o alvo e um meteoro final de ${fmt(70*f)} fecha a constelação. Mais forte a cada estágio do Cosmo.`;
  for(const k of [0,1,2,3,5])skills[KIT[k]].v3scaled=true;
 }
 
@@ -58,7 +58,6 @@ hit=function(t,n,o,k,an,id){
   const ult=id===KIT[5]&&o.v3cavUlt&&clock<=o.v3cavUlt.until;
   let f=STAGE_MUL[ult?o.v3cavUlt.stage:stageOf(s.value)];
   if(s.value>=100)f/=1.2;                                  // o motor antigo já dá +20% com Cosmo cheio
-  if(id===KIT[1])f*=1.25;
   if((id===KIT[0]||id===KIT[1])&&ts.air>0){f*=1.3;air=true}
   if(ts.exposed>0&&(id===KIT[1]||id===KIT[2]||id===KIT[5])){f*=1.2;expo=true}
   n*=f;
@@ -85,10 +84,10 @@ rwRelease=function(a,q){
  const U={a,pts:[],t0:clock,final:null,boom:0,end:clock+.2+n*.1+1.4};ULTS.push(U);
  for(let i=0;i<n;i++)rwLater(a,.2+i*.1,()=>{
   const c=where(),ang=i*2.399963,r=14+(i%3)*15,x=c.x+Math.cos(ang)*r,y=c.y+Math.sin(ang)*r*.7;
-  U.pts.push({x,y,t:clock});rwArea(a,x,y,50,22,5,3);
+  U.pts.push({x,y,t:clock});rwArea(a,x,y,50,16,5,3);
  });
  rwLater(a,.2+n*.1+.05,()=>{const c=where();U.final={x:c.x,y:c.y,t:clock};try{rwFx(a,5,c.x,c.y,'warning',.5,{radius:95})}catch{}});
- rwLater(a,.2+n*.1+.55,()=>{if(!U.final)return;rwArea(a,U.final.x,U.final.y,95,90,5,30);U.boom=clock;try{combatImpact?.(1.7)}catch{}});
+ rwLater(a,.2+n*.1+.55,()=>{if(!U.final)return;rwArea(a,U.final.x,U.final.y,95,70,5,30);U.boom=clock;try{combatImpact?.(1.7)}catch{}});
 };
 
 /* ---------- desenho: estágios, combo, preparo do cometa, marca Exposto, constelação ---------- */

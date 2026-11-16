@@ -18,7 +18,7 @@ const MARCAS={
  5:['Presa Marcada','Acertar o mesmo alvo em sequência acumula até 3 marcas (+8% de dano cada).'],
  6:['Sobrecarga Viva','Com Sobrecarga em 60 ou mais: +15% de dano e +20% de velocidade.'],
  7:['Ímpeto','Com Elasticidade em 70 ou mais: +12% de dano, +12% de velocidade e recargas 35% mais rápidas.'],
- 8:['Ritmo Estelar','O Cosmo sobe em 3 estágios (40 e 80): cada estágio dá +15% de dano. A ultimate gasta tudo e fica mais forte no estágio alto.'],
+ 8:['Ritmo Estelar','O Cosmo sobe em 3 estágios (40 e 80): cada estágio dá +10% de dano. A ultimate gasta tudo e fica mais forte no estágio alto.'],
  9:['Terreno Amigo','Perto dos próprios blocos de pedra, recebe 15% menos dano.']
 };
 const THRESH={3:80,6:60,7:70,8:40};
