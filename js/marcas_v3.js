@@ -18,10 +18,10 @@ const MARCAS={
  5:['Presa Marcada','Acertar o mesmo alvo em sequência acumula até 3 marcas (+8% de dano cada).'],
  6:['Sobrecarga Viva','Com Sobrecarga em 60 ou mais: +15% de dano e +20% de velocidade.'],
  7:['Ímpeto','Com Elasticidade em 70 ou mais: +12% de dano, +12% de velocidade e recargas 35% mais rápidas.'],
- 8:['Brilho Estelar','Com Cosmo em 70 ou mais: +10% de dano e 15% menos dano recebido.'],
+ 8:['Ritmo Estelar','O Cosmo sobe em 3 estágios (40 e 80): cada estágio dá +15% de dano. A ultimate gasta tudo e fica mais forte no estágio alto.'],
  9:['Terreno Amigo','Perto dos próprios blocos de pedra, recebe 15% menos dano.']
 };
-const THRESH={3:80,6:60,7:70,8:70};
+const THRESH={3:80,6:60,7:70,8:40};
 const stateOn=a=>{if(!isHero(a)||!THRESH[a.skin])return false;try{return reworkState(a).value>=THRESH[a.skin]}catch{return false}};
 const nearOwnBlocks=a=>objects.some(o=>o.material&&o.owner===a&&o.hp>0&&o.life>0&&dist(o,a)<100);
 
@@ -35,11 +35,9 @@ hit=function(t,n,o,k,an,id){
    if(o.skin===5&&o.v3f&&o.v3f.t===t&&clock-o.v3f.at<=4)f*=1+.08*o.v3f.n;
    if(o.skin===6&&stateOn(o))f*=1.15;
    if(o.skin===7&&stateOn(o))f*=1.12;
-   if(o.skin===8&&stateOn(o))f*=1.10;
    n*=f;
   }
   if(isHero(t)){
-   if(t.skin===8&&stateOn(t))n*=.85;
    if(t.skin===9&&nearOwnBlocks(t))n*=.85;
    if(t.skin===2&&t.v3m>0&&n>0)t.v3m=0;
   }
