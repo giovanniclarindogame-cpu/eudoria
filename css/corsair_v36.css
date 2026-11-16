@@ -1,0 +1,7 @@
+#heroDetail.corsair-detail{background:#102734 url('../assets/corsair_v36/background.webp?v=36') center/cover no-repeat}
+.corsair-detail.simple-detail .hero-detail-inner{background:linear-gradient(90deg,#10273408 25%,#0b1d30c9 65%,#0b1d30ed)}
+.corsair-detail.simple-detail .hero-stage{background:none}
+.corsair-detail .hero-halo{display:none}
+.corsair-detail .hero-heading,.corsair-detail .simple-kit-heading{text-shadow:0 2px 5px #061a10,0 0 14px #103e25cc}
+.corsair-detail.simple-detail .hero-skill-copy{background:#102734ef;border-color:#c2a45f77}
+.corsair-detail .hero-stage img{object-fit:contain;filter:drop-shadow(0 8px 16px #0a241888)}
