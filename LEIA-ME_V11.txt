@@ -276,3 +276,13 @@ O equilíbrio da dificuldade é estimado (testado só com IA e simulações): aj
   · Cada família segue a paleta e os materiais do chefe: Zorvath (alienígenas de cristal), Vhalor (ninjas e samurai), Kuroen (almas de máscara de osso e brasas), Nyxar (demônios), Ryoku (maldições de muitos olhos), Xerath (formigas), Rapina (vilões), Malrath (piratas), Hadrion (espectros), Gênesis (homúnculos e armaduras).
   · A fase (js/fase_arcade.js) usa MobArt.paint quando existe a arte (a.mob.art = 'familia:tipo'); sem ela cai no pintor antigo. Vale para o monstro, o corpo caído e as prévias do lobby. Os 943 quadros são gerados sob demanda e ficam em cache (≈1,2 s para gerar todos no desktop).
   · Os CHEFES continuam com a arte antiga (BossSprite/Zorvath próprio): para eles o plano é arte gerada pelo ChatGPT.
+
+
+CAVALEIRO DO FIRMAMENTO · PACOTE DE JOGABILIDADE (js/cavaleiro_v3.js)
+- Ritmo Estelar: o Cosmo tem 3 estágios (0 / 40 / 80). Cada estágio dá +10% de dano (máx. +20%). A marca não reduz mais o dano recebido.
+- Custos e recargas: Cometa Veloz 10 de Cosmo e 2 s; Chute Meteoro 8 de Cosmo e 3 s (não dá mais para repetir em sequência); Investida sem custo.
+- Rajada devolve Cosmo a cada soco; golpe no rival que está no ar causa +30%; a Investida deixa o rival EXPOSTO e o próximo Cometa/Chute/ultimate consome a marca com +20%.
+- Ultimate nova: mínimo de 50 de Cosmo, recarga de 10 s, gasta todo o Cosmo. 7 meteoros (estágio 2) ou 9 (estágio 3) perseguem o alvo e fecham com um meteoro final. Os acertos da ultimate não devolvem Cosmo.
+- Visual: constelação no chão, 3 estrelas de estágio sobre o herói, contador de combo e marca de Exposto no rival.
+- Multiplicador de dano do herói recalibrado para 0,55 (medido em simulação bot contra bot: cerca de metade de vitórias no conjunto; perde para o Lutador do Eclipse).
+- Desligar para comparar: index.html?cav=0. Teste: tests/cavaleiro-v3.cjs.

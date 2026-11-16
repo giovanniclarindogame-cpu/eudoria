@@ -18,7 +18,7 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  const g=await p.evaluate(()=>{const dmg=()=>{const h=b.hp;hit(b,100,p,0,0,p.kit[1]);return h-b.hp};const a1=dmg(),a2=dmg(),a3=dmg(),a4=dmg();return{a1,a2,a3,a4,n:p.v3f.n}});
  ok(g.n===3&&g.a4>g.a1*1.2,`Caçador: mesmo alvo acumula marcas (${g.a1.toFixed(0)} → ${g.a4.toFixed(0)})`);
  // estados
- for(const [id,th,name] of [[3,80,'Solar'],[6,60,'Herdeiro'],[7,70,'Corsário'],[8,70,'Cavaleiro']]){
+ for(const [id,th,name] of [[3,80,'Solar'],[6,60,'Herdeiro'],[7,70,'Corsário'],[8,40,'Cavaleiro']]){
   await FIGHT(id);await p.waitForTimeout(300);
   const s=await p.evaluate(({th})=>{const st=reworkState(p);st.value=th-5;step(1/60);const off=MarcasV3.stateOn(p);const v0=identitySpeed(p);st.value=th+5;st.lastGain=clock;step(1/60);const on=MarcasV3.stateOn(p);return{off,on,gain:p.v3on}},{th});
   ok(!s.off&&s.on&&s.gain,`${name}: marca liga com recurso em ${th} ou mais`);
@@ -29,7 +29,7 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  // Cavaleiro: menos dano recebido
  await FIGHT(8);await p.waitForTimeout(300);
  const cv=await p.evaluate(()=>{p.hp=p.max=5000;p.inv=0;const dmg=()=>{const h=p.hp;hit(p,100,b,0,0,-1);return h-p.hp};reworkState(p).value=10;const a=dmg();reworkState(p).value=90;reworkState(p).lastGain=clock;const c=dmg();return{a,c}});
- ok(cv.c<cv.a*.9,`Cavaleiro: com Cosmo alto recebe menos dano (${cv.a.toFixed(0)} → ${cv.c.toFixed(0)})`);
+ ok(Math.abs(cv.c-cv.a)<.5,`Cavaleiro: Cosmo alto não reduz mais o dano recebido (${cv.a.toFixed(0)} → ${cv.c.toFixed(0)})`);
  // Alquimista: terreno amigo
  await FIGHT(9);await p.waitForTimeout(300);
  const al=await p.evaluate(()=>{p.hp=p.max=5000;p.inv=0;const dmg=()=>{const h=p.hp;hit(p,100,b,0,0,-1);return h-p.hp};objects.length=0;b.x=p.x+300;const a=dmg();const blk=rwCreateBlock(p,p.x-55,p.y,false,0);const near=MarcasV3.nearOwnBlocks(p);const c=dmg();return{a,c,near,made:!!blk}});
