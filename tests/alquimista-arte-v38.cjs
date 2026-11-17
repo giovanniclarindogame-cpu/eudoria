@@ -37,7 +37,7 @@ async function mechanics(page){return page.evaluate(()=>{
  reset();b.x=380;out.blade=cast(p,K[1],0);run(60);out.bladeDamage=1e6-b.hp;
  out.walls=[];for(const angle of [0,Math.PI/2]){reset(angle);out.walls.push({cast:cast(p,K[3],angle)});run(40);out.walls.at(-1).object=snap(objects.find(o=>o.wall&&o.life>0))}
  reset();joy.x=1;joy.y=0;out.dash=V3API.doDash(p);run(40);out.dashEnd={x:p.x,y:p.y,cd:+p.v3dashCD.toFixed(3),block:snap(objects.find(o=>o.material&&o.life>0))};joy.x=0;
- reset();rwCreateBlock(p,390,240);rwCreateBlock(p,430,360);out.ult=cast(p,K[5],0);run(60);out.colossus=snap(objects.find(o=>o.colossus&&o.life>0));out.materialsAfterUlt=objects.filter(o=>o.material&&o.life>0).length;run(720);out.colossusExpired=!objects.some(o=>o.colossus&&o.life>0);out.colossusDamage=1e6-b.hp;
+ reset();rwCreateBlock(p,390,240);rwCreateBlock(p,430,360);reworkState(p).value=100;out.ult=cast(p,K[5],0);run(60);out.colossus=snap(objects.find(o=>o.colossus&&o.life>0));out.materialsAfterUlt=objects.filter(o=>o.material&&o.life>0).length;run(720);out.colossusExpired=!objects.some(o=>o.colossus&&o.life>0);out.colossusDamage=1e6-b.hp;
  out.cooldowns=K.map(id=>skills[id].cd);out.uiSlots=V3API.V2[9];return out;
 })}
 async function verifyGame(){
@@ -58,7 +58,7 @@ async function verifyGame(){
    const K=p.kit,reset=(angle=0)=>{rwClear();objects.length=0;Object.assign(p,{cd:p.cd.map(()=>0),cast:0,actionRecovery:0,skillLock:0,root:0,rwCast:null,v3dashCD:0,hp:1000,max:1000,mp:1000,inv:0,hitReact:0,guard:false,punchTime:0,dodgeTime:0,moving:false,x:300,y:300,a:angle,rwFacing:angle});Object.assign(b,{hp:1e6,max:1e6,inv:0,root:9999,x:650,y:450});};
    const rows=[];
    for(const angle of [0,Math.PI])for(const slot of [0,1,3,'dash',5]){
-    reset(angle);if(slot===5){rwCreateBlock(p,390,240);rwCreateBlock(p,430,360)}
+    reset(angle);if(slot===5){rwCreateBlock(p,390,240);rwCreateBlock(p,430,360);reworkState(p).value=100}
     if(slot==='dash'){joy.x=Math.cos(angle);joy.y=0}
     check(slot==='dash'?V3API.doDash(p):cast(p,K[slot],angle),'actual cast '+slot);
     const frames=new Set();for(let n=0;n<90;n++){const pose=alc38Pose(p);if(pose.skillFrame!==undefined)frames.add(pose.skillFrame);integratedDepth();step(1/60)}joy.x=0;
@@ -84,8 +84,8 @@ async function verifyGame(){
    await page.evaluate(()=>{document.querySelector('[data-kof-back]').click();state='paused';equipChampion(9,false);beginProgression('training');arenaQA.begin();practiceOptions.free=true;practiceOptions.dummy='still';state='fight';updateUI();draw()});
    const buttons=await page.locator('#equipped .skill:not(.v3-hidden) .skill-art, #attack .skill-art').evaluateAll(els=>els.map(el=>{const r=el.getBoundingClientRect(),b=el.closest('button').getBoundingClientRect();return {src:getComputedStyle(el).backgroundImage,w:r.width/b.width,h:r.height/b.height}}));assert.equal(buttons.length,5);assert.ok(buttons.every(b=>b.src.includes('alquimista_v38/icon-')&&b.w>=.7&&b.h>=.7),'five filled actual buttons '+JSON.stringify(buttons));for(let n=0;n<5;n++)assert.ok(buttons.some(b=>b.src.includes('icon-'+n+'.webp')),'icon mapping '+n);await page.screenshot({path:`/tmp/alquimista38-combat-${width}.png`});
   }
-  const future=['steel','shatter','spikes','lance','aim','charge'];assert.ok(!requests.some(u=>future.some(k=>u.includes('/alquimista_v38/'+k+'.webp'))),'future atlas sheets are not integrated');assert.deepEqual(errors,[]);
-  console.log('PASS integration: mechanics identical with/without art, actual pose slots both ways, original construction dimensions/health/duration, collapse, K.O., compact body, face crop and five filled icons on desktop/mobile; six future sheets remain inactive.',report.measurements);
+  const future=['steel','shatter','spikes','lance','aim','charge'];assert.ok(future.every(k=>requests.some(u=>u.includes('/alquimista_v38/'+k+'.webp'))),'the six gameplay sheets are loaded by js/alquimista_v3.js');assert.deepEqual(errors,[]);
+  console.log('PASS integration: mechanics identical with/without art, actual pose slots both ways, original construction dimensions/health/duration, collapse, K.O., compact body, face crop and five filled icons on desktop/mobile; six gameplay sheets loaded by js/alquimista_v3.js.',report.measurements);
  }finally{await browser.close()}
 }
 (async()=>{if(!process.argv.includes('--game-only'))await verifyAssets();if(!process.argv.includes('--assets-only'))await verifyGame()})().catch(e=>{console.error(e);process.exitCode=1});

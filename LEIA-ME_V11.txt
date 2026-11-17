@@ -311,3 +311,30 @@ Cada herói ganhou uma decisão própria durante a luta. Para comparar com a ver
   · Esfera controlada: tocar de novo na Esfera Rubra detona no ar.
   · A Barreira do computador agora segue a regra do jogador (só sobe com o teleporte, por 1,6 s).
 - Teste: tests/herois-v3.cjs (19 verificações).
+
+FASE DE TESTES: TODOS OS HERÓIS LIBERADOS (js/jogo.js)
+- TESTE_LIBERADOS_PADRAO=true: qualquer conta joga com os 10 heróis. Compras, presente inicial e rodízio semanal continuam sendo registrados.
+- Para voltar ao normal, troque TESTE_LIBERADOS_PADRAO para false. ?liberados=0 simula o modo normal (usado por tests/loja-v3.cjs).
+
+CAÇADOR, HERDEIRO, CORSÁRIO E ALQUIMISTA · PACOTE DE JOGABILIDADE (?cacador=0, ?herdeiro=0, ?corsario=0, ?alquimista=0 desligam)
+- Caçador Espectral (js/cacador_v3.js) — "seguro a carga ou solto agora?"
+  · Fisgada: a Vara Giratória puxa quem está na ponta da linha (125–240) e prende por 0,35 s.
+  · Soco Carregado em 3 níveis (0,6 · 1,2 · 1,8 s); postura firme: golpes com menos de 40 de dano não interrompem a carga.
+  · Salto Selvagem com 40% do dano antigo, mas marca a presa (Presa Marcada cheia).
+  · Dano 2,5× → 1,9× e dano recebido 0,6 → 0,8 (menos "cara ou coroa").
+- Herdeiro da Centelha (js/herdeiro_v3.js) — "até onde aguento a Sobrecarga?"
+  · Barra sobre o herói com zona de potência (60–85) e zona de queima (acima de 85: perde vida).
+  · Chute de alívio: acima de 85, o Chute Relâmpago descarrega 20 e causa +40%.
+  · Ricochete: o Salto Ricochete quica em parede/coluna/borda; cada quique dá +40% ao impacto.
+  · Ultimate quebra o braço por 6 s (antes: até o fim da luta).
+- Corsário da Maré (js/corsario_v3.js) — "entro de corpo ou cutuco de longe?"
+  · Arpão Fisgado: acertou o Arpão, toque de novo em 0,8 s para se puxar até o rival com um soco.
+  · Ressaca: com 50+ de Elasticidade, o Quebra-Mar empurra e depois arrasta o rival de volta.
+  · Âncora ofensiva: impacto +35% e +12 de Elasticidade. Dano 0,76× → 0,8×.
+- Alquimista de Aço (js/alquimista_v3.js, usa as folhas steel/shatter/spikes/lance/aim/charge de assets/alquimista_v38)
+  · Transmutação: bloco 3 s perto dele vira aço (mais vida; arremessado +50% e atravessa).
+  · Palma com runas de mira no bloco que será arremessado; bloco que bate em parede/construção se estilhaça.
+  · Muralha Reativa: erguida em cima do rival lança e prende 0,5 s; quem encosta leva espinhos.
+  · Lança dos Blocos: a Lâmina de Pedra puxa uma lança de cada bloco perto do alvo (até 4).
+  · Máximo de 6 construções que duram 12 s. Marca nova: Essência da Forja (blocos usados carregam a ultimate); o Colosso exige Essência cheia e usa só os blocos dele. Dano 1,0× → 1,35×.
+- Teste: tests/herois2-v3.cjs (21 verificações).

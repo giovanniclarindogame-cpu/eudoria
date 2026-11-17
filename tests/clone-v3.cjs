@@ -30,13 +30,13 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  /* ---- Herdeiro ---- */
  await FIGHT(6);
  const h1=await p.evaluate(()=>{const s=reworkState(p);s.value=100;s.arm=0;p.cd=p.cd.map(()=>0);p.cast=0;p.actionRecovery=0;p.skillLock=0;p.root=0;p.hp=p.max;p.x=300;p.y=H/2;b.x=300+190;b.y=H/2;b.hp=b.max=90000;const hp0=p.hp;const r=cast(p,p.kit[5],0);for(let i=0;i<150;i++){step(1/60);b.x=490;b.y=H/2;b.root=9999}
-  return{r,hpKept:p.hp>=hp0-1,arm:s.arm>1000,frac:s.fractured,dmg:90000-b.hp,reason:rwResourceReason(p,0),reason5:rwResourceReason(p,5),sym:integratedDepth().some(e=>e.kind==='v3-fratura')}});
+  return{r,hpKept:p.hp>=hp0-1,arm:s.arm,frac:s.fractured,dmg:90000-b.hp,reason:rwResourceReason(p,0),reason5:rwResourceReason(p,5),sym:integratedDepth().some(e=>e.kind==='v3-fratura')}});
  ok(h1.r&&h1.hpKept,'ultimate do Herdeiro não tira vida');
  ok(h1.dmg>0,`ultimate acerta o alvo a 190 de distância (dano ${h1.dmg.toFixed(0)})`);
- ok(h1.arm&&h1.frac&&h1.reason==='Fratura'&&h1.reason5==='Fratura','fratura permanente: ataques com o braço ficam inválidos e a skill mostra "Fratura"');
+ ok(h1.arm>3&&h1.arm<=6&&h1.reason==='Fratura'&&h1.reason5==='Fratura','fratura de 6s: ataques com o braço ficam inválidos e a skill mostra "Fratura" ('+h1.arm.toFixed(1)+'s)');
  ok(h1.sym,'símbolo de fratura aparece sobre o personagem');
- const h2=await p.evaluate(()=>{const s=reworkState(p);for(let i=0;i<60*20;i++)step(1/60);return{arm:s.arm>1000}});
- ok(h2.arm,'a fratura não some com o tempo');
+ const h2=await p.evaluate(()=>{const s=reworkState(p);for(let i=0;i<60*20;i++)step(1/60);return{arm:s.arm}});
+ ok(h2.arm===0,'a fratura da ultimate passa depois de 6s');
  const h3=await p.evaluate(()=>{p.cd=p.cd.map(()=>0);p.cast=0;p.actionRecovery=0;p.skillLock=0;b.x=p.x+60;return cast(p,p.kit[1],0)});
  ok(h3===true,'o Chute Relâmpago (sem braço) continua disponível com a fratura');
  /* ---- Caçador: ultimate alcança ~230 ---- */

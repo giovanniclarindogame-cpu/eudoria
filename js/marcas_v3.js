@@ -19,7 +19,7 @@ const MARCAS={
  6:['Sobrecarga Viva','Com Sobrecarga em 60 ou mais: +15% de dano e +20% de velocidade.'],
  7:['Ímpeto','Com Elasticidade em 70 ou mais: +12% de dano, +12% de velocidade e recargas 35% mais rápidas.'],
  8:['Ritmo Estelar','O Cosmo sobe em 3 estágios (40 e 80): cada estágio dá +10% de dano. A ultimate gasta tudo e fica mais forte no estágio alto.'],
- 9:['Terreno Amigo','Perto dos próprios blocos de pedra, recebe 15% menos dano.']
+ 9:['Essência da Forja','Cada bloco arremessado, quebrado ou desfeito carrega a Essência; com ela cheia, o Colosso de Pedra pode ser erguido.'],
 };
 const THRESH={3:80,6:60,7:70,8:40};
 const stateOn=a=>{if(!isHero(a)||!THRESH[a.skin])return false;try{return reworkState(a).value>=THRESH[a.skin]}catch{return false}};
@@ -38,7 +38,7 @@ hit=function(t,n,o,k,an,id){
    n*=f;
   }
   if(isHero(t)){
-   if(t.skin===9&&nearOwnBlocks(t))n*=.85;
+   if(t.skin===9&&!window.ALQUIMISTA_V3&&nearOwnBlocks(t))n*=.85;
    if(t.skin===2&&t.v3m>0&&n>0)t.v3m=0;
   }
  }
@@ -85,7 +85,7 @@ integratedDepth=function(){
   if(!isHero(a)||a.hp<=0)continue;
   const col=COLORS[a.skin];if(!col)continue;
   const pips=a.skin===2?(a.v3m||0):a.skin===5&&a.v3f&&a.v3f.t&&clock-a.v3f.at<=4?a.v3f.n:0;
-  const ring=a.v3on||(a.skin===9&&nearOwnBlocks(a));
+  const ring=a.v3on||(a.skin===9&&(window.ALQUIMISTA_V3?reworkState(a).value>=100:nearOwnBlocks(a)));
   if(!pips&&!ring)continue;
   list.push({kind:'v3-marca',y:a.y+.2,priority:1,paint(){
    ctx.save();
