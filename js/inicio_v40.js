@@ -27,8 +27,8 @@ const MODES=[
  {id:'online',cat:'rank',name:'Online',sub:'Em breve',tag:'',art:11,soon:true},
  {id:'duelo',cat:'casual',name:'Duelo 1×1',sub:'Treine sem pressão',tag:'1×1',art:4,run:casual('1v1','1v1')},
  {id:'equipes',cat:'casual',name:'Equipes 2×2',sub:'Lute ao lado de um aliado',tag:'2×2',art:5,run:casual('2v2','2v2')},
- {id:'trio',cat:'casual',name:'Trio de Campeões',sub:'Quem vence continua',tag:'3×3',art:2,run:()=>window.V3Kof?.open('kof')},
- {id:'coroa',cat:'casual',name:'Disputa da Coroa',sub:'O último de pé leva',tag:'4 lutadores',art:3,run:()=>window.V3Kof?.open('crown')},
+ {id:'trio',cat:'casual',name:'Trio de Campeões',sub:'Quem vence continua',tag:'3×3',art:12,run:()=>window.V3Kof?.open('kof')},
+ {id:'coroa',cat:'casual',name:'Disputa da Coroa',sub:'O último de pé leva',tag:'4 lutadores',art:13,run:()=>window.V3Kof?.open('crown')},
  {id:'zona',cat:'casual',name:'Controle de Zona',sub:'Em reformulação',tag:'2×2',art:11,soon:true},
  {id:'cacada',cat:'desafio',name:'Caçada do Dia',sub:()=>huntName()||'Um chefe por dia',tag:'Solo ou dupla',art:6,run:()=>window.huntQA?.lobby()},
  {id:'guardiao',cat:'desafio',name:'Caçada ao Guardião',sub:'Fuja das áreas vermelhas',tag:'Cooperativo',art:7,run:()=>beginArenaMode('guardian')},
@@ -120,7 +120,7 @@ function homeMarkup(){
  </nav>
  <div class="v40-go">
   <button class="v40-mode" data-v40-modes style="--cat:${cat[2]}" aria-label="Modo: ${esc(m.name)}. ${esc(REWARD[m.id]||'')}. Toque para trocar">
-   <span class="v40-mode-art" style="--c:${m.art%4};--r:${Math.floor(m.art/4)}"></span>
+   <span class="v40-mode-art" style="--c:${m.art%4};--r:${Math.floor(m.art/4)};${artBg(m)}"></span>
    <span class="v40-mode-txt"><small>${esc(cat[1].toUpperCase())}</small><b>${esc(m.name)}</b><em>${esc(REWARD[m.id]||subOf(m))}</em></span>
    <span class="v40-mode-chev">${svg('chev')}</span>
   </button>
@@ -171,6 +171,18 @@ function syncNav(){const on=appScreen==='home'&&!!account.profile;document.body.
 function closeAll(){for(const id of ['v40Menu','v40Missions','v40Modes'])$q('#'+id)?.setAttribute('hidden','');document.body.classList.remove('v40-modes-open');try{syncNav()}catch{}}
 
 /* ---------- tela de modos ---------- */
+// artes v44: campeões e cenários do próprio jogo (assets/inicio_v44/modo_NN.webp, uma por modo, recortadas sem esticar)
+const artBg=m=>`background-image:url('assets/inicio_v44/modo_${String(m.art).padStart(2,'0')}.webp?v=1')`;
+// Caçada do Dia: o chefe do dia é desenhado ao vivo sobre a arte (muda todo dia)
+function paintHuntBoss(root=document){
+ for(const cv of root.querySelectorAll('canvas.v44-boss')){
+  try{const d=window.huntQA?.bossOfDay?.(),g=cv.getContext('2d');g.clearRect(0,0,cv.width,cv.height);g.imageSmoothingEnabled=false;
+   const f='drop-shadow(0 0 8px #ff3b3b)';
+   if(d?.look&&window.BossSprite)BossSprite.paint(g,d.look,'idle',0,{x:226,y:228,scale:3.3,flip:true,filter:f});
+   else if(window.ZorvathSprite)ZorvathSprite.paint(g,'idle',0,{x:226,y:228,scale:2.6,form:3,flip:true,filter:'drop-shadow(0 0 8px #b86bff)'});
+  }catch(e){}
+ }
+}
 const LIGA_ID={liga1:'1v1',liga2:'2v2',ligaTrio:'kof',ligaCoroa:'ffa'};
 const NEW_MODES=['ligaTrio','ligaCoroa','torneio'];
 const CAT_ICON={rank:'trophy',casual:'dojo',desafio:'skull',treino:'target'};
@@ -183,7 +195,7 @@ function cardHtml(m,cur,k){
  const soon=!!m.soon,on=m.id===cur;
  return `<button class="v40-card v43-card ${on?'on':''} ${soon?'soon':''}" data-v40-pick="${m.id}" style="--k:${k}" ${soon?'aria-disabled="true"':''} aria-pressed="${on}" aria-label="${esc(m.name)}${soon?', em breve':''}${on?', selecionado':''}">
   <span class="v40-card-head"><b>${esc(m.name)}</b><small>${esc(subOf(m))}</small></span>
-  <span class="v40-card-art" style="--c:${m.art%4};--r:${Math.floor(m.art/4)}">${soon?`<span class="v40-lock">${svg('lock')}</span><span class="v43-ribbon">EM BREVE</span>`:''}${modeBadges(m)}${modeRank(m)}${m.tag&&!soon?`<em class="v43-tag">${esc(m.tag)}</em>`:''}${on?'<span class="v43-check" aria-hidden="true">✓</span>':''}</span>
+  <span class="v40-card-art" style="--c:${m.art%4};--r:${Math.floor(m.art/4)};${artBg(m)}">${m.id==='cacada'?'<canvas class="v44-boss" width="320" height="240" aria-hidden="true"></canvas>':''}${soon?`<span class="v40-lock">${svg('lock')}</span><span class="v43-ribbon">EM BREVE</span>`:''}${modeBadges(m)}${modeRank(m)}${m.tag&&!soon?`<em class="v43-tag">${esc(m.tag)}</em>`:''}${on?'<span class="v43-check" aria-hidden="true">✓</span>':''}</span>
   <span class="v40-card-foot">${soon?`<em>${esc(m.tag||'')}</em>`:''}${soon?'':`<span class="v43-reward">${REWARD[m.id]?`<i>🪙</i>${esc(REWARD[m.id].replace(' moedas',''))}`:''}${modeXp(m)?`<i class="xp">${modeXp(m)}</i>`:''}</span>`}</span>
  </button>`;
 }
@@ -199,11 +211,11 @@ function modesMarkup(){
  <div class="v43-bottom"><nav class="v40-tabs v43-tabs" aria-label="Categorias">${CATS.map(([cat,label])=>`<button data-v40-tab="${cat}" class="${m.cat===cat?'on':''}">${svg(CAT_ICON[cat])}<span>${label}</span></button>`).join('')}</nav>
  <button class="v43-play" data-v43-play aria-label="Jogar ${esc(m.name)}"><small>${esc(m.name)}</small><b>JOGAR</b></button></div>`;
 }
-function refreshModes(){const box=$q('#v40Modes');if(!box||box.hidden)return;const strip=box.querySelector('.v40-strip'),x=strip.scrollLeft;box.innerHTML=modesMarkup();box.classList.add('v43-noanim');const s2=box.querySelector('.v40-strip');s2.scrollLeft=x;bindDrag(s2);s2.addEventListener('scroll',()=>syncTab(s2),{passive:true});syncTab(s2)}
+function refreshModes(){const box=$q('#v40Modes');if(!box||box.hidden)return;const strip=box.querySelector('.v40-strip'),x=strip.scrollLeft;box.innerHTML=modesMarkup();paintHuntBoss(box);box.classList.add('v43-noanim');const s2=box.querySelector('.v40-strip');s2.scrollLeft=x;bindDrag(s2);s2.addEventListener('scroll',()=>syncTab(s2),{passive:true});syncTab(s2)}
 function openModes(){
  let box=$q('#v40Modes');
  if(!box){box=document.createElement('section');box.id='v40Modes';box.setAttribute('aria-label','Modos de jogo');document.body.appendChild(box)}
- box.classList.remove('v43-noanim');box.innerHTML=modesMarkup();box.hidden=false;document.body.classList.add('v40-modes-open');syncNav();
+ box.classList.remove('v43-noanim');box.innerHTML=modesMarkup();paintHuntBoss(box);box.hidden=false;document.body.classList.add('v40-modes-open');syncNav();
  const strip=box.querySelector('.v40-strip'),on=box.querySelector('.v40-card.on');
  if(on)strip.scrollLeft=Math.max(0,on.offsetLeft-strip.clientWidth/2+on.offsetWidth/2);
  bindDrag(strip);strip.addEventListener('scroll',()=>syncTab(strip),{passive:true});

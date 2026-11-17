@@ -380,3 +380,7 @@ TELAS v43 (js/inicio_v40.js, js/telas_v43.js, css/telas_v43.css, tests/telas-v43
   carteira; busca de Campeões no topo), fundo da arena desfocado, cartões azuis com borda dourada e etiqueta amarela com nome
   marrom, detalhe do campeão e janela de presente da Loja no mesmo estilo. Só aparência: as telas continuam desenhadas pelos
   arquivos antigos (menus_simples.js, loja_v3.js, jogo.js); a barra é recolocada sempre que a tela é redesenhada.
+- v44: artes dos modos refeitas com o próprio jogo (assets/inicio_v44/modo_NN.webp, 640×480, uma por modo): retratos dos campeões na
+  arena de batalha (a mesma da tela inicial), no Dojo, no santuário (Torneio) e na cidadela com o Zorvath (Cruzada); Guardião com um
+  chefe da Caçada e as áreas vermelhas. Caçada do Dia desenha AO VIVO o chefe do dia (canvas.v44-boss). Trio e Disputa da Coroa
+  casuais têm arte própria (12, 13). As imagens entram com background-size:cover (não esticam mais).

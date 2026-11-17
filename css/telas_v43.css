@@ -183,3 +183,6 @@ body[data-screen=library] #backHome::before,body[data-screen=shop] #backHome::be
 /* campeões bloqueados */
 #selection .hero-card:is(.locked,[class*=lock]) .hero-card-art img{filter:grayscale(.6) brightness(.75)}
 #shopScreen .lj-art{position:relative}#shopScreen .lj-tag{position:absolute!important;top:5px!important;left:5px!important;bottom:auto!important;right:auto!important;font-size:9px!important;padding:1px 6px!important}
+/* artes v44 (uma imagem por modo, recorte sem esticar) */
+.v40-card-art,.v40-mode-art{background-size:cover!important;background-position:50% 28%!important;background-repeat:no-repeat!important}
+.v44-boss{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 28%;pointer-events:none;image-rendering:pixelated}
