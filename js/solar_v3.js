@@ -91,7 +91,7 @@ integratedDepth=function(){
   list.push({kind:'v3-solar-embers',y:99993+t.y*.001,priority:9,paint(){
    ctx.save();
    if(b){const n=Math.min(MAX_EMBERS,b.stacks);for(let i=0;i<n;i++){const w=Math.sin(clock*10+i*2);flame(t.x-(n-1)*6+i*12,t.y-84+w,n===MAX_EMBERS?1.15:.9,.9)}}
-   if(ig&&window.FX39?.ready('fogo')){const k=(clock-ig.t)/.5;FX39.draw('fogo',t.x,t.y-28,70+ig.n*14+k*40,{alpha:1-k})}
+   if(ig&&window.FX39?.ready('fogo')){const k=(clock-ig.t)/.5;FX39.draw('fogo',t.x,t.y-28,84+ig.n*16,{t:k})}
    else if(ig){const k=(clock-ig.t)/.5;ctx.globalCompositeOperation='lighter';ctx.globalAlpha=1-k;ctx.strokeStyle=ORANGE;ctx.lineWidth=3+ig.n;ctx.beginPath();ctx.ellipse(t.x,t.y,30+k*60,(30+k*60)*.45,0,0,Math.PI*2);ctx.stroke()}
    ctx.restore();
   }});

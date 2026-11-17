@@ -16,14 +16,21 @@ const SHEETS={icons:{im:rwImage(ROOT+'icons.webp?v=1'),cols:3,add:false},fx_a:{i
 const KEYS={katana:['icons',0],adagas:['icons',1],olho:['icons',2],anzol:['icons',3],gemaVerde:['icons',4],gemaOuro:['icons',5],presa:['icons',6],fratura:['icons',7],brasa:['icons',8],
  aura:['fx_a',0],explosaoOuro:['fx_a',1],anelOuro:['fx_a',2],fumaca:['fx_a',3],corte:['fx_a',4],fogo:['fx_a',5],impactoVioleta:['fx_a',6],explosaoRubra:['fx_a',7],runas:['fx_a',8],
  explosaoVerde:['fx_b',0],anelVerde:['fx_b',1],onda:['fx_b',2],respingo:['fx_b',3]};
+// Versões animadas (3×3 quadros, fundo preto) — assets/efeitos_v39/anim/<chave>.webp
+const ANIM_N={fogo:9,fumaca:9,aura:9,explosaoOuro:9,anelOuro:9,corte:9,impactoVioleta:9,explosaoRubra:7,runas:9,explosaoVerde:9,anelVerde:9,onda:9,respingo:9};
+const ANIM=Object.fromEntries(Object.keys(ANIM_N).map(k=>[k,rwImage(ROOT+'anim/'+k+'.webp?v=1')]));
+function animReady(key){const im=ANIM[key];return !!(im&&im.complete&&im.naturalWidth)}
 function ready(key){const k=KEYS[key];if(!k)return false;const s=SHEETS[k[0]];return !!(s.im.complete&&s.im.naturalWidth)}
 // draw(key, x, y, tamanho, {alpha, rot, flip, sy (achatamento vertical), gray})
 function draw(key,x,y,size,o={}){
- const k=KEYS[key];if(!k||!ready(key))return false;
- const s=SHEETS[k[0]],cell=s.im.naturalWidth/s.cols,i=k[1],sx=i%s.cols*cell,sy=Math.floor(i/s.cols)*cell;
+ const animated=(o.t!=null||o.loop)&&animReady(key);
+ const k=KEYS[key];if(!k||!(animated||ready(key)))return false;
+ let s=SHEETS[k[0]],cell=s.im.naturalWidth/s.cols,i=k[1],sx=i%s.cols*cell,sy=Math.floor(i/s.cols)*cell,src=s.im,add=s.add;
+ if(animated){const n=ANIM_N[key],f=o.loop?Math.floor(clock*12)%n:Math.min(n-1,Math.max(0,Math.floor(o.t*n)));src=ANIM[key];cell=src.naturalWidth/3;sx=f%3*cell;sy=Math.floor(f/3)*cell;add=true}
+ else if(o.t!=null)o={...o,alpha:(o.alpha??1)*(1-o.t)};
  ctx.save();ctx.translate(x,y);if(o.ground){ctx.scale(1,o.sy||.45);if(o.rot)ctx.rotate(o.rot)}else{if(o.rot)ctx.rotate(o.rot);ctx.scale(o.flip?-1:1,o.sy||1)}
- ctx.globalAlpha*=o.alpha??1;if(s.add)ctx.globalCompositeOperation='lighter';if(o.gray)ctx.filter='grayscale(1) brightness(.55)';
- ctx.imageSmoothingEnabled=true;ctx.drawImage(s.im,sx,sy,cell,cell,-size/2,-size/2,size,size);ctx.restore();return true;
+ ctx.globalAlpha*=o.alpha??1;if(add)ctx.globalCompositeOperation='lighter';if(o.gray)ctx.filter='grayscale(1) brightness(.55)';
+ ctx.imageSmoothingEnabled=true;ctx.drawImage(src,sx,sy,cell,cell,-size/2,-size/2,size,size);ctx.restore();return true;
 }
-window.FX39={draw,ready,KEYS};
+window.FX39={draw,ready,animReady,KEYS,ANIM_N};
 })();

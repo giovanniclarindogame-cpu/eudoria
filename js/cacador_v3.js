@@ -82,7 +82,7 @@ integratedDepth=function(){
   if(!hold&&!hk&&!firm)continue;
   list.push({kind:'v3-cacador',y:99989+a.y*.001,priority:9,paint(){
    ctx.save();
-   if(hold&&window.FX39?.ready('gemaVerde')){const lv=levelOf(q.age);for(let i=0;i<3;i++)FX39.draw(lv===3?'gemaOuro':'gemaVerde',a.x-17+i*17,a.y-86,17,{gray:i>=lv,alpha:i<lv?1:.75});if(lv===3)FX39.draw('anelOuro',a.x,a.y+8,70,{alpha:.5+.3*Math.sin(clock*20),ground:true,sy:.4})}
+   if(hold&&window.FX39?.ready('gemaVerde')){const lv=levelOf(q.age);for(let i=0;i<3;i++)FX39.draw(lv===3?'gemaOuro':'gemaVerde',a.x-17+i*17,a.y-86,17,{gray:i>=lv,alpha:i<lv?1:.75});if(lv===3)FX39.draw('anelOuro',a.x,a.y+8,74,{alpha:.8,ground:true,sy:.4,loop:true})}
    else if(hold){const lv=levelOf(q.age),part=Math.min(1,(q.age%LEVEL_T)/LEVEL_T);
     for(let i=0;i<3;i++){const x=a.x-14+i*14,y=a.y-84,lit=i<lv;
      ctx.globalAlpha=lit?1:.55;ctx.fillStyle=lit?(lv===3?GOLD:GREEN):'#15241c';ctx.strokeStyle='#06120c';ctx.lineWidth=1.5;
