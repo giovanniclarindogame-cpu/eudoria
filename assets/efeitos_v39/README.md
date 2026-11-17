@@ -17,3 +17,7 @@ Gerados com a IA de imagem do Canva e recortados/alinhados por script (fundo bra
 ## Fita de água do Corsário (ribbon.webp)
 
 Faixa horizontal de água gerada no Canva; as pontas foram emendadas por script (20% de sobreposição com transição) para repetir sem costura, e o fundo preto virou transparência pelo brilho. `corsair36Band()` em `js/corsair_v36.js` repete a textura ao longo do braço e a desliza para dar a sensação de água correndo; o punho da arte do Corsário continua na ponta, sem esticar.
+
+## Linhas que se repetem (linhaAgua, linhaPesca, rastroFogo)
+
+Faixas geradas no Canva e emendadas por script: `linhaAgua` e `linhaPesca` com transição nas pontas; `rastroFogo` cortado nas duas colunas mais parecidas (sem sobreposição). `FX39.line(chave, x1, y1, x2, y2, espessura, {scroll, phase, add, upright})` repete a textura ao longo de qualquer segmento. Usos: linha do Arpão Fisgado (`js/corsario_v3.js`), linha da Fisgada (`js/cacador_v3.js`, que primeiro estica até onde o rival estava) e rastro do Passo do Amanhecer (`js/solar_v3.js`, com a textura contínua entre os segmentos e as chamas sempre para cima).

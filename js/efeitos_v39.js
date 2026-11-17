@@ -32,5 +32,19 @@ function draw(key,x,y,size,o={}){
  ctx.globalAlpha*=o.alpha??1;if(add)ctx.globalCompositeOperation='lighter';if(o.gray)ctx.filter='grayscale(1) brightness(.55)';
  ctx.imageSmoothingEnabled=true;ctx.drawImage(src,sx,sy,cell,cell,-size/2,-size/2,size,size);ctx.restore();return true;
 }
-window.FX39={draw,ready,animReady,KEYS,ANIM_N};
+// Linhas com textura que se repete sem costura (gerada no Canva, pontas emendadas por script):
+// linhaAgua (Arpão Fisgado), linhaPesca (Fisgada do Caçador), rastroFogo (Passo do Amanhecer).
+const LINES={linhaAgua:rwImage(ROOT+'linhaAgua.webp?v=1'),linhaPesca:rwImage(ROOT+'linhaPesca.webp?v=1'),rastroFogo:rwImage(ROOT+'rastroFogo.webp?v=1')};
+function lineReady(key){const im=LINES[key];return !!(im&&im.complete&&im.naturalWidth)}
+// line(chave, x1, y1, x2, y2, espessura, {alpha, scroll (px/s), add, phase})
+function line(key,x1,y1,x2,y2,th,o={}){
+ if(!lineReady(key))return false;
+ const im=LINES[key],len=Math.hypot(x2-x1,y2-y1);if(len<1)return true;
+ const tw=th*im.naturalWidth/im.naturalHeight,off=((o.phase||0)+clock*(o.scroll||0))%tw;
+ const an=Math.atan2(y2-y1,x2-x1);ctx.save();ctx.translate(x1,y1);ctx.rotate(an);if(o.upright&&Math.cos(an)<0)ctx.scale(1,-1);ctx.globalAlpha*=o.alpha??1;if(o.add)ctx.globalCompositeOperation='lighter';
+ ctx.beginPath();ctx.rect(0,-th,len,th*2);ctx.clip();ctx.imageSmoothingEnabled=true;
+ for(let x=-((off%tw)+tw)%tw;x<len;x+=tw)ctx.drawImage(im,x,-th/2,tw,th);
+ ctx.restore();return true;
+}
+window.FX39={draw,ready,animReady,line,lineReady,KEYS,ANIM_N};
 })();

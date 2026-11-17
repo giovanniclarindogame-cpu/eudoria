@@ -116,10 +116,11 @@ integratedDepth=function(){
   list.push({kind:'v3-corsario',y:99987+a.y*.001,priority:9,paint(){
    ctx.save();
    if(ready){const t=a.v3reel.t,k=(a.v3reel.until-clock)/REEL_WIN;ctx.globalAlpha=.35+.5*k;ctx.strokeStyle=WATER;ctx.setLineDash([6,5]);ctx.lineWidth=2;
-    ctx.beginPath();ctx.moveTo(a.x,a.y-26);ctx.lineTo(t.x,t.y-26);ctx.stroke();ctx.setLineDash([]);
+    ctx.setLineDash([]);if(!window.FX39?.line('linhaAgua',a.x,a.y-26,t.x,t.y-26,12,{scroll:-60})){ctx.setLineDash([6,5]);ctx.beginPath();ctx.moveTo(a.x,a.y-26);ctx.lineTo(t.x,t.y-26);ctx.stroke();ctx.setLineDash([])}
     ctx.globalAlpha=.9;ctx.fillStyle=WATER;ctx.font='800 9px system-ui';ctx.textAlign='center';ctx.fillText('FISGOU! TOQUE DE NOVO',a.x,a.y-88)}
    if(rf&&window.FX39?.ready('respingo')){const k=(clock-rf.t)/.3;FX39.draw('respingo',rf.to.x,rf.to.y-24,80,{t:k})}
-   if(rf){const k=(clock-rf.t)/.3;ctx.globalAlpha=1-k;ctx.strokeStyle='#e8fbff';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(a.x,a.y-26);ctx.lineTo(rf.to.x,rf.to.y-26);ctx.stroke()}
+   if(rf&&window.FX39?.lineReady('linhaAgua')){const k=(clock-rf.t)/.3;FX39.line('linhaAgua',a.x,a.y-26,rf.to.x,rf.to.y-26,16,{alpha:1-k,scroll:500})}
+   else if(rf){const k=(clock-rf.t)/.3;ctx.globalAlpha=1-k;ctx.strokeStyle='#e8fbff';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(a.x,a.y-26);ctx.lineTo(rf.to.x,rf.to.y-26);ctx.stroke()}
    ctx.restore();
   }});
  }
