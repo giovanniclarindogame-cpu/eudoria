@@ -106,9 +106,9 @@ integratedDepth=function(){
    ctx.fillStyle=hot?(Math.sin(clock*18)>0?'#ff5a5a':'#ffb0a0'):good?'#5dff9a':'#9fd8b4';ctx.fillRect(x0,y0,w*v/100,4);
    if(st.arm>0&&window.FX39?.ready('fratura')){FX39.draw('fratura',a.x-9,y0-12,18);ctx.font='800 8px system-ui';ctx.textAlign='left';ctx.fillStyle='#ff8a7a';ctx.fillText(Math.ceil(st.arm)+'s',a.x+1,y0-8)}
    else if(st.arm>0){ctx.font='800 8px system-ui';ctx.textAlign='center';ctx.fillStyle='#ff8a7a';ctx.fillText('FRATURA '+Math.ceil(st.arm)+'s',a.x,y0-4)}
-   if(vf&&window.FX39?.ready('explosaoVerde')){const k=(clock-a.v3ventFx)/.4;FX39.draw('explosaoVerde',a.x,a.y-24,56+k*50,{alpha:1-k})}
+   if(vf&&window.FX39?.ready('explosaoVerde')){const k=(clock-a.v3ventFx)/.4;FX39.draw('explosaoVerde',a.x,a.y-24,96,{t:k})}
    else if(vf){const k=(clock-a.v3ventFx)/.4;ctx.globalAlpha=1-k;ctx.strokeStyle='#5dff9a';ctx.lineWidth=2;ctx.beginPath();ctx.arc(a.x,a.y-24,14+k*30,0,Math.PI*2);ctx.stroke()}
-   if(bf&&window.FX39?.ready('anelVerde')){const k=(clock-bf.t)/.35;FX39.draw('anelVerde',bf.x,bf.y,40+k*70,{alpha:1-k,ground:true,sy:.5})}
+   if(bf&&window.FX39?.ready('anelVerde')){const k=(clock-bf.t)/.35;FX39.draw('anelVerde',bf.x,bf.y,100,{t:k,ground:true,sy:.5})}
    else if(bf){const k=(clock-bf.t)/.35;ctx.globalCompositeOperation='lighter';ctx.globalAlpha=1-k;ctx.strokeStyle='#5dff9a';ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(bf.x,bf.y,10+k*36,(10+k*36)*.5,0,0,Math.PI*2);ctx.stroke()}
    ctx.restore();
   }});

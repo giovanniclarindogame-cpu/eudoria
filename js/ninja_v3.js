@@ -99,7 +99,7 @@ integratedDepth=function(){
    if(rd){const k=(a.v3readUntil-clock)/READ_WIN;ctx.globalAlpha=.85;ctx.strokeStyle=MIST;ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(a.x,a.y-22,36,40,0,0,Math.PI*2*k);ctx.stroke()}
    if(bk&&window.FX39?.ready('adagas')){FX39.draw('adagas',a.x,a.y-92,30,{alpha:.65+.35*Math.sin(clock*14)})}
    else if(bk){ctx.globalAlpha=.6+.4*Math.sin(clock*14);ctx.fillStyle=MIST;ctx.font='800 9px system-ui';ctx.textAlign='center';ctx.fillText('PELAS COSTAS',a.x,a.y-86)}
-   if(fx&&window.FX39?.ready('fumaca')){const k=(clock-fx.t)/.5;FX39.draw('fumaca',fx.x,fx.y-20,60+k*50,{alpha:(1-k)*.7})}
+   if(fx&&window.FX39?.ready('fumaca')){const k=(clock-fx.t)/.5;FX39.draw('fumaca',fx.x,fx.y-20,78,{t:k,alpha:.4})}
    else if(fx){const k=(clock-fx.t)/.5;ctx.globalCompositeOperation='lighter';ctx.globalAlpha=1-k;ctx.strokeStyle=MIST;ctx.lineWidth=3;ctx.beginPath();ctx.arc(fx.x,fx.y-20,14+k*36,0,Math.PI*2);ctx.stroke()}
    ctx.restore();
   }});

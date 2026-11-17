@@ -100,10 +100,10 @@ integratedDepth=function(){
     ctx.save();ctx.globalAlpha=.35*pul;ctx.strokeStyle=RED;ctx.lineWidth=2;ctx.translate(a.x,a.y+11);ctx.scale(1,.4);ctx.beginPath();ctx.arc(0,0,27,0,Math.PI*2);ctx.stroke();ctx.restore();
    }
    ctx.restore();ctx.save();
-   if(df&&window.FX39?.ready('corte')){const k=(clock-df.t)/.35;FX39.draw('corte',df.x+Math.cos(df.an)*44,df.y-22+Math.sin(df.an)*26,120+k*20,{rot:df.an,alpha:1-k})}
+   if(df&&window.FX39?.ready('corte')){const k=(clock-df.t)/.35;FX39.draw('corte',df.x+Math.cos(df.an)*44,df.y-22+Math.sin(df.an)*26,130,{rot:df.an,t:k})}
    else if(df){const k=(clock-df.t)/.35;ctx.globalCompositeOperation='lighter';ctx.globalAlpha=1-k;ctx.strokeStyle='#ffe3e6';ctx.lineWidth=4*(1-k)+1;ctx.shadowColor=RED;ctx.shadowBlur=14;
     ctx.beginPath();ctx.arc(df.x,df.y-20,70+k*20,df.an-1.1,df.an+1.1);ctx.stroke()}
-   if(pf&&window.FX39?.ready('fumaca')){const k=(clock-pf.t)/.45;FX39.draw('fumaca',pf.x,pf.y-22,56+k*40,{alpha:(1-k)*.55})}
+   if(pf&&window.FX39?.ready('fumaca')){const k=(clock-pf.t)/.45;FX39.draw('fumaca',pf.x,pf.y-22,70,{t:k,alpha:.4})}
    else if(pf){const k=(clock-pf.t)/.45;ctx.globalAlpha=(1-k)*.8;ctx.strokeStyle='#ffb3bb';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(pf.x,pf.y-20,20+k*40,30+k*30,0,0,Math.PI*2);ctx.stroke()}
    ctx.restore();
   }});
