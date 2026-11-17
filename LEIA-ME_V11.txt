@@ -362,3 +362,11 @@ INÍCIO v41 — CENÁRIO EM CAMADAS ANIMADO + MELHORIAS (js/cena_v41.js, assets/
 - Teste: tests/inicio-v40.cjs (29 verificações, celular e PC).
 - v41.1: sem a etiqueta nome/trocar (trocar pelo botão Campeões); emblema e campeão um pouco mais acima (floorSquash .34) para os pés não ficarem atrás do cartão do modo; Caçada do dia sem "grátis na semana"; botões Campeões/Missões/Loja/Dojo com ícones ilustrados gerados no Canva (assets/inicio_v41/icones.webp).
 - v41.2: atalhos com símbolos simples do Canva (assets/inicio_v41/simbolos.webp: elmo, pergaminho, baú, espadas) dentro de moldura azul com borda dourada desenhada por CSS; perfil azul, liga roxa e Caçada vermelha, com borda dourada.
+
+PERFIL v42 (js/perfil_v42.js, css/perfil_v42.css, tests/perfil-v42.cjs)
+- Nível da conta (account.conta = {lv, xp, total}, máx. 100): vitória +50, derrota +20, empate +30 (qualquer modo, lido na tela de resultado),
+  treino no Dojo +10 (com 100+ de dano), presente diário +25, missões da jornada +40. Nível N pede 80 + 20×N de XP; subir dá 50 + 10×N moedas.
+- Balão do nome: foto com moldura + número do nível. Balão da liga com a cor do rank (bronze, prata, ouro, platina, diamante, mestre).
+- Tela de perfil nova (abre ao tocar no nome): editar nome, nível/XP, liga, partidas/vitórias/campeões, abas Fotos (campeão atual,
+  rosto de cada campeão liberado, 6 símbolos) e Molduras (Guardião 1, Bronze 2, Prata 4, Ouro Real 6, Jade 8, Sakura 10, Rubi 13,
+  Dragão 16, Celestial 20 — liberadas pelo nível da conta). A criação do primeiro perfil continua na tela antiga.
