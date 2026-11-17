@@ -36,3 +36,7 @@ Validação com servidor HTTP na porta 8000, abrindo `index.html?allheroes=1`:
 O novo teste aceita `--assets-only` e `--game-only`, usando `/usr/bin/chromium` ou `CHROMIUM_PATH`. Os testes existentes usam o navegador configurado no Playwright. Os arquivos de jogabilidade foram preservados; seus hashes de base constam no manifesto.
 
 `scripts/pack-alquimista-v38.cjs` faz apenas preparação técnica: separação das células, recorte, escala proporcional, alinhamento e exportação. Uso: `node scripts/pack-alquimista-v38.cjs nome origem.png [linhasDaOrigem]`. Fontes com quadros extras podem ser amostradas na ordem temporal para entregar exatamente 24 células.
+
+## Golem em 4 ângulos (golem4.webp)
+
+`golem4.webp` (1024 × 768, WebP sem perdas, 12 células de 256 × 256, pés na linha 240) foi gerado no Canva a partir do Golem anterior e recortado/alinhado por script. Colunas: frente, 3/4, perfil (virado para a direita; o jogo espelha para a esquerda) e costas. Linhas: parado, andando e atacando. `js/alquimista_arte_v38.js` (`alc38Golem4`) escolhe o ângulo pela direção do Golem (`o.angle`), alterna parado/andando ao se mover e usa a pose de soco quando ele ataca. A formação e o desmoronamento continuam usando `colossus.webp`.

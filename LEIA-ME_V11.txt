@@ -338,3 +338,8 @@ CAÇADOR, HERDEIRO, CORSÁRIO E ALQUIMISTA · PACOTE DE JOGABILIDADE (?cacador=0
   · Lança dos Blocos: a Lâmina de Pedra puxa uma lança de cada bloco perto do alvo (até 4).
   · Máximo de 6 construções que duram 12 s. Marca nova: Essência da Forja (blocos usados carregam a ultimate); o Colosso exige Essência cheia e usa só os blocos dele. Dano 1,0× → 1,35×.
 - Teste: tests/herois2-v3.cjs (21 verificações).
+
+GOLEM DE PEDRA EM 4 ÂNGULOS + CORREÇÃO DO CORSÁRIO
+- assets/alquimista_v38/golem4.webp (gerado no Canva): frente, 3/4, perfil e costas × parado, andando e atacando; o jogo escolhe pela direção (js/alquimista_arte_v38.js).
+- Golem com sombra no chão e clarão do soco do lado do alvo (js/combate_identidades.js).
+- Corsário: os quadros de ataque não são mais esticados; fita de água desenhada até o punho (js/corsair_v36.js, corsair36Band).

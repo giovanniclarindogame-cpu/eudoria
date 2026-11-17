@@ -53,11 +53,27 @@ function alc38Registration(im){
  }
  const ref={frames,width:Math.max(...frames.slice(8,16).map(f=>f.width)),height:Math.max(...frames.slice(8,16).map(f=>f.height))};alc38Bounds.set(im,ref);return ref;
 }
+// Golem em 4 ângulos (frente, 3/4, perfil, costas) × parado/andando/atacando — assets/alquimista_v38/golem4.webp (gerado no Canva).
+const ALC38_GOLEM4=rwImage(ALQUIMISTA38_ROOT+'golem4.webp?v=40');
+function alc38Golem4(g,o,attack){
+ const im=ALC38_GOLEM4;if(!im.complete||!im.naturalWidth)return false;
+ const an=o.angle||0,c=Math.cos(an),sn=Math.sin(an);
+ const col=sn>.75?0:sn>.35?1:sn<-.75?3:2,flip=(col===1||col===2)&&c<0;
+ const moved=o.v3lx!=null&&Math.hypot(o.x-o.v3lx,o.y-o.v3ly)>.05;o.v3lx=o.x;o.v3ly=o.y;
+ if(moved)o.v3walkT=vfxTime;const walking=vfxTime-(o.v3walkT??-9)<.15;
+ const row=attack?2:walking?(Math.floor(vfxTime*5)%2):0,k=o.size/212,bob=walking?Math.abs(Math.sin(vfxTime*Math.PI*5))*2:0;
+ const c2=row===0&&col===2?1:col;   // parado de lado: a pose de 3/4 lê melhor que o perfil fino
+ g.save();g.translate(o.x,o.y);g.imageSmoothingEnabled=false;
+ if(typeof g.beginPath==='function'){g.save();g.globalAlpha=.32;g.fillStyle='#06100c';g.beginPath();g.ellipse(0,6,o.size*.34,o.size*.11,0,0,Math.PI*2);g.fill();g.restore()}
+ if(flip)g.scale(-1,1);
+ g.drawImage(im,c2*256,row*256,256,256,-128*k,9-240*k-bob,256*k,256*k);g.restore();return true;
+}
 function alc38Construct(g,o,forcedFrame=null){
  const key=o.colossus?'colossus':o.wall?'wall':'block',im=ALQUIMISTA38_FX[key],reg=alc38Registration(im);if(!reg)return false;
  const age=o.age??clock-o.created,birth=o.colossus ? .8 : .7;
  const attack=o.colossus&&Reforged.effects.find(e=>e.kind==='golem-hit'&&e.owner===o.owner&&e.age<.4&&Math.hypot(e.x-o.x,e.y-o.y)<o.size);
  const activeFrame=o.colossus?(attack?12+Math.min(3,Math.floor(attack.age/.4*4)):8+Math.floor(o.age*8)%4):8+Math.floor(vfxTime*4)%8;
+ if(o.colossus&&forcedFrame==null&&age>=birth&&o.hp>0&&o.life>0&&alc38Golem4(g,o,!!attack))return true;
  const frame=forcedFrame??(age<birth?Math.min(7,Math.floor(age/birth*8)):activeFrame),f=clamp(frame,0,23),box=reg.frames[f];
  const vertical=o.wall&&o.h>o.w,extent=o.colossus?o.size:o.wall?Math.max(o.w,o.h):o.w,k=extent/(o.colossus?reg.height:reg.width);
  // Real collider width determines the visible construction width. Keep its base
@@ -120,6 +136,6 @@ CHAMPION_HEROES.steel=ALQUIMISTA38_ROOT+'portrait.webp?v=38';
 const alc38OldDetail=openChampionDetails;
 openChampionDetails=function(id){alc38OldDetail(id);$('#heroDetail')?.classList.toggle('alquimista-detail',Number(id)===9)};
 const alc38OldPreload=reworkPreload;
-reworkPreload=function(skin){if(skin!==9)return alc38OldPreload(skin);for(const key of ['body','skills','portrait',...ALQUIMISTA38_ACTIVE,...Array.from({length:5},(_,i)=>'icon-'+i)])rwImage(ALQUIMISTA38_ROOT+key+'.webp?v=38')};
+reworkPreload=function(skin){if(skin!==9)return alc38OldPreload(skin);for(const key of ['body','skills','portrait','golem4',...ALQUIMISTA38_ACTIVE,...Array.from({length:5},(_,i)=>'icon-'+i)])rwImage(ALQUIMISTA38_ROOT+key+'.webp?v=38')};
 function alc38FaceCrop(im){const c=document.createElement('canvas');c.width=c.height=96;const g=c.getContext('2d'),k=im.naturalWidth/760;g.imageSmoothingQuality='high';g.drawImage(im,210*k,50*k,380*k,380*k,0,0,96,96);return c.toDataURL('image/webp',.95)}
 if(window.v3FaceSrc){const old=window.v3FaceSrc,im=rwImage(ALQUIMISTA38_ROOT+'portrait.webp?v=38');let face=null;window.v3FaceSrc=function(a){if(!alc38Hero(a)||!Array.isArray(a.kit)||a.kit.length!==6)return old(a);if(!face&&im.complete&&im.naturalWidth)face=alc38FaceCrop(im);return face};const crop=window.v3FaceCrop;window.v3FaceCrop=im=>im.src.includes('/alquimista_v38/')?alc38FaceCrop(im):crop(im)}
