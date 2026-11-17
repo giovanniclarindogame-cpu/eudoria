@@ -63,6 +63,7 @@ function alc38Construct(g,o,forcedFrame=null){
  // Real collider width determines the visible construction width. Keep its base
  // at the collider's front edge; rotate the horizontal wall for the vertical one.
  g.save();g.translate(o.x,o.y);if(vertical)g.rotate(Math.PI/2);g.imageSmoothingEnabled=false;
+ if(o.colossus&&typeof g.beginPath==='function'){g.save();g.globalAlpha=.32;g.fillStyle='#06100c';g.beginPath();g.ellipse(0,6,o.size*.34,o.size*.11,0,0,Math.PI*2);g.fill();g.restore()}if(o.colossus&&Math.cos(o.angle||0)<-.15)g.scale(-1,1);
  const base=o.colossus?9:o.wall?Math.min(o.w,o.h)/2:o.h/2;
  g.drawImage(im,f%6*256,Math.floor(f/6)*256,256,256,-(box.left+box.right)/2*k,base-box.bottom*k,256*k,256*k);g.restore();
  return true;

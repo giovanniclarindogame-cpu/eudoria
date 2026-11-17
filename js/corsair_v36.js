@@ -51,6 +51,15 @@ rwSprite=function(g,skin,slot,x,y,size,phase,angle=0,directional=false,alpha=1,s
  if(skin!==7)return corsair36OldSprite(g,skin,slot,x,y,size,phase,angle,directional,alpha,stage);
  return corsair36Effect(g,['punch','barrage','burst','launch','aura','giant'][slot],phase*24,x,y,size,angle,directional,alpha);
 };
+function corsair36Band(len,w,u){
+ const t=vfxTime*18,n=Math.max(2,Math.ceil(len/6)),top=[],bot=[];
+ for(let i=0;i<=n;i++){const x=len*i/n,taper=Math.min(1,.55+x/len*.6),wob=Math.sin(x*.09-t)*w*.18;top.push([x,-w/2*taper+wob]);bot.push([x,w/2*taper+wob])}
+ const g=ctx.createLinearGradient(0,-w/2,0,w/2);g.addColorStop(0,'#7fe9ea');g.addColorStop(.5,'#1fa7a8');g.addColorStop(1,'#0d6f7a');
+ ctx.beginPath();top.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));for(let i=bot.length-1;i>=0;i--)ctx.lineTo(bot[i][0],bot[i][1]);ctx.closePath();
+ ctx.fillStyle=g;ctx.fill();ctx.lineWidth=1.5;ctx.strokeStyle='#0b3d4a';ctx.stroke();
+ ctx.beginPath();for(let i=0;i<=n;i++){const x=len*i/n,y=Math.sin(x*.12-t*1.3)*w*.16;i?ctx.lineTo(x,y):ctx.moveTo(x,y)}ctx.strokeStyle='#effcff';ctx.lineWidth=Math.max(1,w*.16);ctx.stroke();
+ ctx.fillStyle='#bff6f7';for(let x=8;x<len;x+=22){const y=Math.sin(x*.3+t)*w*.6;ctx.fillRect(x,y,2,2)}
+}
 function corsair36Ribbon(e,u){
  let recovery=.3;
  if(e.kind==='tether'){
@@ -65,7 +74,10 @@ function corsair36Ribbon(e,u){
  if(!im.complete||!im.naturalWidth||length<1)return;
  const f=Math.min(23,Math.floor(u*24)),thickness=e.slot===2?70:e.slot===1?35:44;
  ctx.save();ctx.translate(from.x,from.y-27);ctx.rotate(angle);ctx.imageSmoothingEnabled=false;
- ctx.drawImage(im,f%6*256+16,Math.floor(f/6)*256+16,224,224,0,-thickness/2,length,thickness);ctx.restore();
+ // A arte nunca é esticada: o quadro vai na ponta em escala uniforme e a fita de água preenche o caminho até a mão.
+ const S=thickness*2.4,dx=length-S*.9,bandEnd=dx+S*.22;
+ if(bandEnd>3)corsair36Band(bandEnd,thickness*.34,u);
+ ctx.drawImage(im,f%6*256+16,Math.floor(f/6)*256+16,224,224,dx,-S/2,S,S);ctx.restore();
 }
 const corsair36OldPaint=rwPaintFX;
 rwPaintFX=function(e){
