@@ -153,3 +153,12 @@ body.v40-on #lobbyNav,body.v40-on #backHome,body.v40-modes-open #lobbyNav,body.v
  .v41-event{top:62px;padding:6px 10px;min-width:130px}.v41-event>b{font-size:14px}
  .v41-emblem{width:28px;height:32px}
 }
+/* botões de atalho com ícones ilustrados (Canva) */
+.v41-side{gap:10px}
+.v41-side button{width:76px!important;height:auto!important;padding:0!important;background:none!important;box-shadow:none!important;display:flex!important;flex-direction:column;align-items:center;gap:0!important;overflow:visible}
+.v41-ico{display:block;width:72px;height:72px;border-radius:16px;background:url('../assets/inicio_v41/icones.webp?v=1') no-repeat;background-size:200% 200%;background-position:calc(var(--i) % 2 * 100%) calc(var(--i) / 2 * 100%);filter:drop-shadow(0 4px 0 rgba(10,12,30,.45)) drop-shadow(0 6px 10px rgba(0,0,0,.35))}
+.v41-side button:nth-child(1) .v41-ico{background-position:0 0}.v41-side button:nth-child(2) .v41-ico{background-position:100% 0}
+.v41-side button:nth-child(3) .v41-ico{background-position:0 100%}.v41-side button:nth-child(4) .v41-ico{background-position:100% 100%}
+.v41-lbl{margin-top:-10px;position:relative;background:linear-gradient(180deg,#ffe9a6,#ffc94a);color:#3b2100;font-weight:900;font-size:12px;padding:2px 9px;border-radius:9px;border:2px solid #7a4a00;box-shadow:0 2px 0 rgba(0,0,0,.35);white-space:nowrap}
+.v41-side button:hover .v41-ico{transform:translateY(-2px)}
+@media (max-height:430px){.v41-side button{width:64px!important}.v41-ico{width:60px;height:60px;border-radius:13px}.v41-lbl{font-size:11px;padding:1px 7px}}

@@ -20,7 +20,7 @@ let S=null;
 
 // medidas das camadas (px da imagem original) e frações da altura da tela
 const IMG={muro:[1920,531],distante:[1920,526],chao:[1920,1080],frente:[1920,1080]};
-const LAYOUT={wallBottom:.6,wallH:.27,farBottom:.585,farH:.46,floorTop:.585,frontH:.86,frontCut:.2,floorSquash:.42,floorCut:.18};
+const LAYOUT={wallBottom:.6,wallH:.27,farBottom:.585,farH:.46,floorTop:.585,frontH:.86,frontCut:.2,floorSquash:.34,floorCut:.18};
 const lamp=(x,y,cls='')=>`<i class="v41-lamp ${cls}" style="left:${x*100}%;top:${y*100}%;--d:${(Math.random()*2).toFixed(2)}s"></i>`;
 function mount(ui){
  const sc=ui.querySelector('.v41-scene');if(!sc)return;
