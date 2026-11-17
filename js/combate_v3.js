@@ -112,9 +112,9 @@ function blinkDash(a,angle){
  if(a.hp<=0||state!=='fight'||a.cast>0||a.root>0||(a.v3dashCD||0)>0)return false;
  if(!originalBlink(a,angle,220))return false;
  a.v3dashCD=DASH_CD;a.inv=Math.max(a.inv,DASH_INV);
- if(a===p){   // o teleporte levanta a Barreira Cósmica por 1,6 s (precisa de 50 de energia e barreira inteira)
+ {   // o teleporte levanta a Barreira Cósmica por 1,6 s (precisa de 50 de energia e barreira inteira) — mesma regra para jogador e computador
   const st=reworkState(a);
-  if(st.barrierBroken<=0&&st.barrierEnergy>=50){st.barrier=true;st.v3BarrierT=1.6;st.barrierHit=clock;rwFx(a,4,a.x,a.y,'cast',.4,{follow:true});if(!window.__barTip){window.__barTip=true;toast('O teleporte levanta a Barreira Cósmica por 1,6 s')}}
+  if(st.barrierBroken<=0&&st.barrierEnergy>=50){st.barrier=true;st.v3BarrierT=1.6;st.barrierHit=clock;rwFx(a,4,a.x,a.y,'cast',.4,{follow:true});if(a===p&&!window.__barTip){window.__barTip=true;toast('O teleporte levanta a Barreira Cósmica por 1,6 s')}}
  }
  return true;
 }
@@ -206,9 +206,7 @@ step=function(dt){
   }
   if(a.skin===4){
    const s=reworkState(a);
-   if(a!==p){   // rivais controlados pelo computador mantêm a barreira passiva (equilíbrio da simulação)
-    if(!s.barrier&&(s.barrierBroken||0)<=0&&(s.barrierEnergy||0)>=50){s.barrier=true;rwFx(a,4,a.x,a.y,'cast',.4,{follow:true})}
-   }else if(s.v3BarrierT>0){   // jogador: a Barreira Cósmica dura pouco e é levantada pelo dash
+   if(s.v3BarrierT>0){   // a Barreira Cósmica dura pouco e é levantada pelo dash (jogador e computador: mesma regra)
     s.v3BarrierT-=dt;
     if(s.v3BarrierT<=0){s.v3BarrierT=0;if(s.barrier){s.barrier=false;rwFx(a,4,a.x,a.y,'cast',.3,{follow:true})}}
    }else if(s.barrier)s.barrier=false;

@@ -286,3 +286,28 @@ CAVALEIRO DO FIRMAMENTO · PACOTE DE JOGABILIDADE (js/cavaleiro_v3.js)
 - Visual: constelação no chão, 3 estrelas de estágio sobre o herói, contador de combo e marca de Exposto no rival.
 - Multiplicador de dano do herói recalibrado para 0,55 (medido em simulação bot contra bot: cerca de metade de vitórias no conjunto; perde para o Lutador do Eclipse).
 - Desligar para comparar: index.html?cav=0. Teste: tests/cavaleiro-v3.cjs.
+
+OS 5 PRIMEIROS HERÓIS · PACOTE DE JOGABILIDADE (um arquivo por herói, carregados depois de js/cavaleiro_v3.js)
+Cada herói ganhou uma decisão própria durante a luta. Para comparar com a versão anterior: index.html?guerreiro=0, ?ninja=0, ?ronin=0, ?solar=0, ?eclipse=0.
+- Guerreiro Astral (js/guerreiro_v3.js) — "paro para carregar ou continuo batendo?"
+  · Segurar o dash (ou Espaço) faz o Salto Estelar e, continuando a segurar, ele para e concentra Ki (≈25/s), recebendo +20% de dano.
+  · Entrar no Modo Poder solta uma explosão que empurra quem está perto.
+  · No Modo Poder: Rajada com metade da recarga; Combo Relâmpago começa com teleporte para as costas do alvo; Onda Concentrada sai com carga máxima.
+  · Soltura perfeita: soltar a Onda quando o anel fica dourado (fim da carga) dá +25%.
+- Ninja das Brumas (js/ninja_v3.js + js/clone_v3.js) — "o rival está batendo em mim ou no clone?"
+  · Leitura: o Olho Copiador ativado logo antes de um golpe (janela de 0,45 s) esquiva em fumaça, reaparece atrás do atacante e copia o golpe.
+  · Pelas costas: depois de trocar com o clone ou de uma Leitura, o próximo golpe em 1,2 s causa +25% e atordoa 0,35 s.
+  · Clone em sincronia: o clone só ataca até 1,2 s depois de o Ninja usar uma habilidade.
+- Ronin Carmesim (js/ronin_v3.js) — "espero o momento ou ataco?"
+  · Saque: 0,8 s sem atacar e sem levar golpe guarda a espada; o próximo Corte Rápido sai quase instantâneo, avança mais e causa +40%.
+  · Esquiva perfeita: um golpe que ia acertar no início do Passo Carmesim zera a recarga do Corte, dá 20 de Pressão e prepara o Saque.
+  · Ritmo da Lâmina: levar dano tira 2 marcas, não todas.
+- Guardião Solar (js/solar_v3.js) — "acumulo o fogo ou detono agora?"
+  · Brasas: até 4 por rival, visíveis sobre a cabeça.
+  · Ignição: a Coluna Solar consome as brasas (+26 de dano por brasa).
+  · Rastro do amanhecer: o Passo do Amanhecer deixa fogo no chão por 3 s; quem pisa leva dano e ganha brasa.
+- Lutador do Eclipse (js/eclipse_v3.js + js/combate_v3.js) — "para onde empurro o rival?"
+  · Choque na parede: Repulsão que joga o rival contra obstáculo ou borda causa +30 de dano e atordoa 0,5 s.
+  · Esfera controlada: tocar de novo na Esfera Rubra detona no ar.
+  · A Barreira do computador agora segue a regra do jogador (só sobe com o teleporte, por 1,6 s).
+- Teste: tests/herois-v3.cjs (19 verificações).

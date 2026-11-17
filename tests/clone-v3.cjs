@@ -12,10 +12,13 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  const c2=await p.evaluate(()=>{for(let i=0;i<60*14;i++){step(1/60);b.root=9999;b.x=700;b.y=H/2}return{alive:!!originalClone(p)}});
  ok(c2.alive,'clone continua vivo depois de 14 s sem receber golpe');
  // ataca em brecha
- const c3=await p.evaluate(()=>{const cl=originalClone(p);cl.x=b.x-70;cl.y=b.y;cl.cdB=0;b.actionRecovery=2;b.root=9999;const hp0=b.hp;for(let i=0;i<40;i++){step(1/60);b.actionRecovery=2;b.x=700;b.y=H/2}return{dmg:hp0-b.hp,alive:!!originalClone(p)}});
- ok(c3.dmg>0&&c3.alive,`clone ataca quando o rival está em brecha (dano ${c3.dmg.toFixed(0)}) e não some ao atacar`);
+ // sincronia: sem o Ninja atacar, o clone não golpeia
+ const c3a=await p.evaluate(()=>{const cl=originalClone(p);cl.x=b.x-70;cl.y=b.y;cl.cdB=0;p.v3atkAt=-9;b.actionRecovery=2;b.root=9999;const hp0=b.hp;for(let i=0;i<40;i++){step(1/60);b.actionRecovery=2;b.x=700;b.y=H/2;p.v3atkAt=-9}return{dmg:hp0-b.hp}});
+ ok(c3a.dmg===0,'clone em sincronia: não ataca sozinho se o Ninja não usou habilidade');
+ const c3=await p.evaluate(()=>{const cl=originalClone(p);cl.x=b.x-70;cl.y=b.y;cl.cdB=0;b.actionRecovery=2;b.root=9999;const hp0=b.hp;for(let i=0;i<40;i++){p.v3atkAt=clock;step(1/60);b.actionRecovery=2;b.x=700;b.y=H/2}return{dmg:hp0-b.hp,alive:!!originalClone(p)}});
+ ok(c3.dmg>0&&c3.alive,`clone ataca junto com o Ninja quando o rival está em brecha (dano ${c3.dmg.toFixed(0)}) e não some ao atacar`);
  // dano reduzido: comparar com o golpe do próprio Ninja
- const c4=await p.evaluate(()=>{const cl=originalClone(p);cl.x=b.x-70;cl.y=b.y;cl.cdB=0;b.actionRecovery=2;b.hp=b.max;const hp0=b.hp;for(let i=0;i<30;i++){step(1/60);b.actionRecovery=2;b.x=700;b.y=H/2;if(b.hp<hp0)break}const cd=hp0-b.hp;
+ const c4=await p.evaluate(()=>{const cl=originalClone(p);cl.x=b.x-70;cl.y=b.y;cl.cdB=0;b.actionRecovery=2;b.hp=b.max;const hp0=b.hp;for(let i=0;i<30;i++){p.v3atkAt=clock;step(1/60);b.actionRecovery=2;b.x=700;b.y=H/2;if(b.hp<hp0)break}const cd=hp0-b.hp;
   p.x=b.x-70;p.y=b.y;b.hp=b.max;const h1=b.hp;rwRelease(p,{id:p.kit[0],slot:0,age:0,charge:.7,snapshot:100,stage:2,health:p.hp,angle:0,duration:.5,release:.2,target:{x:b.x,y:b.y}});return{clone:cd,own:h1-b.hp}});
  ok(c4.clone>0&&c4.clone<c4.own*.8,`dano do clone é reduzido (${c4.clone.toFixed(0)} contra ${c4.own.toFixed(0)} do Ninja)`);
  // esquiva
