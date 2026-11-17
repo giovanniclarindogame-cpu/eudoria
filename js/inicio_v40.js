@@ -49,7 +49,7 @@ const I={
  shop:'<path d="M6 11h20l-2 15H8z"/><path d="M11 11V8a5 5 0 0 1 10 0v3"/>',dojo:'<path d="M7 25 25 7M7 7l18 18M5 22l5 5M22 5l5 5"/>',back:'<path d="M19 6l-10 10 10 10"/>',home:'<path d="M5 15 16 6l11 9M8 13v13h16V13"/>',
  swap:'<path d="M8 11h16l-4-4M24 21H8l4 4"/>',close:'<path d="M8 8l16 16M24 8 8 24"/>',chev:'<path d="M12 7l9 9-9 9"/>',lock:'<rect x="8" y="14" width="16" height="13" rx="2"/><path d="M11 14V10a5 5 0 0 1 10 0v4"/>',
  crown:'<path d="M5 24h22l2-14-7 5-6-9-6 9-7-5z"/>',gear:'<circle cx="16" cy="16" r="4"/><path d="M16 4v4M16 24v4M4 16h4M24 16h4M7.5 7.5l2.8 2.8M21.7 21.7l2.8 2.8M7.5 24.5l2.8-2.8M21.7 10.3l2.8-2.8"/>',full:'<path d="M5 12V5h7M20 5h7v7M27 20v7h-7M12 27H5v-7"/>',
- play:'<path d="M10 6l16 10-16 10z"/>',gift:'<rect x="5" y="12" width="22" height="15" rx="2"/><path d="M3 8h26v4H3zM16 8v19M16 8c-3-5-9-5-8-1s8 1 8 1c0 0 7 3 8-1s-5-4-8 1"/>'
+ play:'<path d="M10 6l16 10-16 10z"/>',trophy:'<path d="M10 5h12v7a6 6 0 0 1-12 0z"/><path d="M10 8H5c0 4 2 6 5 6M22 8h5c0 4-2 6-5 6M16 18v5M11 27h10M13 23h6"/>',skull:'<path d="M16 4C9 4 5 9 5 14c0 4 2 6 4 7v5h14v-5c2-1 4-3 4-7 0-5-4-10-11-10z"/><circle cx="11.5" cy="15" r="2.5"/><circle cx="20.5" cy="15" r="2.5"/><path d="M13 26v-3M16 26v-3M19 26v-3"/>',target:'<circle cx="16" cy="16" r="11"/><circle cx="16" cy="16" r="6"/><circle cx="16" cy="16" r="1.5"/>',gift:'<rect x="5" y="12" width="22" height="15" rx="2"/><path d="M3 8h26v4H3zM16 8v19M16 8c-3-5-9-5-8-1s8 1 8 1c0 0 7 3 8-1s-5-4-8 1"/>'
 };
 const svg=(n,c='')=>`<svg class="v40i ${c}" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[n]||''}</svg>`;
 const n=v=>{try{return lobbyWalletNumber(v)}catch{return String(v||0)}};
@@ -63,7 +63,7 @@ function leagueInfo(){
 function heroLevel(){try{return window.V3Levels?.rec(currentChampion().id).lv||1}catch{return 1}}
 
 /* ---------- recompensas e eventos ---------- */
-const REWARD={liga1:'+100 moedas · +25 pts',liga2:'+200 moedas · +20 pts',ligaTrio:'+250 moedas · +30 pts',ligaCoroa:'1º lugar: +30 pts',duelo:'+100 moedas',equipes:'+200 moedas',trio:'+250 moedas',coroa:'+150 moedas',cacada:'Recompensa do chefe do dia',guardiao:'+200 moedas',cruzada:'Fase completa: +150 moedas',torneio:'Campeão: +250 moedas',dojo:'Treino livre, sem custo'};
+const REWARD={liga1:'+100 moedas · +25 pts',liga2:'+200 moedas · +20 pts',ligaTrio:'+250 moedas · +30 pts',ligaCoroa:'1º lugar: +30 pts',duelo:'+100 moedas',equipes:'+200 moedas',trio:'+250 moedas',coroa:'+150 moedas',cacada:'Recompensa do chefe do dia',guardiao:'+200 moedas',cruzada:'Fase completa: +150 moedas',torneio:'Campeão: +250 moedas',dojo:'Sem custo'};
 function leagueNext(){
  try{const L=window.V3Liga,pts=L?L.rec('1v1').points||0:account.league?.points||0;const name=L?L.rankName(pts):LEAGUE_DIVISIONS[leagueIndex()];
   const max=75*5;if(pts>=max)return{name,pts,txt:'Divisão máxima',k:1,div:5};
@@ -171,16 +171,39 @@ function syncNav(){const on=appScreen==='home'&&!!account.profile;document.body.
 function closeAll(){for(const id of ['v40Menu','v40Missions','v40Modes'])$q('#'+id)?.setAttribute('hidden','');document.body.classList.remove('v40-modes-open');try{syncNav()}catch{}}
 
 /* ---------- tela de modos ---------- */
-function modesMarkup(){
- const cur=current().id;
- return `<div class="v40-modes-top"><button class="v40-round" data-v40-close aria-label="Voltar">${svg('back')}</button><b>MODOS DE JOGO</b><button class="v40-round" data-v40-close aria-label="Início">${svg('home')}</button></div>
- <div class="v40-strip" tabindex="0" aria-label="Modos de jogo, arraste para o lado">${CATS.map(([cat,label,col])=>`<section class="v40-group" data-cat="${cat}" style="--cat:${col}" aria-label="${label}"><h3>${label}</h3><div class="v40-cards">${MODES.filter(m=>m.cat===cat).map(m=>`<button class="v40-card ${m.id===cur?'on':''} ${m.soon?'soon':''}" data-v40-pick="${m.id}" ${m.soon?'aria-disabled="true"':''} aria-label="${esc(m.name)}${m.soon?', em breve':''}"><span class="v40-card-head"><b>${esc(m.name)}</b><small>${esc(subOf(m))}</small></span><span class="v40-card-art" style="--c:${m.art%4};--r:${Math.floor(m.art/4)}">${m.soon?`<span class="v40-lock">${svg('lock')}</span>`:''}</span><span class="v40-card-foot">${m.tag?`<em>${esc(m.tag)}</em>`:''}${m.id===cur?'<i>✓ Selecionado</i>':''}</span></button>`).join('')}</div></section>`).join('')}</div>
- <nav class="v40-tabs" aria-label="Categorias">${CATS.map(([cat,label],i)=>`<button data-v40-tab="${cat}" class="${current().cat===cat?'on':''}">${label}</button>`).join('')}</nav>`;
+const LIGA_ID={liga1:'1v1',liga2:'2v2',ligaTrio:'kof',ligaCoroa:'ffa'};
+const NEW_MODES=['ligaTrio','ligaCoroa','torneio'];
+const CAT_ICON={rank:'trophy',casual:'dojo',desafio:'skull',treino:'target'};
+function modeXp(m){if(m.id==='dojo')return'+10 XP';try{return window.ContaV42?`+${ContaV42.XP.win} XP`:''}catch{return''}}
+function modeRank(m){const id=LIGA_ID[m.id];if(!id||!window.V3Liga)return'';try{const pts=V3Liga.rec(id).points||0,d=V3Liga.divOf(pts);return `<span class="v43-rank" data-tier="${d}"><span>${emblem(d)}</span>${esc(V3Liga.rankName(pts))}<small>${pts} pts</small></span>`}catch{return''}}
+function modeBadges(m){const out=[];if(NEW_MODES.includes(m.id))out.push('<span class="v43-badge new">NOVO</span>');
+ if(m.id==='cacada'){try{const e=eventInfo();if(e?.left)out.push(`<span class="v43-badge time">⏳ ${esc(e.left)}</span>`)}catch{}}
+ return out.length?`<span class="v43-badges">${out.join('')}</span>`:''}
+function cardHtml(m,cur,k){
+ const soon=!!m.soon,on=m.id===cur;
+ return `<button class="v40-card v43-card ${on?'on':''} ${soon?'soon':''}" data-v40-pick="${m.id}" style="--k:${k}" ${soon?'aria-disabled="true"':''} aria-pressed="${on}" aria-label="${esc(m.name)}${soon?', em breve':''}${on?', selecionado':''}">
+  <span class="v40-card-head"><b>${esc(m.name)}</b><small>${esc(subOf(m))}</small></span>
+  <span class="v40-card-art" style="--c:${m.art%4};--r:${Math.floor(m.art/4)}">${soon?`<span class="v40-lock">${svg('lock')}</span><span class="v43-ribbon">EM BREVE</span>`:''}${modeBadges(m)}${modeRank(m)}${m.tag&&!soon?`<em class="v43-tag">${esc(m.tag)}</em>`:''}${on?'<span class="v43-check" aria-hidden="true">✓</span>':''}</span>
+  <span class="v40-card-foot">${soon?`<em>${esc(m.tag||'')}</em>`:''}${soon?'':`<span class="v43-reward">${REWARD[m.id]?`<i>🪙</i>${esc(REWARD[m.id].replace(' moedas',''))}`:''}${modeXp(m)?`<i class="xp">${modeXp(m)}</i>`:''}</span>`}</span>
+ </button>`;
 }
+function modesMarkup(){
+ const cur=current().id;let k=0;
+ const groups=CATS.map(([cat,label,col])=>`<section class="v40-group" data-cat="${cat}" style="--cat:${col}" aria-label="${label}"><h3>${svg(CAT_ICON[cat])}${label}</h3><div class="v40-cards">${MODES.filter(m=>m.cat===cat&&!m.soon).map(m=>cardHtml(m,cur,k++)).join('')}</div></section>`).join('');
+ const soon=MODES.filter(m=>m.soon);
+ const fw=(()=>{try{return window.ContaV42?.firstWinReady()}catch{return false}})();
+ const m=current();
+ return `<div class="v40-modes-top v43-top"><button class="v40-round v43-back" data-v40-close aria-label="Voltar ao início">${svg('back')}</button><b>MODOS DE JOGO</b>
+  <span class="v43-top-r">${fw?'<span class="v43-firstwin" title="A primeira vitória de cada dia dá o dobro de XP de conta">⭐ 1ª vitória do dia: XP ×2</span>':''}<span class="v43-wallet"><span>${svg('coin','v40gold')}<b>${n(account.coins)}</b></span><span>${svg('gem','v40blue')}<b>${n(account.crystals)}</b></span></span></span></div>
+ <div class="v40-strip v43-strip" tabindex="0" aria-label="Modos de jogo, arraste para o lado">${groups}${soon.length?`<section class="v40-group v43-soon" data-cat="breve" style="--cat:#c3c9dc" aria-label="Em breve"><h3>${svg('lock')}Em breve</h3><div class="v40-cards">${soon.map(x=>cardHtml(x,cur,k++)).join('')}</div></section>`:''}</div>
+ <div class="v43-bottom"><nav class="v40-tabs v43-tabs" aria-label="Categorias">${CATS.map(([cat,label])=>`<button data-v40-tab="${cat}" class="${m.cat===cat?'on':''}">${svg(CAT_ICON[cat])}<span>${label}</span></button>`).join('')}</nav>
+ <button class="v43-play" data-v43-play aria-label="Jogar ${esc(m.name)}"><small>${esc(m.name)}</small><b>JOGAR</b></button></div>`;
+}
+function refreshModes(){const box=$q('#v40Modes');if(!box||box.hidden)return;const strip=box.querySelector('.v40-strip'),x=strip.scrollLeft;box.innerHTML=modesMarkup();box.classList.add('v43-noanim');const s2=box.querySelector('.v40-strip');s2.scrollLeft=x;bindDrag(s2);s2.addEventListener('scroll',()=>syncTab(s2),{passive:true});syncTab(s2)}
 function openModes(){
  let box=$q('#v40Modes');
  if(!box){box=document.createElement('section');box.id='v40Modes';box.setAttribute('aria-label','Modos de jogo');document.body.appendChild(box)}
- box.innerHTML=modesMarkup();box.hidden=false;document.body.classList.add('v40-modes-open');syncNav();
+ box.classList.remove('v43-noanim');box.innerHTML=modesMarkup();box.hidden=false;document.body.classList.add('v40-modes-open');syncNav();
  const strip=box.querySelector('.v40-strip'),on=box.querySelector('.v40-card.on');
  if(on)strip.scrollLeft=Math.max(0,on.offsetLeft-strip.clientWidth/2+on.offsetWidth/2);
  bindDrag(strip);strip.addEventListener('scroll',()=>syncTab(strip),{passive:true});
@@ -188,8 +211,9 @@ function openModes(){
 function syncTab(strip){
  if(strip.dataset.lock&&Date.now()-(+strip.dataset.lockAt||0)<900){document.querySelectorAll('[data-v40-tab]').forEach(b=>b.classList.toggle('on',b.dataset.v40Tab===strip.dataset.lock));return}
  const mid=strip.scrollLeft+strip.clientWidth*.35;let cat=null;
- for(const g of strip.querySelectorAll('.v40-group'))if(g.offsetLeft<=mid)cat=g.dataset.cat;
- if(strip.scrollLeft+strip.clientWidth>=strip.scrollWidth-4)cat=strip.querySelector('.v40-group:last-child')?.dataset.cat||cat;
+ const gs=[...strip.querySelectorAll('.v40-group')].filter(g=>CATS.some(c=>c[0]===g.dataset.cat));
+ for(const g of gs)if(g.offsetLeft<=mid)cat=g.dataset.cat;
+ if(strip.scrollLeft+strip.clientWidth>=strip.scrollWidth-4)cat=gs[gs.length-1]?.dataset.cat||cat;
  document.querySelectorAll('[data-v40-tab]').forEach(b=>b.classList.toggle('on',b.dataset.v40Tab===cat));
 }
 // arrastar com o mouse (no toque o navegador já rola sozinho)
@@ -203,19 +227,19 @@ function bindDrag(el){
 /* ---------- cliques ---------- */
 document.addEventListener('click',e=>{
  const t=e.target;
- if(t.closest('[data-v40-play]')){e.preventDefault();play();return}
+ if(t.closest('[data-v40-play]')||t.closest('[data-v43-play]')){e.preventDefault();play();return}
  if(t.closest('[data-v41-gift]')){e.preventDefault();$q('#homeScreen .v40-legacy #openDaily')?.click();return}
  if(t.closest('[data-v41-hunt]')){e.preventDefault();closeAll();try{window.huntQA?.lobby()}catch(err){console.error(err)}return}
  if(t.closest('[data-v40-modes]')){e.preventDefault();openModes();return}
  if(t.closest('[data-v40-menu]')){e.preventDefault();openMenu();return}
  if(t.closest('[data-v40-missions]')){e.preventDefault();ensureMissions();$q('#v40Missions').hidden=false;return}
- if(t.closest('[data-v40-close]')){e.preventDefault();closeAll();return}
+ if(t.closest('[data-v40-close]')){e.preventDefault();const wasModes=!!$q('#v40Modes:not([hidden])');closeAll();if(wasModes&&appScreen==='home')try{renderLobbyHome()}catch{}return}
  const pick=t.closest('[data-v40-pick]');
  if(pick){e.preventDefault();if(pick.closest('.v40-strip')?.dataset.dragged)return;const m=byId(pick.dataset.v40Pick);
   if(m?.soon){toast?.(m.name+': '+subOf(m));return}
-  if(choose(pick.dataset.v40Pick)){closeAll();if(appScreen==='home')renderLobbyHome();else showScreen('home');toast?.('Modo escolhido: '+m.name)}return}
+  if(choose(pick.dataset.v40Pick)){refreshModes();try{if(appScreen==='home')renderLobbyHome()}catch{}}return}
  const tab=t.closest('[data-v40-tab]');
- if(tab){e.preventDefault();const strip=$q('#v40Modes .v40-strip'),g=strip?.querySelector(`.v40-group[data-cat="${tab.dataset.v40Tab}"]`);if(g){strip.dataset.lock=tab.dataset.v40Tab;strip.dataset.lockAt=Date.now();document.querySelectorAll('[data-v40-tab]').forEach(b=>b.classList.toggle('on',b===tab));strip.scrollTo({left:g.offsetLeft-8,behavior:'smooth'})}return}
+ if(tab){e.preventDefault();const strip=$q('#v40Modes .v40-strip'),g=strip?.querySelector(`.v40-group[data-cat="${tab.dataset.v40Tab}"]`);if(g){strip.dataset.lock=tab.dataset.v40Tab;strip.dataset.lockAt=Date.now();document.querySelectorAll('[data-v40-tab]').forEach(b=>b.classList.toggle('on',b===tab));strip.scrollTo({left:g.offsetLeft-16,behavior:'smooth'})}return}
  const go=t.closest('[data-v40-go]');
  if(go){e.preventDefault();const id=go.dataset.v40Go;closeAll();
   if(id==='modes')openModes();else if(id==='missions'){ensureMissions();$q('#v40Missions').hidden=false}

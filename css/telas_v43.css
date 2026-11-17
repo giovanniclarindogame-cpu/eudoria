@@ -1,0 +1,185 @@
+/* Telas v43 — tela de modos melhorada e Campeões / Loja / Dojo no visual novo (azul, dourado, etiquetas amarelas) */
+:root{--v43-blue1:#3b6fd6;--v43-blue2:#24408f;--v43-gold:#ffd45a;--v43-brown:#5a2d00}
+
+/* ================= tela de modos ================= */
+#v40Modes{background:#1d3590!important;isolation:isolate}
+#v40Modes::before{content:"";position:absolute;inset:-24px;z-index:-2;background:url('../assets/inicio_v40/fundo.webp?v=1') center 60%/cover no-repeat;filter:blur(7px) saturate(1.1)}
+#v40Modes::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(40,80,200,.78),rgba(18,34,110,.9)),repeating-linear-gradient(135deg,rgba(255,255,255,.035) 0 14px,transparent 14px 28px)}
+.v43-top{gap:12px;padding-top:max(8px,env(safe-area-inset-top))!important}
+.v43-top>b{flex:1;color:var(--v43-gold);text-shadow:0 2px 0 #6a3d00!important;letter-spacing:.1em}
+.v43-back{background:linear-gradient(180deg,var(--v43-blue1),var(--v43-blue2))!important;color:#fff!important;border:2px solid var(--v43-gold)!important;box-shadow:0 3px 0 #8a5a00!important}
+.v43-back .v40i{width:22px;height:22px}
+.v43-top-r{display:flex;align-items:center;gap:8px}
+.v43-wallet{display:flex;gap:6px}
+.v43-wallet>span{display:flex;align-items:center;gap:5px;background:rgba(0,0,0,.35);border-radius:20px;padding:4px 12px 4px 6px;font-weight:900;font-size:14px}
+.v43-wallet .v40i{width:20px;height:20px}
+.v43-firstwin{background:linear-gradient(180deg,#9df07a,#3fae2a);color:#fff;font-weight:900;font-size:12px;padding:5px 10px;border-radius:14px;border:2px solid #fff;text-shadow:0 1px 0 #1d6b12;box-shadow:0 2px 0 #1d6b12;white-space:nowrap;animation:v43pulse 2s ease-in-out infinite}
+@keyframes v43pulse{50%{transform:scale(1.05)}}
+/* faixa: margem dos dois lados, sem barra de rolagem, sumindo na borda direita */
+.v43-strip{padding:4px 0 8px!important;scroll-padding-inline:18px;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 46px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 46px),transparent)}
+.v43-strip::-webkit-scrollbar{display:none}
+.v43-strip::before,.v43-strip::after{content:"";flex:none;width:max(2px,calc(env(safe-area-inset-left) - 16px))}
+.v43-strip::after{width:40px}
+.v40-group h3{display:flex;align-items:center;gap:6px}
+.v40-group h3 .v40i{width:16px;height:16px}
+/* cartões */
+.v43-card{position:relative;outline:3px solid rgba(255,255,255,.18)!important;outline-offset:-3px;animation:v43in .4s cubic-bezier(.2,.9,.3,1.2) both;animation-delay:calc(var(--k)*35ms);transition:transform .15s}
+#v40Modes.v43-noanim .v43-card{animation:none}
+@keyframes v43in{from{opacity:0;transform:translateY(18px) scale(.94)}}
+.v43-card.on{outline:3px solid #ffe066!important;transform:translateY(-2px);box-shadow:0 5px 0 rgba(0,0,0,.3),0 0 0 4px rgba(255,224,102,.35),0 0 22px rgba(255,214,90,.7)!important;animation:v43glow 1.6s ease-in-out infinite}
+@keyframes v43glow{50%{box-shadow:0 5px 0 rgba(0,0,0,.3),0 0 0 6px rgba(255,224,102,.2),0 0 30px rgba(255,214,90,.95)}}
+.v43-card .v40-card-art{overflow:hidden}
+.v43-check{position:absolute;top:6px;right:6px;width:26px;height:26px;border-radius:13px;background:#3fae2a;border:2px solid #fff;color:#fff;font:900 15px/22px system-ui;text-align:center;box-shadow:0 2px 0 rgba(0,0,0,.35)}
+.v43-tag{position:absolute;right:6px;bottom:6px;font-style:normal;font-size:11px;font-weight:900;background:rgba(10,14,40,.78);border-radius:8px;padding:2px 7px}
+.v43-badges{position:absolute;left:6px;top:6px;display:flex;gap:4px}
+.v43-badge{font-size:10px;font-weight:900;padding:2px 7px;border-radius:8px;border:1.5px solid #fff;box-shadow:0 2px 0 rgba(0,0,0,.35)}
+.v43-badge.new{background:linear-gradient(180deg,#ff6b8a,#d62a55);color:#fff}
+.v43-badge.time{background:rgba(10,14,40,.82);border-color:#ffd45a;color:#ffe7a3}
+.v43-rank{position:absolute;left:6px;bottom:6px;display:flex;align-items:center;gap:4px;font-size:11px;font-weight:900;padding:2px 8px 2px 3px;border-radius:10px;border:1.5px solid rgba(255,255,255,.85);box-shadow:0 2px 0 rgba(0,0,0,.35);color:#fff}
+.v43-rank>span{width:16px;height:18px;display:block}.v43-rank svg{width:100%;height:100%}
+.v43-rank small{font-size:9px;opacity:.85;margin-left:2px}
+.v43-rank[data-tier="0"]{background:linear-gradient(180deg,#d99059,#8e4a1e)}
+.v43-rank[data-tier="1"]{background:linear-gradient(180deg,#eef2f6,#9aa6b4);color:#4a2a00}
+.v43-rank[data-tier="2"]{background:linear-gradient(180deg,#ffe066,#e09a00);color:#4a2a00}
+.v43-rank[data-tier="3"]{background:linear-gradient(180deg,#7fe0d0,#23897c)}
+.v43-rank[data-tier="4"]{background:linear-gradient(180deg,#8fd8ff,#3a6fe0)}
+.v43-rank[data-tier="5"]{background:linear-gradient(180deg,#ff7a8e,#8a1fa8)}
+.v43-card .v40-card-foot{gap:6px;justify-content:flex-start!important}
+.v43-reward{display:flex;align-items:center;gap:6px;min-width:0;white-space:nowrap;overflow:hidden}
+.v43-reward i{font-style:normal}
+.v43-reward i.xp{color:#9df07a;margin-left:auto}
+.v43-reward:has(i.xp){flex:1}
+/* em breve */
+.v43-soon .v43-card{filter:grayscale(.9);opacity:.8}
+.v43-ribbon{position:absolute;top:14px;right:-34px;transform:rotate(35deg);background:#e2264d;color:#fff;font:900 11px system-ui;letter-spacing:.08em;padding:3px 40px;box-shadow:0 2px 4px rgba(0,0,0,.4)}
+/* barra de baixo: abas com ícone + JOGAR */
+.v43-bottom{display:flex;align-items:center;gap:10px;padding:6px max(14px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));background:rgba(10,20,70,.55);border-top:2px solid rgba(255,212,90,.35)}
+.v43-tabs{flex:1;background:none!important;padding:0!important;justify-content:center}
+.v43-tabs button{display:flex;align-items:center;gap:6px;position:relative}
+.v43-tabs button .v40i{width:18px;height:18px}
+.v43-tabs button.on{box-shadow:0 3px 0 #c96c00}
+.v43-play{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:150px;padding:4px 18px;border-radius:16px!important;background:linear-gradient(180deg,#ffe066 0%,#ffc83d 45%,#ff9d1c 100%)!important;box-shadow:0 4px 0 #c96c00,0 8px 16px rgba(0,0,0,.3);color:#3b2100!important;border:2px solid #fff!important}
+.v43-play b{font-size:24px;font-weight:900;letter-spacing:.06em;line-height:1;text-shadow:0 2px 0 rgba(255,255,255,.55)}
+.v43-play small{font-size:10px;font-weight:900;opacity:.75;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (max-height:430px){
+ .v43-top{padding-bottom:0!important}.v43-top>b{font-size:17px}
+ .v43-wallet>span{font-size:12px;padding:3px 10px 3px 5px}.v43-firstwin{font-size:10px;padding:4px 8px}
+ .v43-tabs button{padding:6px 10px;font-size:12px}.v43-play{min-width:128px;padding:3px 14px}.v43-play b{font-size:20px}
+ .v43-rank{font-size:10px}.v43-rank small{display:none}
+}
+@media (max-width:760px){.v43-tabs button span{display:none}.v43-tabs button{padding:8px 12px}.v43-firstwin{display:none}}
+@media (prefers-reduced-motion:reduce){.v43-card,.v43-card.on,.v43-firstwin{animation:none!important}}
+
+/* ================= Campeões, Loja e Dojo ================= */
+body[data-screen=library],body[data-screen=shop],body[data-screen=training]{background:#1d3590!important}
+.v43-bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;display:none}
+body[data-screen=library] .v43-bg,body[data-screen=shop] .v43-bg,body[data-screen=training] .v43-bg{display:block}
+.v43-bg::before{content:"";position:absolute;inset:-24px;background:url('../assets/inicio_v40/fundo.webp?v=1') center 60%/cover no-repeat;filter:blur(7px) saturate(1.1)}
+.v43-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(40,80,200,.74),rgba(18,34,110,.9)),repeating-linear-gradient(135deg,rgba(255,255,255,.035) 0 14px,transparent 14px 28px)}
+#selection:not([hidden]),#shopScreen:not([hidden]),#trainingScreen:not([hidden]){position:relative;z-index:1}
+#selection,#shopScreen,#trainingScreen{background:none!important;color:#fff}
+#selection:not([hidden]),#shopScreen:not([hidden]),#trainingScreen:not([hidden]){font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+/* barra do topo */
+.v43-scrtop{display:flex;align-items:center;gap:12px;padding:max(8px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) 6px max(14px,env(safe-area-inset-left));position:relative;z-index:3}
+.v43-scrtop>b{flex:1;font:900 20px/1 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif!important;letter-spacing:.1em;color:var(--v43-gold)!important;text-shadow:0 2px 0 #6a3d00!important;-webkit-text-stroke:0!important}
+.v43-back-slot{width:44px;height:44px;flex:none}
+.v43-count{background:rgba(0,0,0,.35);border-radius:20px;padding:5px 12px;font-weight:900;font-size:13px;color:#ffe7a3}
+body[data-screen=library] #backHome,body[data-screen=shop] #backHome,body[data-screen=training] #backHome{left:max(14px,env(safe-area-inset-left))!important;right:auto!important;top:max(8px,env(safe-area-inset-top))!important;width:44px!important;height:44px!important;border-radius:14px!important;background:linear-gradient(180deg,var(--v43-blue1),var(--v43-blue2))!important;color:#fff!important;border:2px solid var(--v43-gold)!important;box-shadow:0 3px 0 #8a5a00!important}
+body[data-screen=library] #backHome svg,body[data-screen=shop] #backHome svg,body[data-screen=training] #backHome svg{display:none}
+body[data-screen=library] #backHome::before,body[data-screen=shop] #backHome::before,body[data-screen=training] #backHome::before{content:"";width:12px;height:12px;border-left:3.5px solid #fff;border-bottom:3.5px solid #fff;transform:translateX(3px) rotate(45deg);border-radius:2px}
+/* cabeçalhos antigos escondidos */
+#selection .roster-head,#shopScreen .lj-head,#trainingScreen .simple-header{display:none!important}
+
+/* ----- Campeões ----- */
+#selection .roster-page{display:block!important;padding:4px max(14px,env(safe-area-inset-right)) 16px max(14px,env(safe-area-inset-left))!important;max-width:none!important;margin:0!important;background:none!important}
+.v43-scrtop .hero-search{display:flex!important;align-items:center;gap:6px;background:#fff8e1!important;border:2px solid var(--v43-gold)!important;border-radius:20px!important;padding:3px 12px 3px 10px!important;margin:0!important;width:auto!important;min-width:0;position:static!important;box-shadow:none!important}
+.v43-scrtop .hero-search>span{font-size:0;color:#a86b00;display:flex}.v43-scrtop .hero-search .v40i{width:16px;height:16px}
+.v43-scrtop .hero-search input{border:0!important;background:none!important;outline:none;color:var(--v43-brown)!important;font:800 14px system-ui!important;width:120px;padding:4px 0!important;box-shadow:none!important;min-height:0!important}
+.v43-scrtop .hero-search input::placeholder{color:#b08a5a}
+#selection .hero-grid{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(170px,1fr))!important;gap:12px!important;margin:0!important;padding:0!important}
+#selection .hero-card{position:relative;border-radius:18px!important;border:3px solid var(--v43-gold)!important;background:radial-gradient(circle at 50% 35%,#4f86ef,#24408f 70%)!important;box-shadow:0 4px 0 #8a5a00,0 8px 14px rgba(0,0,0,.3)!important;overflow:visible!important;padding:0 0 4px!important;min-height:0!important;aspect-ratio:auto!important;display:flex!important;flex-direction:column!important;animation:v43in .4s cubic-bezier(.2,.9,.3,1.2) both}
+#selection .hero-card:nth-child(2){animation-delay:.03s}#selection .hero-card:nth-child(3){animation-delay:.06s}#selection .hero-card:nth-child(4){animation-delay:.09s}#selection .hero-card:nth-child(5){animation-delay:.12s}#selection .hero-card:nth-child(6){animation-delay:.15s}#selection .hero-card:nth-child(7){animation-delay:.18s}#selection .hero-card:nth-child(8){animation-delay:.21s}#selection .hero-card:nth-child(9){animation-delay:.24s}#selection .hero-card:nth-child(10){animation-delay:.27s}
+#selection .hero-card::before,#selection .hero-card::after{display:none!important}
+#selection .hero-card-art{position:relative!important;inset:auto!important;height:auto!important;aspect-ratio:4/3;border-radius:15px 15px 0 0;overflow:hidden;background:none!important;display:block!important}
+#selection .hero-card-art img{width:100%!important;height:100%!important;object-fit:cover!important;object-position:50% 14%!important;position:static!important;transform:none!important;filter:drop-shadow(0 4px 4px rgba(0,0,0,.35))}
+#selection .hero-card-copy{position:static!important;background:none!important;padding:0 6px!important;display:flex!important;flex-direction:column;align-items:center;margin-top:-10px}
+#selection .hero-card-copy strong{display:block;background:linear-gradient(180deg,#ffe066,#f5b800);color:var(--v43-brown)!important;font:900 13px/1.15 system-ui!important;padding:4px 10px;border-radius:10px;border:2px solid #fff3c2;box-shadow:0 2px 0 #8a5a00;text-align:center;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#selection .hero-card-copy>span{position:absolute;top:6px;right:6px;width:26px;height:26px;border-radius:13px;background:#3fae2a;border:2px solid #fff;font-size:0!important;box-shadow:0 2px 0 rgba(0,0,0,.35)}
+#selection .hero-card-copy>span::before{content:"✓";color:#fff;font:900 15px/22px system-ui;display:block;text-align:center}
+#selection .hero-card.selected{box-shadow:0 4px 0 #8a5a00,0 0 0 4px rgba(255,224,102,.35),0 0 22px rgba(255,214,90,.8)!important;border-color:#ffe066!important}
+#selection .hero-card:not(.selected):hover{transform:translateY(-2px)}
+#selection .hero-card:active{transform:translateY(2px) scale(.98)}
+/* bloqueados (Loja) */
+#selection .hero-card [class*=lock],#selection .hero-card [class*=price]{z-index:2}
+/* nível do campeão (niveis_v3) */
+#selection .hero-card .nv-chip,#selection .hero-card [class*=nv-]{z-index:2}
+@media (max-height:430px){#selection .hero-grid{grid-template-columns:repeat(auto-fill,minmax(128px,1fr))!important;gap:10px!important}#selection .hero-card-art{aspect-ratio:4/3.1}#selection .hero-card-copy strong{font-size:12px!important}}
+
+/* ----- detalhe do campeão ----- */
+#heroDetail .hero-skill-copy,#heroDetail #heroSkillCopy,#heroDetail .nv-box{background:rgba(18,34,110,.82)!important;border:2px solid rgba(255,212,90,.6)!important;border-radius:16px!important;color:#fff!important}
+#heroDetail .nv-stat{background:rgba(255,255,255,.08)!important;border:0!important;border-radius:10px!important}
+#heroDetail .nv-lv b{color:var(--v43-gold)!important}
+#heroDetail .nv-xp i{background:linear-gradient(180deg,#9df07a,#3fae2a)!important}
+#heroDetail [data-hero-skill]{border:3px solid rgba(255,212,90,.55)!important;box-shadow:0 3px 0 rgba(0,0,0,.35)!important}
+#heroDetail [data-hero-skill].active{border-color:#ffe066!important;box-shadow:0 3px 0 #8a5a00,0 0 14px rgba(255,214,90,.8)!important}
+#heroDetail [data-hero-test]{background:linear-gradient(180deg,var(--v43-blue1),var(--v43-blue2))!important;color:#fff!important;border:2px solid var(--v43-gold)!important;border-radius:14px!important;font-weight:900!important;box-shadow:0 4px 0 #8a5a00!important}
+#heroDetail [data-hero-confirm]{background:linear-gradient(180deg,#ffe066 0%,#ffc83d 45%,#ff9d1c 100%)!important;color:#3b2100!important;border:2px solid #fff!important;border-radius:14px!important;font-weight:900!important;letter-spacing:.04em;box-shadow:0 4px 0 #c96c00!important;text-shadow:0 1px 0 rgba(255,255,255,.5)}
+#heroDetail h1{color:#fff!important;text-shadow:0 3px 0 rgba(0,0,0,.45)!important;font-family:system-ui,sans-serif!important;font-weight:900!important}
+#heroDetail .hero-heading .eyebrow,#heroDetail .simple-kit-heading{color:var(--v43-gold)!important;font-family:system-ui,sans-serif!important;font-weight:900!important;letter-spacing:.08em}
+#heroDetail .hero-detail-head>span{display:none}
+
+/* ----- Loja ----- */
+#shopScreen .lj{padding:4px max(14px,env(safe-area-inset-right)) 18px max(14px,env(safe-area-inset-left))!important;max-width:none!important;background:none!important;color:#fff}
+#shopScreen .lj-sec h2{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;font:900 15px system-ui!important;letter-spacing:.08em;text-transform:uppercase;color:var(--v43-gold)!important;text-shadow:0 2px 0 #6a3d00;margin:8px 2px!important}
+#shopScreen .lj-sec h2 small{font-size:11px;letter-spacing:0;text-transform:none;color:#ffe7a3;text-shadow:none;background:rgba(0,0,0,.3);padding:2px 9px;border-radius:10px;font-weight:800}
+#shopScreen .lj-freecard{border-radius:16px!important;border:3px solid #9df07a!important;background:linear-gradient(180deg,#3fae2a,#1d6b12)!important;box-shadow:0 4px 0 #0f4a08,0 8px 14px rgba(0,0,0,.3)!important;color:#fff!important}
+#shopScreen .lj-freecard strong{color:#fff!important;font-weight:900!important;text-shadow:0 1px 0 rgba(0,0,0,.4)}
+#shopScreen .lj-freecard small{color:#e8ffd9!important;font-weight:800}
+#shopScreen .lj-card{border-radius:18px!important;border:3px solid var(--v43-gold)!important;background:radial-gradient(circle at 50% 35%,#4f86ef,#24408f 70%)!important;box-shadow:0 4px 0 #8a5a00,0 8px 14px rgba(0,0,0,.3)!important;color:#fff!important;overflow:visible!important}
+#shopScreen .lj-art{background:none!important;border-radius:15px 15px 0 0}
+#shopScreen .lj-card strong{display:block;margin:-10px auto 4px!important;position:relative;background:linear-gradient(180deg,#ffe066,#f5b800);color:var(--v43-brown)!important;font:900 12px/1.15 system-ui!important;padding:4px 10px;border-radius:10px;border:2px solid #fff3c2;box-shadow:0 2px 0 #8a5a00;max-width:calc(100% - 12px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:max-content}
+#shopScreen .lj-own{display:inline-block;background:#3fae2a;color:#fff!important;border:2px solid #fff;border-radius:12px;padding:2px 10px;font-weight:900!important;box-shadow:0 2px 0 #1d6b12}
+#shopScreen .lj-buy{background:linear-gradient(180deg,#ffe066 0%,#ffc83d 45%,#ff9d1c 100%)!important;color:#3b2100!important;border:2px solid #fff!important;border-radius:12px!important;font-weight:900!important;box-shadow:0 3px 0 #c96c00!important}
+#shopScreen .lj-gem-btn{background:rgba(0,0,0,.3)!important;color:#c9d6ff!important;border:0!important;border-radius:10px!important}
+#shopScreen .lj-tag{background:#3fae2a!important;color:#fff!important;border:2px solid #fff;border-radius:8px!important;font-weight:900!important}
+
+/* ----- Dojo ----- */
+#trainingScreen .simple-columns{padding:6px max(14px,env(safe-area-inset-right)) 14px max(14px,env(safe-area-inset-left))!important;gap:14px!important;max-width:none!important;margin:0!important}
+#trainingScreen .panel{background:rgba(18,34,110,.72)!important;border:2px solid rgba(255,212,90,.6)!important;border-radius:20px!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 6px 18px rgba(0,0,0,.3)!important;color:#fff!important;backdrop-filter:none!important}
+#trainingScreen .simple-champion{background:radial-gradient(ellipse at 30% 85%,rgba(255,214,90,.35),transparent 55%),radial-gradient(circle at 30% 40%,#4f86ef,#24408f 70%)!important}
+#trainingScreen .simple-champion-art img{filter:drop-shadow(0 6px 6px rgba(0,0,0,.45))}
+#trainingScreen .eyebrow{color:var(--v43-gold)!important;font-family:system-ui,sans-serif!important;font-weight:900!important;letter-spacing:.1em}
+#trainingScreen h2{font-family:system-ui,sans-serif!important;font-weight:900!important;color:#fff!important}
+#trainingScreen .simple-champion h2{display:inline-block;background:linear-gradient(180deg,#ffe066,#f5b800);color:var(--v43-brown)!important;padding:4px 12px;border-radius:12px;border:2px solid #fff3c2;box-shadow:0 2px 0 #8a5a00;font-size:16px!important;white-space:nowrap;text-shadow:none!important}
+#trainingScreen .simple-champion .ghost{background:linear-gradient(180deg,var(--v43-blue1),var(--v43-blue2))!important;color:#fff!important;border:2px solid var(--v43-gold)!important;border-radius:12px!important;font-weight:900!important;box-shadow:0 3px 0 #8a5a00!important}
+#trainingScreen .setting-label{color:#ffe7a3!important;font-weight:800!important}
+#trainingScreen select{background:#fff8e1!important;color:var(--v43-brown)!important;border:2px solid var(--v43-gold)!important;border-radius:12px!important;font-weight:900!important}
+#trainingScreen .practice-check{color:#fff!important;font-weight:700}
+#trainingScreen .practice-check input{accent-color:#3fae2a;width:20px;height:20px}
+#trainingScreen .simple-note{color:#c9d6ff!important}
+#trainingScreen .gold[data-progression]{background:linear-gradient(180deg,#ffe066 0%,#ffc83d 45%,#ff9d1c 100%)!important;color:#3b2100!important;border:2px solid #fff!important;border-radius:16px!important;font:900 22px system-ui!important;letter-spacing:.06em;text-transform:uppercase;box-shadow:0 5px 0 #c96c00,0 10px 18px rgba(0,0,0,.3)!important;text-shadow:0 2px 0 rgba(255,255,255,.55)}
+
+#heroDetail .hero-heading{padding-left:62px!important}
+#heroDetail,#heroDetail button,#heroDetail p,#heroDetail h2,#heroDetail h3,#heroDetail strong{font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif!important}
+#heroDetail #heroSkillCopy strong,#heroDetail #heroSkillCopy h3{color:var(--v43-gold)!important;font-weight:900!important}
+#heroDetail #heroSkillCopy,#heroDetail #heroSkillCopy *{font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif!important}
+#heroDetail .nv-lv b{font-family:system-ui,sans-serif!important}
+#selection .hero-grid{grid-auto-rows:auto!important;align-content:start!important;height:auto!important;flex:none!important}
+#selection .hero-card{height:auto!important;max-height:none!important;align-self:start!important}
+#selection .hero-card-art img{-webkit-mask-image:linear-gradient(180deg,#000 82%,transparent);mask-image:linear-gradient(180deg,#000 82%,transparent)}
+#shopScreen .lj-grid{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:12px!important}
+#shopScreen .lj-card{min-width:0}
+#shopScreen .lj-card strong{width:auto!important;justify-self:center}
+@media (max-width:700px){#shopScreen .lj-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+#selection .hero-card-art img{object-position:50% 10%!important}
+/* janelas da Loja (presente inicial, compra) */
+#ljModal{background:rgba(10,18,60,.7)!important}
+#ljModal .lj-dialog{background:radial-gradient(ellipse at 50% 0%,#4f86ef,#24408f 60%,#182a63)!important;border:3px solid var(--v43-gold)!important;border-radius:22px!important;box-shadow:0 6px 0 #8a5a00,0 0 40px rgba(255,214,90,.45)!important;color:#fff!important;font-family:system-ui,sans-serif}
+#ljModal .lj-dialog h2{font:900 22px system-ui!important;color:#fff!important;text-shadow:0 2px 0 rgba(0,0,0,.4)}
+#ljModal .lj-dialog p{color:#dfe8ff!important;font-weight:600!important}
+#ljModal .lj-dialog button{background:linear-gradient(180deg,#ffe066 0%,#ffc83d 45%,#ff9d1c 100%)!important;color:#3b2100!important;border:2px solid #fff!important;border-radius:14px!important;font:900 16px system-ui!important;box-shadow:0 4px 0 #c96c00!important;padding:8px 26px!important}
+#ljModal .lj-dialog button.ghost{background:rgba(0,0,0,.3)!important;color:#fff!important;box-shadow:none!important;border-color:rgba(255,255,255,.4)!important}
+#ljModal .lj-dialog :is(.eyebrow,small,span:first-child){color:var(--v43-gold)!important}
+/* campeões bloqueados */
+#selection .hero-card:is(.locked,[class*=lock]) .hero-card-art img{filter:grayscale(.6) brightness(.75)}
+#shopScreen .lj-art{position:relative}#shopScreen .lj-tag{position:absolute!important;top:5px!important;left:5px!important;bottom:auto!important;right:auto!important;font-size:9px!important;padding:1px 6px!important}

@@ -20,7 +20,7 @@ const SHOT=process.env.SHOT||'';
    o.style.display='none';await new Promise(r=>setTimeout(r,30));document.querySelector('#resultTitle').textContent='Um novo aprendizado.';o.style.display='flex';await new Promise(r=>setTimeout(r,60));o.style.display='none';
    return{g,coins,t1,t2,t3:c.rec().total,txt:document.querySelector('#resultText').textContent,lv:c.rec().lv}});
   ok(xp.g.ups===1&&xp.g.lv===2&&xp.coins>=70,`${tag} 130 XP sobe a conta para o nível 2 e dá moedas`);
-  ok(xp.t1===180&&xp.t2===180&&xp.t3===200,`${tag} vitória +50, sem pagar em dobro, derrota +20 (${xp.t1}/${xp.t2}/${xp.t3})`);
+  ok(xp.t1===230&&xp.t2===230&&xp.t3===250,`${tag} 1ª vitória do dia +100 (dobro), sem pagar em dobro, derrota +20 (${xp.t1}/${xp.t2}/${xp.t3})`);
   // tela de perfil
   await pg.evaluate(()=>showScreen('home'));await pg.waitForTimeout(300);
   await pg.click('.v42-chip');await pg.waitForTimeout(400);
