@@ -1,0 +1,8 @@
+#heroDetail.cavaleiro-detail{background:#101c34 url('../assets/cavaleiro_v37/background.webp?v=37') center/cover no-repeat}
+.cavaleiro-detail.simple-detail .hero-detail-inner{background:linear-gradient(90deg,#101c3408 25%,#0b1730c9 65%,#0b1730ed)}
+.cavaleiro-detail.simple-detail .hero-stage{background:none}
+.cavaleiro-detail .hero-halo{display:none}
+.cavaleiro-detail .hero-heading,.cavaleiro-detail .simple-kit-heading{text-shadow:0 2px 5px #06101c,0 0 14px #10315ecc}
+.cavaleiro-detail.simple-detail .hero-skill-copy{background:#101c34ef;border-color:#a4cfff77}
+.cavaleiro-detail .hero-stage img{object-fit:contain;filter:drop-shadow(0 8px 16px #0a182488)}
+.skill-art.cavaleiro-skill-art{image-rendering:auto}
