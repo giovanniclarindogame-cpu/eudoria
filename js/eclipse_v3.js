@@ -86,6 +86,7 @@ integratedDepth=function(){
  for(const t of actors){
   const s=t.v3slam&&clock-t.v3slam.t<.45?t.v3slam:null;
   if(s)list.push({kind:'v3-eclipse-slam',y:99992+t.y*.001,priority:9,paint(){
+   if(window.FX39?.ready('impactoVioleta')){const k=(clock-s.t)/.45;FX39.draw('impactoVioleta',s.x,s.y-18,64+k*36,{alpha:1-k,rot:s.dir});return}
    const k=(clock-s.t)/.45;ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=1-k;ctx.strokeStyle=VIOLET;ctx.lineWidth=3;
    for(let i=-2;i<=2;i++){const a=s.dir+Math.PI+i*.45,r0=8+k*10,r1=24+k*30;ctx.beginPath();ctx.moveTo(s.x+Math.cos(a)*r0,s.y-18+Math.sin(a)*r0);ctx.lineTo(s.x+Math.cos(a)*r1,s.y-18+Math.sin(a)*r1);ctx.stroke()}
    ctx.beginPath();ctx.arc(s.x,s.y-18,6+k*26,0,Math.PI*2);ctx.stroke();ctx.restore();
@@ -94,8 +95,10 @@ integratedDepth=function(){
   const d=t.v3det&&clock-t.v3det.t<.4?t.v3det:null,e=t===p?liveSphere(t):null;
   if(d||e)list.push({kind:'v3-eclipse-sphere',y:99992+t.y*.001,priority:9,paint(){
    ctx.save();ctx.globalCompositeOperation='lighter';
-   if(d){const k=(clock-d.t)/.4;ctx.globalAlpha=1-k;ctx.strokeStyle='#ff6a8a';ctx.lineWidth=4;ctx.beginPath();ctx.ellipse(d.x,d.y,SPHERE_R*(.6+k*.5),SPHERE_R*(.6+k*.5)*.5,0,0,Math.PI*2);ctx.stroke()}
-   if(e){ctx.globalAlpha=.45+.3*Math.sin(clock*14);ctx.strokeStyle='#ff6a8a';ctx.setLineDash([5,5]);ctx.lineWidth=1.5;ctx.beginPath();ctx.ellipse(e.x,e.y+6,SPHERE_R,SPHERE_R*.45,0,0,Math.PI*2);ctx.stroke();ctx.setLineDash([])}
+   if(d&&window.FX39?.ready('explosaoRubra')){const k=(clock-d.t)/.4;FX39.draw('explosaoRubra',d.x,d.y-10,SPHERE_R*2*(.7+k*.4),{alpha:1-k})}
+   else if(d){const k=(clock-d.t)/.4;ctx.globalAlpha=1-k;ctx.strokeStyle='#ff6a8a';ctx.lineWidth=4;ctx.beginPath();ctx.ellipse(d.x,d.y,SPHERE_R*(.6+k*.5),SPHERE_R*(.6+k*.5)*.5,0,0,Math.PI*2);ctx.stroke()}
+   if(e&&window.FX39?.ready('runas')){FX39.draw('runas',e.x,e.y+6,SPHERE_R*2.1,{alpha:.45+.25*Math.sin(clock*8),ground:true,sy:.45,rot:clock*1.5})}
+   else if(e){ctx.globalAlpha=.45+.3*Math.sin(clock*14);ctx.strokeStyle='#ff6a8a';ctx.setLineDash([5,5]);ctx.lineWidth=1.5;ctx.beginPath();ctx.ellipse(e.x,e.y+6,SPHERE_R,SPHERE_R*.45,0,0,Math.PI*2);ctx.stroke();ctx.setLineDash([])}
    ctx.restore();
   }});
  }

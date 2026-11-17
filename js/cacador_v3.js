@@ -82,17 +82,20 @@ integratedDepth=function(){
   if(!hold&&!hk&&!firm)continue;
   list.push({kind:'v3-cacador',y:99989+a.y*.001,priority:9,paint(){
    ctx.save();
-   if(hold){const lv=levelOf(q.age),part=Math.min(1,(q.age%LEVEL_T)/LEVEL_T);
+   if(hold&&window.FX39?.ready('gemaVerde')){const lv=levelOf(q.age);for(let i=0;i<3;i++)FX39.draw(lv===3?'gemaOuro':'gemaVerde',a.x-17+i*17,a.y-86,17,{gray:i>=lv,alpha:i<lv?1:.75});if(lv===3)FX39.draw('anelOuro',a.x,a.y+8,70,{alpha:.5+.3*Math.sin(clock*20),ground:true,sy:.4})}
+   else if(hold){const lv=levelOf(q.age),part=Math.min(1,(q.age%LEVEL_T)/LEVEL_T);
     for(let i=0;i<3;i++){const x=a.x-14+i*14,y=a.y-84,lit=i<lv;
      ctx.globalAlpha=lit?1:.55;ctx.fillStyle=lit?(lv===3?GOLD:GREEN):'#15241c';ctx.strokeStyle='#06120c';ctx.lineWidth=1.5;
      ctx.beginPath();ctx.moveTo(x,y-6);ctx.lineTo(x+5,y);ctx.lineTo(x,y+6);ctx.lineTo(x-5,y);ctx.closePath();ctx.fill();ctx.stroke();
      if(i===lv&&lv<3){ctx.globalAlpha=.9;ctx.fillStyle=GREEN;ctx.beginPath();ctx.moveTo(x,y+6);ctx.lineTo(x+5*part,y+6-6*part);ctx.lineTo(x,y+6-12*part);ctx.lineTo(x-5*part,y+6-6*part);ctx.closePath();ctx.fill()}}
     if(lv===3){ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.4+.3*Math.sin(clock*20);ctx.strokeStyle=GOLD;ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(a.x,a.y+10,30,12,0,0,Math.PI*2);ctx.stroke()}}
+   if(hk)window.FX39?.draw('anzol',hk.to.x+12,hk.to.y-34,24,{alpha:1-(clock-hk.t)/.35});
    if(hk){const k=(clock-hk.t)/.35;ctx.globalAlpha=1-k;ctx.strokeStyle='#e9f5ee';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(a.x,a.y-30);ctx.quadraticCurveTo((a.x+hk.to.x)/2,Math.min(a.y,hk.to.y)-60,hk.to.x,hk.to.y-24);ctx.stroke()}
    if(firm){ctx.globalAlpha=.8;ctx.font='800 9px system-ui';ctx.textAlign='center';ctx.fillStyle=GREEN;ctx.fillText('FIRME',a.x,a.y-96)}
    ctx.restore();
   }});
  }
+ for(const t of actors){const pf=t.v3preyFx;if(t.hp>0&&pf!=null&&clock-pf<1.2)list.push({kind:'v3-cacador-presa',y:99989+t.y*.001,priority:9,paint(){const k=(clock-pf)/1.2;if(!window.FX39?.draw('presa',t.x,t.y-96,26,{alpha:1-k*k})){}}})}
  return list;
 };
 // computador: fisga quem está na ponta da linha e, com o rival preso, começa a carregar o soco

@@ -68,7 +68,7 @@ step=function(dt){
 
 /* ---------- desenho: brasas, ignição, rastro ---------- */
 const ORANGE='#ffb347';
-function flame(x,y,s,al){ctx.save();ctx.globalAlpha*=al;ctx.translate(x,y);ctx.scale(s,s);const g=ctx.createLinearGradient(0,-9,0,4);g.addColorStop(0,'#fff2a8');g.addColorStop(.5,ORANGE);g.addColorStop(1,'#d2401f');ctx.fillStyle=g;
+function flame(x,y,s,al){if(window.FX39?.ready('brasa')){FX39.draw('brasa',x,y-3,18*s,{alpha:al});return}ctx.save();ctx.globalAlpha*=al;ctx.translate(x,y);ctx.scale(s,s);const g=ctx.createLinearGradient(0,-9,0,4);g.addColorStop(0,'#fff2a8');g.addColorStop(.5,ORANGE);g.addColorStop(1,'#d2401f');ctx.fillStyle=g;
  ctx.beginPath();ctx.moveTo(0,-9);ctx.quadraticCurveTo(5,-3,4,1);ctx.quadraticCurveTo(3,5,0,5);ctx.quadraticCurveTo(-3,5,-4,1);ctx.quadraticCurveTo(-5,-3,0,-9);ctx.fill();ctx.restore()}
 const prevDepth=integratedDepth;
 integratedDepth=function(){
@@ -91,7 +91,8 @@ integratedDepth=function(){
   list.push({kind:'v3-solar-embers',y:99993+t.y*.001,priority:9,paint(){
    ctx.save();
    if(b){const n=Math.min(MAX_EMBERS,b.stacks);for(let i=0;i<n;i++){const w=Math.sin(clock*10+i*2);flame(t.x-(n-1)*6+i*12,t.y-84+w,n===MAX_EMBERS?1.15:.9,.9)}}
-   if(ig){const k=(clock-ig.t)/.5;ctx.globalCompositeOperation='lighter';ctx.globalAlpha=1-k;ctx.strokeStyle=ORANGE;ctx.lineWidth=3+ig.n;ctx.beginPath();ctx.ellipse(t.x,t.y,30+k*60,(30+k*60)*.45,0,0,Math.PI*2);ctx.stroke()}
+   if(ig&&window.FX39?.ready('fogo')){const k=(clock-ig.t)/.5;FX39.draw('fogo',t.x,t.y-28,70+ig.n*14+k*40,{alpha:1-k})}
+   else if(ig){const k=(clock-ig.t)/.5;ctx.globalCompositeOperation='lighter';ctx.globalAlpha=1-k;ctx.strokeStyle=ORANGE;ctx.lineWidth=3+ig.n;ctx.beginPath();ctx.ellipse(t.x,t.y,30+k*60,(30+k*60)*.45,0,0,Math.PI*2);ctx.stroke()}
    ctx.restore();
   }});
  }

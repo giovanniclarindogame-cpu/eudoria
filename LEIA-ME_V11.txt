@@ -343,3 +343,5 @@ GOLEM DE PEDRA EM 4 ÂNGULOS + CORREÇÃO DO CORSÁRIO
 - assets/alquimista_v38/golem4.webp (gerado no Canva): frente, 3/4, perfil e costas × parado, andando e atacando; o jogo escolhe pela direção (js/alquimista_arte_v38.js).
 - Golem com sombra no chão e clarão do soco do lado do alvo (js/combate_identidades.js).
 - Corsário: os quadros de ataque não são mais esticados; fita de água desenhada até o punho (js/corsair_v36.js, corsair36Band).
+
+EFEITOS v39 (Canva): ícones e efeitos dos heróis em assets/efeitos_v39 + js/efeitos_v39.js (FX39.draw). Usados por Guerreiro, Ninja, Ronin, Solar, Eclipse, Caçador, Herdeiro e Corsário no lugar dos desenhos por código. ?fx39=0 volta aos desenhos antigos.
