@@ -1,0 +1,404 @@
+{
+  "character": "Cavaleiro do Firmamento",
+  "hero": 8,
+  "version": 37,
+  "identity": "Cabelo castanho curto ondulado, franja baixa, olhos azul-acinzentados, expressão serena; armadura azul-claro e prata, filetes dourados, diadema alado curto, cachecol vermelho. Identidade distinta do Corsário.",
+  "body": {
+    "columns": 6,
+    "rows": 6,
+    "cell": 209,
+    "footY": 193,
+    "anchorX": 104.5,
+    "margin": 8,
+    "maxIdleHeight": 173
+  },
+  "bodyRows": [
+    "repouso",
+    "corrida lateral",
+    "corrida de frente",
+    "corrida de costas",
+    "soco básico",
+    "dano, dano, queda, caído, defesa, avanço"
+  ],
+  "skills": [
+    "Rajada Estelar",
+    "Cometa Veloz",
+    "Chute Crescente",
+    "Investida Galopante",
+    "Constelação Radiante",
+    "Vitória"
+  ],
+  "icons": {
+    "0": "Rajada Estelar",
+    "1": "Cometa Veloz",
+    "2": "Chute Crescente",
+    "3": "Investida Galopante / avanço",
+    "4": "Constelação Radiante"
+  },
+  "effects": {
+    "columns": 6,
+    "rows": 4,
+    "cell": 256,
+    "margin": 16,
+    "formation": [
+      0,
+      7
+    ],
+    "intensity": [
+      8,
+      15
+    ],
+    "dissipation": [
+      16,
+      23
+    ],
+    "stageBands": {
+      "unlit": [
+        0,
+        7
+      ],
+      "lit": [
+        8,
+        15
+      ],
+      "bright": [
+        16,
+        23
+      ]
+    },
+    "impactAnchors": {
+      "firstFrame": 8,
+      "meteor": [
+        [
+          130,
+          161
+        ],
+        [
+          132,
+          151
+        ],
+        [
+          139,
+          143
+        ],
+        [
+          134,
+          134
+        ],
+        [
+          130,
+          118
+        ],
+        [
+          127,
+          121
+        ],
+        [
+          127,
+          122
+        ],
+        [
+          125,
+          122
+        ],
+        [
+          127,
+          124
+        ],
+        [
+          127,
+          123
+        ],
+        [
+          133,
+          114
+        ],
+        [
+          129,
+          116
+        ],
+        [
+          132,
+          121
+        ],
+        [
+          129,
+          122
+        ],
+        [
+          128,
+          118
+        ],
+        [
+          119,
+          109
+        ]
+      ],
+      "final": [
+        [
+          132,
+          164
+        ],
+        [
+          134,
+          153
+        ],
+        [
+          132,
+          142
+        ],
+        [
+          132,
+          131
+        ],
+        [
+          127,
+          123
+        ],
+        [
+          129,
+          123
+        ],
+        [
+          132,
+          121
+        ],
+        [
+          132,
+          121
+        ],
+        [
+          126,
+          118
+        ],
+        [
+          125,
+          119
+        ],
+        [
+          123,
+          117
+        ],
+        [
+          123,
+          119
+        ],
+        [
+          123,
+          120
+        ],
+        [
+          128,
+          121
+        ],
+        [
+          131,
+          124
+        ],
+        [
+          125,
+          151
+        ]
+      ]
+    }
+  },
+  "faceCrop": {
+    "source": [
+      760,
+      1140
+    ],
+    "x": 180,
+    "y": 40,
+    "width": 440,
+    "height": 440,
+    "output": [
+      96,
+      96
+    ]
+  },
+  "gameplay": {
+    "file": "js/cavaleiro_v3.js",
+    "unchangedSha256": "dbf6ce6621cf1f9d0efcb776129175598c0a1f12da800de592da1ae9f0a3b5c0",
+    "baseCommit": "c0c31c9",
+    "cometPreparationSeconds": 0.3
+  },
+  "styleReferences": [
+    "assets/ninja_v23/portrait.webp",
+    "assets/corpos_v24/ninja-base.webp",
+    "assets/corsair_v36/portrait.webp",
+    "assets/corsair_v36/body.webp"
+  ],
+  "files": [
+    {
+      "file": "background.webp",
+      "width": 1536,
+      "height": 1024,
+      "alpha": false,
+      "lossless": true,
+      "bytes": 1878088,
+      "sha256": "6425a50fee4c42e555e60700b9f3a4195bf4803203778d242580c764f09a4318"
+    },
+    {
+      "file": "body.webp",
+      "width": 1254,
+      "height": 1254,
+      "alpha": true,
+      "lossless": true,
+      "bytes": 1240074,
+      "sha256": "e6dd324b02a6fc9f0f59a515d2ff5a2cfd08b8ec97c99ebe1b8da987f8f356ab"
+    },
+    {
+      "file": "comet.webp",
+      "width": 1536,
+      "height": 1024,
+      "alpha": true,
+      "lossless": true,
+      "bytes": 471854,
+      "sha256": "5ff7dd9e430db3fde2f00c9ae8f897e17002525db90f82571b17c6976908c8e4"
+    },
+    {
+      "file": "constellation.webp",
+      "width": 1536,
+      "height": 1024,
+      "alpha": true,
+      "lossless": true,
+      "bytes": 484324,
+      "sha256": "67f303602abcdc1d0c3c897e68855a8fd20c612044977725b9ceff0baeb69934"
+    },
+    {
+      "file": "dash.webp",
+      "width": 1536,
+      "height": 1024,
+      "alpha": true,
+      "lossless": true,
+      "bytes": 372112,
+      "sha256": "b49e16f78730d0f50b82db17e0412ef9cae5348766702c54c55200fb97f7e5bb"
+    },
+    {
+      "file": "exposed.webp",
+      "width": 1536,
+      "height": 1024,
+      "alpha": true,
+      "lossless": true,
+      "bytes": 663696,
+      "sha256": "64016c13722899ae14ab92c982613c231e76b287209f188f0ee7704ed33210ba"
+    },
+    {
+      "file": "final.webp",
+      "width": 1536,
+      "height": 1024,
+      "alpha": true,
+      "lossless": true,
+      "bytes": 1203742,
+      "sha256": "f6b45692ed8d22f01b0712241f831e79be8495982118bd8e7348c8ddae09436a"
+    },
+    {
+      "file": "icon-0.webp",
+      "width": 256,
+      "height": 256,
+      "alpha": false,
+      "lossless": true,
+      "bytes": 118424,
+      "sha256": "fdc080880bf7e1e2b486f9fa4ffbd18ab955f5260a8c7a82ba11317d4c116fd5"
+    },
+    {
+      "file": "icon-1.webp",
+      "width": 256,
+      "height": 256,
+      "alpha": false,
+      "lossless": true,
+      "bytes": 122014,
+      "sha256": "12dea674b5d6909b82087e00bc71a8dac0d0302a5fd6f433c678e208f22ce81d"
+    },
+    {
+      "file": "icon-2.webp",
+      "width": 256,
+      "height": 256,
+      "alpha": false,
+      "lossless": true,
+      "bytes": 116662,
+      "sha256": "2d2fa228f5725ee03bd4895059e78a2cd457a7d0c15e032f65e45a63fcf69313"
+    },
+    {
+      "file": "icon-3.webp",
+      "width": 256,
+      "height": 256,
+      "alpha": false,
+      "lossless": true,
+      "bytes": 122350,
+      "sha256": "a08e6752e291b5f76d54b3c7a6c8711813140bba4180248d4de298efc180fd84"
+    },
+    {
+      "file": "icon-4.webp",
+      "width": 256,
+      "height": 256,
+      "alpha": false,
+      "lossless": true,
+      "bytes": 126296,
+      "sha256": "9074a5237c51cdb86680844b121cd6ecd03a9038fabf0b94c99ab1fe4379eaf2"
+    },
+    {
+      "file": "kick.webp",
+      "width": 1536,
+      "height": 1024,
+      "alpha": true,
+      "lossless": true,
+      "bytes": 443128,
+      "sha256": "57a2fe1e86b0924660d339e7d9de8f148f53ce95cd28a81498975cd3683edb2a"
+    },
+    {
+      "file": "meteor.webp",
+      "width": 1536,
+      "height": 1024,
+      "alpha": true,
+      "lossless": true,
+      "bytes": 324490,
+      "sha256": "dfe25a029bf58e04950480635c2ea99b166dae558f1d8a596fbefdaa702e440e"
+    },
+    {
+      "file": "portrait.webp",
+      "width": 760,
+      "height": 1140,
+      "alpha": true,
+      "lossless": true,
+      "bytes": 816906,
+      "sha256": "fdcd4d9aef2ba3fbe45e52e082bc5a9911e3001ec57796473631776a894eacd3"
+    },
+    {
+      "file": "punch.webp",
+      "width": 1536,
+      "height": 1024,
+      "alpha": true,
+      "lossless": true,
+      "bytes": 451776,
+      "sha256": "e5d07a6f12fafe68e1aed78fc9d24a7491b877d689ba3a228c1f9ec0abe2fe1e"
+    },
+    {
+      "file": "reference.webp",
+      "width": 1536,
+      "height": 1024,
+      "alpha": true,
+      "lossless": true,
+      "bytes": 1279184,
+      "sha256": "660079060bfb19bc3b7ecde3c96e4f1a236617372e3d443882c52720a90d9c11"
+    },
+    {
+      "file": "skills.webp",
+      "width": 1254,
+      "height": 1254,
+      "alpha": true,
+      "lossless": true,
+      "bytes": 1264000,
+      "sha256": "2a75618f04894545cbf5916d5ca54d347bb05922badfab26437dc054b8c3208a"
+    },
+    {
+      "file": "stage.webp",
+      "width": 1536,
+      "height": 1024,
+      "alpha": true,
+      "lossless": true,
+      "bytes": 715856,
+      "sha256": "c7b42cfdae526c70b1f217edfb37211a884c9278eefe90ac74e90b7780fb7f3e"
+    }
+  ]
+}
