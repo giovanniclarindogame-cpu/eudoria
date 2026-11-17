@@ -55,7 +55,28 @@ function alc38Registration(im){
 }
 // Golem em 4 ângulos (frente, 3/4, perfil, costas) × parado/andando/atacando — assets/alquimista_v38/golem4.webp (gerado no Canva).
 const ALC38_GOLEM4=rwImage(ALQUIMISTA38_ROOT+'golem4.webp?v=40');
+// Golem animado v40 (gerado no Canva, fundo verde removido e borda encolhida 1 px — sem linha branca):
+// assets/alquimista_v38/golem_v40.webp, 9 colunas × 6 linhas de 256: linhas 0–3 = frente, 3/4, perfil (direita), costas
+// com quadros 0 parado · 1–4 caminhada · 5–8 soco; linha 4 = formação; linha 5 = desmoronamento.
+const ALC40_GOLEM=rwImage(ALQUIMISTA38_ROOT+'golem_v40.webp?v=1');
+const alc40Ready=()=>ALC40_GOLEM.complete&&ALC40_GOLEM.naturalWidth>0&&!/[?&]golem40=0/.test(location.search);
+function alc40Draw(g,o,row,frame,flip,bob=0){
+ const k=o.size/214;g.save();g.translate(o.x,o.y);g.imageSmoothingEnabled=true;
+ if(typeof g.beginPath==='function'){g.save();g.globalAlpha=.32;g.fillStyle='#06100c';g.beginPath();g.ellipse(0,6,o.size*.34,o.size*.11,0,0,Math.PI*2);g.fill();g.restore()}
+ if(flip)g.scale(-1,1);
+ g.drawImage(ALC40_GOLEM,frame*256,row*256,256,256,-128*k,9-242*k-bob,256*k,256*k);g.restore();return true;
+}
+function alc40Golem(g,o,attack){
+ const an=o.angle||0,c=Math.cos(an),sn=Math.sin(an);
+ const row=sn>.75?0:sn>.35?1:sn<-.75?3:2,flip=(row===1||row===2)&&c<0;
+ const moved=o.v3lx!=null&&Math.hypot(o.x-o.v3lx,o.y-o.v3ly)>.05;o.v3lx=o.x;o.v3ly=o.y;
+ if(moved)o.v3walkT=vfxTime;const walking=vfxTime-(o.v3walkT??-9)<.15;
+ const frame=attack?5+Math.min(3,Math.floor(attack.age/.4*4)):walking?1+Math.floor(vfxTime*8)%4:0;
+ const r2=row===2&&frame===0?1:row;   // parado de lado: a pose de 3/4 lê melhor que o perfil fino
+ return alc40Draw(g,o,r2,frame,flip);
+}
 function alc38Golem4(g,o,attack){
+ if(alc40Ready())return alc40Golem(g,o,attack);
  const im=ALC38_GOLEM4;if(!im.complete||!im.naturalWidth)return false;
  const an=o.angle||0,c=Math.cos(an),sn=Math.sin(an);
  const col=sn>.75?0:sn>.35?1:sn<-.75?3:2,flip=(col===1||col===2)&&c<0;
@@ -73,7 +94,11 @@ function alc38Construct(g,o,forcedFrame=null){
  const age=o.age??clock-o.created,birth=o.colossus ? .8 : .7;
  const attack=o.colossus&&Reforged.effects.find(e=>e.kind==='golem-hit'&&e.owner===o.owner&&e.age<.4&&Math.hypot(e.x-o.x,e.y-o.y)<o.size);
  const activeFrame=o.colossus?(attack?12+Math.min(3,Math.floor(attack.age/.4*4)):8+Math.floor(o.age*8)%4):8+Math.floor(vfxTime*4)%8;
- if(o.colossus&&forcedFrame==null&&age>=birth&&o.hp>0&&o.life>0&&alc38Golem4(g,o,!!attack))return true;
+ if(o.colossus&&alc40Ready()){
+  if(forcedFrame!=null&&forcedFrame>=16)return alc40Draw(g,o,5,Math.min(8,Math.floor((forcedFrame-16)*9/8)),false);   // desmoronando
+  if(forcedFrame==null&&age<birth)return alc40Draw(g,o,4,Math.min(8,Math.floor(age/birth*9)),false);                   // formando
+ }
+ if(o.colossus&&forcedFrame==null&&age>=birth&&o.hp>0&&o.life>0&&alc38Golem4(g,o,attack||null))return true;
  const frame=forcedFrame??(age<birth?Math.min(7,Math.floor(age/birth*8)):activeFrame),f=clamp(frame,0,23),box=reg.frames[f];
  const vertical=o.wall&&o.h>o.w,extent=o.colossus?o.size:o.wall?Math.max(o.w,o.h):o.w,k=extent/(o.colossus?reg.height:reg.width);
  // Real collider width determines the visible construction width. Keep its base
@@ -124,7 +149,7 @@ integratedDepth=function(){
  for(const o of objects)if((o.material||o.colossus)&&o.hp>0&&o.life>0&&!alc38Objects.has(o))alc38Objects.set(o,{o,death:null});
  for(const [o,entry]of alc38Objects){
   if(entry.death===null&&(!live.has(o)||o.hp<=0||o.life<=0))entry.death=clock;
-  if(entry.death!==null){const age=clock-entry.death;if(age>=.5||age<0){alc38Objects.delete(o);continue}list.push({kind:'alc38-collapse',y:o.y,priority:1,paint:()=>alc38Construct(ctx,o,Math.min(23,16+Math.floor(age/.5*8)))});}
+  if(entry.death!==null){const age=clock-entry.death,dur=o.colossus&&alc40Ready()?.9:.5;if(age>=dur||age<0){alc38Objects.delete(o);continue}list.push({kind:'alc38-collapse',y:o.y,priority:1,paint:()=>alc38Construct(ctx,o,Math.min(23,16+Math.floor(age/dur*8)))});}
  }
  return list.sort((a,b)=>a.y-b.y||(a.priority||0)-(b.priority||0));
 };
