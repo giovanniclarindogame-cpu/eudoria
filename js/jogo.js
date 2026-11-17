@@ -53,6 +53,10 @@ if(account.profile)account.profile.skin=Number.isInteger(account.profile.skin)&&
 /* Progressão v3: contas antigas são reiniciadas uma única vez (mantém só nome e símbolo) e passam a ganhar o herói de presente.
    Parâmetro ?allheroes=1 libera os dez campeões (usado nos testes automáticos). */
 const ALL_HEROES_DEBUG=/[?&]allheroes=1/.test(location.search);
+// FASE DE TESTES: todos os heróis ficam jogáveis para qualquer conta, sem mexer em compras nem no presente inicial.
+// Para voltar ao normal (presente + rodízio semanal + Loja), troque TESTE_LIBERADOS_PADRAO para false. ?liberados=0 simula o modo normal.
+const TESTE_LIBERADOS_PADRAO=true;
+const TESTE_TODOS_LIBERADOS=TESTE_LIBERADOS_PADRAO&&!/[?&]liberados=0/.test(location.search);
 if(account.progVer!==3){
  const keepProfile=account.profile?{name:account.profile.name,avatar:account.profile.avatar,skin:0}:null;
  try{for(const k of ['eldoria.cacada.v1','eldoria.arcade.v1','eldoria.retencao.v1'])localStorage.removeItem(k)}catch{}
@@ -2482,11 +2486,11 @@ normalizeChampions=function(){
  account.progVer=3;
  account.ownedHeroes=[...new Set((Array.isArray(account.ownedHeroes)?account.ownedHeroes:[]).filter(id=>Number.isInteger(id)&&CHAMPIONS[id]))];
  if(ALL_HEROES_DEBUG){account.ownedHeroes=CHAMPIONS.map(c=>c.id);account.giftPending=false}
- account.champions=[...new Set([...account.ownedHeroes,...heroesFreeThisWeek()])];
+ account.champions=TESTE_TODOS_LIBERADOS?CHAMPIONS.map(c=>c.id):[...new Set([...account.ownedHeroes,...heroesFreeThisWeek()])];
  account.championFirstDone=true;account.championVersion=1;
  if(!Number.isInteger(account.activeChampion)||!account.champions.includes(account.activeChampion))account.activeChampion=account.champions[0]??null;
  integrationNormalize();
- account.champions=[...new Set([...account.ownedHeroes,...heroesFreeThisWeek()])];
+ account.champions=TESTE_TODOS_LIBERADOS?CHAMPIONS.map(c=>c.id):[...new Set([...account.ownedHeroes,...heroesFreeThisWeek()])];
 };
 function rosterCard(c){return `<button class="hero-card ${account.activeChampion===c.id?'selected':''}" data-hero-open="${c.id}" style="--hero:${c.color}" aria-label="Conhecer ${c.name}"><span class="hero-card-art"><img src="${championArt(c)}" alt="" draggable="false"></span><span class="hero-card-number">0${c.id+1}</span><span class="hero-card-copy"><small>${(HERO_ROLES[c.id]?.split(' · ')[1]||c.weapon)}</small><strong>${c.name}</strong><span>${account.activeChampion===c.id?'✓ SELECIONADO':'DESBLOQUEADO'}</span></span></button>`;}
 renderSelection=function(){normalizeChampions();$('#selection').innerHTML=`<div class="roster-page"><header class="roster-head"><button class="icon-back" data-nav="home" aria-label="Voltar ao início">←</button><div><span class="eyebrow">ELDORIA · ARENA DOS CAMPEÕES</span><h1>Escolha sua lenda.</h1></div><span class="roster-count">${CHAMPIONS.length}<span>/ ${CHAMPIONS.length}</span></span></header><p class="roster-intro">Dez caminhos. Uma arena.<br>Todos liberados em todos os modos.</p><label class="hero-search"><span aria-hidden="true">⌕</span><input id="heroSearch" type="search" placeholder="Buscar campeão" value="${escapeHTML(rosterQuery)}" aria-label="Buscar campeão"></label><div class="hero-grid" id="heroGrid">${CHAMPIONS.filter(c=>c.name.toLocaleLowerCase('pt-BR').includes(rosterQuery.toLocaleLowerCase('pt-BR'))).map(rosterCard).join('')}</div><p class="roster-foot">Toque em um avatar para conhecer o campeão e suas seis habilidades.</p></div>`;$('#loadout').hidden=true;$('#loadout').style.display='none';$('#heroSearch').oninput=e=>{rosterQuery=e.target.value;const shown=CHAMPIONS.filter(c=>c.name.toLocaleLowerCase('pt-BR').includes(rosterQuery.toLocaleLowerCase('pt-BR')));$('#heroGrid').innerHTML=shown.map(rosterCard).join('')||'<p class="empty-roster">Nenhum campeão encontrado.</p>';};};

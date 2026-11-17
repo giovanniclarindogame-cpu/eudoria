@@ -33,7 +33,7 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  // Alquimista: terreno amigo
  await FIGHT(9);await p.waitForTimeout(300);
  const al=await p.evaluate(()=>{p.hp=p.max=5000;p.inv=0;const dmg=()=>{const h=p.hp;hit(p,100,b,0,0,-1);return h-p.hp};objects.length=0;b.x=p.x+300;const a=dmg();const blk=rwCreateBlock(p,p.x-55,p.y,false,0);const near=MarcasV3.nearOwnBlocks(p);const c=dmg();return{a,c,near,made:!!blk}});
- ok(al.near&&al.c<al.a*.9,`Alquimista: perto dos blocos recebe menos dano (${al.a.toFixed(0)} → ${al.c.toFixed(0)})`);
+ ok(al.made&&Math.abs(al.c-al.a)<.5,`Alquimista: a marca agora é a Essência da Forja, sem redução de dano perto dos blocos (${al.a.toFixed(0)} → ${al.c.toFixed(0)})`);
  // rival: Eclipse mantém distância
  await FIGHT(0);await p.waitForTimeout(300);
  const kit=await p.evaluate(()=>{b.skin=4;b.kit=[...CHAMPIONS[4].kit];b.cd=b.cd.map(()=>999);b.root=0;b.x=p.x+60;b.y=p.y;const d0=dist(b,p);for(let i=0;i<60;i++){ai(1/60,b);step(1/60)}return{d0,d1:dist(b,p)}});

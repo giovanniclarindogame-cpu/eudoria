@@ -118,9 +118,9 @@ integratedDepth=function(){
 
 /* ---------- 4. ajuste fino de equilíbrio por herói (multiplicador de dano) ---------- */
 // multiplicador de dano por herói (índice do herói → fator), ajustado por simulação de duelos entre todos os heróis
-const DMG={0:.68,1:1.05,2:1.35,3:1.05,4:.8,5:2.5,6:.95,7:.76,8:.55,9:1.0};
+const DMG={0:.68,1:1.05,2:1.35,3:1.05,4:.8,5:1.9,6:.98,7:.8,8:.55,9:1.35};
 try{const q=new URLSearchParams(location.search).get('dmg');if(q)q.split(',').forEach(kv=>{const [k,v]=kv.split(':');if(+v>0)DMG[+k]=+v})}catch{}
-const TAKE={0:1,1:1,2:1,3:1,4:1,5:.6,6:1,7:1,8:1,9:1};   // dano recebido (menor = mais resistente)
+const TAKE={0:1,1:1,2:1,3:1,4:1,5:.8,6:1,7:1,8:1,9:1};   // dano recebido (menor = mais resistente)
 try{const q=new URLSearchParams(location.search).get('take');if(q)q.split(',').forEach(kv=>{const [k,v]=kv.split(':');if(+v>0)TAKE[+k]=+v})}catch{}
 window.V3_DMG_MUL=DMG;
 // As descrições passam a mostrar o dano real de cada herói (valor base × multiplicador de equilíbrio)
@@ -246,7 +246,7 @@ rwRelease=function(a,q){
 const prevCommitF=rwCommit;
 rwCommit=function(a,q){
  const r=prevCommitF(a,q);
- if(isHero(a)&&a.skin===6&&q.slot===5){const st=reworkState(a);st.arm=999999;st.fractured=true;if(a===p)toast('FRATURA! O braço não funciona mais nesta luta')}
+ if(isHero(a)&&a.skin===6&&q.slot===5){const st=reworkState(a),lim=window.HERDEIRO_V3?.ULT_FRACTURE;st.arm=lim||999999;st.fractured=!lim;if(a===p)toast(lim?'FRATURA! Braço fora de combate por '+lim+' s':'FRATURA! O braço não funciona mais nesta luta')}
  return r;
 };
 const prevReasonF=rwResourceReason;

@@ -5,7 +5,7 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  const br=await chromium.launch();const ctx=await br.newContext({viewport:{width:1000,height:450}});
  await ctx.addInitScript(()=>{if(!localStorage.getItem('__seeded')){localStorage.setItem('__seeded','1');localStorage.setItem('eldoria-ecos-v8',JSON.stringify({version:8,profile:{name:'Veterano',avatar:2,skin:0},owned:[0,1,2],build:[0,1,2,3,4,5],coins:99999,crystals:777,wins:50,matches:80}));localStorage.setItem('eldoria.arcade.v1','{"cleared":{"zorvath":1}}');localStorage.setItem('eldoria.cacada.v1','{"wins":{"zorvath":3}}')}});
  const p=await ctx.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
- await p.goto('http://localhost:8000/index.html');await p.waitForTimeout(1500);await p.getByText('ENTRAR',{exact:true}).click();await p.waitForTimeout(1500);
+ await p.goto('http://localhost:8000/index.html?liberados=0');await p.waitForTimeout(1500);await p.getByText('ENTRAR',{exact:true}).click();await p.waitForTimeout(1500);
  // 1) reset + presente
  let a=await p.evaluate(()=>({name:account.profile&&account.profile.name,avatar:account.profile&&account.profile.avatar,coins:account.coins,crystals:account.crystals,owned:account.ownedHeroes,champs:account.champions,gift:account.giftPending,prog:account.progVer,modal:!!document.querySelector('#ljModal'),arcade:localStorage.getItem('eldoria.arcade.v1'),hunt:localStorage.getItem('eldoria.cacada.v1'),wins:account.wins}));
  ok(a.name==='Veterano'&&a.avatar===2&&a.coins===0&&a.crystals===0&&a.wins===0&&a.arcade===null&&a.hunt===null&&a.prog===3,'conta antiga reiniciada uma vez: mantém só nome e símbolo; moedas, 💎, vitórias e progresso da campanha zerados');
