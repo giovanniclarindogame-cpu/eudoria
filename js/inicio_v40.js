@@ -97,8 +97,8 @@ function homeMarkup(){
  </div>
  <header class="v40-top">
   <div class="v40-top-left">
-   <button class="v40-chip v40-profile v41-profile" data-nav="profile" aria-label="Perfil de ${esc(account.profile.name)}"><span class="v40-avatar"><img src="${heroFace()}" alt=""></span><b>${esc(account.profile.name)}</b></button>
-   <button class="v40-chip v40-league v41-league" data-nav="league" aria-label="Liga ${esc(L.name)}, ${L.pts} pontos. ${esc(L.txt)}"><span class="v41-emblem">${emblem(L.div)}</span><span><b>${esc(L.name)}</b><span class="v40-bar"><i style="width:${Math.round(L.k*100)}%"></i></span><small>${esc(L.txt)}</small></span></button>
+   ${window.ContaV42?ContaV42.chip():`<button class="v40-chip v40-profile v41-profile" data-nav="profile" aria-label="Perfil de ${esc(account.profile.name)}"><span class="v40-avatar"><img src="${heroFace()}" alt=""></span><b>${esc(account.profile.name)}</b></button>`}
+   <button class="v40-chip v40-league v41-league" data-nav="league" data-tier="${(()=>{try{return V3Liga.divOf(L.pts)}catch{return Math.min(5,L.div)}})()}" aria-label="Liga ${esc(L.name)}, ${L.pts} pontos. ${esc(L.txt)}"><span class="v41-emblem">${emblem(L.div)}</span><span><b>${esc(L.name)}</b><span class="v40-bar"><i style="width:${Math.round(L.k*100)}%"></i></span><small>${esc(L.txt)}</small></span></button>
   </div>
   <div class="v40-top-right">
    <button class="v40-cur" data-nav="shop" aria-label="${account.coins} moedas. Abrir loja">${svg('coin','v40gold')}<b>${n(account.coins)}</b><span class="v41-plus">+</span></button>
