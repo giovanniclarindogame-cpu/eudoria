@@ -40,3 +40,7 @@ O novo teste aceita `--assets-only` e `--game-only`, usando `/usr/bin/chromium` 
 ## Golem em 4 ângulos (golem4.webp)
 
 `golem4.webp` (1024 × 768, WebP sem perdas, 12 células de 256 × 256, pés na linha 240) foi gerado no Canva a partir do Golem anterior e recortado/alinhado por script. Colunas: frente, 3/4, perfil (virado para a direita; o jogo espelha para a esquerda) e costas. Linhas: parado, andando e atacando. `js/alquimista_arte_v38.js` (`alc38Golem4`) escolhe o ângulo pela direção do Golem (`o.angle`), alterna parado/andando ao se mover e usa a pose de soco quando ele ataca. A formação e o desmoronamento continuam usando `colossus.webp`.
+
+## Golem animado v40 (golem_v40.webp)
+
+`golem_v40.webp` (2304 × 1536, 9 colunas × 6 linhas de 256, pés na linha 242) foi gerado no Canva a partir de `golem4.webp`, sobre fundo verde (chroma key). O recorte remove o verde, corrige o tom verde que vaza na borda e encolhe o contorno em 1 px, para não sobrar linha clara: os pixels claros no contorno caíram de 65% (golem4) para 1,6%. Linhas 0–3: frente, 3/4, perfil (direita; o jogo espelha para a esquerda) e costas, com quadro 0 parado, 1–4 caminhada e 5–8 soco. Linha 4: formação a partir dos blocos. Linha 5: desmoronamento. `js/alquimista_arte_v38.js` (`alc40Golem`, `alc40Draw`) usa a folha pela direção do Golem; `?golem40=0` volta ao `golem4.webp`.
