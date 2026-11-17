@@ -14,6 +14,8 @@ const $q=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const MAX_LV=100;
 const need=lv=>80+20*lv;
+const dayKey=()=>{const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()};
+const firstWinReady=()=>{try{return !!account.profile&&rec().firstWin!==dayKey()}catch{return false}};
 const XP={win:50,loss:20,draw:30,training:10,gift:25,mission:40};
 const FRAMES=[
  {id:'azul',name:'Guardião',lv:1},
@@ -109,7 +111,7 @@ function render(){
     <div><b>${account.wins||0}</b><small>Vitórias</small></div>
     <div><b>${nOwned}/${heroes.length}</b><small>Campeões</small></div>
    </div>
-   <p class="v42-how">XP: vitória +${XP.win} · derrota +${XP.loss} · treino +${XP.training} · presente +${XP.gift} · missões +${XP.mission}. Cada nível dá moedas.</p>
+   <p class="v42-how">XP: vitória +${XP.win} (1ª do dia em dobro) · derrota +${XP.loss} · treino +${XP.training} · presente +${XP.gift} · missões +${XP.mission}. Cada nível dá moedas.</p>
   </section>
   <section class="v42-pick">
    <div class="v42-tabs" role="tablist"><button type="button" role="tab" data-v42-tab="fotos" aria-selected="${tab==='fotos'}">Fotos</button><button type="button" role="tab" data-v42-tab="molduras" aria-selected="${tab==='molduras'}">Molduras</button></div>
@@ -156,9 +158,10 @@ function outcomeXp(){
  const title=($q('#resultTitle')?.textContent||'').trim();
  const draw=/empate/i.test(title);
  const win=!draw&&/é sua|concluíd|derrotad|vit[oó]r|campe[aã]o/i.test(title)&&!/prevaleceu|venceu|aprendizado|encerrad/i.test(title);
- const g=gain(draw?XP.draw:win?XP.win:XP.loss,'partida');
+ const first=win&&firstWinReady();if(first)rec().firstWin=dayKey();
+ const g=gain((draw?XP.draw:win?XP.win:XP.loss)*(first?2:1),'partida');if(first)g.first=true;
  const el=$q('#resultText');
- if(el&&g.gain)el.textContent=el.textContent+` Conta: +${g.gain} XP${g.ups?` · NÍVEL ${g.lv}!`:''}.`;
+ if(el&&g.gain)el.textContent=el.textContent+` Conta: +${g.gain} XP${g.first?' (1ª vitória do dia: em dobro)':''}${g.ups?` · NÍVEL ${g.lv}!`:''}.`;
  try{const st=$q('#stats');if(st&&g.gain)st.insertAdjacentHTML('beforeend',`<span class="v42-xp-stat">+${g.gain} XP de conta</span>`)}catch{}
 }
 function watchOutcome(){
@@ -182,5 +185,5 @@ function checkGift(){
 }
 setInterval(checkGift,1500);
 
-window.ContaV42={rec,gain,need,XP,FRAMES,TIERS,chip,avatar,open,close,save,photoKey,frameId,MAX_LV};
+window.ContaV42={firstWinReady,rec,gain,need,XP,FRAMES,TIERS,chip,avatar,open,close,save,photoKey,frameId,MAX_LV};
 })();

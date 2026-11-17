@@ -38,11 +38,19 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  await pg.evaluate(()=>document.querySelector('[data-v40-pick="duelo"]').scrollIntoView({inline:'center'}));
  await pg.click('[data-v40-pick="duelo"]');await pg.waitForTimeout(400);
  const back=await pg.evaluate(()=>({closed:document.querySelector('#v40Modes').hidden,name:document.querySelector('.v40-mode-txt b')?.textContent,saved:account.v40Mode}));
- ok(back.closed&&back.name==='Duelo 1×1'&&back.saved==='duelo',`${tag} escolher Duelo 1×1 volta ao início com o modo registrado`);
+ ok(!back.closed&&back.saved==='duelo',`${tag} tocar em Duelo 1×1 escolhe o modo e continua na tela de modos`);
+ const v43=await pg.evaluate(()=>{const on=document.querySelector('.v43-card.on'),st=document.querySelector('#v40Modes .v40-strip'),first=st.querySelector('.v43-card').getBoundingClientRect();
+  return{on:on?.dataset.v40Pick,check:!!on?.querySelector('.v43-check'),play:document.querySelector('[data-v43-play] small')?.textContent,reward:document.querySelectorAll('.v43-reward').length,rank:document.querySelectorAll('.v43-rank').length,
+   soonLast:st.querySelector('.v40-group:last-child')?.dataset.cat,tabIcons:document.querySelectorAll('.v43-tabs .v40i').length,home:!!document.querySelector('#v40Modes [aria-label="Início"]'),scrollbar:getComputedStyle(st).scrollbarWidth,left:first.left}});
+ ok(v43.on==='duelo'&&v43.check&&v43.play==='Duelo 1×1',`${tag} cartão escolhido em destaque e JOGAR da tela de modos mostra o modo`);
+ ok(v43.reward>=12&&v43.rank===4&&v43.soonLast==='breve'&&v43.tabIcons===4&&!v43.home&&v43.scrollbar==='none',`${tag} recompensas, rank das 4 ligas, "em breve" no fim, abas com ícone, sem barra de rolagem`);
+ await pg.click('#v40Modes [data-v40-close]');await pg.waitForTimeout(300);
+ const back2=await pg.evaluate(()=>({closed:document.querySelector('#v40Modes').hidden,name:document.querySelector('.v40-mode-txt b')?.textContent}));
+ ok(back2.closed&&back2.name==='Duelo 1×1',`${tag} voltar mostra o modo escolhido no início`);
  await pg.click('[data-v40-modes]');await pg.waitForTimeout(200);
  await pg.evaluate(()=>document.querySelector('[data-v40-pick="online"]').scrollIntoView({inline:'center'}));await pg.click('[data-v40-pick="online"]',{force:true});await pg.waitForTimeout(200);
  ok(await pg.evaluate(()=>!document.querySelector('#v40Modes').hidden&&account.v40Mode==='duelo'),`${tag} modo "em breve" não é escolhido`);
- await pg.click('#v40Modes .v40-modes-top [aria-label="Voltar"]');await pg.waitForTimeout(200);
+ await pg.click('#v40Modes [data-v40-close]');await pg.waitForTimeout(200);
  await pg.click('[data-v40-play]');await pg.waitForTimeout(600);
  const play=await pg.evaluate(()=>({kof:!!document.querySelector('.kx')&&!document.querySelector('#modeScreen').hidden,mode:lobbyPrefs.mode}));
  ok(play.kof&&play.mode==='1v1',`${tag} JOGAR com Duelo 1×1 abre a escolha de campeão do duelo`);

@@ -20,7 +20,7 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
    await p.evaluate(s=>showScreen(s),s);await p.waitForTimeout(500);
    ok(!(await p.locator('#lobbyNav').isVisible()),`${tag}: ${s} sem menu lateral`);
    const r=await p.locator('#backHome').boundingBox();
-   ok(r&&r.x+r.width>vp.width-80&&r.y<30,`${tag}: ${s} com botão de voltar no canto superior direito`);
+   ok(r&&(['library','training','shop'].includes(s)?r.x<80:r.x+r.width>vp.width-80)&&r.y<30,`${tag}: ${s} com botão de voltar no canto superior (esquerdo nas telas novas)`);
   }
   await p.evaluate(()=>showScreen('library'));await p.waitForTimeout(400);
   await p.click('[data-hero-open]');await p.waitForTimeout(500);

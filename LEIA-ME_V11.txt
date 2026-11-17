@@ -370,3 +370,13 @@ PERFIL v42 (js/perfil_v42.js, css/perfil_v42.css, tests/perfil-v42.cjs)
 - Tela de perfil nova (abre ao tocar no nome): editar nome, nível/XP, liga, partidas/vitórias/campeões, abas Fotos (campeão atual,
   rosto de cada campeão liberado, 6 símbolos) e Molduras (Guardião 1, Bronze 2, Prata 4, Ouro Real 6, Jade 8, Sakura 10, Rubi 13,
   Dragão 16, Celestial 20 — liberadas pelo nível da conta). A criação do primeiro perfil continua na tela antiga.
+
+TELAS v43 (js/inicio_v40.js, js/telas_v43.js, css/telas_v43.css, tests/telas-v43.cjs)
+- Modos: margem nos dois lados, sem barra de rolagem (borda direita esmaece), "Em breve" num grupo no fim com faixa vermelha,
+  rodapé com recompensa e XP de conta, rank de cada liga no cartão (cor do rank), selos NOVO e tempo da Caçada, cartão escolhido
+  com brilho e ✓, tocar escolhe e fica na tela, JOGAR na própria tela, carteira no lugar do botão Início, fundo da arena desfocado,
+  abas com ícone, cartões entram em sequência. Selo "1ª vitória do dia: XP ×2" (a primeira vitória do dia dá XP de conta em dobro).
+- Campeões, Loja e Dojo: barra de topo nova (o #backHome de sempre vai para a esquerda, azul com borda dourada; título dourado;
+  carteira; busca de Campeões no topo), fundo da arena desfocado, cartões azuis com borda dourada e etiqueta amarela com nome
+  marrom, detalhe do campeão e janela de presente da Loja no mesmo estilo. Só aparência: as telas continuam desenhadas pelos
+  arquivos antigos (menus_simples.js, loja_v3.js, jogo.js); a barra é recolocada sempre que a tela é redesenhada.
