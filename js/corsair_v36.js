@@ -51,7 +51,17 @@ rwSprite=function(g,skin,slot,x,y,size,phase,angle=0,directional=false,alpha=1,s
  if(skin!==7)return corsair36OldSprite(g,skin,slot,x,y,size,phase,angle,directional,alpha,stage);
  return corsair36Effect(g,['punch','barrage','burst','launch','aura','giant'][slot],phase*24,x,y,size,angle,directional,alpha);
 };
+// Fita de água: textura gerada no Canva (assets/efeitos_v39/ribbon.webp), emendada para repetir sem costura e
+// deslizando ao longo do braço. Sem a imagem, volta ao desenho por código abaixo.
+const CORSAIR36_RIBBON=rwImage('assets/efeitos_v39/ribbon.webp?v=1');
 function corsair36Band(len,w,u){
+ const R=CORSAIR36_RIBBON;
+ if(R.complete&&R.naturalWidth&&!/[?&]fx39=0/.test(location.search)){
+  const th=w*2.3,tw=th*R.naturalWidth/R.naturalHeight,off=(vfxTime*220)%tw;
+  ctx.save();ctx.beginPath();ctx.rect(0,-th,len,th*2);ctx.clip();ctx.imageSmoothingEnabled=true;
+  for(let x=-off;x<len;x+=tw)ctx.drawImage(R,x,-th/2,tw,th);
+  ctx.restore();return;
+ }
  const t=vfxTime*18,n=Math.max(2,Math.ceil(len/6)),top=[],bot=[];
  for(let i=0;i<=n;i++){const x=len*i/n,taper=Math.min(1,.55+x/len*.6),wob=Math.sin(x*.09-t)*w*.18;top.push([x,-w/2*taper+wob]);bot.push([x,w/2*taper+wob])}
  const g=ctx.createLinearGradient(0,-w/2,0,w/2);g.addColorStop(0,'#7fe9ea');g.addColorStop(.5,'#1fa7a8');g.addColorStop(1,'#0d6f7a');

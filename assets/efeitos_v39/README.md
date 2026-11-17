@@ -13,3 +13,7 @@ Gerados com a IA de imagem do Canva e recortados/alinhados por script (fundo bra
 ## Animações (anim/)
 
 13 efeitos animados em folhas 3 × 3 (768 × 768, quadros de 256, fundo preto, somam luz), gerados no Canva como sequência e recortados por script: fogo, fumaça, aura, explosaoOuro, anelOuro, corte, impactoVioleta, explosaoRubra (7 quadros), runas, explosaoVerde, anelVerde, onda, respingo. `FX39.draw(chave, …, {t})` toca uma vez (t de 0 a 1); `{loop:true}` repete a 12 quadros por segundo. Sem a animação carregada, usa a imagem parada.
+
+## Fita de água do Corsário (ribbon.webp)
+
+Faixa horizontal de água gerada no Canva; as pontas foram emendadas por script (20% de sobreposição com transição) para repetir sem costura, e o fundo preto virou transparência pelo brilho. `corsair36Band()` em `js/corsair_v36.js` repete a textura ao longo do braço e a desliza para dar a sensação de água correndo; o punho da arte do Corsário continua na ponta, sem esticar.
