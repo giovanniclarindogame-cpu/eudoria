@@ -156,9 +156,24 @@ body.v40-on #lobbyNav,body.v40-on #backHome,body.v40-modes-open #lobbyNav,body.v
 /* botões de atalho com ícones ilustrados (Canva) */
 .v41-side{gap:10px}
 .v41-side button{width:76px!important;height:auto!important;padding:0!important;background:none!important;box-shadow:none!important;display:flex!important;flex-direction:column;align-items:center;gap:0!important;overflow:visible}
-.v41-ico{display:block;width:72px;height:72px;border-radius:16px;background:url('../assets/inicio_v41/icones.webp?v=1') no-repeat;background-size:200% 200%;background-position:calc(var(--i) % 2 * 100%) calc(var(--i) / 2 * 100%);filter:drop-shadow(0 4px 0 rgba(10,12,30,.45)) drop-shadow(0 6px 10px rgba(0,0,0,.35))}
+.v41-ico{display:block;width:72px;height:72px;border-radius:16px;filter:drop-shadow(0 4px 0 rgba(10,12,30,.45)) drop-shadow(0 6px 10px rgba(0,0,0,.35))}
 .v41-side button:nth-child(1) .v41-ico{background-position:0 0}.v41-side button:nth-child(2) .v41-ico{background-position:100% 0}
 .v41-side button:nth-child(3) .v41-ico{background-position:0 100%}.v41-side button:nth-child(4) .v41-ico{background-position:100% 100%}
 .v41-lbl{margin-top:-10px;position:relative;background:linear-gradient(180deg,#ffe9a6,#ffc94a);color:#3b2100;font-weight:900;font-size:12px;padding:2px 9px;border-radius:9px;border:2px solid #7a4a00;box-shadow:0 2px 0 rgba(0,0,0,.35);white-space:nowrap}
 .v41-side button:hover .v41-ico{transform:translateY(-2px)}
 @media (max-height:430px){.v41-side button{width:64px!important}.v41-ico{width:60px;height:60px;border-radius:13px}.v41-lbl{font-size:11px;padding:1px 7px}}
+/* v41.2 — atalhos: moldura própria + símbolo simples; cartões coloridos */
+.v41-ico{background:none!important;filter:none!important;position:relative;border-radius:18px!important;
+ background-image:radial-gradient(circle at 50% 30%,#3b6fd6 0%,#24408f 55%,#182a63 100%)!important;
+ border:3px solid #ffd45a;box-shadow:0 4px 0 #8a5a00,0 7px 12px rgba(0,0,0,.35),inset 0 2px 0 rgba(255,255,255,.35),inset 0 -4px 0 rgba(0,0,0,.25)}
+.v41-ico::before{content:"";position:absolute;inset:9%;background:url('../assets/inicio_v41/simbolos.webp?v=1') no-repeat;background-size:200% 200%;filter:drop-shadow(0 2px 0 rgba(0,0,0,.35))}
+.v41-side button:nth-child(1) .v41-ico::before{background-position:0 0}.v41-side button:nth-child(2) .v41-ico::before{background-position:100% 0}
+.v41-side button:nth-child(3) .v41-ico::before{background-position:0 100%}.v41-side button:nth-child(4) .v41-ico::before{background-position:100% 100%}
+.v41-ico::after{content:"";position:absolute;left:10%;right:10%;top:6%;height:30%;border-radius:12px 12px 40% 40%;background:linear-gradient(180deg,rgba(255,255,255,.28),rgba(255,255,255,0));pointer-events:none}
+/* perfil, liga e caçada com cor */
+.v41-profile{background:linear-gradient(180deg,#3b6fd6,#24408f)!important;color:#fff!important;border:2px solid #ffd45a}
+.v41-profile b{color:#fff}.v41-profile .v40-avatar{border-color:#ffd45a}
+.v41-league{background:linear-gradient(180deg,#8a5cf0,#5a35b8)!important;color:#fff!important;border:2px solid #ffd45a}
+.v41-league b{color:#fff}.v41-league small{color:#ffe7a3!important;opacity:1!important}.v41-league .v40-bar{background:rgba(0,0,0,.3)}
+.v41-event{background:linear-gradient(180deg,#e0564d,#a3263a)!important;color:#fff!important;border:2px solid #ffd45a}
+.v41-event>small{color:#ffe7a3!important}.v41-event>b{color:#fff}.v41-event>em{color:#fff;opacity:.9!important}
