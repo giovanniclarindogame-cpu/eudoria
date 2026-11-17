@@ -78,9 +78,11 @@ integratedDepth=function(){
  for(const T of TRAILS)list.unshift({kind:'v3-solar-trail',y:-1e8,priority:-7,paint(){
   const lit=Math.min(1,(clock-T.t0)/.4),fade=Math.min(1,(T.until-clock)/.6);
   ctx.save();ctx.globalCompositeOperation='lighter';ctx.lineCap='round';ctx.lineJoin='round';
-  ctx.globalAlpha=.32*lit*fade;ctx.strokeStyle='#ff6a2a';ctx.lineWidth=TRAIL_W*1.6;ctx.beginPath();T.pts.forEach((q,i)=>i?ctx.lineTo(q.x,q.y+8):ctx.moveTo(q.x,q.y+8));ctx.stroke();
-  ctx.globalAlpha=.55*lit*fade;ctx.strokeStyle=ORANGE;ctx.lineWidth=5;ctx.stroke();
-  for(let i=0;i<T.pts.length;i++){const q=T.pts[i],w=Math.sin(clock*9+i*1.7);flame(q.x+w*3,q.y+4,.9+.25*w,.75*lit*fade)}
+  const tex=window.FX39?.lineReady('rastroFogo');
+  if(tex){let cum=0;ctx.save();ctx.globalAlpha=lit*fade;for(let i=1;i<T.pts.length;i++){const u=T.pts[i-1],v=T.pts[i];FX39.line('rastroFogo',u.x,u.y+2,v.x,v.y+2,TRAIL_W*1.7,{add:true,phase:cum,scroll:-30,upright:true});cum+=Math.hypot(v.x-u.x,v.y-u.y)}ctx.restore()}
+  else{  ctx.globalAlpha=.32*lit*fade;ctx.strokeStyle='#ff6a2a';ctx.lineWidth=TRAIL_W*1.6;ctx.beginPath();T.pts.forEach((q,i)=>i?ctx.lineTo(q.x,q.y+8):ctx.moveTo(q.x,q.y+8));ctx.stroke();
+  ctx.globalAlpha=.55*lit*fade;ctx.strokeStyle=ORANGE;ctx.lineWidth=5;ctx.stroke();}
+  for(let i=0;i<T.pts.length;i+=(tex?4:1)){const q=T.pts[i],w=Math.sin(clock*9+i*1.7);flame(q.x+w*3,q.y+4,.9+.25*w,.75*lit*fade)}
   ctx.restore();
  }});
  for(const t of actors){

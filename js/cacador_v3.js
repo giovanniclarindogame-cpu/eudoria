@@ -78,7 +78,7 @@ integratedDepth=function(){
  if(typeof actors==='undefined'||!actors)return list;
  for(const a of actors){
   if(!on(a)||a.hp<=0)continue;
-  const q=a.rwCast,hold=q?.holding&&q.slot===0,hk=a.v3hook&&clock-a.v3hook.t<.35?a.v3hook:null,firm=clock-(a.v3firmFx??-9)<.35;
+  const q=a.rwCast,hold=q?.holding&&q.slot===0,hk=a.v3hook&&clock-a.v3hook.t<.45?a.v3hook:null,firm=clock-(a.v3firmFx??-9)<.35;
   if(!hold&&!hk&&!firm)continue;
   list.push({kind:'v3-cacador',y:99989+a.y*.001,priority:9,paint(){
    ctx.save();
@@ -89,8 +89,10 @@ integratedDepth=function(){
      ctx.beginPath();ctx.moveTo(x,y-6);ctx.lineTo(x+5,y);ctx.lineTo(x,y+6);ctx.lineTo(x-5,y);ctx.closePath();ctx.fill();ctx.stroke();
      if(i===lv&&lv<3){ctx.globalAlpha=.9;ctx.fillStyle=GREEN;ctx.beginPath();ctx.moveTo(x,y+6);ctx.lineTo(x+5*part,y+6-6*part);ctx.lineTo(x,y+6-12*part);ctx.lineTo(x-5*part,y+6-6*part);ctx.closePath();ctx.fill()}}
     if(lv===3){ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.4+.3*Math.sin(clock*20);ctx.strokeStyle=GOLD;ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(a.x,a.y+10,30,12,0,0,Math.PI*2);ctx.stroke()}}
-   if(hk)window.FX39?.draw('anzol',hk.to.x+12,hk.to.y-34,24,{alpha:1-(clock-hk.t)/.35});
-   if(hk){const k=(clock-hk.t)/.35;ctx.globalAlpha=1-k;ctx.strokeStyle='#e9f5ee';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(a.x,a.y-30);ctx.quadraticCurveTo((a.x+hk.to.x)/2,Math.min(a.y,hk.to.y)-60,hk.to.x,hk.to.y-24);ctx.stroke()}
+   const hkEnd=hk?(clock-hk.t<.14?hk.from:hk.to):null;   // a linha estica até onde o rival estava e depois acompanha o puxão
+   if(hk)window.FX39?.draw('anzol',hkEnd.x+12,hkEnd.y-34,24,{alpha:1-(clock-hk.t)/.35});
+   if(hk&&window.FX39?.lineReady('linhaPesca')){const k=(clock-hk.t)/.35;FX39.line('linhaPesca',a.x,a.y-30,hkEnd.x,hkEnd.y-24,8,{alpha:1-k,add:true})}
+   else if(hk){const k=(clock-hk.t)/.35;ctx.globalAlpha=1-k;ctx.strokeStyle='#e9f5ee';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(a.x,a.y-30);ctx.quadraticCurveTo((a.x+hk.to.x)/2,Math.min(a.y,hk.to.y)-60,hk.to.x,hk.to.y-24);ctx.stroke()}
    if(firm){ctx.globalAlpha=.8;ctx.font='800 9px system-ui';ctx.textAlign='center';ctx.fillStyle=GREEN;ctx.fillText('FIRME',a.x,a.y-96)}
    ctx.restore();
   }});
