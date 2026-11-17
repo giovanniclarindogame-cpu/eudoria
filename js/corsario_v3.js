@@ -106,6 +106,7 @@ integratedDepth=function(){
   if(a.hp<=0)continue;
   const uf=a.v3undertowFx&&clock-a.v3undertowFx.t<.4?a.v3undertowFx:null;
   if(uf)list.push({kind:'v3-corsario-ressaca',y:99987+a.y*.001,priority:9,paint(){
+   if(window.FX39?.ready('onda')){const k=(clock-uf.t)/.4;FX39.draw('onda',a.x,a.y-18,70,{alpha:(1-k)*.9,flip:uf.from.x<a.x});return}
    const k=(clock-uf.t)/.4;ctx.save();ctx.globalAlpha=(1-k)*.8;ctx.strokeStyle=WATER;ctx.lineWidth=3;
    for(let i=0;i<3;i++){ctx.beginPath();ctx.arc(a.x,a.y+4,18+i*10+k*10,Math.PI*.15,Math.PI*.85);ctx.stroke()}ctx.restore();
   }});
@@ -117,6 +118,7 @@ integratedDepth=function(){
    if(ready){const t=a.v3reel.t,k=(a.v3reel.until-clock)/REEL_WIN;ctx.globalAlpha=.35+.5*k;ctx.strokeStyle=WATER;ctx.setLineDash([6,5]);ctx.lineWidth=2;
     ctx.beginPath();ctx.moveTo(a.x,a.y-26);ctx.lineTo(t.x,t.y-26);ctx.stroke();ctx.setLineDash([]);
     ctx.globalAlpha=.9;ctx.fillStyle=WATER;ctx.font='800 9px system-ui';ctx.textAlign='center';ctx.fillText('FISGOU! TOQUE DE NOVO',a.x,a.y-88)}
+   if(rf&&window.FX39?.ready('respingo')){const k=(clock-rf.t)/.3;FX39.draw('respingo',rf.to.x,rf.to.y-24,50+k*30,{alpha:1-k})}
    if(rf){const k=(clock-rf.t)/.3;ctx.globalAlpha=1-k;ctx.strokeStyle='#e8fbff';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(a.x,a.y-26);ctx.lineTo(rf.to.x,rf.to.y-26);ctx.stroke()}
    ctx.restore();
   }});

@@ -126,19 +126,22 @@ integratedDepth=function(){
   if(!a.v3kiHold&&!charging&&!bu)continue;
   list.push({kind:'v3-guerreiro',y:99991+a.y*.001,priority:9,paint(){
    ctx.save();ctx.globalCompositeOperation='lighter';
-   if(a.v3kiHold){
+   if(a.v3kiHold&&window.FX39?.ready('aura')){FX39.draw('aura',a.x,a.y-22,92+5*Math.sin(clock*10),{alpha:.85,rot:clock*1.2});FX39.draw('aura',a.x,a.y+8,70,{alpha:.5,ground:true,sy:.4,rot:-clock*2});ctx.globalAlpha=.9;ctx.font='800 10px system-ui';ctx.textAlign='center';ctx.fillStyle=KI;ctx.fillText('CONCENTRANDO',a.x,a.y-88)}
+   else if(a.v3kiHold){
     for(let i=0;i<7;i++){const ph=(clock*1.6+i/7)%1,ang=i*2.4,x=a.x+Math.cos(ang)*(18+6*Math.sin(i)),y=a.y+8-ph*70;
      ctx.globalAlpha=.75*(1-ph);ctx.fillStyle=i%2?KI:'#ffffff';ctx.beginPath();ctx.arc(x,y,2.4,0,Math.PI*2);ctx.fill()}
     ctx.globalAlpha=.45+.25*Math.sin(clock*12);ctx.strokeStyle=KI;ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(a.x,a.y+10,30,12,0,0,Math.PI*2);ctx.stroke();
     ctx.globalAlpha=.9;ctx.font='800 10px system-ui';ctx.textAlign='center';ctx.fillStyle=KI;ctx.fillText('CONCENTRANDO',a.x,a.y-88);
    }
+   if(charging&&window.FX39?.ready('anelOuro')){const hm=holdMaxOf(q.id);if(q.age>=hm*PERFECT[0]&&q.age<hm*PERFECT[1])FX39.draw('anelOuro',a.x,a.y-20,86,{alpha:.95,rot:clock*3})}
    if(charging){
     const hm=holdMaxOf(q.id),k=Math.min(1,q.age/hm),win=q.age>=hm*PERFECT[0]&&q.age<hm*PERFECT[1];
     ctx.globalAlpha=win?.95:.5;ctx.strokeStyle=win?GOLD:KI;ctx.lineWidth=win?4:2;
     ctx.beginPath();ctx.arc(a.x,a.y-20,34,-Math.PI/2,-Math.PI/2+k*Math.PI*2);ctx.stroke();
     ctx.globalAlpha=.35;ctx.strokeStyle=GOLD;ctx.lineWidth=2;ctx.beginPath();ctx.arc(a.x,a.y-20,34,-Math.PI/2+PERFECT[0]*Math.PI*2,-Math.PI/2+Math.PI*2);ctx.stroke();
    }
-   if(bu){const k=(clock-bu.t)/.5;ctx.globalAlpha=1-k;ctx.strokeStyle=GOLD;ctx.lineWidth=5*(1-k)+1;ctx.beginPath();ctx.ellipse(bu.x,bu.y,BURST_R*k,BURST_R*k*.45,0,0,Math.PI*2);ctx.stroke()}
+   if(bu&&window.FX39?.ready('explosaoOuro')){const k=(clock-bu.t)/.5;FX39.draw('explosaoOuro',bu.x,bu.y-22,BURST_R*(.7+1.3*k),{alpha:1-k})}
+   else if(bu){const k=(clock-bu.t)/.5;ctx.globalAlpha=1-k;ctx.strokeStyle=GOLD;ctx.lineWidth=5*(1-k)+1;ctx.beginPath();ctx.ellipse(bu.x,bu.y,BURST_R*k,BURST_R*k*.45,0,0,Math.PI*2);ctx.stroke()}
    ctx.restore();
   }});
  }
