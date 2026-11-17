@@ -1,0 +1,11 @@
+#heroDetail.alquimista-detail{background:#241d17 url('../assets/alquimista_v38/background.webp?v=38') center/cover no-repeat}
+.alquimista-detail.simple-detail .hero-detail-inner{background:linear-gradient(90deg,#241d1708 25%,#21190fc9 65%,#21190fed)}
+.alquimista-detail.simple-detail .hero-stage{background:none}
+.alquimista-detail .hero-halo{display:none}
+.alquimista-detail .hero-heading,.alquimista-detail .simple-kit-heading{text-shadow:0 2px 5px #170e06,0 0 14px #573b1ecc}
+.alquimista-detail.simple-detail .hero-skill-copy{background:#241d17ef;border-color:#dba75177}
+.alquimista-detail .hero-stage img{object-fit:contain;filter:drop-shadow(0 8px 16px #1a120988)}
+.skill-art.alquimista-skill-art{image-rendering:auto}
+/* Generic dash keeps its existing handler/cooldown; only its arrow artwork changes. */
+body.v3 #battle #attack.v3-dash[data-hero="9"] .v3-arrow{background:url('../assets/alquimista_v38/icon-3.webp?v=38') center/cover no-repeat!important;image-rendering:auto;position:absolute!important;inset:0!important;width:100%!important;height:100%!important;border-radius:inherit}
+#attack[data-hero="9"] .v3-arrow svg{visibility:hidden}

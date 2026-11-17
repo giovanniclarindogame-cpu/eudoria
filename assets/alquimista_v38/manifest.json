@@ -1,0 +1,331 @@
+{
+  "character": "Alquimista de Aço",
+  "hero": 9,
+  "version": 38,
+  "identity": "Jovem artífice, cabelo preto curto com mecha cinza-aço, óculos de forja na testa, olhos âmbar, poeira nas bochechas, avental marrom sobre camisa areia e luvas de forja. Rosto concentrado próprio.",
+  "body": {
+    "columns": 6,
+    "rows": 6,
+    "cell": 209,
+    "footY": 193,
+    "anchorX": 104.5,
+    "margin": 8,
+    "maxIdleHeight": 173
+  },
+  "bodyRows": [
+    "Repouso",
+    "Corrida lateral",
+    "Corrida de frente",
+    "Corrida de costas",
+    "Palma básica",
+    "Dano, dano, queda, caído, defesa, avanço"
+  ],
+  "skills": [
+    "Palma Forjadora",
+    "Lâmina de Pedra / Lança dos Blocos",
+    "Muralha Instantânea",
+    "Deslize",
+    "Colosso de Pedra",
+    "Vitória"
+  ],
+  "v3Mapping": {
+    "kit0": {
+      "row": 0,
+      "icon": 0
+    },
+    "kit1": {
+      "row": 1,
+      "icon": 1
+    },
+    "kit3": {
+      "row": 2,
+      "icon": 2
+    },
+    "genericDash": {
+      "row": 3,
+      "icon": 3
+    },
+    "kit5": {
+      "row": 4,
+      "icon": 4
+    }
+  },
+  "effects": {
+    "columns": 6,
+    "rows": 4,
+    "cell": 256,
+    "margin": 16,
+    "formation": [
+      0,
+      7
+    ],
+    "intensity": [
+      8,
+      15
+    ],
+    "dissipation": [
+      16,
+      23
+    ],
+    "chargeBands": {
+      "unlit": [
+        0,
+        7
+      ],
+      "half": [
+        8,
+        15
+      ],
+      "full": [
+        16,
+        23
+      ]
+    }
+  },
+  "integrated": [
+    "block",
+    "wall",
+    "throw",
+    "impact",
+    "colossus"
+  ],
+  "futureOnly": [
+    "steel",
+    "shatter",
+    "spikes",
+    "lance",
+    "aim",
+    "charge"
+  ],
+  "constructionRendering": {
+    "block": "Largura visual igual a o.w (30); base na borda frontal do objeto real.",
+    "wall": "Largura igual ao maior lado de o.w/o.h (126); gira 90 graus para a orientação vertical.",
+    "colossus": "Altura visual igual a o.size (105–185); lê a idade, posição e vida do objeto real.",
+    "destruction": "Quadros 16–23 durante 0,5 s de efeito visual após a remoção ou destruição; nenhuma alteração no objeto."
+  },
+  "faceCrop": {
+    "source": [
+      760,
+      1140
+    ],
+    "x": 210,
+    "y": 50,
+    "width": 380,
+    "height": 380,
+    "output": [
+      96,
+      96
+    ]
+  },
+  "gameplay": {
+    "baseCommit": "9ff516f",
+    "unchangedFiles": {
+      "js/combate_identidades.js": "3c731a1312be61cfb3d05f4cc2019f803dbd71777e424ce1c9de5cb6b76072e6",
+      "js/combate_v3.js": "58a76ff8938860fa08e5836a904e7509304983ef8f03b2340954e836bf4bc02a",
+      "js/combate_v3b.js": "b38d114a2dd14efbc4fdef787f34ae8a1f0d6aeca1fc451d89c2bd1b54a05bd0",
+      "js/identidades_campeoes.js": "9ecc06e9a9eaebd443a9fc6534505066af1441e0544e22cd85c6c60250ad24e2",
+      "js/eclipse_v3.js": "ad1980b4307949c82ece756826ca18afc2a3dab68cc92f033068861d9ee0cdde"
+    }
+  },
+  "styleReferences": [
+    "assets/astral_v18/portrait.webp",
+    "assets/ninja_v23/portrait.webp",
+    "assets/ichigo_v27/portrait.webp",
+    "assets/solar_v29/portrait.webp",
+    "assets/eclipse_v30/portrait.webp",
+    "assets/corpos_v24/ninja-base.webp",
+    "assets/corsair_v36/portrait.webp",
+    "assets/cavaleiro_v37/portrait.webp"
+  ],
+  "files": [
+    {
+      "file": "aim.webp",
+      "width": 1536,
+      "height": 1024,
+      "alpha": true,
+      "lossless": true,
+      "bytes": 346326,
+      "sha256": "7636edb1d3d08de9336e1980d1660082f705db079c8048341c2814465bb2c8fb"
+    },
+    {
+      "file": "background.webp",
+      "width": 1536,
+      "height": 1024,
+      "alpha": false,
+      "lossless": true,
+      "bytes": 2079850,
+      "sha256": "513ea0dac4a1d6201236929183e4a96425f199dc790b6a8153b8b24a05025bc5"
+    },
+    {
+      "file": "block.webp",
+      "width": 1536,
+      "height": 1024,
+      "alpha": true,
+      "lossless": true,
+      "bytes": 950782,
+      "sha256": "9a6a22cea2bf9a6015a5311551602972a0c6c4e46a4eabb6508afb757cdc7b68"
+    },
+    {
+      "file": "body.webp",
+      "width": 1254,
+      "height": 1254,
+      "alpha": true,
+      "lossless": true,
+      "bytes": 1069320,
+      "sha256": "933785e2f9f400d284b0d99be6d73c8a891e5bcb3e5e5891e87ebbb10bd506ef"
+    },
+    {
+      "file": "charge.webp",
+      "width": 1536,
+      "height": 1024,
+      "alpha": true,
+      "lossless": true,
+      "bytes": 1195896,
+      "sha256": "f99a3375f9c39fa35200e13caaf11716976a7757ad32c9fe4b9f0d5aecdc615f"
+    },
+    {
+      "file": "colossus.webp",
+      "width": 1536,
+      "height": 1024,
+      "alpha": true,
+      "lossless": true,
+      "bytes": 1047804,
+      "sha256": "a829b07d01b252b9e7f2c73f5907da74f07ebf20e2e17c0c2e84f22549753a0f"
+    },
+    {
+      "file": "icon-0.webp",
+      "width": 256,
+      "height": 256,
+      "alpha": false,
+      "lossless": true,
+      "bytes": 110164,
+      "sha256": "9ed1d0848938da65315829c4ed730265f58cadaa00293c16b49ddc67fd76ad82"
+    },
+    {
+      "file": "icon-1.webp",
+      "width": 256,
+      "height": 256,
+      "alpha": false,
+      "lossless": true,
+      "bytes": 115578,
+      "sha256": "d102bd6cd0480ac5d0e3846a88f9e3b2e18766c91c090afd7eaa25318ab47d24"
+    },
+    {
+      "file": "icon-2.webp",
+      "width": 256,
+      "height": 256,
+      "alpha": false,
+      "lossless": true,
+      "bytes": 115974,
+      "sha256": "5ddf5d50687c7caddbf470ead825e4a8eafdbe33edf6a182db9b0271023373c4"
+    },
+    {
+      "file": "icon-3.webp",
+      "width": 256,
+      "height": 256,
+      "alpha": false,
+      "lossless": true,
+      "bytes": 114602,
+      "sha256": "d4bebffcdfee0b4ddad3b495f0a43c06af1e23b678987ddd20d1d19cecd67060"
+    },
+    {
+      "file": "icon-4.webp",
+      "width": 256,
+      "height": 256,
+      "alpha": false,
+      "lossless": true,
+      "bytes": 117560,
+      "sha256": "4465582e542d161ca9adf5ba700e386e58f9e838704c1bcb13e4c7c6a5de559b"
+    },
+    {
+      "file": "impact.webp",
+      "width": 1536,
+      "height": 1024,
+      "alpha": true,
+      "lossless": true,
+      "bytes": 562084,
+      "sha256": "ba026845232301bd3eac078cb845c5bec97e59861525ced4963c7fcf21369874"
+    },
+    {
+      "file": "lance.webp",
+      "width": 1536,
+      "height": 1024,
+      "alpha": true,
+      "lossless": true,
+      "bytes": 398910,
+      "sha256": "867c80122628b57d5f4d9feba63b2394f1cc40ea6687d1097deca5cbc064d744"
+    },
+    {
+      "file": "portrait.webp",
+      "width": 760,
+      "height": 1140,
+      "alpha": true,
+      "lossless": true,
+      "bytes": 646794,
+      "sha256": "8b31344121589983e5ba0233abea5e8fac29a7662b1e49a7eff3363afbf42659"
+    },
+    {
+      "file": "reference.webp",
+      "width": 1536,
+      "height": 1024,
+      "alpha": true,
+      "lossless": true,
+      "bytes": 1120864,
+      "sha256": "a8f9d74f839e5b23da5aace8fd3c8a3f82160958f8ae96f0ddcff681995e55d1"
+    },
+    {
+      "file": "shatter.webp",
+      "width": 1536,
+      "height": 1024,
+      "alpha": true,
+      "lossless": true,
+      "bytes": 562598,
+      "sha256": "a9def72523ffd8fef3b80e5818975674eaaa4e83fae73915980dec55dce079db"
+    },
+    {
+      "file": "skills.webp",
+      "width": 1254,
+      "height": 1254,
+      "alpha": true,
+      "lossless": true,
+      "bytes": 1124838,
+      "sha256": "ae6e38f9c360645d91d30d1bfad87216010d266676fe74ae10d5cba30482622d"
+    },
+    {
+      "file": "spikes.webp",
+      "width": 1536,
+      "height": 1024,
+      "alpha": true,
+      "lossless": true,
+      "bytes": 648008,
+      "sha256": "00ded377bf2977eabecb9e9520a6ef9bef300ec124bf7c1a3fee3c8c390de877"
+    },
+    {
+      "file": "steel.webp",
+      "width": 1536,
+      "height": 1024,
+      "alpha": true,
+      "lossless": true,
+      "bytes": 617544,
+      "sha256": "291c30ca29d1a1e72813e2c0f5ed64bd0b300306dbcbbcb083f276667cc673aa"
+    },
+    {
+      "file": "throw.webp",
+      "width": 1536,
+      "height": 1024,
+      "alpha": true,
+      "lossless": true,
+      "bytes": 569556,
+      "sha256": "7e385336faa39252da5acfc0f056a594a235aaa2745dc3455e02643d15840af3"
+    },
+    {
+      "file": "wall.webp",
+      "width": 1536,
+      "height": 1024,
+      "alpha": true,
+      "lossless": true,
+      "bytes": 512598,
+      "sha256": "eb5e931ffb4e8c6f4e730fd1594e1556e2564e40c7b565c11f0065b9f65b21ef"
+    }
+  ]
+}
