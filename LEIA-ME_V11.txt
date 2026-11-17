@@ -352,3 +352,11 @@ INÍCIO v40 — TELA INICIAL AMIGÁVEL E TELA DE MODOS (js/inicio_v40.js, css/in
 - Menu (≡) com Campeões, Loja, Dojo, Liga, Modos, Missões, Configurações e Tela cheia; Missões abre numa janela própria.
 - O layout anterior continua montado e escondido (.v40-legacy) para os módulos antigos. ?inicio=0 volta à tela anterior; tests/menu-v2.cjs, tests/cacada-dia.cjs e tests/economia.cjs rodam com ?inicio=0 porque testam peças da tela antiga.
 - Teste: tests/inicio-v40.cjs (celular 844×390 e PC 1280×720).
+
+INÍCIO v41 — CENÁRIO EM CAMADAS ANIMADO + MELHORIAS (js/cena_v41.js, assets/inicio_v41/)
+- Cenário gerado no Canva a partir da arena de batalha, em 5 camadas: céu, montanhas e templo, muro com lanternas, chão de losangos com o emblema, moldura de lanternas e cerejeiras. Fundo verde removido e contorno encolhido 1 px.
+- Animação: profundidade (parallax) com o toque, o mouse ou a inclinação do celular (e um balanço suave quando ninguém mexe), céu andando devagar, lanternas tremeluzindo (posições detectadas na arte), pétalas caindo e bandos de pássaros. Desliga com "Animações da tela inicial".
+- Layout calculado em pixels pela altura da tela (o muro e as montanhas se repetem na horizontal); usa as medidas sem o zoom do ui_escala.
+- Campeão maior, em pé sobre o emblema, com pedestal de luz; etiqueta "nome · nível · trocar" ao lado.
+- Perfil só com o nome; liga com emblema da divisão e "N pts até X"; "+" nas moedas; presente com "Pegar!" ou dias de sequência; selos em Missões (quantas faltam) e Loja (GRÁTIS); cartão da Caçada do dia com tempo e os 3 heróis grátis da semana; cartão do modo mostra a recompensa; JOGAR maior com contorno.
+- Teste: tests/inicio-v40.cjs (29 verificações, celular e PC).
