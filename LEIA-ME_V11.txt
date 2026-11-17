@@ -345,3 +345,10 @@ GOLEM DE PEDRA EM 4 ÂNGULOS + CORREÇÃO DO CORSÁRIO
 - Corsário: os quadros de ataque não são mais esticados; fita de água desenhada até o punho (js/corsair_v36.js, corsair36Band).
 
 EFEITOS v39 (Canva): ícones e efeitos dos heróis em assets/efeitos_v39 + js/efeitos_v39.js (FX39.draw). Usados por Guerreiro, Ninja, Ronin, Solar, Eclipse, Caçador, Herdeiro e Corsário no lugar dos desenhos por código. ?fx39=0 volta aos desenhos antigos.
+
+INÍCIO v40 — TELA INICIAL AMIGÁVEL E TELA DE MODOS (js/inicio_v40.js, css/inicio_v40.css, assets/inicio_v40/)
+- Início: perfil e liga em cima à esquerda; moedas, cristais, presente diário e menu em cima à direita; campeão animado no centro sobre uma praça ensolarada (fundo gerado no Canva); atalhos Campeões/Missões/Loja/Dojo embaixo à esquerda; cartão do MODO escolhido + JOGAR embaixo à direita.
+- Tocar no cartão do modo abre "Modos de jogo": cartões grandes em seções Ranqueado · Casual · Desafios · Treino, que se arrastam para o lado (toque ou mouse), com abas embaixo. Escolher um modo o registra no início (salvo na conta, account.v40Mode); JOGAR abre esse modo. Modos "em breve" aparecem bloqueados.
+- Menu (≡) com Campeões, Loja, Dojo, Liga, Modos, Missões, Configurações e Tela cheia; Missões abre numa janela própria.
+- O layout anterior continua montado e escondido (.v40-legacy) para os módulos antigos. ?inicio=0 volta à tela anterior; tests/menu-v2.cjs, tests/cacada-dia.cjs e tests/economia.cjs rodam com ?inicio=0 porque testam peças da tela antiga.
+- Teste: tests/inicio-v40.cjs (celular 844×390 e PC 1280×720).
