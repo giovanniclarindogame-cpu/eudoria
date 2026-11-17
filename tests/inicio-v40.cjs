@@ -14,6 +14,15 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  ok(home.full&&home.nav==='none',`${tag} início novo ocupa a tela e esconde o menu lateral antigo`);
  ok(home.play&&home.mode&&home.side&&home.top&&home.hero,`${tag} JOGAR, cartão do modo, atalhos, moedas e campeão animado visíveis`);
  ok(home.modeName==='Liga 1×1',`${tag} modo padrão: ${home.modeName}`);
+ await pg.waitForTimeout(800);
+ const cena=await pg.evaluate(()=>{const imgs=[...document.querySelectorAll('.v41-scene img')],bg=['.v41-far','.v41-wall','.v41-front-l'].map(q=>getComputedStyle(document.querySelector(q)).backgroundImage);
+  const m=document.querySelector('.v41-mark').getBoundingClientRect(),st=document.querySelector('.v41-stage .v40-hero-wrap').getBoundingClientRect(),play=document.querySelector('[data-v40-play]').getBoundingClientRect();
+  return{loaded:imgs.every(i=>i.complete&&i.naturalWidth>0),bg:bg.every(b=>/inicio_v41/.test(b)),lamps:document.querySelectorAll('.v41-lamp').length,petals:CenaV41.state?.petals||0,
+   dbg:[Math.round(st.top),Math.round(st.height),Math.round(m.top),Math.round(st.left),Math.round(st.right),Math.round(play.top)],feet:Math.abs((st.top+st.height*.78)-(m.top))<st.height*.12,heroOnScreen:st.top>=0&&st.left>=0&&st.right<=innerWidth,heroAbovePlay:st.top+st.height*.6<play.top+play.height,
+   badges:{missoes:!!document.querySelector('[data-v40-missions] .v41-badge'),plus:document.querySelectorAll('.v41-plus').length,gift:!!document.querySelector('[data-v41-gift]'),evento:!!document.querySelector('[data-v41-hunt]'),liga:document.querySelector('.v41-league small')?.textContent}}});
+ ok(cena.loaded&&cena.bg&&cena.lamps>=8&&cena.petals>10,`${tag} cenário em camadas carregado (${cena.lamps} lanternas, ${cena.petals} pétalas)`);
+ ok(cena.feet&&cena.heroOnScreen&&cena.heroAbovePlay,`${tag} campeão em pé sobre o emblema do chão, dentro da tela`);
+ ok(cena.badges.missoes&&cena.badges.plus===2&&cena.badges.gift&&cena.badges.evento&&/pts até/.test(cena.badges.liga||''),`${tag} selos, "+" nas moedas, presente, Caçada do dia e liga com pontos (${cena.badges.liga})`);
  await pg.click('[data-v40-modes]');await pg.waitForTimeout(300);
  const m=await pg.evaluate(()=>{const s=document.querySelector('#v40Modes .v40-strip');return{open:!!s&&!document.querySelector('#v40Modes').hidden,overflow:s.scrollWidth>s.clientWidth,cards:document.querySelectorAll('[data-v40-pick]').length,tabs:document.querySelectorAll('[data-v40-tab]').length}});
  ok(m.open&&m.cards>=14&&m.tabs===4&&m.overflow,`${tag} tela de modos: ${m.cards} cartões, 4 abas e rolagem lateral`);

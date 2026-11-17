@@ -49,7 +49,7 @@ const I={
  shop:'<path d="M6 11h20l-2 15H8z"/><path d="M11 11V8a5 5 0 0 1 10 0v3"/>',dojo:'<path d="M7 25 25 7M7 7l18 18M5 22l5 5M22 5l5 5"/>',back:'<path d="M19 6l-10 10 10 10"/>',home:'<path d="M5 15 16 6l11 9M8 13v13h16V13"/>',
  swap:'<path d="M8 11h16l-4-4M24 21H8l4 4"/>',close:'<path d="M8 8l16 16M24 8 8 24"/>',chev:'<path d="M12 7l9 9-9 9"/>',lock:'<rect x="8" y="14" width="16" height="13" rx="2"/><path d="M11 14V10a5 5 0 0 1 10 0v4"/>',
  crown:'<path d="M5 24h22l2-14-7 5-6-9-6 9-7-5z"/>',gear:'<circle cx="16" cy="16" r="4"/><path d="M16 4v4M16 24v4M4 16h4M24 16h4M7.5 7.5l2.8 2.8M21.7 21.7l2.8 2.8M7.5 24.5l2.8-2.8M21.7 10.3l2.8-2.8"/>',full:'<path d="M5 12V5h7M20 5h7v7M27 20v7h-7M12 27H5v-7"/>',
- play:'<path d="M10 6l16 10-16 10z"/>'
+ play:'<path d="M10 6l16 10-16 10z"/>',gift:'<rect x="5" y="12" width="22" height="15" rx="2"/><path d="M3 8h26v4H3zM16 8v19M16 8c-3-5-9-5-8-1s8 1 8 1c0 0 7 3 8-1s-5-4-8 1"/>'
 };
 const svg=(n,c='')=>`<svg class="v40i ${c}" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[n]||''}</svg>`;
 const n=v=>{try{return lobbyWalletNumber(v)}catch{return String(v||0)}};
@@ -62,40 +62,70 @@ function leagueInfo(){
 }
 function heroLevel(){try{return window.V3Levels?.rec(currentChampion().id).lv||1}catch{return 1}}
 
+/* ---------- recompensas e eventos ---------- */
+const REWARD={liga1:'+100 moedas · +25 pts',liga2:'+200 moedas · +20 pts',ligaTrio:'+250 moedas · +30 pts',ligaCoroa:'1º lugar: +30 pts',duelo:'+100 moedas',equipes:'+200 moedas',trio:'+250 moedas',coroa:'+150 moedas',cacada:'Recompensa do chefe do dia',guardiao:'+200 moedas',cruzada:'Fase completa: +150 moedas',torneio:'Campeão: +250 moedas',dojo:'Treino livre, sem custo'};
+function leagueNext(){
+ try{const L=window.V3Liga,pts=L?L.rec('1v1').points||0:account.league?.points||0;const name=L?L.rankName(pts):LEAGUE_DIVISIONS[leagueIndex()];
+  const max=75*5;if(pts>=max)return{name,pts,txt:'Divisão máxima',k:1,div:5};
+  const nxt=(Math.floor(pts/25)+1)*25,nm=L?L.rankName(nxt):LEAGUE_DIVISIONS[Math.min(5,Math.floor(nxt/75))];
+  return{name,pts,txt:`${nxt-pts} pts até ${nm}`,k:(pts%25)/25,div:Math.min(5,Math.floor(pts/75))}}catch{return{name:'Bronze',pts:0,txt:'',k:0,div:0}}
+}
+function emblem(div){try{return lobbyEmblem(div)}catch{return svg('crown','v40gold')}}
+function missionsBadge(){try{const j=account.journey||{};if(j.claimed)return'';const left=['training','duel','build'].filter(k=>!j[k]).length;return left?String(left):'!'}catch{return''}}
+function giftInfo(){try{const g=window.RetQA?.giftState?.();if(!g)return null;return{ready:!g.claimedToday,days:g.claimedToday?window.RetQA.S?.streak??g.next:g.streakNow}}catch{return null}}
+function hhmm(ms){const m=Math.max(0,Math.floor(ms/60000));return `${Math.floor(m/60)}h ${String(m%60).padStart(2,'0')}m`}
+function eventInfo(){
+ let boss=null;try{boss=window.huntQA?.bossOfDay?.()}catch{}
+ const mid=new Date();mid.setHours(24,0,0,0);
+ let free=[];try{free=heroesFreeThisWeek()}catch{}
+ return{boss,left:hhmm(mid-Date.now()),free};
+}
+function faceOf(id){try{const c=CHAMPIONS[id];return window.v3FaceSrc?.({skin:id,kit:[...c.kit]})||championArt(c)}catch{return''}}
+
 /* ---------- tela inicial ---------- */
 function homeMarkup(){
- const c=currentChampion(),L=leagueInfo(),m=current(),cat=CATS.find(k=>k[0]===m.cat);
- return `<div class="v40-home">
- <div class="v40-sky" aria-hidden="true" style="background-image:url('${ART}fundo.webp?v=1')"></div>
+ const c=currentChampion(),L=leagueNext(),m=current(),cat=CATS.find(k=>k[0]===m.cat),mb=missionsBadge(),gift=giftInfo(),ev=eventInfo();
+ let free=false;try{free=dailyAvailable()}catch{}
+ return `<div class="v40-home v41">
+ <div class="v41-scene" aria-hidden="true">
+  <div class="v41-layer v41-sky" data-depth="0.15"></div>
+  <div class="v41-layer v41-far" data-depth="0.35"></div>
+  <div class="v41-layer v41-wall" data-depth="0.6"></div>
+  <div class="v41-layer v41-floor" data-depth="0.8"></div>
+  <canvas class="v41-fx"></canvas>
+  <div class="v41-layer v41-front" data-depth="1.25"></div>
+ </div>
  <header class="v40-top">
   <div class="v40-top-left">
-   <button class="v40-chip v40-profile" data-nav="profile" aria-label="Perfil de ${esc(account.profile.name)}"><span class="v40-avatar"><img src="${heroFace()}" alt=""></span><span><b>${esc(account.profile.name)}</b><small>Nível ${heroLevel()} · ${esc(c.name)}</small></span></button>
-   <button class="v40-chip v40-league" data-nav="league" aria-label="Liga ${esc(L.name)}, ${L.pts} pontos">${svg('crown','v40gold')}<span><b>${esc(L.name)}</b><span class="v40-bar"><i style="width:${Math.round(L.next*100)}%"></i></span></span><em>${L.pts}</em></button>
+   <button class="v40-chip v40-profile v41-profile" data-nav="profile" aria-label="Perfil de ${esc(account.profile.name)}"><span class="v40-avatar"><img src="${heroFace()}" alt=""></span><b>${esc(account.profile.name)}</b></button>
+   <button class="v40-chip v40-league v41-league" data-nav="league" aria-label="Liga ${esc(L.name)}, ${L.pts} pontos. ${esc(L.txt)}"><span class="v41-emblem">${emblem(L.div)}</span><span><b>${esc(L.name)}</b><span class="v40-bar"><i style="width:${Math.round(L.k*100)}%"></i></span><small>${esc(L.txt)}</small></span></button>
   </div>
   <div class="v40-top-right">
-   <button class="v40-cur" data-nav="shop" aria-label="${account.coins} moedas">${svg('coin','v40gold')}<b>${n(account.coins)}</b></button>
-   <button class="v40-cur" data-nav="shop" aria-label="${account.crystals} cristais">${svg('gem','v40blue')}<b>${n(account.crystals)}</b></button>
-   <span class="v40-slot-daily"></span>
+   <button class="v40-cur" data-nav="shop" aria-label="${account.coins} moedas. Abrir loja">${svg('coin','v40gold')}<b>${n(account.coins)}</b><span class="v41-plus">+</span></button>
+   <button class="v40-cur" data-nav="shop" aria-label="${account.crystals} cristais. Abrir loja">${svg('gem','v40blue')}<b>${n(account.crystals)}</b><span class="v41-plus">+</span></button>
+   ${gift?`<button class="v40-round v41-gift ${gift.ready?'ready':''}" data-v41-gift aria-label="${gift.ready?'Presente diário disponível':'Presente diário'} · sequência de ${gift.days} dias">${svg('gift')}${gift.ready?'<i class="v41-dot">!</i>':''}<small>${gift.ready&&!gift.days?'Pegar!':gift.days+(gift.days===1?' dia':' dias')}</small></button>`:''}
    <button class="v40-round" data-v40-menu aria-label="Menu">${svg('menu')}</button>
   </div>
  </header>
- <section class="v40-stage" aria-label="Campeão selecionado">
+ <section class="v40-stage v41-stage" aria-label="Campeão selecionado">
+  <div class="v41-pedestal" aria-hidden="true"><i></i><i></i></div>
   <div class="v40-hero-wrap"><span class="v40-slot-hero"></span></div>
-  <button class="v40-name" data-nav="library" aria-label="Trocar campeão: ${esc(c.name)}"><b>${esc(c.name)}</b><small>${svg('swap')} Trocar</small></button>
+  <button class="v41-swap" data-nav="library" aria-label="${esc(c.name)}, nível ${heroLevel()}. Trocar campeão"><span><b>${esc(c.name)}</b><small>Nível ${heroLevel()}</small></span><i>${svg('swap')}</i></button>
  </section>
+ ${ev.boss?`<button class="v41-event" data-v41-hunt aria-label="Caçada do dia: ${esc(ev.boss.name)}"><small>CAÇADA DO DIA</small><b>${esc(ev.boss.name.split(',')[0])}</b><em>⏳ troca em ${ev.left}</em>${ev.free.length?`<span class="v41-free"><small>Grátis na semana</small>${ev.free.map(id=>`<img src="${faceOf(id)}" alt="${esc(CHAMPIONS[id]?.name||'')}">`).join('')}</span>`:''}</button>`:''}
  <nav class="v40-side" aria-label="Atalhos">
   <button data-nav="library">${svg('hero')}<span>Campeões</span></button>
-  <button data-v40-missions>${svg('quest')}<span>Missões</span></button>
-  <button data-nav="shop">${svg('shop')}<span>Loja</span></button>
+  <button data-v40-missions>${svg('quest')}<span>Missões</span>${mb?`<i class="v41-badge">${mb}</i>`:''}</button>
+  <button data-nav="shop">${svg('shop')}<span>Loja</span>${free?'<i class="v41-badge v41-badge-free">GRÁTIS</i>':''}</button>
   <button data-nav="training">${svg('dojo')}<span>Dojo</span></button>
  </nav>
  <div class="v40-go">
-  <button class="v40-mode" data-v40-modes style="--cat:${cat[2]}" aria-label="Modo: ${esc(m.name)}. Toque para trocar">
+  <button class="v40-mode" data-v40-modes style="--cat:${cat[2]}" aria-label="Modo: ${esc(m.name)}. ${esc(REWARD[m.id]||'')}. Toque para trocar">
    <span class="v40-mode-art" style="--c:${m.art%4};--r:${Math.floor(m.art/4)}"></span>
-   <span class="v40-mode-txt"><small>${esc(cat[1].toUpperCase())}</small><b>${esc(m.name)}</b><em>${esc(subOf(m))}</em></span>
+   <span class="v40-mode-txt"><small>${esc(cat[1].toUpperCase())}</small><b>${esc(m.name)}</b><em>${esc(REWARD[m.id]||subOf(m))}</em></span>
    <span class="v40-mode-chev">${svg('chev')}</span>
   </button>
-  <button class="v40-play" data-v40-play>JOGAR</button>
+  <button class="v40-play v41-play" data-v40-play>JOGAR</button>
  </div>
  </div>`;
 }
@@ -113,13 +143,12 @@ function mountHome(){
  const canvas=legacy.querySelector('#lobbyHero'),fb=legacy.querySelector('#lobbyHeroFallback');
  if(canvas)ui.querySelector('.v40-slot-hero').replaceWith(canvas);
  if(fb){fb.classList.add('v40-fallback');ui.querySelector('.v40-hero-wrap').append(fb)}
- const daily=legacy.querySelector('#openDaily');if(daily){daily.classList.add('v40-round','v40-daily');ui.querySelector('.v40-slot-daily').replaceWith(daily)}
- else ui.querySelector('.v40-slot-daily')?.remove();
  if(!legacy.querySelector('.royal-sanctuary'))legacy.insertAdjacentHTML('beforeend','<i class="royal-sanctuary" hidden></i>');   // o desenho animado do campeão (lobby_real.js) só roda se este marcador existir
  syncNav();
  // missões vão para uma janela própria
  ensureMissions();
  try{lobbyPainted=false;lobbyPaintAt=-Infinity}catch{}
+ try{window.CenaV41?.mount(ui)}catch(e){console.error('[Eldoria] cenário',e)}
 }
 const prevHome=renderLobbyHome;
 renderLobbyHome=function(){prevHome.apply(this,arguments);try{mountHome()}catch(e){console.error('[Eldoria] início v40',e)}};
@@ -176,6 +205,8 @@ function bindDrag(el){
 document.addEventListener('click',e=>{
  const t=e.target;
  if(t.closest('[data-v40-play]')){e.preventDefault();play();return}
+ if(t.closest('[data-v41-gift]')){e.preventDefault();$q('#homeScreen .v40-legacy #openDaily')?.click();return}
+ if(t.closest('[data-v41-hunt]')){e.preventDefault();closeAll();try{window.huntQA?.lobby()}catch(err){console.error(err)}return}
  if(t.closest('[data-v40-modes]')){e.preventDefault();openModes();return}
  if(t.closest('[data-v40-menu]')){e.preventDefault();openMenu();return}
  if(t.closest('[data-v40-missions]')){e.preventDefault();ensureMissions();$q('#v40Missions').hidden=false;return}
