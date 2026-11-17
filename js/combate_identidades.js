@@ -229,7 +229,7 @@ step=function(dt){
  }
  Reforged.dashes=Reforged.dashes.filter(d=>!d.finished);
  for(const e of Reforged.projectiles)rwAdvanceProjectile(e,dt);Reforged.projectiles=Reforged.projectiles.filter(e=>e.life>0);
- for(const o of objects){if(o.material){o.age+=dt;o.flash=Math.max(0,(o.flash||0)-dt);}if(o.colossus&&o.hp>0&&o.life>0){o.age+=dt;o.cd-=dt;const target=opponents(o.owner).filter(a=>a.hp>0).sort((a,b)=>dist(a,o)-dist(b,o))[0];if(!target)continue;const angle=Math.atan2(target.y-o.y,target.x-o.x);o.angle=angle;if(dist(o,target)>65){const dx=Math.cos(angle)*75*dt,dy=Math.sin(angle)*75*dt;if(!rwObstacle(o.x+dx,o.y+dy,25)){o.x+=dx;o.y+=dy;}}if(o.cd<=0&&dist(o,target)<105&&rwVisible(o,target)){o.cd=1.15;hit(target,o.dmg,o.owner,20,angle,o.owner.kit[5]);rwFx(o.owner,5,o.x,o.y,'golem-hit',.6,{size:o.size});}}}
+ for(const o of objects){if(o.material){o.age+=dt;o.flash=Math.max(0,(o.flash||0)-dt);}if(o.colossus&&o.hp>0&&o.life>0){o.age+=dt;o.cd-=dt;const target=opponents(o.owner).filter(a=>a.hp>0).sort((a,b)=>dist(a,o)-dist(b,o))[0];if(!target)continue;const angle=Math.atan2(target.y-o.y,target.x-o.x);o.angle=angle;if(dist(o,target)>65){const dx=Math.cos(angle)*75*dt,dy=Math.sin(angle)*75*dt;if(!rwObstacle(o.x+dx,o.y+dy,25)){o.x+=dx;o.y+=dy;}}if(o.cd<=0&&dist(o,target)<105&&rwVisible(o,target)){o.cd=1.15;hit(target,o.dmg,o.owner,20,angle,o.owner.kit[5]);rwFx(o.owner,5,o.x+Math.cos(angle)*o.size*.38,o.y+Math.sin(angle)*o.size*.38,'golem-hit',.6,{size:o.size});}}}
  for(const e of Reforged.effects)e.age+=dt;Reforged.effects=Reforged.effects.filter(e=>e.age<e.duration);
 };
 const rwPriorAI=ai;
