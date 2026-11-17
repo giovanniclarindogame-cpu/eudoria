@@ -110,14 +110,13 @@ function homeMarkup(){
  <section class="v40-stage v41-stage" aria-label="Campeão selecionado">
   <div class="v41-pedestal" aria-hidden="true"><i></i><i></i></div>
   <div class="v40-hero-wrap"><span class="v40-slot-hero"></span></div>
-  <button class="v41-swap" data-nav="library" aria-label="${esc(c.name)}, nível ${heroLevel()}. Trocar campeão"><span><b>${esc(c.name)}</b><small>Nível ${heroLevel()}</small></span><i>${svg('swap')}</i></button>
  </section>
- ${ev.boss?`<button class="v41-event" data-v41-hunt aria-label="Caçada do dia: ${esc(ev.boss.name)}"><small>CAÇADA DO DIA</small><b>${esc(ev.boss.name.split(',')[0])}</b><em>⏳ troca em ${ev.left}</em>${ev.free.length?`<span class="v41-free"><small>Grátis na semana</small>${ev.free.map(id=>`<img src="${faceOf(id)}" alt="${esc(CHAMPIONS[id]?.name||'')}">`).join('')}</span>`:''}</button>`:''}
- <nav class="v40-side" aria-label="Atalhos">
-  <button data-nav="library">${svg('hero')}<span>Campeões</span></button>
-  <button data-v40-missions>${svg('quest')}<span>Missões</span>${mb?`<i class="v41-badge">${mb}</i>`:''}</button>
-  <button data-nav="shop">${svg('shop')}<span>Loja</span>${free?'<i class="v41-badge v41-badge-free">GRÁTIS</i>':''}</button>
-  <button data-nav="training">${svg('dojo')}<span>Dojo</span></button>
+ ${ev.boss?`<button class="v41-event" data-v41-hunt aria-label="Caçada do dia: ${esc(ev.boss.name)}"><small>CAÇADA DO DIA</small><b>${esc(ev.boss.name.split(',')[0])}</b><em>⏳ troca em ${ev.left}</em></button>`:''}
+ <nav class="v40-side v41-side" aria-label="Atalhos">
+  <button data-nav="library" style="--i:0"><span class="v41-ico"></span><span class="v41-lbl">Campeões</span></button>
+  <button data-v40-missions style="--i:1"><span class="v41-ico"></span><span class="v41-lbl">Missões</span>${mb?`<i class="v41-badge">${mb}</i>`:''}</button>
+  <button data-nav="shop" style="--i:2"><span class="v41-ico"></span><span class="v41-lbl">Loja</span>${free?'<i class="v41-badge v41-badge-free">GRÁTIS</i>':''}</button>
+  <button data-nav="training" style="--i:3"><span class="v41-ico"></span><span class="v41-lbl">Dojo</span></button>
  </nav>
  <div class="v40-go">
   <button class="v40-mode" data-v40-modes style="--cat:${cat[2]}" aria-label="Modo: ${esc(m.name)}. ${esc(REWARD[m.id]||'')}. Toque para trocar">
