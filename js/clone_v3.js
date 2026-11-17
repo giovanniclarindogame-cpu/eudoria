@@ -10,6 +10,8 @@
 if(!window.COMBAT_V3||!window.V3API)return;
 const SCALE_BASIC=.5,SCALE_ULT=.42,CD_BASIC=1.5,CD_ULT=14,REACH=100;
 const isClone=o=>o&&o.v10Clone&&o.ninja22&&o.v3smart&&o.life>0&&o.hp>0;
+// sincronia (js/ninja_v3.js): o clone só ataca logo depois de o Ninja usar uma habilidade
+const synced=o=>!window.NINJA_V3_SYNC||clock-(o.owner?.v3atkAt??-9)<=window.NINJA_V3_SYNC;
 
 function foeOf(o){
  const t=opponents(o.owner).filter(e=>e.hp>0&&!e.v10Clone);
@@ -65,10 +67,10 @@ step=function(dt){
    o.think=.1;
    if(o.dodgeCd<=0&&((windupOf(foe)&&d<280)||incoming(o))&&Math.random()<.75){dodge(o,foe);continue}
    const opening=openingOf(foe);
-   const canMelee=!o.attacks&&o.cdB<=0&&d<=REACH&&rwVisible(o,foe);
-   if(canMelee&&(opening||Math.random()<.18)){
+   const sync=synced(o),canMelee=!o.attacks&&o.cdB<=0&&d<=REACH&&sync&&rwVisible(o,foe);
+   if(canMelee&&(opening||Math.random()<(window.NINJA_V3_SYNC?.6:.18))){
     if(cloneCast(o,0,foe,SCALE_BASIC)){o.attacks=1;o.strikeAge=0;o.cdB=CD_BASIC}
-   }else if(!o.attacks&&o.cdU<=0&&d<=300&&opening&&rwVisible(o,foe)){
+   }else if(!o.attacks&&o.cdU<=0&&d<=300&&opening&&sync&&rwVisible(o,foe)){
     if(cloneCast(o,5,foe,SCALE_ULT)){o.attacks=1;o.strikeAge=0;o.cdU=CD_ULT;o.cdB=Math.max(o.cdB,1)}
    }
   }

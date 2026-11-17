@@ -10,11 +10,11 @@ const TAU=Math.PI*2;
 const nowT=()=>clock;
 
 const MARCAS={
- 0:['Modo Poder','Usar habilidades enche o ki; no máximo, ganha poder extra por 6 s.'],
- 1:['Troca Ardilosa','O clone troca de lugar com ele e o dash deixa uma imagem residual.'],
- 2:['Ritmo da Lâmina','Cortes seguidos acumulam até 5 marcas (+6% de dano cada); levar dano zera.'],
+ 0:['Modo Poder','Habilidades enchem o ki; segure o dash para concentrar (+20% de dano recebido). No máximo: explosão ao despertar e golpes mais fortes por 6 s.'],
+ 1:['Troca Ardilosa','Trocar de lugar com o clone ou ler um golpe com o Olho deixa o próximo golpe PELAS COSTAS (+25% e atordoa).'],
+ 2:['Ritmo da Lâmina','Cortes seguidos acumulam até 5 marcas (+6% de dano cada); levar dano tira 2. Parado 0,8 s, a espada volta à bainha (Saque).'],
  3:['Brasa Viva','Com Chama em 80 ou mais: +30% de dano de fogo e +10% de velocidade.'],
- 4:['Barreira Cósmica','O teleporte levanta a barreira por 1,6 s. Atração + Esfera Rubra faz combo.'],
+ 4:['Barreira Cósmica','O teleporte levanta a barreira por 1,6 s. Atração + Esfera Rubra faz combo; Repulsão contra a parede atordoa.'],
  5:['Presa Marcada','Acertar o mesmo alvo em sequência acumula até 3 marcas (+8% de dano cada).'],
  6:['Sobrecarga Viva','Com Sobrecarga em 60 ou mais: +15% de dano e +20% de velocidade.'],
  7:['Ímpeto','Com Elasticidade em 70 ou mais: +12% de dano, +12% de velocidade e recargas 35% mais rápidas.'],

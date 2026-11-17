@@ -12,7 +12,7 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  const r=await p.evaluate(()=>{const dmg=()=>{const h=b.hp;hit(b,100,p,0,0,p.kit[0]);return h-b.hp};const base=dmg();for(let i=0;i<4;i++)dmg();const five=p.v3m;const bonus=dmg();const before=p.v3m;hit(p,10,b,0,0,-1);return{base,five,bonus,before,after:p.v3m}});
  ok(r.five===5||r.before===5,`Ronin: cortes seguidos acumulam 5 marcas (${r.five})`);
  ok(r.bonus>r.base*1.2,`Ronin: marcas aumentam o dano (${r.base.toFixed(0)} → ${r.bonus.toFixed(0)})`);
- ok(r.after===0,'Ronin: levar dano zera as marcas');
+ ok(r.after===r.before-2,'Ronin: levar dano tira 2 marcas ('+r.before+' → '+r.after+')');
  // Caçador: presa marcada
  await FIGHT(5);await p.waitForTimeout(300);
  const g=await p.evaluate(()=>{const dmg=()=>{const h=b.hp;hit(b,100,p,0,0,p.kit[1]);return h-b.hp};const a1=dmg(),a2=dmg(),a3=dmg(),a4=dmg();return{a1,a2,a3,a4,n:p.v3f.n}});
