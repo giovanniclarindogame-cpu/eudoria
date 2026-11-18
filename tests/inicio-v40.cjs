@@ -48,7 +48,7 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  const back2=await pg.evaluate(()=>({closed:document.querySelector('#v40Modes').hidden,name:document.querySelector('.v40-mode-txt b')?.textContent}));
  ok(back2.closed&&back2.name==='Duelo 1×1',`${tag} voltar mostra o modo escolhido no início`);
  await pg.click('[data-v40-modes]');await pg.waitForTimeout(200);
- await pg.evaluate(()=>document.querySelector('[data-v40-pick="online"]').scrollIntoView({inline:'center'}));await pg.click('[data-v40-pick="online"]',{force:true});await pg.waitForTimeout(200);
+ await pg.evaluate(()=>document.querySelector('[data-v40-pick="zona"]').scrollIntoView({inline:'center'}));await pg.click('[data-v40-pick="zona"]',{force:true});await pg.waitForTimeout(200);
  ok(await pg.evaluate(()=>!document.querySelector('#v40Modes').hidden&&account.v40Mode==='duelo'),`${tag} modo "em breve" não é escolhido`);
  await pg.click('#v40Modes [data-v40-close]');await pg.waitForTimeout(200);
  await pg.click('[data-v40-play]');await pg.waitForTimeout(600);

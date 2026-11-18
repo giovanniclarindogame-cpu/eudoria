@@ -384,3 +384,15 @@ TELAS v43 (js/inicio_v40.js, js/telas_v43.js, css/telas_v43.css, tests/telas-v43
   arena de batalha (a mesma da tela inicial), no Dojo, no santuário (Torneio) e na cidadela com o Zorvath (Cruzada); Guardião com um
   chefe da Caçada e as áreas vermelhas. Caçada do Dia desenha AO VIVO o chefe do dia (canvas.v44-boss). Trio e Disputa da Coroa
   casuais têm arte própria (12, 13). As imagens entram com background-size:cover (não esticam mais).
+
+ONLINE v45 — etapa 1 (js/online_v45.js, css/online_v45.css, js/lib/, tests/online-v45.cjs)
+- Cartão "Online com amigo" (grupo Casual) abre a tela Online: Criar sala · Entrar na sala · Jogar perto (QR code).
+- Criar/Entrar: PeerJS (servidor público 0.peerjs.com só apresenta os aparelhos; conexão direta WebRTC). Código de 5 caracteres
+  (sem O/I/0/1 ambíguos), Copiar, Compartilhar (navigator.share ou WhatsApp), link ?sala=CÓDIGO entra direto. Sala cheia, sala
+  não encontrada, sem internet e saída do outro jogador têm aviso.
+- Jogar perto: WebRTC sem servidor (iceServers vazio), oferta/resposta comprimidas (deflate + base64url, ~570 caracteres) num QR.
+  Leitura pela câmera com BarcodeDetector (Chrome Android) ou jsQR; sem câmera, copiar/colar o código.
+- Sala de espera: foto+moldura, nome, nível de conta e liga de cada um; escolha do campeão (só os liberados); Pronto; com os dois
+  prontos o anfitrião manda "start", contagem 3-2-1. A LUTA SINCRONIZADA É A ETAPA 2 (não feita): aparece um aviso com o ping.
+- Mensagens: hello, pick, ready, start, ping/pong, full, bye (protocolo v1; versão diferente avisa para atualizar).
+- Testes: tests/online-v45.cjs sobe um servidor PeerJS local (pacote "peer" no NODE_PATH) e usa ?peerhost=localhost:9000.

@@ -24,11 +24,11 @@ const MODES=[
  {id:'liga2',cat:'rank',name:'Liga 2×2',sub:'Você e um aliado',tag:'2×2',art:1,run:liga('2v2')},
  {id:'ligaTrio',cat:'rank',name:'Liga Trio',sub:'Três campeões por lado',tag:'3×3',art:2,run:liga('kof')},
  {id:'ligaCoroa',cat:'rank',name:'Liga da Coroa',sub:'Cada um por si',tag:'4 lutadores',art:3,run:liga('ffa')},
- {id:'online',cat:'rank',name:'Online',sub:'Em breve',tag:'',art:11,soon:true},
  {id:'duelo',cat:'casual',name:'Duelo 1×1',sub:'Treine sem pressão',tag:'1×1',art:4,run:casual('1v1','1v1')},
  {id:'equipes',cat:'casual',name:'Equipes 2×2',sub:'Lute ao lado de um aliado',tag:'2×2',art:5,run:casual('2v2','2v2')},
  {id:'trio',cat:'casual',name:'Trio de Campeões',sub:'Quem vence continua',tag:'3×3',art:12,run:()=>window.V3Kof?.open('kof')},
  {id:'coroa',cat:'casual',name:'Disputa da Coroa',sub:'O último de pé leva',tag:'4 lutadores',art:13,run:()=>window.V3Kof?.open('crown')},
+ {id:'online',cat:'casual',name:'Online com amigo',sub:'Crie uma sala ou jogue perto',tag:'1×1',art:11,run:()=>window.OnlineV45?.open()},
  {id:'zona',cat:'casual',name:'Controle de Zona',sub:'Em reformulação',tag:'2×2',art:11,soon:true},
  {id:'cacada',cat:'desafio',name:'Caçada do Dia',sub:()=>huntName()||'Um chefe por dia',tag:'Solo ou dupla',art:6,run:()=>window.huntQA?.lobby()},
  {id:'guardiao',cat:'desafio',name:'Caçada ao Guardião',sub:'Fuja das áreas vermelhas',tag:'Cooperativo',art:7,run:()=>beginArenaMode('guardian')},
@@ -184,9 +184,9 @@ function paintHuntBoss(root=document){
  }
 }
 const LIGA_ID={liga1:'1v1',liga2:'2v2',ligaTrio:'kof',ligaCoroa:'ffa'};
-const NEW_MODES=['ligaTrio','ligaCoroa','torneio'];
+const NEW_MODES=['ligaTrio','ligaCoroa','torneio','online'];
 const CAT_ICON={rank:'trophy',casual:'dojo',desafio:'skull',treino:'target'};
-function modeXp(m){if(m.id==='dojo')return'+10 XP';try{return window.ContaV42?`+${ContaV42.XP.win} XP`:''}catch{return''}}
+function modeXp(m){if(m.id==='dojo')return'+10 XP';if(m.id==='online')return'';try{return window.ContaV42?`+${ContaV42.XP.win} XP`:''}catch{return''}}
 function modeRank(m){const id=LIGA_ID[m.id];if(!id||!window.V3Liga)return'';try{const pts=V3Liga.rec(id).points||0,d=V3Liga.divOf(pts);return `<span class="v43-rank" data-tier="${d}"><span>${emblem(d)}</span>${esc(V3Liga.rankName(pts))}<small>${pts} pts</small></span>`}catch{return''}}
 function modeBadges(m){const out=[];if(NEW_MODES.includes(m.id))out.push('<span class="v43-badge new">NOVO</span>');
  if(m.id==='cacada'){try{const e=eventInfo();if(e?.left)out.push(`<span class="v43-badge time">⏳ ${esc(e.left)}</span>`)}catch{}}

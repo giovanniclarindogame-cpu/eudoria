@@ -1,0 +1,5 @@
+Bibliotecas de terceiros usadas pelo modo Online (js/online_v45.js), copiadas sem alteração dos pacotes npm:
+- peerjs-1.5.5.min.js            PeerJS 1.5.5            Licença MIT        https://github.com/peers/peerjs
+- qrcode-generator-2.0.4.js      qrcode-generator 2.0.4  Licença MIT        https://github.com/kazuhikoarase/qrcode-generator  (c) Kazuhiko Arase
+- jsqr-1.4.0.js                  jsQR 1.4.0              Licença Apache-2.0 https://github.com/cozmo/jsQR
+São carregadas só quando a tela Online é aberta.
