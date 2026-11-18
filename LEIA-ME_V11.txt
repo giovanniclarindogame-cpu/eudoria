@@ -396,3 +396,16 @@ ONLINE v45 — etapa 1 (js/online_v45.js, css/online_v45.css, js/lib/, tests/onl
   prontos o anfitrião manda "start", contagem 3-2-1. A LUTA SINCRONIZADA É A ETAPA 2 (não feita): aparece um aviso com o ping.
 - Mensagens: hello, pick, ready, start, ping/pong, full, bye (protocolo v1; versão diferente avisa para atualizar).
 - Testes: tests/online-v45.cjs sobe um servidor PeerJS local (pacote "peer" no NODE_PATH) e usa ?peerhost=localhost:9000.
+
+ONLINE v46 — etapa 2: luta 1×1 (js/online_luta_v46.js, sala nova em js/online_v45.js, tests/online-luta-v46.cjs)
+- Sala de espera na pegada da seleção offline (kof_v3): retratos grandes dos dois lados, bonecos animados nas plataformas azul e
+  vermelha, VS, faixas com os nomes dos campeões, grade de rostos (rival marcado), cartões de perfil (foto/moldura, nível, liga) e
+  PRONTO. Protocolo v2 (versões diferentes avisam para atualizar).
+- Luta: o anfitrião roda a luta (o campeão do amigo é o "b", sem IA, movido pelos comandos "in" 30/s). O amigo roda um espelho:
+  controla o próprio campeão na hora e recebe "snap" 20/s (posição, vida, MP, stamina, guarda, recargas dos dois); a vida dele só
+  muda pelo anfitrião. Ações (basic, cast com direção, carga/soltura, esquiva, dash) vão como "act" e são repetidas no outro aparelho.
+  Mesma semente de sorteio no início (mapa igual). Sem pausa. Duelo melhor de 3: cada nocaute/fim de tempo do anfitrião vira um
+  "end" e as rodadas andam juntas; o resultado final sai certo nos dois, com moedas e XP de duelo.
+- Resultado no online: "Revanche · voltar à sala", "Trocar campeão" (sala) e "Sair da sala".
+- Limitações: toques especiais tratados por dentro dos pacotes (troca do clone do Ninja, puxada do Corsário, detonar a esfera do
+  Eclipse, concentrar ki do Guerreiro) não aparecem na tela do outro (o resultado em vida/posição chega certo).

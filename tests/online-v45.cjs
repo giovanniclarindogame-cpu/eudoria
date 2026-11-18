@@ -27,12 +27,12 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
  ok(/^[A-Z2-9]{5}$/.test(code)&&await A.evaluate(()=>document.querySelectorAll('.v45-code i').length===5),'Criar sala mostra o código de 5 letras: '+code);
  await B.evaluate(()=>OnlineV45.open());await B.click('[data-v45="join"]');await B.fill('#v45Code',code.toLowerCase());await B.click('[data-v45="enter"]');
  await A.waitForFunction(()=>OnlineV45.state.view==='lobby'&&OnlineV45.state.them,null,{timeout:10000});await B.waitForFunction(()=>OnlineV45.state.view==='lobby'&&OnlineV45.state.them,null,{timeout:10000});
- const la=await A.evaluate(()=>({them:OnlineV45.state.them?.name,cards:document.querySelectorAll('.v45-player:not(.wait)').length})),lb=await B.evaluate(()=>OnlineV45.state.them?.name);
+ const la=await A.evaluate(()=>({them:OnlineV45.state.them?.name,cards:document.querySelectorAll('.v46-chip:not(.wait)').length})),lb=await B.evaluate(()=>OnlineV45.state.them?.name);
  ok(la.them==='Beto'&&lb==='Ana'&&la.cards===2,'os dois entram na sala de espera e veem o nome um do outro');
  await sleep(2500);
  ok(await A.evaluate(()=>OnlineV45.state.rtt>0),'tempo de resposta (ping) medido: '+await A.evaluate(()=>OnlineV45.state.rtt)+' ms');
  await B.click('[data-v45-hero="4"]');await sleep(500);
- ok(await A.evaluate(()=>OnlineV45.state.them.hero===4&&/Eclipse/.test(document.querySelectorAll('.v45-player')[1].textContent)),'campeão escolhido pelo amigo aparece na tela do outro');
+ ok(await A.evaluate(()=>OnlineV45.state.them.hero===4&&/Eclipse/.test(document.querySelector('.v46-name.red').textContent)),'campeão escolhido pelo amigo aparece na tela do outro');
  // terceiro jogador: sala cheia
  const C=await player('Caio',844,390);await C.evaluate(c=>OnlineV45.open({code:c}),code);
  await C.waitForFunction(()=>/cheia/.test(OnlineV45.state.err),null,{timeout:10000}).catch(()=>{});
@@ -41,9 +41,10 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
  await A.click('[data-v45="ready"]');await sleep(300);
  ok(await B.evaluate(()=>OnlineV45.state.theirReady===true),'"Pronto" de um aparece no outro');
  await B.click('[data-v45="ready"]');
- await A.waitForFunction(()=>OnlineV45.state.view==='stage2',null,{timeout:6000});await B.waitForFunction(()=>OnlineV45.state.view==='stage2',null,{timeout:6000});
- ok(true,'com os dois prontos: contagem 3-2-1 e tela da próxima etapa nos dois');
- await A.click('[data-v45="toLobby"]');await sleep(200);
+ await A.waitForFunction(()=>window.OnlineV46?.match.on,null,{timeout:8000});await B.waitForFunction(()=>window.OnlineV46?.match.on,null,{timeout:8000});
+ ok(true,'com os dois prontos: contagem 3-2-1 e a luta começa nos dois');
+ await A.evaluate(()=>OnlineV46.backToLobby(false));await B.evaluate(()=>OnlineV46.backToLobby(false));await sleep(300);
+ ok(await A.evaluate(()=>OnlineV45.state.view==='lobby'&&!document.querySelector('#onlineV45').hidden),'voltar da luta leva de novo para a sala');
  // saída
  await B.evaluate(()=>OnlineV45.close());
  await A.waitForFunction(()=>OnlineV45.state.view==='home'&&/saiu/.test(OnlineV45.state.err),null,{timeout:8000}).catch(()=>{});
