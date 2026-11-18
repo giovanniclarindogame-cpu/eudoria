@@ -16,7 +16,7 @@
 const $q=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const LIB={peer:'js/lib/peerjs-1.5.5.min.js',qr:'js/lib/qrcode-generator-2.0.4.js',jsqr:'js/lib/jsqr-1.4.0.js'};
-const PREFIX='eldoria-sala-',ABC='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',CODE_LEN=5,PROTO=1;
+const PREFIX='eldoria-sala-',ABC='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',CODE_LEN=5,PROTO=2;
 const loaded={};
 function loadLib(k){return loaded[k]||(loaded[k]=new Promise((ok,bad)=>{const s=document.createElement('script');s.src=LIB[k];s.onload=ok;s.onerror=()=>{loaded[k]=null;bad(new Error('não carregou '+k))};document.head.appendChild(s)}))}
 const newCode=()=>Array.from(crypto.getRandomValues(new Uint8Array(CODE_LEN)),b=>ABC[b%ABC.length]).join('');
@@ -65,11 +65,12 @@ function onMsg(m){
   case'pong':S.rtt=Math.max(1,Math.round(performance.now()-m.at));updatePing();break;
   case'full':S.err='Essa sala já está cheia.';cleanup();go('join');break;
   case'bye':lost('O outro jogador saiu da sala.');break;
+  default:try{window.OnlineV46?.onMsg(m)}catch(e){console.error('[Eldoria online] luta',e)}
  }
 }
 const validHero=h=>Number.isInteger(+h)&&CHAMPIONS[+h]?+h:0;
 function sanitize(p={}){return{name:String(p.name||'Lutador').slice(0,16),lv:Math.max(1,Math.min(100,+p.lv||1)),frame:/^[a-z]{2,10}$/.test(p.frame)?p.frame:'azul',photo:/^[hs]\d+$/.test(p.photo||'')?p.photo:'h0',hero:validHero(p.hero),tier:Math.max(0,Math.min(5,+p.tier||0)),league:String(p.league||'Bronze').slice(0,20)}}
-function lost(msg){if(!S.conn&&!S.pc)return;cleanup();S.err=msg;try{toast(msg)}catch{}go('home')}
+function lost(msg){if(!S.conn&&!S.pc)return;try{window.OnlineV46?.abort(msg)}catch{}cleanup();S.err=msg;try{toast(msg)}catch{}go('home')}
 function cleanup(){
  clearInterval(S.pingT);clearInterval(S.count);stopScan();
  try{S.conn&&send({t:'bye'})}catch{}
@@ -198,9 +199,49 @@ function toggleReady(){if(!S.conn||!S.them)return;S.ready=!S.ready;send({t:'read
 function maybeStart(){if(S.ready&&S.theirReady&&S.role==='host'){send({t:'start'});countdown()}}
 function countdown(){
  clearInterval(S.count);let n=3;go('count');const el=()=>$q('#v45Count');if(el())el().textContent=n;
- S.count=setInterval(()=>{n--;if(n>0){if(el())el().textContent=n;return}clearInterval(S.count);S.ready=S.theirReady=false;go('stage2')},800);
+ S.count=setInterval(()=>{n--;if(n>0){if(el())el().textContent=n;return}clearInterval(S.count);S.ready=S.theirReady=false;
+  if(window.OnlineV46){if(S.role==='host')OnlineV46.hostGo();else go('wait')}else go('stage2')},800);
 }
 function updatePing(){const el=$q('#v45Ping');if(el){el.textContent=S.rtt==null?'…':S.rtt+' ms';el.dataset.q=S.rtt<80?'bom':S.rtt<180?'ok':'ruim'}}
+
+/* ---------- sala de espera: mesma pegada da seleção do modo offline (retratos, bonecos animados, VS, grade de rostos) ---------- */
+const faceSrc=id=>{try{return(window.v3FaceSrc&&v3FaceSrc({skin:id,kit:CHAMPIONS[id].kit}))||championArt(CHAMPIONS[id])}catch{return''}};
+const artSrc=id=>{try{return championArt(CHAMPIONS[id])}catch{return''}};
+function sideChip(p,me,ready){
+ if(!p)return `<div class="v46-chip ${me?'left':'right'} wait"><span class="v45-dots"><i></i><i></i><i></i></span><b>Esperando o amigo…</b></div>`;
+ return `<div class="v46-chip ${me?'left':'right'} ${ready?'ready':''}">${avatar(p,'sm')}<span><b>${esc(p.name)}${me?' <em>(você)</em>':''}</b><small>Nv ${p.lv} · <span class="v43-rank" data-tier="${p.tier}">${esc(p.league)}</span></small></span><i class="v46-st">${ready?svg('check')+'PRONTO':'escolhendo'}</i></div>`;
+}
+function lobbyHtml(){
+ const me=S.me,th=S.them,mine=owned(),mc=CHAMPIONS[me.hero]||CHAMPIONS[0],tc=th?CHAMPIONS[th.hero]:null;
+ const tiles=CHAMPIONS.map(c=>{const own=mine.includes(c.id),on=me.hero===c.id,foe=th&&th.hero===c.id;return `<button class="v46-tile ${on?'on':''} ${own?'':'locked'} ${foe?'foe':''}" data-v45-hero="${c.id}" ${own&&!S.ready?'':'disabled'} aria-pressed="${on}" title="${esc(c.name)}${own?'':' · bloqueado'}" style="--hero:${c.color}"><img data-face="${c.id}" src="${esc(faceSrc(c.id))}" alt="">${foe?'<i class="v46-foe-mark" aria-hidden="true">RIVAL</i>':''}</button>`}).join('');
+ return `<div class="v46-sel" style="--me:${mc.color};--th:${tc?.color||'#e2264d'}">
+  <div class="v46-stage">
+   <div class="v46-art left"><img src="${esc(artSrc(mc.id))}" alt=""></div>
+   <div class="v46-art right ${th?'':'empty'}">${th?`<img src="${esc(artSrc(tc.id))}" alt="">`:''}</div>
+   <div class="v46-mid">
+    <div class="v46-fighter blue"><i class="v46-plat"></i><canvas class="v46-sprite" data-skin="${mc.id}" width="200" height="200" aria-hidden="true"></canvas></div>
+    <div class="v46-vs"><b>VS</b><small>1×1</small></div>
+    <div class="v46-fighter red"><i class="v46-plat"></i>${th?`<canvas class="v46-sprite flip" data-skin="${tc.id}" width="200" height="200" aria-hidden="true"></canvas>`:'<span class="v46-q">?</span>'}</div>
+   </div>
+   ${sideChip(me,true,S.ready)}${sideChip(th,false,S.theirReady)}
+  </div>
+  <div class="v46-names"><div class="v46-name blue">${esc(mc.name)}</div><div class="v46-hint">${S.ready?'Esperando o amigo ficar pronto…':'Toque para escolher seu lutador'}</div><div class="v46-name red">${tc?esc(tc.name):'? ? ?'}</div></div>
+  <div class="v46-bottom"><span class="v45-ping">${svg('wifi')}<b id="v45Ping">${S.rtt==null?'…':S.rtt+' ms'}</b></span><div class="v46-grid" role="listbox" aria-label="Seu campeão">${tiles}</div>
+   <button class="v46-go ${S.ready?'cancel':''}" data-v45="ready" ${th?'':'disabled'}>${S.ready?'CANCELAR':'PRONTO'}</button></div>
+ </div>`;
+}
+// bonecos animados em repouso (o mesmo desenho da seleção offline)
+let spriteLoop=false;
+function paintSprites(){
+ const cs=document.querySelectorAll('#onlineV45:not([hidden]) canvas.v46-sprite');
+ if(!cs.length){spriteLoop=false;return}
+ const t=performance.now()/1000;
+ cs.forEach(c=>{const g=c.getContext('2d');g.clearRect(0,0,200,200);g.save();g.translate(100,172);g.fillStyle='rgba(4,10,40,.45)';g.beginPath();g.ellipse(0,8,34,9,0,0,6.2832);g.fill();g.imageSmoothingEnabled=false;
+  const keep=lobbyActor.skin;lobbyActor.skin=+c.dataset.skin;try{drawAnimatedFighter(g,lobbyActor,150,t)}catch{}lobbyActor.skin=keep;g.restore()});
+ document.querySelectorAll('#onlineV45 img[data-face]').forEach(im=>{const u=faceSrc(+im.dataset.face);if(u&&im.getAttribute('src')!==u)im.setAttribute('src',u)});
+ requestAnimationFrame(paintSprites);
+}
+function startSprites(){if(spriteLoop||!document.querySelector('#onlineV45 canvas.v46-sprite'))return;spriteLoop=true;for(const c of CHAMPIONS){try{reworkPreload(c.id)}catch{}}try{loadSkinAtlas()}catch{}requestAnimationFrame(paintSprites)}
 
 /* ---------- telas ---------- */
 const avatar=(p,size='lg')=>{try{return ContaV42.avatar(size,p.photo,p.frame)}catch{return''}};
@@ -245,12 +286,9 @@ function view(){
   ${S.answerCode?`<div class="v45-step"><span class="v45-num">2</span><b>Mostre este QR para o anfitrião</b><div class="v45-qr" id="v45Qr"></div><button class="v45-link" data-v45="copyAnswer">${svg('copy')}Sem câmera? Copiar código</button><p class="v45-wait"><span class="v45-dots"><i></i><i></i><i></i></span>Esperando o anfitrião ler…</p></div>`
   :`<div class="v45-step"><span class="v45-num">1</span><b>Leia o QR do anfitrião</b><div class="v45-scan" id="v45Scan"><button class="v45-btn blue" data-v45="scanOffer">${svg('cam')}Abrir câmera</button></div>
    <details class="v45-paste"><summary>Colar código</summary><textarea id="v45Paste" rows="3" placeholder="Cole aqui o código do anfitrião"></textarea><button class="v45-btn gold" data-v45="pasteOffer">Usar código</button></details></div>`}</div>`;
- case'lobby':{const mine=owned();
-  return top('SALA '+(S.mode==='near'?'PERTO':S.code))+`<div class="v45-body v45-lobby">${err}
-  <div class="v45-vs">${playerCard(S.me,true,S.ready)}<span class="v45-vsx">VS</span>${playerCard(S.them,false,S.theirReady)}</div>
-  <div class="v45-pick" role="listbox" aria-label="Seu campeão">${mine.map(id=>{let a='';try{a=championArt(CHAMPIONS[id])}catch{}return `<button class="v45-hbtn ${S.me.hero===id?'on':''}" data-v45-hero="${id}" ${S.ready?'disabled':''} aria-pressed="${S.me.hero===id}" title="${esc(CHAMPIONS[id].name)}"><img src="${esc(a)}" alt=""></button>`}).join('')}</div>
-  <div class="v45-foot"><span class="v45-ping">${svg('wifi')}<b id="v45Ping">${S.rtt==null?'…':S.rtt+' ms'}</b></span><button class="v45-btn ${S.ready?'blue':'gold'} v45-ready" data-v45="ready" ${S.them?'':'disabled'}>${S.ready?'Cancelar':'PRONTO'}</button></div></div>`}
+ case'lobby':return top('SALA '+(S.mode==='near'?'PERTO':S.code))+lobbyHtml();
  case'count':return `<div class="v45-count"><span>A luta começa em</span><b id="v45Count">3</b></div>`;
+ case'wait':return `<div class="v45-count"><span class="v45-spin"></span><span>Entrando na arena…</span></div>`;
  case'stage2':return top('SALA '+(S.mode==='near'?'PERTO':S.code),'lobby')+`<div class="v45-body v45-center">
   <div class="v45-vs small">${playerCard(S.me,true,true)}<span class="v45-vsx">VS</span>${playerCard(S.them,false,true)}</div>
   <p class="v45-okmsg">${svg('check')} Conexão funcionando · <b id="v45Ping">${S.rtt==null?'…':S.rtt+' ms'}</b></p>
@@ -269,6 +307,7 @@ function render(){
  if(keep!=null&&$q('#v45Code')&&S.view==='join'&&!S.busy)$q('#v45Code').value=cleanCode(keep)||S.code;
  const qr=$q('#v45Qr');if(qr)drawQr(qr,S.view==='nearHost'?S.offerCode:S.answerCode);
  if(S.view==='join'&&!S.busy)setTimeout(()=>$q('#v45Code')?.focus(),50);
+ startSprites();
  updatePing();
 }
 function go(v){stopScan();S.view=v;render()}
@@ -319,5 +358,5 @@ addEventListener('beforeunload',()=>{try{send({t:'bye'})}catch{}});
  },500);
 })();
 
-window.OnlineV45={open,close,state:S,pack,unpack,cleanCode,_createRoom:createRoom,_join:joinRoom,_nearHostRead:nearHostRead,_nearGuestRead:nearGuestRead};
+window.OnlineV45={send,render,go,owned,profile,state:S,open,close,pack,unpack,cleanCode,_createRoom:createRoom,_join:joinRoom,_nearHostRead:nearHostRead,_nearGuestRead:nearGuestRead};
 })();
