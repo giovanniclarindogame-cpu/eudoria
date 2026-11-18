@@ -43,7 +43,9 @@ function profile(){
 function owned(){try{return CHAMPIONS.filter(c=>(account.champions||[]).includes(c.id)).map(c=>c.id)}catch{return[0]}}
 
 /* ---------- transporte (PeerJS ou canal WebRTC do QR) ---------- */
-function send(o){try{if(S.conn?.send){S.conn.send(o);return true}}catch(e){console.warn('[Eldoria online] envio',e)}return false}
+// ?netlag=ms simula atraso de rede (só para testes): cada mensagem sai metade desse tempo depois
+const NETLAG=Math.max(0,+new URLSearchParams(location.search).get('netlag')||0);
+function send(o){try{if(S.conn?.send){if(NETLAG){const c=S.conn;setTimeout(()=>{try{c.send(o)}catch{}},NETLAG/2)}else S.conn.send(o);return true}}catch(e){console.warn('[Eldoria online] envio',e)}return false}
 function attach(conn){
  S.conn=conn;
  conn.onData=d=>onMsg(d);

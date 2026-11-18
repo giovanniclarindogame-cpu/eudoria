@@ -409,3 +409,7 @@ ONLINE v46 — etapa 2: luta 1×1 (js/online_luta_v46.js, sala nova em js/online
 - Resultado no online: "Revanche · voltar à sala", "Trocar campeão" (sala) e "Sair da sala".
 - Limitações: toques especiais tratados por dentro dos pacotes (troca do clone do Ninja, puxada do Corsário, detonar a esfera do
   Eclipse, concentrar ki do Guerreiro) não aparecem na tela do outro (o resultado em vida/posição chega certo).
+- v47 (menos atraso para quem entra na sala): comandos saem no quadro em que mudam (até 60/s; parados 10/s); estado 30/s com a
+  velocidade de cada campeão; o amigo desenha o rival na posição prevista para AGORA (posição + velocidade × meia ida e volta) e o
+  move entre os pacotes; o dano que o amigo causa no rival aparece na hora (previsto) e some se o anfitrião não confirmar em
+  ida e volta + 140 ms. Medido com atraso simulado (?netlag=): ~140 ms de ida e volta: erro médio 20 → 3,6 px; ~270 ms: 28 → 8,7 px.
