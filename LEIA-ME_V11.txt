@@ -413,3 +413,8 @@ ONLINE v46 — etapa 2: luta 1×1 (js/online_luta_v46.js, sala nova em js/online
   velocidade de cada campeão; o amigo desenha o rival na posição prevista para AGORA (posição + velocidade × meia ida e volta) e o
   move entre os pacotes; o dano que o amigo causa no rival aparece na hora (previsto) e some se o anfitrião não confirmar em
   ida e volta + 140 ms. Medido com atraso simulado (?netlag=): ~140 ms de ida e volta: erro médio 20 → 3,6 px; ~270 ms: 28 → 8,7 px.
+- v48: CANAL RÁPIDO — segundo RTCDataChannel na mesma conexão (negotiated id 47, ordered:false, maxRetransmits:0, como UDP), aberto
+  nos dois modos (código e QR). "snap" e "in" vão por ele com número de sequência (pacote atrasado é descartado); se não abrir, cai
+  no canal garantido. Golpes, rodadas e resultado continuam no garantido. ATRASO IGUAL — no anfitrião, andar, golpes, habilidades
+  e dash valem meia ida e volta depois (máx. 90 ms), como os comandos do amigo; movimento por histórico de movement(), ações numa
+  fila em ordem. Testes: tests/online-rapido-v48.cjs (?netlag=160&netloss=0.25).

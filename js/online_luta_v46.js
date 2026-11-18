@@ -50,8 +50,26 @@ function begin(role,m){
 }
 
 /* ---------- a cada passo da luta ---------- */
+/* ---------- atraso igual para os dois (v48) ----------
+ * Os comandos do amigo chegam ao anfitrião meia ida e volta depois. Para ninguém ter vantagem por ter criado a sala, os comandos
+ * do próprio anfitrião (andar, golpes, habilidades, dash) também esperam esse tempo antes de valer (até 90 ms). */
+const MAX_DELAY=90;
+const hostDelay=()=>M.on&&M.role==='host'&&M.equal!==false?Math.min(MAX_DELAY,Math.max(0,(S.rtt||0)/2)):0;
+const Q=[];let qLast=0;
+function later(fn){const d=hostDelay();if(!d)return fn();const at=Math.max(performance.now()+d,qLast);qLast=at;Q.push({at,fn})}
+function runQueue(){const now=performance.now();while(Q.length&&Q[0].at<=now){const it=Q.shift();try{it.fn()}catch(e){console.warn('[Eldoria online] fila',e)}}}
+const prevMovement=movement,HIST=[];let delayedMove=null;
+movement=function(){if(delayedMove&&hostDelay())return delayedMove;return prevMovement.apply(this,arguments)};
+function sampleMove(){
+ const d=hostDelay();if(!d){delayedMove=null;HIST.length=0;return}
+ const now=performance.now();let raw;try{raw=prevMovement()}catch{raw={x:0,y:0,len:0}}
+ HIST.push({t:now,m:raw});while(HIST.length>2&&HIST[1].t<=now-d)HIST.shift();
+ delayedMove=HIST[0].t<=now-d?HIST[0].m:{x:0,y:0,len:0};
+ while(HIST.length>120)HIST.shift();
+}
 const prevStep=step;
 step=function(dt){
+ if(M.on&&M.role==='host'){sampleMove();runQueue()}
  prevStep(dt);
  if(!M.on)return;
  if(state==='count')M.roundDone=false;
@@ -83,7 +101,7 @@ function sendInput(force){
  const o={t:'in',x:r3(m.x),y:r3(m.y),l:r3(m.len),a:Math.round((p?.a||0)*100)/100,g:(p?.guard||defendHeld)?1:0};
  const k=o.x+','+o.y+','+o.a+','+o.g;
  if(k===lastIn&&!force)return;
- lastIn=k;M.inT=.1;O.send(o);
+ lastIn=k;M.inT=.1;(O.sendFast||O.send)(o);
 }
 function trackVel(a,dt){
  if(!a||!(dt>0))return;const v=a.v47||(a.v47={x:a.x,y:a.y,vx:0,vy:0});
@@ -91,7 +109,7 @@ function trackVel(a,dt){
  v.vx=v.vx*.5+vx*.5;v.vy=v.vy*.5+vy*.5;v.x=a.x;v.y=a.y;
 }
 const pack=a=>({vx:Math.round(a.v47?.vx||0),vy:Math.round(a.v47?.vy||0),x:r1(a.x),y:r1(a.y),a:r3(a.a||0),hp:Math.round(a.hp),mx:a.max,mp:Math.round(a.mp),st:Math.round(a.st),g:a.guard?1:0,mv:a.moving?1:0,cd:a.kit.map(id=>Math.round((a.cd[id]||0)*100)/100)});
-function sendSnap(){if(!M.host||!M.guest)return;O.send({t:'snap',st:state,c:r3(count),tm:r1(time),h:pack(M.host),g:pack(M.guest)})}
+function sendSnap(){if(!M.host||!M.guest)return;(O.sendFast||O.send)({t:'snap',st:state,c:r3(count),tm:r1(time),h:pack(M.host),g:pack(M.guest)})}
 function applySnap(m){
  if(m.st==='fight'&&state==='count'){state='fight';try{$q('#countdown').style.display='none'}catch{}}
  if(state==='count'&&Number.isFinite(m.c))count=m.c;
@@ -129,16 +147,27 @@ for(const f of MIRROR){
   if(!M.on||a!==p||M.depth>0){M.depth++;try{return prev.apply(this,arguments)}finally{M.depth--}}
   const out=args.slice();
   try{if(f==='cast'&&out[1]===undefined)out[1]=aim(p);if(f==='rwBeginCharge'&&out[0]===undefined)out[0]=aim(p)}catch{}
-  M.depth++;let r;try{r=prev.apply(this,arguments)}finally{M.depth--}
-  if(r!==false&&state==='fight')O.send({t:'act',f,a:r3(p.a||0),x:r1(p.x),y:r1(p.y),args:clean(out)});
-  return r;
+  const self=this,all=arguments,run=()=>{
+   M.depth++;let r;try{r=prev.apply(self,all)}finally{M.depth--}
+   if(r!==false&&state==='fight')O.send({t:'act',f,a:r3(p.a||0),x:r1(p.x),y:r1(p.y),args:clean(out)});
+   return r;
+  };
+  if(hostDelay()){later(run);return true}   // anfitrião: vale depois do atraso igual
+  return run();
  };
 }
 // dash (botão grande e Espaço/Shift): os pacotes chamam o dash por dentro, então avisamos pelo toque
 function dashAngle(){try{const m=movement();if(m.len>.25)return Math.atan2(m.y,m.x)}catch{}return p?.a||0}
 function sendDash(){if(!M.on||state!=='fight'||!p)return;const a=dashAngle();setTimeout(()=>O.send({t:'act',f:'dash',a:r3(a),x:r1(p.x),y:r1(p.y),args:[]}),0)}
-document.addEventListener('pointerdown',e=>{if(M.on&&e.target.closest?.('#attack.v3-dash'))sendDash()},true);
-window.addEventListener('keydown',e=>{if(M.on&&!e.repeat&&(e.code==='Space'||e.code==='ShiftLeft'))sendDash()},true);
+// anfitrião com atraso igual: segura o toque do dash e faz o dash depois do atraso
+function hostDash(e){
+ if(!hostDelay()||state!=='fight'||!p)return false;
+ e.stopImmediatePropagation();e.preventDefault();
+ later(()=>{if(state!=='fight')return;const a=dashAngle();let ok=false;try{ok=window.v3Dash?.(p)}catch{}if(ok!==false)O.send({t:'act',f:'dash',a:r3(a),x:r1(p.x),y:r1(p.y),args:[]})});
+ return true;
+}
+document.addEventListener('pointerdown',e=>{if(M.on&&e.target.closest?.('#attack.v3-dash')){if(!hostDash(e))sendDash()}},true);
+window.addEventListener('keydown',e=>{if(M.on&&!e.repeat&&(e.code==='Space'||e.code==='ShiftLeft')){if(!hostDash(e))sendDash()}},true);
 function doAct(m){
  const a=M.remote;if(!a||a.hp<=0||state!=='fight')return;
  if(Number.isFinite(m.a))a.a=m.a;
@@ -196,7 +225,7 @@ const LBL={rematch:['Jogar novamente','Revanche · voltar à sala'],change:['Tro
 function labels(online){for(const [id,t] of Object.entries(LBL)){const el=document.getElementById(id);if(el&&el.textContent!==t[online?1:0])el.textContent=t[online?1:0]}}
 function stopMatch(){
  labels(false);
- M.on=false;M.remote=M.host=M.guest=M.target=null;document.body.classList.remove('v46-match');
+ M.on=false;Q.length=0;HIST.length=0;delayedMove=null;M.remote=M.host=M.guest=M.target=null;document.body.classList.remove('v46-match');
  try{$q('#outcome').style.display='none'}catch{}
  try{leave()}catch{try{state='select';$q('#battle').style.display='none'}catch{}}
 }
@@ -219,5 +248,5 @@ function onMsg(m){
   case'end':if(M.role==='guest')endGuest(m);break;
  }
 }
-window.OnlineV46={onMsg,hostGo,abort,backToLobby,get match(){return M}};
+window.OnlineV46={onMsg,hostGo,abort,backToLobby,hostDelay,get match(){return M}};
 })();

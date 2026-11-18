@@ -46,16 +46,41 @@ function owned(){try{return CHAMPIONS.filter(c=>(account.champions||[]).includes
 // ?netlag=ms simula atraso de rede (só para testes): cada mensagem sai metade desse tempo depois
 const NETLAG=Math.max(0,+new URLSearchParams(location.search).get('netlag')||0);
 function send(o){try{if(S.conn?.send){if(NETLAG){const c=S.conn;setTimeout(()=>{try{c.send(o)}catch{}},NETLAG/2)}else S.conn.send(o);return true}}catch(e){console.warn('[Eldoria online] envio',e)}return false}
+/* canal rápido (v48): um segundo canal na MESMA conexão WebRTC, sem ordem e sem reenvio (como UDP nos jogos). Posição e comandos
+   vão por ele: um pacote perdido não trava os seguintes; o próximo já traz a informação nova. Golpes, rodadas e resultado
+   continuam no canal garantido. "negotiated" com o mesmo id nos dois lados: abre sem nova troca de sinais. */
+const NETLOSS=Math.min(.9,Math.max(0,+new URLSearchParams(location.search).get('netloss')||0));   // perda simulada (testes)
+function openFast(conn){
+ S.fast=null;S.fastIn=0;S.fastSeq={};
+ try{
+  const pc=conn.pc?.();if(!pc||!pc.createDataChannel)return;
+  const ch=pc.createDataChannel('eldoria-rapido',{negotiated:true,id:47,ordered:false,maxRetransmits:0});
+  ch.onopen=()=>{if(S.conn===conn)S.fast=ch};
+  ch.onclose=()=>{if(S.fast===ch)S.fast=null};
+  ch.onmessage=e=>{if(S.conn!==conn)return;let m;try{m=JSON.parse(e.data)}catch{return}
+   // sem ordem: descarta o que chegar atrasado (mais velho que o último do mesmo tipo)
+   const k=m.t,last=S.fastSeq[k]??-1;if(Number.isFinite(m.q)){if(m.q<=last)return;S.fastSeq[k]=m.q}
+   S.fastIn++;onMsg(m)};
+ }catch(e){console.warn('[Eldoria online] canal rápido',e)}
+}
+let fastSeqOut=0;
+function sendFast(o){
+ const ch=S.fast;
+ if(!ch||ch.readyState!=='open')return send(o);   // sem canal rápido: usa o garantido
+ o.q=++fastSeqOut;const txt=JSON.stringify(o);
+ if(NETLOSS&&Math.random()<NETLOSS)return true;
+ try{if(NETLAG)setTimeout(()=>{try{ch.readyState==='open'&&ch.send(txt)}catch{}},NETLAG/2);else ch.send(txt);return true}catch{return send(o)}
+}
 function attach(conn){
- S.conn=conn;
+ S.conn=conn;openFast(conn);
  conn.onData=d=>onMsg(d);
  S.me={...profile()};S.ready=false;S.theirReady=false;S.them=null;
  send({t:'hello',p:profile()});
  clearInterval(S.pingT);S.pingT=setInterval(()=>send({t:'ping',at:performance.now()}),2000);
  go('lobby');
 }
-function peerConnAdapter(c){const a={send:o=>c.send(o),close:()=>c.close()};c.on('data',d=>a.onData?.(d));c.on('close',()=>lost('O outro jogador saiu da sala.'));c.on('error',()=>lost('A conexão caiu.'));return a}
-function channelAdapter(ch){const a={send:o=>ch.send(JSON.stringify(o)),close:()=>ch.close()};ch.onmessage=e=>{try{a.onData?.(JSON.parse(e.data))}catch{}};ch.onclose=()=>lost('O outro jogador saiu.');return a}
+function peerConnAdapter(c){const a={pc:()=>c.peerConnection,send:o=>c.send(o),close:()=>c.close()};c.on('data',d=>a.onData?.(d));c.on('close',()=>lost('O outro jogador saiu da sala.'));c.on('error',()=>lost('A conexão caiu.'));return a}
+function channelAdapter(ch){const a={pc:()=>S.pc,send:o=>ch.send(JSON.stringify(o)),close:()=>ch.close()};ch.onmessage=e=>{try{a.onData?.(JSON.parse(e.data))}catch{}};ch.onclose=()=>lost('O outro jogador saiu.');return a}
 function onMsg(m){
  if(!m||typeof m!=='object')return;
  switch(m.t){
@@ -76,7 +101,7 @@ function lost(msg){if(!S.conn&&!S.pc)return;try{window.OnlineV46?.abort(msg)}cat
 function cleanup(){
  clearInterval(S.pingT);clearInterval(S.count);stopScan();
  try{S.conn&&send({t:'bye'})}catch{}
- const c=S.conn;S.conn=null;try{c?.close()}catch{}
+ const c=S.conn;S.conn=null;try{S.fast?.close()}catch{}S.fast=null;try{c?.close()}catch{}
  const pc=S.pc;S.pc=null;try{pc?.close()}catch{}
  const p=S.peer;S.peer=null;try{p?.destroy()}catch{}
  S.them=null;S.ready=S.theirReady=false;S.rtt=null;S.offerCode=S.answerCode='';S.code='';S.role=null;S.mode=null;S.busy='';
@@ -360,5 +385,5 @@ addEventListener('beforeunload',()=>{try{send({t:'bye'})}catch{}});
  },500);
 })();
 
-window.OnlineV45={send,render,go,owned,profile,state:S,open,close,pack,unpack,cleanCode,_createRoom:createRoom,_join:joinRoom,_nearHostRead:nearHostRead,_nearGuestRead:nearGuestRead};
+window.OnlineV45={sendFast,send,render,go,owned,profile,state:S,open,close,pack,unpack,cleanCode,_createRoom:createRoom,_join:joinRoom,_nearHostRead:nearHostRead,_nearGuestRead:nearGuestRead};
 })();
