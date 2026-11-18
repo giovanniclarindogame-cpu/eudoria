@@ -418,3 +418,8 @@ ONLINE v46 — etapa 2: luta 1×1 (js/online_luta_v46.js, sala nova em js/online
   no canal garantido. Golpes, rodadas e resultado continuam no garantido. ATRASO IGUAL — no anfitrião, andar, golpes, habilidades
   e dash valem meia ida e volta depois (máx. 90 ms), como os comandos do amigo; movimento por histórico de movement(), ações numa
   fila em ordem. Testes: tests/online-rapido-v48.cjs (?netlag=160&netloss=0.25).
+
+CRUZADA v49 — cenários pintados (assets/cruzada_v49/<chefe>.webp, 2048×512, feitos pelo ChatGPT) em js/fase_arcade.js
+- Chão da imagem (abaixo de 46% da altura) esticado na faixa de luta (y 189 → beirada); paisagem (acima de 46%) na mesma escala,
+  apoiada na linha do chão; repetidos lado a lado com emenda suavizada (64 colunas misturadas). Beirada e primeiro plano escuro
+  continuam por código. Se a imagem não carregar, fica o cenário antigo por código.

@@ -334,8 +334,43 @@ const DECO={
  pillars(g,W,H,c,r){for(let x=0;x<W;x+=100+r()*110){const h=90+r()*100,y=H*GROUND;g.fillStyle=c.far;g.fillRect(x,y-h,22,h);g.fillStyle=c.mid;g.fillRect(x+16,y-h,6,h);g.fillStyle=c.far;g.fillRect(x-4,y-h-6,30,8);g.fillStyle=c.line+'55';if(r()<.5){g.beginPath();g.arc(x+11,y-h-30-r()*30,6,0,TAU);g.fill()}}},
  lab(g,W,H,c,r){for(let x=0;x<W;x+=120+r()*100){const y=H*GROUND,h=80+r()*90;g.fillStyle=c.far;g.fillRect(x,y-h,40,h);g.fillStyle=c.mid;g.fillRect(x+4,y-h+10,14,h-20);g.strokeStyle=c.line+'88';g.lineWidth=2;g.beginPath();g.arc(x+70,y-50,24,0,TAU);g.moveTo(x+70-24,y-50);g.lineTo(x+70+24,y-50);g.stroke()}}
 };
+/* ---------- cenários pintados (v49): assets/cruzada_v49/<chefe>.webp, 2048×512, repetidos lado a lado ----------
+ * O chão da imagem começa em ~46% da altura: a imagem ocupa do y=18 ao y=390 do mundo (chão em y≈189, faixa de luta 214–374).
+ * As emendas são suavizadas (as 64 colunas da esquerda se misturam com as 64 da direita). Sem a imagem, fica o cenário por código. */
+const ART49={},ART_TOP=18,ART_BOT=BAND_BOT+16,ART_OV=64;
+function stageArt(id){
+ const e=ART49[id];if(e)return e.tile||null;
+ const rec=ART49[id]={tile:null};const im=new Image();
+ im.onload=()=>{try{rec.tile=seamless(im)}catch(err){console.warn('[Eldoria] cenário da Cruzada',id,err);return}
+  try{if(arenaModeId==='stage'&&groundCache&&groundCache.__stage===id&&!groundCache.__art){const def=roster().find(d=>d.id===id);if(def){groundCache=buildStageBG(def);groundCache.__stage=id}}}catch{}};
+ im.onerror=()=>{rec.failed=true};
+ im.src='assets/cruzada_v49/'+id+'.webp?v=1';
+ return null;
+}
+function seamless(im){
+ const w=im.naturalWidth,h=im.naturalHeight,ov=Math.min(ART_OV,w>>3),c=document.createElement('canvas');c.width=w-ov;c.height=h;const g=c.getContext('2d');
+ g.drawImage(im,ov,0,w-2*ov,h,ov,0,w-2*ov,h);          // miolo original
+ g.drawImage(im,w-ov,0,ov,h,0,0,ov,h);                   // começo = fim da imagem…
+ for(let x=0;x<ov;x++){g.globalAlpha=(x+.5)/ov;g.drawImage(im,x,0,1,h,x,0,1,h)}   // …que vira o começo original aos poucos
+ g.globalAlpha=1;return c;
+}
+// chão (parte de baixo da imagem) no tamanho certo da faixa de luta; a paisagem (parte de cima) um pouco menor, como se estivesse
+// mais longe, para caber inteira abaixo do placar no celular
+const ART_HORIZON=.46,ART_FAR=1;
+function drawStageArt(g,tile){
+ const W0=tile.width,H0=tile.height,hz=Math.round(H0*ART_HORIZON),gy=WORLD_H*GROUND;
+ // chão: da linha do horizonte da imagem até a beirada
+ const fh=ART_BOT-gy,fs=fh/(H0-hz),ftw=W0*fs;
+ for(let x=0;x<WORLD_W;x+=ftw)g.drawImage(tile,0,hz,W0,H0-hz,Math.floor(x),gy,Math.ceil(ftw)+1,fh);
+ // paisagem: escala menor, apoiada na linha do chão
+ const bs=fs*ART_FAR,bh=hz*bs,btw=W0*bs,top=gy-bh;
+ g.drawImage(tile,0,0,W0,2,0,0,WORLD_W,Math.ceil(top)+2);   // acima dela, o céu continua
+ for(let x=0;x<WORLD_W;x+=btw)g.drawImage(tile,0,0,W0,hz,Math.floor(x),top,Math.ceil(btw)+1,bh+1);
+}
 function buildStageBG(def){
  const th=theme(def).bg,r=rng(9173+def.id.length*131);
+ const art=stageArt(def.id);
+ if(art)return buildArtBG(def,art,th,r);
  const cv=document.createElement('canvas');cv.width=WORLD_W;cv.height=WORLD_H;const g=cv.getContext('2d');
  const sky=g.createLinearGradient(0,0,0,WORLD_H*GROUND);sky.addColorStop(0,th.sky[0]);sky.addColorStop(1,th.sky[1]);g.fillStyle=sky;g.fillRect(0,0,WORLD_W,WORLD_H);
  // astro / orbe do cenário
@@ -360,6 +395,17 @@ function buildStageBG(def){
  // luz de borda
  const v=g.createLinearGradient(0,0,0,WORLD_H);v.addColorStop(0,'#00000055');v.addColorStop(.45,'#00000000');v.addColorStop(1,'#00000000');g.fillStyle=v;g.fillRect(0,0,WORLD_W,WORLD_H);
  return cv;
+}
+
+function buildArtBG(def,art,th,r){
+ const cv=document.createElement('canvas');cv.width=WORLD_W;cv.height=WORLD_H;const g=cv.getContext('2d');g.imageSmoothingQuality='high';
+ drawStageArt(g,art);
+ const yb=BAND_BOT+16;
+ const face=g.createLinearGradient(0,yb,0,yb+22);face.addColorStop(0,'rgba(0,0,0,.55)');face.addColorStop(1,'#0a0f14');g.fillStyle=face;g.fillRect(0,yb,WORLD_W,22);
+ const fg=g.createLinearGradient(0,yb+22,0,WORLD_H);fg.addColorStop(0,'#0a0f14');fg.addColorStop(1,'#04070a');g.fillStyle=fg;g.fillRect(0,yb+22,WORLD_W,WORLD_H-yb-22);
+ for(let i=0;i<45;i++){const x=r()*WORLD_W,w=40+r()*110,hh=14+r()*34;g.fillStyle=th.mid;g.globalAlpha=.32;g.beginPath();g.moveTo(x,yb+60);g.lineTo(x+w*.5,yb+60-hh);g.lineTo(x+w,yb+60);g.fill();g.globalAlpha=1}
+ const v=g.createLinearGradient(0,0,0,WORLD_H);v.addColorStop(0,'#00000040');v.addColorStop(.3,'#00000000');g.fillStyle=v;g.fillRect(0,0,WORLD_W,WORLD_H);
+ cv.__art=true;return cv;
 }
 
 /* ------------------------------ passo da fase ------------------------------ */
@@ -463,7 +509,7 @@ const prevBG=buildArenaBackground;
 buildArenaBackground=function(){
  if(arenaModeId!=='stage'||battleActivity==='training')return prevBG();
  const def=roster().find(d=>d.id===load().sel)||roster()[0];
- if(groundCache&&groundCache.__stage===def.id&&groundCache.width===WORLD_W)return;
+ if(groundCache&&groundCache.__stage===def.id&&groundCache.width===WORLD_W&&(groundCache.__art||!stageArt(def.id)))return;
  groundCache=buildStageBG(def);groundCache.__stage=def.id;
  pillarCache=document.createElement('canvas');pillarCache.width=pillarCache.height=1;
  backgroundBuilds++;
