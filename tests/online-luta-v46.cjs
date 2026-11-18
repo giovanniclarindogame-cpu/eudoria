@@ -46,8 +46,10 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
  const hpB0=await B.evaluate(()=>p.hp);await A.evaluate(()=>{b.inv=0;b.guard=false;hit(b,200,p,0,0)});await sleep(400);
  const hpB1=await B.evaluate(()=>p.hp),hpA=await A.evaluate(()=>b.hp);
  ok(hpB1<hpB0&&Math.abs(hpB1-hpA)<2,`dano do anfitrião aparece na vida do amigo (${hpB0} → ${hpB1}; anfitrião vê ${hpA})`);
- const hostHp=await A.evaluate(()=>p.hp);await B.evaluate(()=>{hit(b,300,p,0,0)});await sleep(30);
- ok(await B.evaluate(h=>Math.abs(b.hp-h)<60,hostHp),'no aparelho do amigo um golpe local não muda a vida sozinho (espera o anfitrião)');
+ const hostHp=await A.evaluate(()=>p.hp);const pr=await B.evaluate(()=>{const h=b.hp;hit(b,300,p,0,0);return[h,b.hp]});
+ ok(pr[1]<pr[0],`dano do amigo no rival aparece na hora no aparelho dele (${pr[0]} → ${pr[1]})`);
+ await sleep(700);
+ ok(await B.evaluate(h=>Math.abs(b.hp-h)<60,hostHp),'se o anfitrião não confirmar o golpe, a vida volta ao valor dele');
  // nocaute: anfitrião decide, os dois veem o resultado
  // nocautes até acabar o duelo (melhor de 3): o anfitrião decide, os dois acompanham as rodadas
  let rounds=0;

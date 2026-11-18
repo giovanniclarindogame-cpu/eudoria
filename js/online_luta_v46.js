@@ -35,7 +35,7 @@ function begin(role,m){
  const mine=role==='host'?m.hh:m.gh,foe=role==='host'?m.gh:m.hh;
  if(!ok(mine)||!ok(foe))return;
  const ov=$q('#onlineV45');if(ov)ov.hidden=true;document.body.classList.remove('v45-open');
- Object.assign(M,{on:true,role,roundDone:false,force:false,target:null,snapT:0,inT:0,input:{x:0,y:0,l:0,a:0,g:0},acts:0});
+ Object.assign(M,{pred:[],on:true,role,roundDone:false,force:false,target:null,snapT:0,inT:0,input:{x:0,y:0,l:0,a:0,g:0},acts:0});
  document.body.classList.add('v46-match');
  try{equipChampion(mine,false)}catch{}
  const R=Math.random;Math.random=rng(m.seed);
@@ -56,8 +56,8 @@ step=function(dt){
  if(!M.on)return;
  if(state==='count')M.roundDone=false;
  if(state==='end')labels(true);
- if(M.role==='host'){driveRemote(dt);M.snapT-=dt;if(M.snapT<=0){M.snapT=.05;sendSnap()}}
- else{M.inT-=dt;if(M.inT<=0){M.inT=1/30;sendInput()}smoothRemote(dt)}
+ if(M.role==='host'){driveRemote(dt);trackVel(M.host,dt);trackVel(M.guest,dt);M.snapT-=dt;if(M.snapT<=0){M.snapT=SNAP_DT;sendSnap()}}
+ else{M.inT-=dt;sendInput(M.inT<=0);smoothRemote(dt)}
 };
 // anfitrião: move o campeão do amigo com os comandos dele (mesma conta do movimento do jogador)
 function driveRemote(dt){
@@ -71,11 +71,26 @@ function driveRemote(dt){
  }
  if(Number.isFinite(i.a))a.a=i.a;
 }
-function sendInput(){
+/* menos atraso para quem entrou na sala (v47):
+ *  - comandos saem no mesmo quadro em que mudam (até 60/s) e, parados, 10/s;
+ *  - o estado volta 30/s com a velocidade de cada campeão; o amigo desenha o rival onde ele deve estar AGORA
+ *    (posição + velocidade × meia ida e volta) e continua andando com ele entre um pacote e outro;
+ *  - o dano que o amigo causa aparece na hora (previsto) e é conferido quando o anfitrião responde. */
+const SNAP_DT=1/30;
+let lastIn='';
+function sendInput(force){
  let m={x:0,y:0,len:0};try{m=movement()}catch{}
- O.send({t:'in',x:r3(m.x),y:r3(m.y),l:r3(m.len),a:r3(p?.a||0),g:(p?.guard||defendHeld)?1:0});
+ const o={t:'in',x:r3(m.x),y:r3(m.y),l:r3(m.len),a:Math.round((p?.a||0)*100)/100,g:(p?.guard||defendHeld)?1:0};
+ const k=o.x+','+o.y+','+o.a+','+o.g;
+ if(k===lastIn&&!force)return;
+ lastIn=k;M.inT=.1;O.send(o);
 }
-const pack=a=>({x:r1(a.x),y:r1(a.y),a:r3(a.a||0),hp:Math.round(a.hp),mx:a.max,mp:Math.round(a.mp),st:Math.round(a.st),g:a.guard?1:0,mv:a.moving?1:0,cd:a.kit.map(id=>Math.round((a.cd[id]||0)*100)/100)});
+function trackVel(a,dt){
+ if(!a||!(dt>0))return;const v=a.v47||(a.v47={x:a.x,y:a.y,vx:0,vy:0});
+ let vx=(a.x-v.x)/dt,vy=(a.y-v.y)/dt;if(Math.hypot(vx,vy)>900)vx=vy=0;   // teleportes e dashes não viram "velocidade"
+ v.vx=v.vx*.5+vx*.5;v.vy=v.vy*.5+vy*.5;v.x=a.x;v.y=a.y;
+}
+const pack=a=>({vx:Math.round(a.v47?.vx||0),vy:Math.round(a.v47?.vy||0),x:r1(a.x),y:r1(a.y),a:r3(a.a||0),hp:Math.round(a.hp),mx:a.max,mp:Math.round(a.mp),st:Math.round(a.st),g:a.guard?1:0,mv:a.moving?1:0,cd:a.kit.map(id=>Math.round((a.cd[id]||0)*100)/100)});
 function sendSnap(){if(!M.host||!M.guest)return;O.send({t:'snap',st:state,c:r3(count),tm:r1(time),h:pack(M.host),g:pack(M.guest)})}
 function applySnap(m){
  if(m.st==='fight'&&state==='count'){state='fight';try{$q('#countdown').style.display='none'}catch{}}
@@ -85,15 +100,25 @@ function applySnap(m){
 }
 function apply(a,d,local){
  if(!a||!d)return;
- a.hp=d.hp;a.max=d.mx||a.max;a.st=d.st;
+ if(local)a.hp=d.hp;
+ else{const now=performance.now(),win=(S.rtt||100)+140;M.pred=(M.pred||[]).filter(e=>now-e.t<win);const pend=M.pred.reduce((n,e)=>n+e.d,0);a.hp=d.hp<=0?0:Math.max(1,d.hp-pend)}
+ a.max=d.mx||a.max;a.st=d.st;
  if(local){a.mp=Math.min(a.mp,d.mp+1);d.cd?.forEach((v,i)=>{const id=a.kit[i];if(id!=null)a.cd[id]=Math.max(a.cd[id]||0,v)})}
  else{a.mp=d.mp;d.cd?.forEach((v,i)=>{const id=a.kit[i];if(id!=null)a.cd[id]=v})}
  if(local){
   const e=Math.hypot(d.x-a.x,d.y-a.y);let still=true;try{still=movement().len<.06}catch{}
   if(e>90){a.x=d.x;a.y=d.y}else if(still&&e>3){a.x+=(d.x-a.x)*.3;a.y+=(d.y-a.y)*.3}
- }else{M.target={x:d.x,y:d.y};a.a=d.a;a.guard=!!d.g;a.moving=!!d.mv}
+ }else{
+  const lead=Math.min(.18,(S.rtt||80)/2000+.02),vx=d.mv?d.vx||0:0,vy=d.mv?d.vy||0:0;
+  M.target={x:d.x+vx*lead,y:d.y+vy*lead,vx,vy,age:0};a.a=d.a;a.guard=!!d.g;a.moving=!!d.mv;
+  if(Math.hypot(M.target.x-a.x,M.target.y-a.y)>160){a.x=M.target.x;a.y=M.target.y}
+ }
 }
-function smoothRemote(dt){const a=M.remote,t=M.target;if(!a||!t)return;const k=Math.min(1,dt*12);a.x+=(t.x-a.x)*k;a.y+=(t.y-a.y)*k}
+function smoothRemote(dt){
+ const a=M.remote,t=M.target;if(!a||!t)return;
+ if(t.age<.25){t.x+=(t.vx||0)*dt;t.y+=(t.vy||0)*dt;t.age+=dt}   // continua andando entre um pacote e outro
+ const k=Math.min(1,dt*18);a.x+=(t.x-a.x)*k;a.y+=(t.y-a.y)*k;
+}
 
 /* ---------- ações repetidas no outro aparelho ---------- */
 const MIRROR=['basic','cast','rwBeginCharge','rwReleaseCharge','dodge'];
@@ -118,7 +143,7 @@ function doAct(m){
  const a=M.remote;if(!a||a.hp<=0||state!=='fight')return;
  if(Number.isFinite(m.a))a.a=m.a;
  if(Number.isFinite(m.x)&&Number.isFinite(m.y)){
-  if(M.role==='guest'){a.x=m.x;a.y=m.y;M.target={x:m.x,y:m.y}}
+  if(M.role==='guest'){a.x=m.x;a.y=m.y;M.target={x:m.x,y:m.y,vx:0,vy:0,age:1}}
   else if(Math.hypot(a.x-m.x,a.y-m.y)<70){a.x=m.x;a.y=m.y}
  }
  const args=Array.isArray(m.args)?m.args:[];
@@ -135,7 +160,12 @@ const prevAI=ai;
 ai=function(dt,actor){const a=arguments.length>1?actor:b;if(M.on&&a===M.remote)return;return prevAI.apply(this,arguments)};
 const prevHit=hit;
 hit=function(t,n,o,k,an,id){
- if(M.on&&M.role==='guest'&&t&&(t===p||t===b)&&!M.force){const hp=t.hp,r=prevHit.apply(this,arguments);t.hp=hp;return r}
+ if(M.on&&M.role==='guest'&&t&&(t===p||t===b)&&!M.force){
+  const hp=t.hp,r=prevHit.apply(this,arguments);
+  if(t===p)t.hp=hp;   // a própria vida só muda pelo anfitrião
+  else{const d=hp-t.hp;if(d>0){(M.pred||(M.pred=[])).push({d,t:performance.now()});if(t.hp<1)t.hp=1}}   // dano no rival: aparece na hora
+  return r;
+ }
  return prevHit.apply(this,arguments);
 };
 const prevPause=togglePause;
