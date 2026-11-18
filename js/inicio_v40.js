@@ -172,7 +172,7 @@ function closeAll(){for(const id of ['v40Menu','v40Missions','v40Modes'])$q('#'+
 
 /* ---------- tela de modos ---------- */
 // artes v44: campeões e cenários do próprio jogo (assets/inicio_v44/modo_NN.webp, uma por modo, recortadas sem esticar)
-const artBg=m=>`background-image:url('assets/inicio_v44/modo_${String(m.art).padStart(2,'0')}.webp?v=1')`;
+const artBg=m=>`background-image:url('assets/inicio_v44/modo_${String(m.art).padStart(2,'0')}.webp?v=2')`;
 // Caçada do Dia: o chefe do dia é desenhado ao vivo sobre a arte (muda todo dia)
 function paintHuntBoss(root=document){
  for(const cv of root.querySelectorAll('canvas.v44-boss')){
