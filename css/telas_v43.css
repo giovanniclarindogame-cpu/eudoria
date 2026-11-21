@@ -186,3 +186,10 @@ body[data-screen=library] #backHome::before,body[data-screen=shop] #backHome::be
 /* artes v44 (uma imagem por modo, recorte sem esticar) */
 .v40-card-art,.v40-mode-art{background-size:cover!important;background-position:50% 28%!important;background-repeat:no-repeat!important}
 .v44-boss{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 28%;pointer-events:none;image-rendering:pixelated}
+
+/* v52 — tela de modos: só a categoria escolhida aparece; Ranqueado e Desafios bloqueados na barra de baixo */
+.v43-strip{-webkit-mask-image:none;mask-image:none}
+.v43-strip>.v40-group{margin-inline:auto}
+.v43-tabs button.locked{opacity:.6;filter:grayscale(.5)}
+.v43-tabs button.locked small{display:block;font-size:9px;letter-spacing:.06em;color:#ffe7a3;text-transform:uppercase;margin-left:-2px}
+.v43-tabs button.locked:active{transform:none}

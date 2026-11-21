@@ -15,7 +15,9 @@ const esc=s=>typeof escapeHTML==='function'?escapeHTML(String(s)):String(s);
 const ART='assets/inicio_v40/';
 
 /* ---------- modos ---------- */
-const CATS=[['rank','Ranqueado','#f2b84b'],['casual','Casual','#58c4f0'],['desafio','Desafios','#b58cf2'],['treino','Treino','#7fd67a']];
+// 4º item: categoria bloqueada por enquanto (aparece na barra de baixo com cadeado e "em breve"; o foco agora é o Casual e o Treino)
+const CATS=[['rank','Ranqueado','#f2b84b',true],['casual','Casual','#58c4f0'],['desafio','Desafios','#b58cf2',true],['treino','Treino','#7fd67a']];
+const catLocked=id=>!!CATS.find(c=>c[0]===id)?.[3];
 const liga=id=>()=>window.V3Liga?.play(id);
 const casual=(mode,kind)=>()=>{lobbyPrefs.mode=mode;try{saveLobbyPrefs()}catch{}window.V3Kof?.open(kind)};
 function huntName(){try{return window.huntQA?.bossOfDay?.()?.name||''}catch{return''}}
@@ -24,11 +26,10 @@ const MODES=[
  {id:'liga2',cat:'rank',name:'Liga 2×2',sub:'Você e um aliado',tag:'2×2',art:1,run:liga('2v2')},
  {id:'ligaTrio',cat:'rank',name:'Liga Trio',sub:'Três campeões por lado',tag:'3×3',art:2,run:liga('kof')},
  {id:'ligaCoroa',cat:'rank',name:'Liga da Coroa',sub:'Cada um por si',tag:'4 lutadores',art:3,run:liga('ffa')},
- {id:'duelo',cat:'casual',name:'Duelo 1×1',sub:'Treine sem pressão',tag:'1×1',art:4,run:casual('1v1','1v1')},
+ {id:'duelo',cat:'casual',name:'Duelo 1×1',sub:'Enfrente outro jogador',tag:'1×1',art:4,run:()=>{try{if(window.OnlineV45)return OnlineV45.selecionar()}catch(e){console.error(e)}casual('1v1','1v1')()}},
  {id:'equipes',cat:'casual',name:'Equipes 2×2',sub:'Lute ao lado de um aliado',tag:'2×2',art:5,run:casual('2v2','2v2')},
  {id:'trio',cat:'casual',name:'Trio de Campeões',sub:'Quem vence continua',tag:'3×3',art:12,run:()=>window.V3Kof?.open('kof')},
  {id:'coroa',cat:'casual',name:'Disputa da Coroa',sub:'O último de pé leva',tag:'4 lutadores',art:13,run:()=>window.V3Kof?.open('crown')},
- {id:'online',cat:'casual',name:'Online com amigo',sub:'Crie uma sala ou jogue perto',tag:'1×1',art:11,run:()=>window.OnlineV45?.open()},
  {id:'zona',cat:'casual',name:'Controle de Zona',sub:'Em reformulação',tag:'2×2',art:11,soon:true},
  {id:'cacada',cat:'desafio',name:'Caçada do Dia',sub:()=>huntName()||'Um chefe por dia',tag:'Solo ou dupla',art:6,run:()=>window.huntQA?.lobby()},
  {id:'guardiao',cat:'desafio',name:'Caçada ao Guardião',sub:'Fuja das áreas vermelhas',tag:'Cooperativo',art:7,run:()=>beginArenaMode('guardian')},
@@ -38,8 +39,8 @@ const MODES=[
 ];
 const byId=id=>MODES.find(m=>m.id===id);
 const subOf=m=>typeof m.sub==='function'?m.sub():m.sub;
-function current(){const m=byId(account.v40Mode);return m&&!m.soon?m:byId('liga1')}
-function choose(id){const m=byId(id);if(!m||m.soon)return false;account.v40Mode=id;try{saveAccount()}catch{}return true}
+function current(){const m=byId(account.v40Mode);return m&&!m.soon&&!catLocked(m.cat)?m:byId('duelo')}
+function choose(id){const m=byId(id);if(!m||m.soon||catLocked(m.cat))return false;account.v40Mode=id;try{saveAccount()}catch{}return true}
 function play(){const m=current();closeAll();try{m.run()}catch(e){console.error('[Eldoria] iniciar modo',m.id,e);toast?.('Não foi possível abrir '+m.name)}}
 
 /* ---------- ícones ---------- */
@@ -184,7 +185,7 @@ function paintHuntBoss(root=document){
  }
 }
 const LIGA_ID={liga1:'1v1',liga2:'2v2',ligaTrio:'kof',ligaCoroa:'ffa'};
-const NEW_MODES=['ligaTrio','ligaCoroa','torneio','online'];
+const NEW_MODES=['duelo'];
 const CAT_ICON={rank:'trophy',casual:'dojo',desafio:'skull',treino:'target'};
 function modeXp(m){if(m.id==='dojo')return'+10 XP';if(m.id==='online')return'';try{return window.ContaV42?`+${ContaV42.XP.win} XP`:''}catch{return''}}
 function modeRank(m){const id=LIGA_ID[m.id];if(!id||!window.V3Liga)return'';try{const pts=V3Liga.rec(id).points||0,d=V3Liga.divOf(pts);return `<span class="v43-rank" data-tier="${d}"><span>${emblem(d)}</span>${esc(V3Liga.rankName(pts))}<small>${pts} pts</small></span>`}catch{return''}}
@@ -199,35 +200,31 @@ function cardHtml(m,cur,k){
   <span class="v40-card-foot">${soon?`<em>${esc(m.tag||'')}</em>`:''}${soon?'':`<span class="v43-reward">${REWARD[m.id]?`<i>🪙</i>${esc(REWARD[m.id].replace(' moedas',''))}`:''}${modeXp(m)?`<i class="xp">${modeXp(m)}</i>`:''}</span>`}</span>
  </button>`;
 }
+let modesCat=null;   // categoria aberta na tela de modos (só ela aparece; as outras ficam na barra de baixo)
 function modesMarkup(){
  const cur=current().id;let k=0;
- const groups=CATS.map(([cat,label,col])=>`<section class="v40-group" data-cat="${cat}" style="--cat:${col}" aria-label="${label}"><h3>${svg(CAT_ICON[cat])}${label}</h3><div class="v40-cards">${MODES.filter(m=>m.cat===cat&&!m.soon).map(m=>cardHtml(m,cur,k++)).join('')}</div></section>`).join('');
- const soon=MODES.filter(m=>m.soon);
+ if(!modesCat||catLocked(modesCat))modesCat=current().cat;
+ const [cat,label,col]=CATS.find(c=>c[0]===modesCat);
+ const list=MODES.filter(m=>m.cat===cat),ordered=[...list.filter(m=>!m.soon),...list.filter(m=>m.soon)];
+ const group=`<section class="v40-group" data-cat="${cat}" style="--cat:${col}" aria-label="${label}"><h3>${svg(CAT_ICON[cat])}${label}</h3><div class="v40-cards">${ordered.map(m=>cardHtml(m,cur,k++)).join('')}</div></section>`;
  const fw=(()=>{try{return window.ContaV42?.firstWinReady()}catch{return false}})();
  const m=current();
  return `<div class="v40-modes-top v43-top"><button class="v40-round v43-back" data-v40-close aria-label="Voltar ao início">${svg('back')}</button><b>MODOS DE JOGO</b>
   <span class="v43-top-r">${fw?'<span class="v43-firstwin" title="A primeira vitória de cada dia dá o dobro de XP de conta">⭐ 1ª vitória do dia: XP ×2</span>':''}<span class="v43-wallet"><span>${svg('coin','v40gold')}<b>${n(account.coins)}</b></span><span>${svg('gem','v40blue')}<b>${n(account.crystals)}</b></span></span></span></div>
- <div class="v40-strip v43-strip" tabindex="0" aria-label="Modos de jogo, arraste para o lado">${groups}${soon.length?`<section class="v40-group v43-soon" data-cat="breve" style="--cat:#c3c9dc" aria-label="Em breve"><h3>${svg('lock')}Em breve</h3><div class="v40-cards">${soon.map(x=>cardHtml(x,cur,k++)).join('')}</div></section>`:''}</div>
- <div class="v43-bottom"><nav class="v40-tabs v43-tabs" aria-label="Categorias">${CATS.map(([cat,label])=>`<button data-v40-tab="${cat}" class="${m.cat===cat?'on':''}">${svg(CAT_ICON[cat])}<span>${label}</span></button>`).join('')}</nav>
+ <div class="v40-strip v43-strip" tabindex="0" aria-label="Modos de jogo, arraste para o lado">${group}</div>
+ <div class="v43-bottom"><nav class="v40-tabs v43-tabs" aria-label="Categorias">${CATS.map(([c,l,,lock])=>`<button data-v40-tab="${c}" class="${c===cat?'on':''} ${lock?'locked':''}" ${lock?'aria-disabled="true" title="Em breve"':''}>${svg(lock?'lock':CAT_ICON[c])}<span>${l}</span>${lock?'<small>em breve</small>':''}</button>`).join('')}</nav>
  <button class="v43-play" data-v43-play aria-label="Jogar ${esc(m.name)}"><small>${esc(m.name)}</small><b>JOGAR</b></button></div>`;
 }
 function refreshModes(){const box=$q('#v40Modes');if(!box||box.hidden)return;const strip=box.querySelector('.v40-strip'),x=strip.scrollLeft;box.innerHTML=modesMarkup();paintHuntBoss(box);box.classList.add('v43-noanim');const s2=box.querySelector('.v40-strip');s2.scrollLeft=x;bindDrag(s2);s2.addEventListener('scroll',()=>syncTab(s2),{passive:true});syncTab(s2)}
 function openModes(){
  let box=$q('#v40Modes');
  if(!box){box=document.createElement('section');box.id='v40Modes';box.setAttribute('aria-label','Modos de jogo');document.body.appendChild(box)}
- box.classList.remove('v43-noanim');box.innerHTML=modesMarkup();paintHuntBoss(box);box.hidden=false;document.body.classList.add('v40-modes-open');syncNav();
+ modesCat=current().cat;box.classList.remove('v43-noanim');box.innerHTML=modesMarkup();paintHuntBoss(box);box.hidden=false;document.body.classList.add('v40-modes-open');syncNav();
  const strip=box.querySelector('.v40-strip'),on=box.querySelector('.v40-card.on');
  if(on)strip.scrollLeft=Math.max(0,on.offsetLeft-strip.clientWidth/2+on.offsetWidth/2);
  bindDrag(strip);strip.addEventListener('scroll',()=>syncTab(strip),{passive:true});
 }
-function syncTab(strip){
- if(strip.dataset.lock&&Date.now()-(+strip.dataset.lockAt||0)<900){document.querySelectorAll('[data-v40-tab]').forEach(b=>b.classList.toggle('on',b.dataset.v40Tab===strip.dataset.lock));return}
- const mid=strip.scrollLeft+strip.clientWidth*.35;let cat=null;
- const gs=[...strip.querySelectorAll('.v40-group')].filter(g=>CATS.some(c=>c[0]===g.dataset.cat));
- for(const g of gs)if(g.offsetLeft<=mid)cat=g.dataset.cat;
- if(strip.scrollLeft+strip.clientWidth>=strip.scrollWidth-4)cat=gs[gs.length-1]?.dataset.cat||cat;
- document.querySelectorAll('[data-v40-tab]').forEach(b=>b.classList.toggle('on',b.dataset.v40Tab===cat));
-}
+function syncTab(){}   // as abas agora trocam a categoria mostrada (não acompanham mais a rolagem)
 // arrastar com o mouse (no toque o navegador já rola sozinho)
 function bindDrag(el){
  let down=null;
@@ -251,7 +248,7 @@ document.addEventListener('click',e=>{
   if(m?.soon){toast?.(m.name+': '+subOf(m));return}
   if(choose(pick.dataset.v40Pick)){refreshModes();try{if(appScreen==='home')renderLobbyHome()}catch{}}return}
  const tab=t.closest('[data-v40-tab]');
- if(tab){e.preventDefault();const strip=$q('#v40Modes .v40-strip'),g=strip?.querySelector(`.v40-group[data-cat="${tab.dataset.v40Tab}"]`);if(g){strip.dataset.lock=tab.dataset.v40Tab;strip.dataset.lockAt=Date.now();document.querySelectorAll('[data-v40-tab]').forEach(b=>b.classList.toggle('on',b===tab));strip.scrollTo({left:g.offsetLeft-16,behavior:'smooth'})}return}
+ if(tab){e.preventDefault();const c=tab.dataset.v40Tab;if(catLocked(c)){toast?.((CATS.find(x=>x[0]===c)?.[1]||'Este modo')+': em breve');return}modesCat=c;const box=$q('#v40Modes');if(box){box.classList.add('v43-noanim');box.innerHTML=modesMarkup();paintHuntBoss(box);bindDrag(box.querySelector('.v40-strip'))}return}
  const go=t.closest('[data-v40-go]');
  if(go){e.preventDefault();const id=go.dataset.v40Go;closeAll();
   if(id==='modes')openModes();else if(id==='missions'){ensureMissions();$q('#v40Missions').hidden=false}

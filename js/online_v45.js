@@ -95,6 +95,7 @@ function selecionar(manterErro){
  cleanup();S.mode='server';S.role='guest';S.err=err;S.busy='';S.buscando=false;
  S.me={...profile()};if(Number.isInteger(hero)&&owned().includes(hero))S.me.hero=hero;
  S.them=null;S.ready=false;
+ try{document.querySelectorAll('#v40Modes').forEach(m=>m.hidden=true);document.body.classList.remove('v40-modes-open')}catch{}
  const el=root();if(el.hidden){el.hidden=false;document.body.classList.add('v45-open')}   // vindo da tela de resultado a janela online está escondida
  go('lobby');
 }
