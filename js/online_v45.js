@@ -17,6 +17,8 @@ const $q=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const LIB={peer:'js/lib/peerjs-1.5.5.min.js',qr:'js/lib/qrcode-generator-2.0.4.js',jsqr:'js/lib/jsqr-1.4.0.js'};
 const PREFIX='eldoria-sala-',ABC='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',CODE_LEN=5,PROTO=2;
+// servidor de partidas (fila de partida rápida): endereço em js/config_servidor.js ou ?servidor=ws://...; vazio = recurso desligado
+const SERVIDOR=(new URLSearchParams(location.search).get('servidor')||window.ELDORIA_SERVIDOR||'').trim(),PROTO_SRV=3;
 const loaded={};
 function loadLib(k){return loaded[k]||(loaded[k]=new Promise((ok,bad)=>{const s=document.createElement('script');s.src=LIB[k];s.onload=ok;s.onerror=()=>{loaded[k]=null;bad(new Error('não carregou '+k))};document.head.appendChild(s)}))}
 const newCode=()=>Array.from(crypto.getRandomValues(new Uint8Array(CODE_LEN)),b=>ABC[b%ABC.length]).join('');
@@ -26,7 +28,7 @@ const ICO={
  qr:'<rect x="5" y="5" width="8" height="8" rx="1"/><rect x="19" y="5" width="8" height="8" rx="1"/><rect x="5" y="19" width="8" height="8" rx="1"/><path d="M19 19h3v3h-3zM24 24h3v3h-3zM19 26v1M26 19v1"/>',
  copy:'<rect x="10" y="10" width="16" height="17" rx="2"/><path d="M6 21V7a2 2 0 0 1 2-2h12"/>',share:'<circle cx="24" cy="7" r="3.5"/><circle cx="8" cy="16" r="3.5"/><circle cx="24" cy="25" r="3.5"/><path d="M11 14.5l10-6M11 17.5l10 6"/>',
  cam:'<path d="M4 10h6l2-3h8l2 3h6v15H4z"/><circle cx="16" cy="17" r="5"/>',wifi:'<path d="M4 12a17 17 0 0 1 24 0M8 16.5a11 11 0 0 1 16 0M12 21a5 5 0 0 1 8 0"/><circle cx="16" cy="25" r="1.4"/>',
- check:'<path d="M6 17l6 6 14-14"/>',x:'<path d="M8 8l16 16M24 8 8 24"/>'
+ check:'<path d="M6 17l6 6 14-14"/>',bolt:'<path d="M18 3L7 18h8l-2 11 12-16h-8z"/>',x:'<path d="M8 8l16 16M24 8 8 24"/>'
 };
 const svg=k=>`<svg class="v40i" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICO[k]}</svg>`;
 
@@ -81,6 +83,38 @@ function attach(conn){
 }
 function peerConnAdapter(c){const a={pc:()=>c.peerConnection,send:o=>c.send(o),close:()=>c.close()};c.on('data',d=>a.onData?.(d));c.on('close',()=>lost('O outro jogador saiu da sala.'));c.on('error',()=>lost('A conexão caiu.'));return a}
 function channelAdapter(ch){const a={pc:()=>S.pc,send:o=>ch.send(JSON.stringify(o)),close:()=>ch.close()};ch.onmessage=e=>{try{a.onData?.(JSON.parse(e.data))}catch{}};ch.onclose=()=>lost('O outro jogador saiu.');return a}
+/* ---------- partida rápida pelo servidor ---------- */
+function quick(){
+ if(!SERVIDOR){S.err='O servidor de partidas ainda não está configurado.';return go('home')}
+ cleanup();S.mode='server';S.role='guest';S.err='';S.busy='Conectando ao servidor…';S.qt=Date.now();S.online=0;go('queue');
+ S.qTimer=setInterval(()=>{const el=$q('#v45Qt');if(el)el.textContent=Math.floor((Date.now()-S.qt)/1000)+' s'},500);
+ let sock;try{sock=new WebSocket(SERVIDOR)}catch{return fail('Endereço do servidor inválido.')}
+ S.ws=sock;
+ const timer=setTimeout(()=>{if(S.ws===sock&&sock.readyState!==1)fail('Servidor indisponível no momento. Tente de novo em instantes.')},9000);
+ sock.onopen=()=>{
+  clearTimeout(timer);if(S.ws!==sock)return;
+  S.conn={pc:()=>null,send:o=>sock.send(JSON.stringify(o)),close:()=>sock.close()};
+  sock.send(JSON.stringify({t:'hello',v:PROTO_SRV,build:window.ELDORIA_BUILD||1,p:profile()}));
+  S.pingT=setInterval(()=>send({t:'ping',at:performance.now()}),2000);
+ };
+ sock.onmessage=e=>{let m;try{m=JSON.parse(e.data)}catch{return}if(S.ws===sock)onSrv(m)};
+ sock.onclose=()=>{clearTimeout(timer);if(S.ws!==sock)return;if(S.conn)lost('Conexão com o servidor perdida.');else fail('Não foi possível conectar ao servidor.')};
+ sock.onerror=()=>{};
+}
+function onSrv(m){
+ switch(m.t){
+  case'hello':S.online=m.online||0;S.busy='Procurando um rival…';send({t:'fila',p:profile()});render();break;
+  case'fila':S.online=m.online||S.online;S.fila=m.n;render();break;
+  case'cheio':S.busy='Servidor cheio: você continua na fila…';render();break;
+  case'ocioso':break;
+  case'erro':fail(m.m==='versao'||m.m==='atualizar'?'Seu jogo está desatualizado. Atualize o jogo (ou a página) e tente de novo.':'O servidor recusou a conexão.');break;
+  case'match':
+   S.me={...profile()};S.them=sanitize(m.them);S.busy='';S.err='';clearInterval(S.qTimer);
+   try{window.OnlineV46.beginServer(m)}catch(e){console.error('[Eldoria online] partida',e);fail('Não foi possível começar a partida.')}
+   break;
+  default:onMsg(m);
+ }
+}
 function onMsg(m){
  if(!m||typeof m!=='object')return;
  switch(m.t){
@@ -91,7 +125,7 @@ function onMsg(m){
   case'ping':send({t:'pong',at:m.at});break;
   case'pong':S.rtt=Math.max(1,Math.round(performance.now()-m.at));updatePing();break;
   case'full':S.err='Essa sala já está cheia.';cleanup();go('join');break;
-  case'bye':lost('O outro jogador saiu da sala.');break;
+  case'bye':lost(S.mode==='server'?'O rival saiu da partida.':'O outro jogador saiu da sala.');break;
   default:try{window.OnlineV46?.onMsg(m)}catch(e){console.error('[Eldoria online] luta',e)}
  }
 }
@@ -99,7 +133,8 @@ const validHero=h=>Number.isInteger(+h)&&CHAMPIONS[+h]?+h:0;
 function sanitize(p={}){return{name:String(p.name||'Lutador').slice(0,16),lv:Math.max(1,Math.min(100,+p.lv||1)),frame:/^[a-z]{2,10}$/.test(p.frame)?p.frame:'azul',photo:/^[hs]\d+$/.test(p.photo||'')?p.photo:'h0',hero:validHero(p.hero),tier:Math.max(0,Math.min(5,+p.tier||0)),league:String(p.league||'Bronze').slice(0,20)}}
 function lost(msg){if(!S.conn&&!S.pc)return;try{window.OnlineV46?.abort(msg)}catch{}cleanup();S.err=msg;try{toast(msg)}catch{}go('home')}
 function cleanup(){
- clearInterval(S.pingT);clearInterval(S.count);stopScan();
+ clearInterval(S.pingT);clearInterval(S.count);clearInterval(S.qTimer);stopScan();
+ try{const w=S.ws;S.ws=null;w&&w.close()}catch{}
  try{S.conn&&send({t:'bye'})}catch{}
  const c=S.conn;S.conn=null;try{S.fast?.close()}catch{}S.fast=null;try{c?.close()}catch{}
  const pc=S.pc;S.pc=null;try{pc?.close()}catch{}
@@ -285,12 +320,16 @@ function view(){
  const busy=S.busy?`<p class="v45-busy"><span class="v45-spin"></span>${esc(S.busy)}</p>`:'';
  switch(S.view){
  case'home':return top('ONLINE','close')+`<div class="v45-body v45-home">${err}
+  ${SERVIDOR?`<button class="v45-quick" data-v45="quick">${svg('bolt')}<span><b>Partida rápida</b><small>Lute contra um jogador online</small></span></button>`:''}
   <div class="v45-big">
    <button class="v45-choice create" data-v45="create">${svg('plus')}<b>Criar sala</b><small>Receba um código e chame um amigo</small></button>
    <button class="v45-choice join" data-v45="join">${svg('door')}<b>Entrar na sala</b><small>Digite o código do seu amigo</small></button>
   </div>
   <button class="v45-near" data-v45="near">${svg('qr')}<span><b>Jogar perto · QR code</b><small>Sem internet: mesmo Wi-Fi ou roteador do celular</small></span></button>
-  <p class="v45-note">Duelo 1×1 com um amigo. A luta online sincronizada chega na próxima atualização: por enquanto vocês já entram juntos na sala e escolhem os campeões.</p></div>`;
+  <p class="v45-note">Duelo 1×1 melhor de 3. Com um amigo: crie uma sala, entre com o código ou jogue perto.</p></div>`;
+ case'queue':return top('PARTIDA RÁPIDA','home')+`<div class="v45-body v45-center">${err}<span class="v45-spin big"></span><b class="v45-qtitle">${esc(S.busy||'Procurando um rival…')}</b>
+  <small class="v45-qsub">${S.online?`${S.online} jogador${S.online>1?'es':''} online`:''}</small><p class="v45-wait"><span id="v45Qt">${Math.floor((Date.now()-S.qt)/1000)} s</span></p>
+  <button class="v45-btn blue" data-v45="qcancel">Cancelar</button></div>`;
  case'create':return top('CRIAR SALA')+`<div class="v45-body v45-center">${err}${busy}
   ${S.code?`<span class="v45-label">CÓDIGO DA SALA</span><div class="v45-code" aria-label="Código ${S.code.split('').join(' ')}">${S.code.split('').map(c=>`<i>${c}</i>`).join('')}</div>
   <div class="v45-row"><button class="v45-btn blue" data-v45="copy">${svg('copy')}Copiar</button><button class="v45-btn green" data-v45="share">${svg('share')}Compartilhar</button></div>
@@ -357,6 +396,8 @@ function bind(el){
   if(a==='create')return createRoom();
   if(a==='join'){cleanup();return go('join')}
   if(a==='enter')return joinRoom($q('#v45Code')?.value);
+  if(a==='quick')return quick();
+  if(a==='qcancel'){cleanup();return go('home')}
   if(a==='near'){cleanup();return go('near')}
   if(a==='nearHost')return nearHost();
   if(a==='nearGuest'){cleanup();S.mode='near';S.role='guest';return go('nearGuest')}
@@ -385,5 +426,5 @@ addEventListener('beforeunload',()=>{try{send({t:'bye'})}catch{}});
  },500);
 })();
 
-window.OnlineV45={sendFast,send,render,go,owned,profile,state:S,open,close,pack,unpack,cleanCode,_createRoom:createRoom,_join:joinRoom,_nearHostRead:nearHostRead,_nearGuestRead:nearGuestRead};
+window.OnlineV45={quick,sendFast,send,render,go,owned,profile,state:S,open,close,pack,unpack,cleanCode,_createRoom:createRoom,_join:joinRoom,_nearHostRead:nearHostRead,_nearGuestRead:nearGuestRead};
 })();

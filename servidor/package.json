@@ -2,5 +2,6 @@
   "name": "eldoria-servidor",
   "private": true,
   "description": "Experimentos do servidor de partidas: roda o jogo atual sem tela, em Node (jsdom).",
-  "dependencies": { "jsdom": "^24.1.3" }
+  "scripts": { "start": "node servidor.cjs" },
+  "dependencies": { "jsdom": "^24.1.3", "ws": "^8.18.0" }
 }

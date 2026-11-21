@@ -159,3 +159,10 @@ body.v45-open #backHome,body.v45-open #lobbyNav{display:none!important}
 @media (max-width:700px){.v46-hint{display:none}.v46-names{grid-template-columns:1fr 1fr}}
 /* durante a luta online: sem pausa */
 body.v46-match #pauseBtn{display:none!important}
+
+/* ===== v49: partida rápida pelo servidor ===== */
+.v45-quick{display:flex;align-items:center;gap:14px;padding:12px 20px;border-radius:20px;background:linear-gradient(180deg,#ffe066 0%,#ffc83d 45%,#ff9d1c 100%)!important;color:#3b2100!important;border:3px solid #fff!important;box-shadow:0 5px 0 #c96c00,0 10px 20px rgba(0,0,0,.25);text-align:left;text-shadow:0 1px 0 rgba(255,255,255,.5)}
+.v45-quick .v40i{width:42px;height:42px;flex:none;stroke-width:2.6}.v45-quick b{display:block;font-size:22px;font-weight:900}.v45-quick small{font-size:13px;font-weight:700;opacity:.85}
+.v45-spin.big{width:54px;height:54px;border-width:5px}
+.v45-qtitle{font-size:20px;font-weight:900}.v45-qsub{opacity:.8;font-weight:700}
+@media (max-height:500px){.v45-quick{padding:8px 16px}.v45-quick .v40i{width:32px;height:32px}.v45-quick b{font-size:18px}.v45-spin.big{width:40px;height:40px}}
