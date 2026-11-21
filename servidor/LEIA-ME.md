@@ -16,6 +16,7 @@ node servidor.cjs                       # porta 8787 (PORT). GET /saude mostra o
 # no jogo: abra com ?servidor=ws://localhost:8787  (ou ponha o endereço em js/config_servidor.js)
 node carga.cjs 20 30                    # teste de carga: 20 partidas (40 jogadores simulados) por 30 s
 node varredura_herois.cjs               # os 10 heróis lutando sem tela
+SERVIDOR_URL=wss://seu.dominio node carga.cjs 10 25   # testa um servidor que já está no ar (precisa de internet direta)
 ```
 Variáveis: `PORT`, `AQUECIDAS` (threads prontas para começar na hora, padrão 2), `MAX_PARTIDAS` (padrão 60), `BUILD_MINIMO` (versão mínima do
 jogo instalado), `ORIGENS` (lista separada por vírgula; vazio = qualquer). `TESTE=1` liga um gancho que só existe para os testes.
@@ -41,6 +42,12 @@ mudar regras da luta ou o protocolo, e suba `BUILD_MINIMO` no servidor para recu
 - **O limite é a memória:** cerca de 90 MB por partida (uma thread por partida) contra cerca de 5% de um núcleo. Um servidor de 8 GB deve
   aguentar algo como 60 a 80 partidas (120 a 160 jogadores); 4 GB, uns 30. Isso é estimativa a partir das duas medidas acima.
 - Dá para gastar menos memória colocando várias partidas por thread, em troca de um pequeno engasgo quando uma nova partida é carregada.
+
+## Medido no servidor de testes (Hostinger, 1 vCPU, via internet, jogadores simulados)
+| Partidas | Jogadores | Atualizações por jogador | Ticks atrasados | Memória do servidor |
+|---|---|---|---|---|
+| 6 | 12 | 30,8/s | 2 de 6.610 | 646 MB |
+| 10 | 20 | 30,7/s | 12 de 16.512 (0,07%) | 1.020 MB |
 
 ## O que ainda NÃO existe
 Contas (moedas, nível, campeões e ranking ainda ficam no aparelho e o perfil é só o que o aparelho diz), ranking e troféus no servidor,
