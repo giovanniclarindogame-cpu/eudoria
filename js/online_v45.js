@@ -120,7 +120,7 @@ function quick(){
 }
 function onSrv(m){
  switch(m.t){
-  case'hello':S.online=m.online||0;S.busy='Procurando um rival…';send({t:'fila',p:profile(),modo:S.modo});render();break;
+  case'hello':if(S.modo==='2v2'&&!(m.modos||[]).includes('2v2')){falhaSrv('O servidor ainda está sendo atualizado para as Equipes 2×2. Tente de novo em alguns minutos.');break}S.online=m.online||0;S.busy='Procurando um rival…';send({t:'fila',p:profile(),modo:S.modo});render();break;
   case'fila':S.online=m.online||S.online;S.fila=m.n;S.precisa=m.precisa||2;render();break;
   case'cheio':S.busy='Servidor cheio: você continua na fila…';render();break;
   case'ocioso':break;
