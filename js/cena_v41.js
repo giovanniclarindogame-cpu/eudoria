@@ -51,7 +51,9 @@ function start(ui,sc){
   wall.style.backgroundPosition=`${off}px 0`;
   const farH=H*L.farH,far=sc.querySelector('.v41-far');far.style.cssText+=`;top:${H*L.farBottom-farH}px;height:${farH}px;background-size:auto ${farH}px`;
   const fw=Math.max(W*1.25,H*1.9),floorWrap=sc.querySelector('.v41-floor-wrap');
-  const imgH=fw*IMG.chao[1]/IMG.chao[0],SQ=L.floorSquash,CUT=L.floorCut;
+  const imgH=fw*IMG.chao[1]/IMG.chao[0],CUT=L.floorCut;
+  // o chão sempre cobre até a borda de baixo (em telas 16:9 e quadradas ele terminava antes e aparecia uma faixa de céu)
+  const SQ=Math.min(.6,Math.max(L.floorSquash,(H*(1-L.floorTop)+24)/(imgH*(1-CUT))));
   floorWrap.style.cssText=`left:${(W+2*E-fw)/2}px;top:${H*L.floorTop-CUT*imgH*SQ}px;width:${fw}px;height:${imgH*SQ}px`;
   sc.querySelector('.v41-floor').style.transform=`scaleY(${SQ})`;
   const fh=H*L.frontH,fwid=fh*IMG.frente[0]/IMG.frente[1]*L.frontCut;

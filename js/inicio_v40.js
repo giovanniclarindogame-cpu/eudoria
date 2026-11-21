@@ -104,7 +104,7 @@ function homeMarkup(){
    <button class="v40-cur" data-nav="shop" aria-label="${account.coins} moedas. Abrir loja">${svg('coin','v40gold')}<b>${n(account.coins)}</b><span class="v41-plus">+</span></button>
    <button class="v40-cur" data-nav="shop" aria-label="${account.crystals} cristais. Abrir loja">${svg('gem','v40blue')}<b>${n(account.crystals)}</b><span class="v41-plus">+</span></button>
    ${gift?`<button class="v40-round v41-gift ${gift.ready?'ready':''}" data-v41-gift aria-label="${gift.ready?'Presente diário disponível':'Presente diário'} · sequência de ${gift.days} dias">${svg('gift')}${gift.ready?'<i class="v41-dot">!</i>':''}<small>${gift.ready&&!gift.days?'Pegar!':gift.days+(gift.days===1?' dia':' dias')}</small></button>`:''}
-   <button class="v40-round" data-v40-menu aria-label="Menu">${svg('menu')}</button>
+   <button class="v40-round v41-menu" data-v40-menu aria-label="Menu" title="Menu (Esc)">${svg('menu')}</button>
   </div>
  </header>
  <section class="v40-stage v41-stage" aria-label="Campeão selecionado">
@@ -113,18 +113,18 @@ function homeMarkup(){
  </section>
  ${ev.boss?`<button class="v41-event" data-v41-hunt aria-label="Caçada do dia: ${esc(ev.boss.name)}"><small>CAÇADA DO DIA</small><b>${esc(ev.boss.name.split(',')[0])}</b><em>⏳ troca em ${ev.left}</em></button>`:''}
  <nav class="v40-side v41-side" aria-label="Atalhos">
-  <button data-nav="library" style="--i:0"><span class="v41-ico"></span><span class="v41-lbl">Campeões</span></button>
-  <button data-v40-missions style="--i:1"><span class="v41-ico"></span><span class="v41-lbl">Missões</span>${mb?`<i class="v41-badge">${mb}</i>`:''}</button>
-  <button data-nav="shop" style="--i:2"><span class="v41-ico"></span><span class="v41-lbl">Loja</span>${free?'<i class="v41-badge v41-badge-free">GRÁTIS</i>':''}</button>
-  <button data-nav="training" style="--i:3"><span class="v41-ico"></span><span class="v41-lbl">Dojo</span></button>
+  <button data-nav="library" style="--i:0" title="Campeões (C)"><span class="v41-ico"></span><span class="v41-lbl">Campeões</span><kbd class="v41-key">C</kbd></button>
+  <button data-v40-missions style="--i:1" title="Missões (M)"><span class="v41-ico"></span><span class="v41-lbl">Missões</span><kbd class="v41-key">M</kbd>${mb?`<i class="v41-badge">${mb}</i>`:''}</button>
+  <button data-nav="shop" style="--i:2" title="Loja (L)"><span class="v41-ico"></span><span class="v41-lbl">Loja</span><kbd class="v41-key">L</kbd>${free?'<i class="v41-badge v41-badge-free">GRÁTIS</i>':''}</button>
+  <button data-nav="training" style="--i:3" title="Dojo (D)"><span class="v41-ico"></span><span class="v41-lbl">Dojo</span><kbd class="v41-key">D</kbd></button>
  </nav>
  <div class="v40-go">
-  <button class="v40-mode" data-v40-modes style="--cat:${cat[2]}" aria-label="Modo: ${esc(m.name)}. ${esc(REWARD[m.id]||'')}. Toque para trocar">
+  <button class="v40-mode" data-v40-modes style="--cat:${cat[2]}" aria-label="Modo: ${esc(m.name)}. ${esc(REWARD[m.id]||'')}. Toque para trocar" title="Trocar de modo (T)">
    <span class="v40-mode-art" style="--c:${m.art%4};--r:${Math.floor(m.art/4)};${artBg(m)}"></span>
    <span class="v40-mode-txt"><small>${esc(cat[1].toUpperCase())}</small><b>${esc(m.name)}</b><em>${esc(REWARD[m.id]||subOf(m))}</em></span>
    <span class="v40-mode-chev">${svg('chev')}</span>
   </button>
-  <button class="v40-play v41-play" data-v40-play>JOGAR</button>
+  <button class="v40-play v41-play" data-v40-play title="Jogar (Enter)">JOGAR<kbd class="v41-key v41-key-play">Enter</kbd></button>
  </div>
  </div>`;
 }
@@ -261,6 +261,21 @@ document.addEventListener('click',e=>{
  if(t.closest('.v40-sheet')&&!t.closest('.v40-sheet-card'))closeAll();
 },true);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&($q('#v40Modes:not([hidden])')||$q('.v40-sheet:not([hidden])')))closeAll()});
+// teclado no PC (só na tela inicial e quando nada está por cima dela): Enter = JOGAR, C/M/L/D = atalhos, T = trocar de modo
+document.addEventListener('keydown',e=>{
+ if(e.ctrlKey||e.metaKey||e.altKey||e.repeat)return;
+ const k=e.key.length===1?e.key.toLowerCase():e.key;
+ if(k!=='Enter'&&!'cmldt'.includes(k)||k.length>1&&k!=='Enter')return;
+ if(typeof appScreen==='undefined'||appScreen!=='home')return;
+ const tag=(e.target?.tagName||'');if(/INPUT|TEXTAREA|SELECT/.test(tag)||e.target?.isContentEditable)return;
+ if(k==='Enter'&&/BUTTON|A/.test(tag))return;        // Enter em um botão focado faz o que o botão faz
+ const ui=$q('#homeScreen:not([hidden]) .v40-home'),go=ui?.querySelector('[data-v40-play]');if(!go)return;
+ const r=go.getBoundingClientRect(),top=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);
+ if(!top||!ui.contains(top))return;                   // há uma janela, a tela de carregamento ou outra coisa por cima
+ const pick={enter:'[data-v40-play]',c:'[data-nav=library]',m:'[data-v40-missions]',l:'.v41-side [data-nav=shop]',d:'[data-nav=training]',t:'[data-v40-modes]'}[k.toLowerCase()];
+ const el=pick&&ui.querySelector(pick);if(!el)return;
+ e.preventDefault();el.click();
+});
 // qualquer navegação fecha as janelas do início
 const prevShow=showScreen;
 showScreen=function(){closeAll();const r=prevShow.apply(this,arguments);syncNav();return r};

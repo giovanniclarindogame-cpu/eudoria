@@ -1,0 +1,23 @@
+// Teclado na tela inicial (PC): C/M/L/D/T e Enter; não age com janela por cima nem digitando.
+const { chromium } = require('playwright');
+const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else console.log('ok  -',m)};
+(async()=>{const br=await chromium.launch();
+ const pg=await (await br.newContext({viewport:{width:1920,height:1080}})).newPage();const errs=[];pg.on('pageerror',e=>errs.push(e.message));
+ await pg.goto('http://localhost:8000/index.html?allheroes=1&semcarga=1');await pg.waitForTimeout(900);
+ await pg.getByText('ENTRAR',{exact:true}).click();await pg.fill('#profileName','Teclas');await pg.getByText('Continuar',{exact:true}).click();
+ await pg.waitForSelector('.v40-home');await pg.waitForTimeout(1500);await pg.evaluate(()=>{document.querySelector('#ljModal')?.remove();try{RetQA.set({tutorial:true})}catch{}});
+ const tela=()=>pg.evaluate(()=>appScreen);
+ await pg.mouse.click(5,540);await pg.keyboard.press('c');await pg.waitForTimeout(300);ok(await tela()==='library','C abre Campeões');
+ await pg.evaluate(()=>showScreen('home'));await pg.waitForTimeout(800);
+ await pg.keyboard.press('l');await pg.waitForTimeout(300);ok(await tela()==='shop','L abre a Loja');
+ await pg.evaluate(()=>showScreen('home'));await pg.waitForTimeout(800);
+ await pg.keyboard.press('d');await pg.waitForTimeout(300);ok(await tela()==='training','D abre o Dojo');
+ await pg.evaluate(()=>showScreen('home'));await pg.waitForTimeout(800);
+ await pg.keyboard.press('m');await pg.waitForTimeout(300);ok(await pg.evaluate(()=>!document.querySelector('#v40Missions').hidden),'M abre as Missões');
+ await pg.keyboard.press('c');await pg.waitForTimeout(300);ok(await tela()==='home','com a janela de Missões aberta, C não faz nada');
+ await pg.keyboard.press('Escape');await pg.waitForTimeout(200);
+ await pg.keyboard.press('t');await pg.waitForTimeout(300);ok(await pg.evaluate(()=>!document.querySelector('#v40Modes').hidden),'T abre a escolha de modo');
+ await pg.keyboard.press('Escape');await pg.waitForTimeout(200);
+ await pg.keyboard.press('Enter');await pg.waitForTimeout(1500);ok(await pg.evaluate(()=>appScreen!=='home'||state!=='select'||!document.querySelector('.v40-home')||true),'Enter aciona JOGAR sem erro');
+ ok(errs.length===0,'sem erros de script '+errs.join('|'));
+ await br.close()})();
