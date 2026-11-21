@@ -30,7 +30,7 @@ cast=function(a,id,manual){
  const ok=prevCast.apply(this,arguments);
  if(ok&&mine){
   if(id===KIT[4]&&!hadCopy)a.v3readUntil=clock+READ_WIN;
-  if(id!==KIT[4])a.v3atkAt=clock;
+  if(id!==KIT[4]){a.v3atkAt=clock;a.v3atkSlot=a.kit.indexOf(id);a.v3atkAng=a.a;a.v3atkSeq=(a.v3atkSeq||0)+1}
  }
  return ok;
 };

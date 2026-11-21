@@ -192,7 +192,7 @@ const originalDepth=integratedDepth;
 integratedDepth=function(){const all=objects;let list;objects=all.filter(o=>!o.v10Clone&&!o.v10Trap&&!o.v10Domain);try{list=originalDepth();}finally{objects=all;}
  for(const e of Reforged.projectiles)if(e.kiOrb)list.push({kind:'ki-orb',y:e.y,priority:5,paint:()=>paintKiOrb(ctx,e)});
  for(const o of objects){if(o.life<=0||o.hp===0)continue;
-  if(o.v10Clone)list.push({kind:'clone',y:o.y,priority:1,paint:()=>{ctx.save();ctx.translate(o.x,o.y);ctx.globalAlpha=.65*Math.min(1,o.age/.15,o.life/.3);drawAnimatedFighter(ctx,o,72);ctx.restore();}});
+  if(o.v10Clone)list.push({kind:'clone',y:o.y,priority:1,paint:()=>{ctx.save();ctx.translate(o.x,o.y);ctx.globalAlpha=(o.owner===p?.5:1)*Math.min(1,o.age/.15,o.life/.3);drawAnimatedFighter(ctx,o,72);ctx.restore();}});
   if(o.v10Trap)list.push({kind:'seal',y:o.y-1,priority:0,paint:()=>rwSprite(ctx,1,2,o.x,o.y-18,85,.28+(o.age*.4%1)*.2)});
   if(o.v10Domain)list.push({kind:'domain',y:o.y-180,priority:-1,paint:()=>{ctx.save();ctx.fillStyle='#050a26aa';ctx.beginPath();ctx.ellipse(o.x,o.y,o.r,o.r*.65,0,0,TAU);ctx.fill();rwSprite(ctx,4,5,o.x,o.y-50,o.r*2.3,.28+(o.age*.4%1)*.4,0,false,.85);ctx.restore();}});
  }
