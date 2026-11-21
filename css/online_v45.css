@@ -166,3 +166,8 @@ body.v46-match #pauseBtn{display:none!important}
 .v45-spin.big{width:54px;height:54px;border-width:5px}
 .v45-qtitle{font-size:20px;font-weight:900}.v45-qsub{opacity:.8;font-weight:700}
 @media (max-height:500px){.v45-quick{padding:8px 16px}.v45-quick .v40i{width:32px;height:32px}.v45-quick b{font-size:18px}.v45-spin.big{width:40px;height:40px}}
+
+/* 2×2: quatro lutadores no palco */
+.v46-mid.x2{left:22%;right:22%;gap:1%}
+.v46-mid.x2 .v46-fighter{width:23%}
+.v46-mid.x2 .v46-q{font-size:44px}
