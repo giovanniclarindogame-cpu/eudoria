@@ -474,3 +474,9 @@ TELA DE CARREGAMENTO + CORREÇÕES DO ONLINE (v51) — js/carregamento_v51.js, c
   olhando para a direita"; agora cada rodada reposiciona e vira os dois um para o outro (fixRound).
 - ?fps=1 mostra um medidor (fps, pior quadro, travadas >100 ms) para medir no celular de verdade.
 - ATUALIZAR O SERVIDOR (Hostinger) para esta versão: `bash /opt/eldoria/servidor/implantar/atualizar.sh` (o servidor ganhou o gate 'pronto').
+
+ATUALIZAÇÃO AUTOMÁTICA DO SERVIDOR — servidor/implantar/auto-atualizar.sh, instalar-auto.sh, testar-auto.sh
+- Timer do systemd a cada 5 min: busca o GitHub; só reinicia o servidor se mudou servidor/, js/ (menos js/lib) ou index.html (documentação e imagens só
+  atualizam os arquivos); espera não haver partidas (limite 3 h); se a versão nova não ficar saudável em ~90 s, volta para a anterior e marca o commit
+  como ruim. Registro em /var/log/eldoria-auto.log. Ligar: `sudo bash servidor/implantar/instalar-auto.sh`; desligar: `... desligar`.
+- Testado com GitHub e Docker falsos (9 casos). NÃO testado numa máquina de verdade (aqui não há Docker nem systemd).
