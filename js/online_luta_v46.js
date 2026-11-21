@@ -41,7 +41,7 @@ function begin(role,m){
   const mine=(x2||ffa)?m.hs[m.slot]:trio?m.teams[m.slot][0]:(role==='host'?m.hh:m.gh),foe=trio?m.teams[1-m.slot][0]:role==='host'?m.gh:m.hh;
  if(!ok(mine)||(!x2&&!ffa&&!ok(foe)))return;
  const ov=$q('#onlineV45');if(ov)ov.hidden=true;document.body.classList.remove('v45-open');
- Object.assign(M,{rem:[],bySlot:{},x2,ffa,multi:x2||ffa,freeze:false,mv:0,slot:(x2||ffa)?m.slot:role==='guest'?(m.slot===0?0:1):0,on:true,role,roundDone:false,force:false,target:null,snapT:0,inT:0,input:{x:0,y:0,l:0,a:0,g:0},acts:0});
+ Object.assign(M,{endFlag:false,rem:[],bySlot:{},x2,ffa,multi:x2||ffa,freeze:false,mv:0,slot:(x2||ffa)?m.slot:role==='guest'?(m.slot===0?0:1):0,on:true,role,roundDone:false,force:false,target:null,snapT:0,inT:0,input:{x:0,y:0,l:0,a:0,g:0},acts:0});
  document.body.classList.add('v46-match');
  try{equipChampion(mine,false)}catch{}
  // tela de carregamento: baixa e aquece os dois campeões; cada lado avisa "pronto" e a luta só começa quando os dois estão prontos
@@ -112,7 +112,7 @@ step=function(dt){
  prevStep(dt);
  if(!M.on)return;
  if(state==='count'){if(M.roundDone)diag('count',{});M.roundDone=false}
- if(state==='end')labels(true);
+ if(state==='end'){labels(true);if(!M.endFlag){M.endFlag=true;matchEnded()}}
  if(M.role==='host'){fixRound();driveRemote(dt);trackVel(M.host,dt);trackVel(M.guest,dt);M.snapT-=dt;if(M.snapT<=0){M.snapT=SNAP_DT;sendSnap()}}
  else{M.inT-=dt;sendInput(M.inT<=0);for(const E of M.rem)smoothRemote(E,dt);fixRound()}
 };
@@ -313,7 +313,7 @@ function stopMatch(){
  try{leave()}catch{try{state='select';$q('#battle').style.display='none'}catch{}}
 }
 function backToLobby(quit){
- stopMatch();
+ matchEnded();stopMatch();
  if(S.mode==='server'&&!quit){try{O.procurar(S.modo)}catch{}return}   // "jogar de novo": volta ao início já procurando outros rivais
  if(quit||!S.conn){try{O.close()}catch{}return}
  S.ready=false;S.theirReady=false;S.view='lobby';O.open();
@@ -331,8 +331,23 @@ function onMsg(m){
   case'act':if(M.on)doAct(m);break;
   case'end':if(M.role==='guest'&&!M.ffa)endGuest(m);break;
   case'over':if(M.on&&M.ffa&&window.V3Crown)V3Crown.finishOnline(m);break;
+  case'bot':{const E=M.bySlot&&M.bySlot[m.s];if(E){if(E.base==null)E.base=E.a.label;E.a.label=E.base+(m.on?' (bot)':'')}break}   // o jogador saiu e um bot assumiu (ou voltou)
   case'pronto':if(M.role==='host'&&window.Carregamento)Carregamento.liberar();break;   // sala entre amigos: o anfitrião só começa quando o convidado terminou de carregar
  }
 }
-window.OnlineV46={beginServer:m=>begin('guest',m),onMsg,hostGo,abort,backToLobby,hostDelay,get match(){return M}};
+// depois de montar a luta pelo servidor: guarda que há uma partida em andamento (se o jogador sair, o início oferece RECONECTAR)
+// e, se ele está voltando no meio dela, recoloca o placar dos rounds / o time do Trio vindos do servidor
+function afterBegin(m){
+ if(!M.on)return;
+ try{localStorage.setItem(O.flag,JSON.stringify({modo:S.modo,t:Date.now(),tok:O.tok}))}catch{}
+ const e=m.est;if(!e)return;
+ try{
+  const s=m.slot|0;
+  if(e.serie&&V3Modes.serieAplicar)V3Modes.serieAplicar(e.serie,(m.modo==='2v2'?(s>>1):s)===1);
+  if(e.kof&&window.V3Kof?.importar)V3Kof.importar(e.kof,s===1);
+  if(Number.isFinite(e.tm))time=e.tm;
+ }catch(err){console.warn('[Eldoria online] estado da volta',err)}
+}
+const matchEnded=()=>{try{localStorage.removeItem(O.flag)}catch{}};
+window.OnlineV46={beginServer:m=>{begin('guest',m);afterBegin(m)},onMsg,hostGo,abort,backToLobby,hostDelay,get match(){return M}};
 })();

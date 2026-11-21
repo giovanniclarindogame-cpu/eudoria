@@ -43,13 +43,19 @@ function current(){const m=byId(account.v40Mode);return m&&!m.soon&&!catLocked(m
 function choose(id){const m=byId(id);if(!m||m.soon||catLocked(m.cat))return false;account.v40Mode=id;try{saveAccount()}catch{}return true}
 // busca por rivais em andamento: o botão JOGAR vira "Procurando rivais…" e tocar nele cancela
 const buscando=()=>{try{return !!(window.OnlineV45&&OnlineV45.state.procurando)}catch{return false}};
+const reconectando=()=>{try{return !!(window.OnlineV45&&OnlineV45.state.reconectando)}catch{return false}};
+const podeReconectar=()=>{try{return !!(window.OnlineV45&&OnlineV45.podeReconectar())}catch{return false}};
 function syncBusca(){
- const on=buscando();
- document.querySelectorAll('[data-v40-play]').forEach(b=>{b.classList.toggle('buscando',on);b.innerHTML=on?'<span class="v41-busca"><span class="v45-spin"></span><b>PROCURANDO RIVAIS…</b><small>toque para cancelar</small></span>':'JOGAR'+(b.classList.contains('v41-play')?'<kbd class="v41-key v41-key-play">Enter</kbd>':'')});
- document.querySelectorAll('[data-v43-play]').forEach(b=>{b.classList.toggle('buscando',on);const t=b.querySelector('b'),sm=b.querySelector('small');if(t)t.textContent=on?'PROCURANDO…':'JOGAR';if(sm&&on)sm.textContent='toque para cancelar'; else if(sm)sm.textContent=current().name});
+ const on=buscando(),ing=reconectando(),rec=!on&&!ing&&podeReconectar();
+ document.querySelectorAll('[data-v40-play]').forEach(b=>{b.classList.toggle('buscando',on||ing);b.classList.toggle('reconectar',rec);
+  b.innerHTML=on?'<span class="v41-busca"><span class="v45-spin"></span><b>PROCURANDO RIVAIS…</b><small>toque para cancelar</small></span>':ing?'<span class="v41-busca"><span class="v45-spin"></span><b>RECONECTANDO…</b></span>':rec?'<span class="v41-busca"><b class="v41-rec">RECONECTAR</b><small>sua partida continua</small></span>':'JOGAR'+(b.classList.contains('v41-play')?'<kbd class="v41-key v41-key-play">Enter</kbd>':'')});
+ document.querySelectorAll('[data-v43-play]').forEach(b=>{b.classList.toggle('buscando',on||ing);b.classList.toggle('reconectar',rec);const t=b.querySelector('b'),sm=b.querySelector('small');if(t)t.textContent=on?'PROCURANDO…':ing?'RECONECTANDO…':rec?'RECONECTAR':'JOGAR';if(sm)sm.textContent=on?'toque para cancelar':rec?'sua partida continua':current().name});
 }
 document.addEventListener('eldoria-busca',syncBusca);
-function play(){if(buscando()){try{OnlineV45.cancelar()}catch{}syncBusca();return}const m=current();closeAll();try{m.run()}catch(e){console.error('[Eldoria] iniciar modo',m.id,e);toast?.('Não foi possível abrir '+m.name)}}
+function play(){if(buscando()){try{OnlineV45.cancelar()}catch{}syncBusca();return}
+ if(reconectando())return;
+ if(podeReconectar()){closeAll();try{OnlineV45.reconectar()}catch(e){console.error(e)}syncBusca();return}
+ const m=current();closeAll();try{m.run()}catch(e){console.error('[Eldoria] iniciar modo',m.id,e);toast?.('Não foi possível abrir '+m.name)}}
 
 /* ---------- ícones ---------- */
 const I={

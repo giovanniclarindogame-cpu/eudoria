@@ -94,23 +94,40 @@ function channelAdapter(ch){const a={pc:()=>S.pc,send:o=>ch.send(JSON.stringify(
  * 2) SALA: quando os rivais são achados, abre a tela de escolha do campeão (30 s; PRONTO confirma; no futuro: banimentos);
  * 3) LUTA: com todos prontos o servidor monta a partida (tela de carregamento) e a luta começa. */
 const avisar=()=>{try{document.dispatchEvent(new Event('eldoria-busca'))}catch{}};
-function procurar(modo){
- if(!SERVIDOR){try{toast('O servidor de partidas ainda não está configurado.')}catch{}return false}
- if(modo==='1v1'||modo==='2v2'||modo==='trio'||modo==='coroa')S.modo=modo;if(!['2v2','trio','coroa'].includes(S.modo))S.modo='1v1';
- cleanup();S.team=null;S.mode='server';S.role='guest';S.err='';S.busy='';S.qt=Date.now();S.online=0;S.fila=0;S.fase='fila';S.procurando=true;S.sala=null;S.me={...profile()};S.them=null;S.ready=S.theirReady=false;
- let sock;try{sock=new WebSocket(SERVIDOR)}catch{return falhaSrv('Endereço do servidor inválido.')}
+// token da sessão: o servidor reconhece quem volta a uma partida pelo mesmo token
+const TOK=(()=>{try{let t=localStorage.getItem('eldoria.tok');if(!t||!/^[A-Za-z0-9_-]{8,40}$/.test(t)){t=Array.from(crypto.getRandomValues(new Uint8Array(16)),b=>b.toString(16).padStart(2,'0')).join('');localStorage.setItem('eldoria.tok',t)}return t}catch{return Array.from(crypto.getRandomValues(new Uint8Array(16)),b=>b.toString(16).padStart(2,'0')).join('')}})();
+const FLAG='eldoria.partida';
+// partida em andamento que o jogador deixou (fechou o jogo, caiu a conexão): o botão JOGAR vira RECONECTAR por até 20 min
+function partidaAberta(){try{const f=JSON.parse(localStorage.getItem(FLAG)||'null');if(f&&Date.now()-f.t<20*60*1000&&f.tok===TOK)return f}catch{}return null}
+const podeReconectar=()=>!!SERVIDOR&&!S.procurando&&!(window.OnlineV46&&OnlineV46.match.on)&&!!partidaAberta();
+function abrirSocket(aoHello){
+ let sock;try{sock=new WebSocket(SERVIDOR)}catch{falhaSrv('Endereço do servidor inválido.');return null}
  S.ws=sock;avisar();
  const timer=setTimeout(()=>{if(S.ws===sock&&sock.readyState!==1)falhaSrv('Servidor indisponível no momento. Tente de novo em instantes.')},9000);
  sock.onopen=()=>{
   clearTimeout(timer);if(S.ws!==sock)return;
   S.conn={pc:()=>null,send:o=>sock.send(JSON.stringify(o)),close:()=>sock.close()};
-  sock.send(JSON.stringify({t:'hello',v:PROTO_SRV,build:window.ELDORIA_BUILD||1,sala:1,p:profile()}));
+  sock.send(JSON.stringify({t:'hello',v:PROTO_SRV,build:window.ELDORIA_BUILD||1,sala:1,tok:TOK,p:profile()}));
   S.pingT=setInterval(()=>send({t:'ping',at:performance.now()}),2000);
  };
  sock.onmessage=e=>{let m;try{m=JSON.parse(e.data)}catch{return}if(S.ws===sock)onSrv(m)};
  sock.onclose=()=>{clearTimeout(timer);if(S.ws!==sock)return;if(S.conn)lost('Conexão com o servidor perdida.');else falhaSrv('Não foi possível conectar ao servidor.')};
  sock.onerror=()=>{};
- return true;
+ S.aoHello=aoHello;
+ return sock;
+}
+function procurar(modo){
+ if(!SERVIDOR){try{toast('O servidor de partidas ainda não está configurado.')}catch{}return false}
+ if(modo==='1v1'||modo==='2v2'||modo==='trio'||modo==='coroa')S.modo=modo;if(!['2v2','trio','coroa'].includes(S.modo))S.modo='1v1';
+ cleanup();S.team=null;S.mode='server';S.role='guest';S.err='';S.busy='';S.qt=Date.now();S.online=0;S.fila=0;S.fase='fila';S.procurando=true;S.sala=null;S.me={...profile()};S.them=null;S.ready=S.theirReady=false;
+ return !!abrirSocket(()=>send({t:'fila',p:profile(),modo:S.modo}));
+}
+// volta para a partida que ficou aberta no servidor (um bot estava no seu lugar)
+function reconectar(){
+ const f=partidaAberta();
+ if(!SERVIDOR||!f){S.reconectando=false;avisar();return false}
+ cleanup();S.team=null;S.mode='server';S.role='guest';S.err='';S.modo=f.modo||S.modo;S.fase='reconectando';S.procurando=false;S.reconectando=true;S.sala=null;S.me={...profile()};S.them=null;
+ return !!abrirSocket(()=>send({t:'reconectar'}));
 }
 // desistir da busca (ou sair da sala de escolha)
 function cancelar(){
@@ -119,6 +136,7 @@ function cancelar(){
  const el=$q('#onlineV45');if(el&&S.mode==='server'){el.hidden=true;document.body.classList.remove('v45-open')}
  avisar();
 }
+const stats0=()=>{};
 function falhaSrv(msg){
  cleanup();S.procurando=false;S.fase=null;S.sala=null;S.err=msg;
  try{toast(msg)}catch{}
@@ -135,7 +153,7 @@ function onSrv(m){
  switch(m.t){
   case'hello':
    if((S.modo==='2v2'||S.modo==='trio'||S.modo==='coroa')&&!(m.modos||[]).includes(S.modo)){falhaSrv('O servidor ainda está sendo atualizado para este modo. Tente de novo em alguns minutos.');break}
-   S.online=m.online||0;send({t:'fila',p:profile(),modo:S.modo});avisar();break;
+   S.online=m.online||0;{const f=S.aoHello;S.aoHello=null;if(f)f()}avisar();break;
   case'fila':S.online=m.online||S.online;S.fila=m.n;S.precisa=m.precisa||2;avisar();break;
   case'cheio':S.busy='Servidor cheio: você continua na fila…';break;
   case'ocioso':break;
@@ -147,6 +165,14 @@ function onSrv(m){
    S.them=S.sala.ps[S.modo==='coroa'?(slot+1)%4:n>2?(slot<2?2:0):1-slot]||null;
    if(S.modo==='trio'){S.team=defaultTeam();S.me={...S.me,hero:S.team[0]}}
    S.me={...profile()};avisar();abrirSala();if(S.modo==='trio')send({t:'pick',team:S.team});break}
+  case'nada':   // a partida que ficou aberta já terminou
+   try{localStorage.removeItem(FLAG)}catch{}
+   S.reconectando=false;falhaSrv('Essa partida já terminou.');break;
+  case'volta':  // de volta à luta: o bot sai do controle, o jogo recria a luta e o servidor manda o estado
+   S.me={...profile()};S.them=sanitize(m.them||(Array.isArray(m.ps)?m.ps[m.slot<2?2:0]:null));S.busy='';S.err='';S.procurando=false;S.reconectando=false;S.fase='jogo';clearInterval(S.qTimer);
+   try{stats0()}catch{}
+   try{window.OnlineV46.beginServer(m)}catch(e){console.error('[Eldoria online] volta',e);falhaSrv('Não foi possível voltar à partida.')}
+   avisar();break;
   case'pick':if(S.sala){S.sala.picks[m.s|0]=validHero(m.hero);render()}break;
   case'ready':if(S.sala){S.sala.ready[m.s|0]=!!m.v;if(S.sala.n===2)S.theirReady=!!m.v;render()}break;
   case'match':
@@ -511,5 +537,5 @@ addEventListener('beforeunload',()=>{try{send({t:'bye'})}catch{}});
 // começar qualquer outra luta (treino, bots...) enquanto a busca está na fila cancela a busca
 const prevStartBusca=start;
 start=function(){if(S.procurando&&S.fase==='fila'&&!window.OnlineV46?.match.on)cancelar();return prevStartBusca.apply(this,arguments)};
-window.OnlineV45={procurar,cancelar,selecionar:procurar,sendFast,send,render,go,owned,profile,state:S,open,close,pack,unpack,cleanCode,_createRoom:createRoom,_join:joinRoom,_nearHostRead:nearHostRead,_nearGuestRead:nearGuestRead};
+window.OnlineV45={tok:TOK,procurar,cancelar,reconectar,podeReconectar,partidaAberta,flag:FLAG,selecionar:procurar,sendFast,send,render,go,owned,profile,state:S,open,close,pack,unpack,cleanCode,_createRoom:createRoom,_join:joinRoom,_nearHostRead:nearHostRead,_nearGuestRead:nearGuestRead};
 })();

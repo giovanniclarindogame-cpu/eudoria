@@ -42,7 +42,7 @@ parentPort.on('message', (msg) => {
   try {
     if (msg.k === 'iniciar') {
       // cria a luta, mas ainda NÃO anda: espera o 'liberar' (os dois jogadores terminaram de carregar)
-      w.__SRV.start({ seed: msg.seed, modo: msg.modo, h0: msg.h0, h1: msg.h1, n0: msg.n0, n1: msg.n1, h: msg.h, n: msg.n, teams: msg.teams });
+      w.__SRV.start({ seed: msg.seed, modo: msg.modo, h0: msg.h0, h1: msg.h1, n0: msg.n0, n1: msg.n1, h: msg.h, n: msg.n, teams: msg.teams, bots: msg.bots });
       criada = true;
     } else if (msg.k === 'liberar') {
       if (!criada || rodando) return;
@@ -53,6 +53,8 @@ parentPort.on('message', (msg) => {
       }, 5000).unref();
     } else if (msg.k === 'in') w.__SRV.input(msg.slot, msg.m);
     else if (msg.k === 'act') w.__SRV.act(msg.slot, msg.m);
+    else if (msg.k === 'bot') w.__SRV.setBot(msg.slot, !!msg.on);
+    else if (msg.k === 'estado') parentPort.postMessage({ k: 'estado', slot: msg.slot, est: w.__SRV.estado() });
     else if (msg.k === 'teste' && process.env.TESTE === '1') w.__SRV.debug(msg.m);
     else if (msg.k === 'parar') { rodando = false; clearTimeout(timer); try { w.close(); } catch {} parentPort.postMessage({ k: 'parou' }); }
   } catch (e) { parentPort.postMessage({ k: 'erro', m: String(e && e.message).slice(0, 160) }); }

@@ -112,6 +112,9 @@ function drawPips(){
  el[2].className=S.w[1]>=1?'on r':'r';el[3].className=S.w[1]>=2?'on r':'r';
  pips.querySelector('b').textContent='ROUND '+S.round;
 }
+// quem volta a uma partida online no meio da série (melhor de 3) recebe o placar do servidor (w[0] = vagas/equipe 0 do servidor)
+window.V3Modes.serieEstado=()=>S.on?{round:S.round,w:[...S.w],draws:S.draws}:null;
+window.V3Modes.serieAplicar=(e,meuLado)=>{if(!S.on||!e)return;const w=e.w||[0,0];S.round=e.round||1;S.w=meuLado?[w[1],w[0]]:[w[0],w[1]];S.draws=e.draws||0;drawPips()};
 const prevStart=start;
 start=function(){
  const r=prevStart.apply(this,arguments);
