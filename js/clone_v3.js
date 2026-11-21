@@ -29,11 +29,11 @@ function proxyFor(o,scale){
  for(const key of ['hp','damage','hits','kills'])Object.defineProperty(proxy,key,{get:()=>a[key],set:v=>{a[key]=v},configurable:true});
  return proxy;
 }
-function cloneCast(o,slot,foe,scale){
+function cloneCast(o,slot,foe,scale,ang){
  const a=o.owner,id=a.kit[slot],sk=skills[id];if(!sk)return false;
- const proxy=proxyFor(o,scale),angle=Math.atan2(foe.y-o.y,foe.x-o.x);
+ const proxy=proxyFor(o,scale),angle=Number.isFinite(ang)?ang:Math.atan2(foe.y-o.y,foe.x-o.x);
  const st=reworkState(proxy);st.value=100;st.eye=0;st.copy=null;
- const q={id,slot,age:0,charge:.7,snapshot:100,stage:2,health:a.hp,angle,duration:sk.duration||.5,release:sk.release||.2,target:rwEnd(proxy,angle,Math.min(sk.range||200,dist(o,foe))),burnStacks:0,spent:0};
+ const q={id,slot,age:0,charge:.7,snapshot:100,stage:2,health:a.hp,angle,duration:sk.duration||.5,release:sk.release||.2,target:rwEnd(proxy,angle,Math.min(sk.range||200,foe?dist(o,foe):(sk.range||200))),burnStacks:0,spent:0};
  const hp0=a.hp;
  try{rwRelease(proxy,q)}catch(e){console.error('[Eldoria] clone',e);return false}
  a.hp=Math.max(a.hp,Math.min(hp0,a.max));   // o clone nunca tira vida do Ninja
@@ -47,6 +47,10 @@ function dodge(o,foe){
  ninja22Smoke(o.owner,o.x,o.y);
 }
 
+/* ---------- o clone IMITA o Ninja ----------
+ * Anda junto (mesmo deslocamento, mantendo o afastamento do início), olha para onde o Ninja mira, repete as esquivas/dashes e, quando o Ninja
+ * usa a Lâmina Rápida ou o Golpe Trovão, o clone usa a mesma na mesma direção (dano reduzido). Para os rivais ele é igual ao Ninja (mesmo desenho,
+ * mesma barra de vida); para o dono ele aparece meio transparente, só para não se perder. */
 const prevStep=step;
 step=function(dt){
  prevStep(dt);
@@ -55,38 +59,50 @@ step=function(dt){
   if(!isClone(o))continue;
   const owner=o.owner;
   if(owner.hp<=0){o.life=0;ninja22Smoke(owner,o.x,o.y);continue}
-  o.age+=dt;o.inv=Math.max(0,o.inv-dt);o.dodgeCd=Math.max(0,(o.dodgeCd||0)-dt);o.cdB=Math.max(0,(o.cdB??.6)-dt);o.cdU=Math.max(0,(o.cdU??6)-dt);o.think=(o.think||0)-dt;
+  o.age+=dt;o.inv=Math.max(0,o.inv-dt);o.cdB=Math.max(0,(o.cdB??.6)-dt);o.cdU=Math.max(0,(o.cdU??6)-dt);
   if(o.attacks){o.strikeAge+=dt;if(o.strikeAge>.3)o.attacks=0}
-  const foe=foeOf(o);if(!foe)continue;
-  const d=dist(o,foe),toward=Math.atan2(foe.y-o.y,foe.x-o.x);
-  o.a=o.dojoFacingAngle=toward;
-  // esquiva em curso
-  if(o.dodgeT>0){o.dodgeT-=dt;move(o,Math.cos(o.dodgeA)*430*dt,Math.sin(o.dodgeA)*430*dt);o.moving=true;o.gait=(o.gait||0)+dt*18;continue}
-  // pensamento (a cada ~0,1 s)
-  if(o.think<=0){
-   o.think=.1;
-   if(o.dodgeCd<=0&&((windupOf(foe)&&d<280)||incoming(o))&&Math.random()<.75){dodge(o,foe);continue}
-   const opening=openingOf(foe);
-   const sync=synced(o),canMelee=!o.attacks&&o.cdB<=0&&d<=REACH&&sync&&rwVisible(o,foe);
-   if(canMelee&&(opening||Math.random()<(window.NINJA_V3_SYNC?.6:.18))){
-    if(cloneCast(o,0,foe,SCALE_BASIC)){o.attacks=1;o.strikeAge=0;o.cdB=CD_BASIC}
-   }else if(!o.attacks&&o.cdU<=0&&d<=300&&opening&&sync&&rwVisible(o,foe)){
-    if(cloneCast(o,5,foe,SCALE_ULT)){o.attacks=1;o.strikeAge=0;o.cdU=CD_ULT;o.cdB=Math.max(o.cdB,1)}
+  // afastamento em relação ao Ninja (lado do início; se nasceu colado, vai para a direita de quem olha)
+  if(!o.off){let ox=o.x-owner.x,oy=o.y-owner.y;if(Math.hypot(ox,oy)<45){const an=owner.a+Math.PI/2;ox=Math.cos(an)*85;oy=Math.sin(an)*85}o.off={x:ox,y:oy};o.px=owner.x;o.py=owner.y}
+  // anda o mesmo que o Ninja andou neste passo (inclui dashes), e depois volta suavemente ao afastamento certo se algo travou o caminho
+  const dx=owner.x-o.px,dy=owner.y-o.py;o.px=owner.x;o.py=owner.y;
+  if(Math.hypot(dx,dy)>.01)move(o,dx,dy);
+  const ex=owner.x+o.off.x-o.x,ey=owner.y+o.off.y-o.y,er=Math.hypot(ex,ey);
+  if(er>8){const k=Math.min(er,260*dt)/er;move(o,ex*k,ey*k)}
+  if(er>230){o.x=owner.x+o.off.x*.6;o.y=owner.y+o.off.y*.6}   // ficou muito para trás (teleporte, troca de lugar): reaparece perto
+  // aparência: copia a pose do Ninja
+  const mirrorAng=owner.a;o.a=o.dojoFacingAngle=mirrorAng;
+  o.moving=!!(owner.moving||Math.hypot(dx,dy)>.3);o.gait=owner.gait;o.guard=owner.guard;o.dodgeTime=owner.dodgeTime;o.dash=owner.dash;o.dodgeA=owner.dodgeA;
+  // repete o golpe: o mesmo botão que o Ninja usou, na mesma direção
+  const seq=owner.v3atkSeq||0;
+  if(seq!==o.seenSeq){
+   o.seenSeq=seq;const slot=owner.v3atkSlot,ang=owner.v3atkAng??owner.a;
+   if(!o.attacks&&(slot===0&&o.cdB<=0||slot===5&&o.cdU<=0)){
+    const foe=foeOf(o);
+    let ang2=ang;
+    // rival por perto: o clone avança um pouco e corta na direção dele (senão o golpe sairia no vazio, ao lado do Ninja)
+    if(foe&&dist(o,foe)<230){ang2=Math.atan2(foe.y-o.y,foe.x-o.x);const lunge=Math.max(0,Math.min(75,dist(o,foe)-62));if(lunge>1)move(o,Math.cos(ang2)*lunge,Math.sin(ang2)*lunge)}
+    if(cloneCast(o,slot,foe,slot===5?SCALE_ULT:SCALE_BASIC,ang2)){o.attacks=1;o.strikeAge=0;if(slot===5){o.cdU=CD_ULT;o.cdB=Math.max(o.cdB,1)}else o.cdB=CD_BASIC}
    }
   }
-  // movimento: aproxima quando há brecha, mantém distância e contorna quando não há
-  const opening=openingOf(foe);
-  let mx=0,my=0,sp=0;
-  if(o.attacks){sp=0}
-  else if(opening&&d>70){mx=Math.cos(toward);my=Math.sin(toward);sp=200}
-  else if(d>220){mx=Math.cos(toward);my=Math.sin(toward);sp=170}
-  else if(d<110){mx=-Math.cos(toward);my=-Math.sin(toward);sp=140}
-  else{const s=(o.circle=o.circle||(Math.random()<.5?1:-1));mx=Math.cos(toward+s*Math.PI/2);my=Math.sin(toward+s*Math.PI/2);sp=85;if(Math.random()<.01)o.circle=-s}
-  o.moving=sp>0;if(sp>0){move(o,mx*sp*dt,my*sp*dt);o.gait=(o.gait||0)+dt*14}
  }
+};
+// para quem não é o dono, o clone também mostra a barra de vida do Ninja sobre a cabeça (idêntico a ele)
+const prevDepthC=integratedDepth;
+integratedDepth=function(){
+ const list=prevDepthC();
+ for(const o of objects){
+  if(!isClone(o)||o.owner===p||o.owner.hp<=0)continue;
+  const a=o.owner;
+  list.push({kind:'v3-bar',y:99990+o.y*.001,priority:8,paint(){
+   const f=Math.max(0,Math.min(1,a.hp/a.max)),ally=a.team===p.team,w=46,x=o.x-w/2,y=o.y-62;
+   ctx.save();ctx.fillStyle='#000a';ctx.fillRect(x-1,y-1,w+2,7);ctx.fillStyle='#2a1417';ctx.fillRect(x,y,w,5);
+   ctx.fillStyle=f<=.25?'#ff5348':ally?'#59d98e':'#ee5c5c';ctx.fillRect(x,y,w*f,5);ctx.restore();
+  }});
+ }
+ return list.sort((u,v)=>u.y-v.y||(u.priority||0)-(v.priority||0));
 };
 // descrição
 const cid=CHAMPIONS[1].kit[1];
-if(skills[cid]&&!skills[cid].v3clone){skills[cid].desc='Cria um clone de fumaça que luta sozinho: esquiva, contorna o rival e ataca nas brechas com a Lâmina Rápida e o Golpe Trovão, com dano reduzido. Não some pelo tempo: só desaparece ao receber qualquer golpe. Toque de novo para trocar de lugar com ele.';skills[cid].v3clone=true}
+if(skills[cid]&&!skills[cid].v3clone){skills[cid].desc='Cria um clone de fumaça que IMITA você: anda junto, mira para onde você mira e repete a Lâmina Rápida e o Golpe Trovão, com dano reduzido. Os rivais o veem igual a você; para você ele fica meio transparente. Não some pelo tempo: só desaparece ao receber qualquer golpe. Toque de novo para trocar de lugar com ele.';skills[cid].v3clone=true}
 window.CloneV3={isClone,foeOf,cloneCast,SCALE_BASIC,SCALE_ULT};
 })();
