@@ -44,6 +44,23 @@ Abra no navegador `https://SEU.DOMINIO.AQUI/saude`: deve aparecer um texto com `
 Me diga o endereço (`wss://SEU.DOMINIO.AQUI`). Eu coloco em `js/config_servidor.js`, publico e testo. O botão **Partida rápida** passa a aparecer.
 (Para testar sem publicar, abra o jogo com `?servidor=wss://SEU.DOMINIO.AQUI`.)
 
+## Atualização automática (recomendado)
+Em vez de rodar `atualizar.sh` à mão, ligue o atualizador automático. Ele confere o GitHub a cada 5 minutos:
+- **sem novidade** → não faz nada;
+- **novidade que não mexe no servidor** (imagens, textos, documentação) → só atualiza os arquivos, **sem reiniciar**;
+- **mudança em `servidor/`, `js/` ou `index.html`** → espera **não haver partida em andamento**, reconstrói e reinicia (se ficar 3 h esperando, atualiza mesmo assim);
+- se a versão nova **não ficar saudável** em ~90 s → **volta para a anterior** sozinho e não tenta o mesmo commit de novo.
+
+Ligar (uma vez, no terminal do VPS):
+```bash
+bash /opt/eldoria/servidor/implantar/atualizar.sh          # traz estes scripts novos (e a versão atual)
+sudo bash /opt/eldoria/servidor/implantar/instalar-auto.sh
+```
+Ver o que ele fez: `tail -n 40 /var/log/eldoria-auto.log`. Quando roda de novo: `systemctl list-timers eldoria-auto.timer`.
+Desligar: `sudo bash /opt/eldoria/servidor/implantar/instalar-auto.sh desligar`.
+Se o repositório for privado, o atualizador não consegue buscar o GitHub (aparece no registro): use um token (me avise).
+O teste dele (com GitHub e Docker falsos): `bash servidor/implantar/testar-auto.sh`.
+
 ## Dia a dia
 ```bash
 cd /opt/eldoria/servidor/implantar
