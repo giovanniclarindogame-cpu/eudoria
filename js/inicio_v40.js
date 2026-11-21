@@ -206,7 +206,7 @@ function modesMarkup(){
  if(!modesCat||catLocked(modesCat))modesCat=current().cat;
  const [cat,label,col]=CATS.find(c=>c[0]===modesCat);
  const list=MODES.filter(m=>m.cat===cat),ordered=[...list.filter(m=>!m.soon),...list.filter(m=>m.soon)];
- const group=`<section class="v40-group" data-cat="${cat}" style="--cat:${col}" aria-label="${label}"><h3>${svg(CAT_ICON[cat])}${label}</h3><div class="v40-cards">${ordered.map(m=>cardHtml(m,cur,k++)).join('')}</div></section>`;
+ const group=`<section class="v40-group" data-cat="${cat}" style="--cat:${col}" aria-label="${label}"><h3>${svg(CAT_ICON[cat])}${label}</h3><div class="v40-cards" style="--n:${ordered.length}">${ordered.map(m=>cardHtml(m,cur,k++)).join('')}</div></section>`;
  const fw=(()=>{try{return window.ContaV42?.firstWinReady()}catch{return false}})();
  const m=current();
  return `<div class="v40-modes-top v43-top"><button class="v40-round v43-back" data-v40-close aria-label="Voltar ao início">${svg('back')}</button><b>MODOS DE JOGO</b>

@@ -193,3 +193,9 @@ body[data-screen=library] #backHome::before,body[data-screen=shop] #backHome::be
 .v43-tabs button.locked{opacity:.6;filter:grayscale(.5)}
 .v43-tabs button.locked small{display:block;font-size:9px;letter-spacing:.06em;color:#ffe7a3;text-transform:uppercase;margin-left:-2px}
 .v43-tabs button.locked:active{transform:none}
+
+/* v52 — cartões lado a lado numa fileira só (a largura de cada um se ajusta à tela e ao número de cartões) */
+.v43-strip{align-items:center}
+.v43-strip>.v40-group{height:min(100%,560px)}
+.v40-cards{grid-template-rows:minmax(0,1fr)!important}
+.v40-card.v43-card{width:clamp(150px,calc((100vw - 56px)/var(--n,5) - 12px),300px)!important}
