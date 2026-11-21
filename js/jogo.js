@@ -1726,7 +1726,7 @@ vfxDrawProjectiles=function(){const all=shots;shots=all.filter(s=>!s.ninjaBlade)
 const ninjaPriorFields=vfxDrawFields;
 vfxDrawFields=function(){const all=objects;objects=all.filter(o=>!o.ninjaKind);try{ninjaPriorFields()}finally{objects=all}};
 const ninjaFramesSeen=Array.from({length:6},()=>new Set());
-const ninjaFrameImages=NINJA_SHEETS.map(src=>{const im=new Image();im.src=src;return im});
+const ninjaFrameImages=NINJA_SHEETS.map(src=>lazyImage(src));
 drawNinjaRaster=function(g,row,x,y,size,phase=0,angle=0){const im=ninjaFrameImages[row];if(!im?.complete||!im.naturalWidth)return;const frame=clamp(Math.floor(phase*24),0,23),w=im.naturalWidth/6,h=im.naturalHeight/4;ninjaFramesSeen[row].add(frame);g.save();g.translate(x,y);if([0,2].includes(row))g.rotate(angle);g.drawImage(im,(frame%6)*w,Math.floor(frame/6)*h,w,h,-size/2,-size/2,size,size);g.restore()};
 icon=function(id){const row=NINJA_IDS.indexOf(id);if(row<0)return ninjaOldIcon(id);const frame=[10,8,12,12,12,8][row];return `<span class="ninja-icon" aria-hidden="true"><img src="${NINJA_SHEETS[row]}" alt="" draggable="false" style="width:600%;height:400%;left:-${frame%6*100}%;top:-${Math.floor(frame/6)*100}%"></span>`};
 vfxDrawObjects=function(){const all=objects;objects=all.filter(o=>!o.ninjaKind);try{ninjaOldObjects()}finally{objects=all}for(const o of all){if(!o.ninjaKind||o.life<=0||o.hp<=0)continue;const row=o.ninjaKind==='hound'?2:o.ninjaKind==='wall'?3:o.ninjaKind==='clone'?1:4;let x=o.x,y=o.y,hp=o.hp,max=o.maxHp||30,size=row===2?135:row===3?175:row===4?210:85,angle=0,phase=.4;
@@ -1754,7 +1754,7 @@ const DOJO_ICON_SRC="assets/sprites/arte_015.webp";
 skills[31].desc='Concentra relâmpago na mão por 0,4s e avança até 220 unidades. Causa 85 de dano no contato. Obstáculos interrompem a investida.';
 const DOJO_BASE_IMAGE=new Image();
 DOJO_BASE_IMAGE.src=DOJO_DIRECTIONAL_SRC;
-const DOJO_STRIKE_IMAGES=Object.fromEntries(Object.entries(DOJO_STRIKE_SOURCES).map(([name,src])=>{const image=new Image();image.src=src;return [name,image]}));
+const DOJO_STRIKE_IMAGES=Object.fromEntries(Object.entries(DOJO_STRIKE_SOURCES).map(([name,src])=>{return [name,lazyImage(src)]}));
 let dojoSpeed=1,dojoInspectorFrame=null,dojoPreviewMode='idle',dojoPreviewAngle=0;
 const dojoSeen=new Set(),DOJO_TIME=1.09;
 function dojoFrame(age){return age<.4?Math.min(7,Math.floor(age/.4*8)):age<.68?8+Math.min(7,Math.floor((age-.4)/.28*8)):age<.79?16+Math.min(1,Math.floor((age-.68)/.11*2)):Math.min(23,18+Math.floor((age-.79)/.3*6));}
@@ -1796,7 +1796,7 @@ const dojoResetOriginal=resetPractice;
 resetPractice=function(clear=true){const result=dojoResetOriginal(clear);for(const a of actors){a.dojoStrike=null;a.dojoFacingAngle=0;}if(p&&b){p.x=W*.5-115;b.x=W*.5+115;p.y=b.y=H*.5;p.a=0;b.a=Math.PI;}ninjaEffects=[];return result;};
 const DOJO_KIT_SOURCES={"casting": "assets/sprites/arte_016.webp", "wall": "assets/sprites/arte_017.webp", "rift": "assets/sprites/arte_018.webp", "avatar": "assets/sprites/arte_019.webp", "blade": "assets/sprites/arte_020.webp", "hound-run": "assets/sprites/arte_021.webp", "hound-bite": "assets/sprites/arte_022.webp"};
 const DOJO_KIT_ICONS=["assets/sprites/arte_023.webp", "assets/sprites/arte_024.webp", "assets/sprites/arte_025.webp", "assets/sprites/arte_026.webp", "assets/sprites/arte_027.webp"];
-const dojoKitImages=Object.fromEntries(Object.entries(DOJO_KIT_SOURCES).map(([name,src])=>{const im=new Image();im.src=src;return[name,im]}));
+const dojoKitImages=Object.fromEntries(Object.entries(DOJO_KIT_SOURCES).map(([name,src])=>{return[name,lazyImage(src)]}));
 const dojoKitFrames=Object.fromEntries(['clone','hound','wall','rift','avatar','blade'].map(n=>[n,new Set()]));
 let dojoEntities=[],dojoBursts=[],dojoRiftMode='attack',dojoPreviewSkill=31;
 const dojoKitDurations={27:.72,2:.85,37:.85,35:.8,48:1.65};
@@ -1922,7 +1922,7 @@ function dojoDrawDepthWorld(){drawModeWorld();drawEntryCosmetic();vfxDrawLayer(t
 const DOJO_DODGE_SRC="assets/sprites/arte_028.webp";
 const DOJO_WOUND_SOURCES={"worn-base": "assets/sprites/arte_029.webp", "worn-casting": "assets/sprites/arte_030.webp", "worn-strike-side": "assets/sprites/arte_031.webp", "worn-strike-front": "assets/sprites/arte_032.webp", "worn-strike-back": "assets/sprites/arte_033.webp", "pain": "assets/sprites/arte_034.webp", "blood": "assets/sprites/arte_035.webp"};
 const DOJO_WOUND_REG={"side": {"row": 0, "scale": 1.0220264317180616, "frames": [{"height": 227, "anchor": [122.0, 250.0]}, {"height": 225, "anchor": [109.5, 248.0]}, {"height": 226, "anchor": [130.5, 249.0]}, {"height": 215, "anchor": [122.0, 251.0]}, {"height": 232, "anchor": [124.5, 252.0]}, {"height": 234, "anchor": [117.0, 251.0]}, {"height": 230, "anchor": [121.5, 250.0]}, {"height": 223, "anchor": [131.0, 255.0]}, {"height": 199, "anchor": [122.5, 232.0]}, {"height": 203, "anchor": [124.5, 242.0]}, {"height": 204, "anchor": [124.0, 241.0]}, {"height": 209, "anchor": [126.0, 244.0]}, {"height": 218, "anchor": [136.5, 232.0]}, {"height": 220, "anchor": [124.5, 237.0]}, {"height": 230, "anchor": [110.0, 244.0]}, {"height": 215, "anchor": [108.5, 236.0]}, {"height": 240, "anchor": [99.0, 255.0]}, {"height": 218, "anchor": [119.5, 232.0]}, {"height": 217, "anchor": [138.0, 231.0]}, {"height": 212, "anchor": [122.0, 229.0]}, {"height": 233, "anchor": [125.0, 232.0]}, {"height": 230, "anchor": [123.5, 231.0]}, {"height": 228, "anchor": [121.5, 232.0]}, {"height": 228, "anchor": [123.5, 232.0]}]}, "front": {"row": 1, "scale": 1.0220264317180616, "frames": [{"height": 227, "anchor": [129.0, 234.0]}, {"height": 236, "anchor": [127.5, 241.0]}, {"height": 236, "anchor": [124.5, 241.0]}, {"height": 230, "anchor": [128.0, 235.0]}, {"height": 237, "anchor": [128.0, 239.0]}, {"height": 242, "anchor": [127.0, 245.0]}, {"height": 242, "anchor": [130.0, 245.0]}, {"height": 240, "anchor": [123.0, 243.0]}, {"height": 245, "anchor": [134.0, 249.0]}, {"height": 243, "anchor": [125.0, 249.0]}, {"height": 245, "anchor": [116.5, 249.0]}, {"height": 241, "anchor": [138.0, 249.0]}, {"height": 239, "anchor": [132.0, 248.0]}, {"height": 240, "anchor": [124.0, 247.0]}, {"height": 238, "anchor": [120.5, 247.0]}, {"height": 241, "anchor": [138.5, 248.0]}, {"height": 231, "anchor": [133.0, 235.0]}, {"height": 235, "anchor": [121.5, 239.0]}, {"height": 230, "anchor": [124.5, 234.0]}, {"height": 233, "anchor": [134.5, 238.0]}, {"height": 237, "anchor": [134.0, 237.0]}, {"height": 236, "anchor": [130.0, 237.0]}, {"height": 235, "anchor": [124.5, 237.0]}, {"height": 237, "anchor": [129.5, 238.0]}]}, "back": {"row": 2, "scale": 1.0403587443946187, "frames": [{"height": 223, "anchor": [136.0, 245.0]}, {"height": 223, "anchor": [121.0, 245.0]}, {"height": 222, "anchor": [118.5, 245.0]}, {"height": 222, "anchor": [114.5, 245.0]}, {"height": 225, "anchor": [121.0, 242.0]}, {"height": 228, "anchor": [119.0, 245.0]}, {"height": 224, "anchor": [116.0, 242.0]}, {"height": 225, "anchor": [110.5, 242.0]}, {"height": 232, "anchor": [122.0, 238.0]}, {"height": 239, "anchor": [121.5, 238.0]}, {"height": 239, "anchor": [118.5, 238.0]}, {"height": 234, "anchor": [114.5, 242.0]}, {"height": 238, "anchor": [123.5, 237.0]}, {"height": 238, "anchor": [124.0, 237.0]}, {"height": 238, "anchor": [112.5, 237.0]}, {"height": 239, "anchor": [112.5, 238.0]}, {"height": 256, "anchor": [121.0, 255.0]}, {"height": 256, "anchor": [123.5, 255.0]}, {"height": 247, "anchor": [120.0, 255.0]}, {"height": 248, "anchor": [122.0, 255.0]}, {"height": 216, "anchor": [122.0, 215.0]}, {"height": 215, "anchor": [129.5, 214.0]}, {"height": 215, "anchor": [135.0, 214.0]}, {"height": 215, "anchor": [131.5, 214.0]}]}};
-const dojoWoundImages=Object.fromEntries(Object.entries(DOJO_WOUND_SOURCES).map(([name,src])=>{const im=new Image();im.src=src;return[name,im]}));
+const dojoWoundImages=Object.fromEntries(Object.entries(DOJO_WOUND_SOURCES).map(([name,src])=>{return[name,lazyImage(src)]}));
 let dojoWornContext=false,dojoBlood=[],dojoBloodSerial=0;
 function dojoIsWorn(a){return !!a&&a.hp>0&&a.hp<a.max*.2;}
 const dojoWoundReady=dojoKitAssetsReady;
@@ -2002,7 +2002,7 @@ const ASTRAL_SKILLS=[
 ASTRAL_SKILLS.forEach((v,i)=>Object.assign(skills[ASTRAL_IDS[i]],{name:v[0],desc:v[1],cost:v[2],cd:v[3],range:v[4],ultimate:i===5,champion:0,type:i===5?'Ultimate':i===2?'Mobilidade':i===4?'Buff':'Ataque',color:['#8cefff','#ffd68a','#a6efff','#ffce69','#ff7a88','#c4eeff'][i]}));
 CHAMPIONS[0].kit=ASTRAL_IDS;
 CHAMPIONS[0].ult='Esfera Celestial';
-const astralImages=Object.fromEntries(Object.entries(ASTRAL_SOURCES).map(([k,src])=>{const im=new Image();im.src=src;return[k,im]}));
+const astralImages=Object.fromEntries(Object.entries(ASTRAL_SOURCES).map(([k,src])=>{return[k,lazyImage(src)]}));
 let astralSpeed=1,astralEffects=[],astralBlood=[],astralInspect=null,astralPreviewMode='idle',astralPreviewSkill=0,astralPreviewAngle=0,astralTrialUlt=true;
 const astralSeen=Array.from({length:6},()=>new Set());
 function astralWorn(a){return a?.hp>0&&a.hp<a.max*.2;}
@@ -2143,7 +2143,7 @@ function eclipseRelease(index){return ECLIPSE_RELEASE/24*ECLIPSE_SKILLS[index][5
 ECLIPSE_SKILLS.forEach((v,i)=>Object.assign(skills[ECLIPSE_IDS[i]],{name:v[0],desc:v[1],cost:v[2],cd:v[3],range:v[4],ultimate:i===5,champion:4,slot:i,type:i===5?'Ultimate':i===4?'Mobilidade':i===0?'Defesa':'Ataque',color:['#9ceaff','#5aaaff','#ff697b','#ca87ff','#adf7ff','#d3a9ff'][i]}));
 CHAMPIONS[4].kit=ECLIPSE_IDS;
 CHAMPIONS[4].ult='Horizonte Infinito';
-const eclipseImages=Object.fromEntries(Object.entries(ECLIPSE_SOURCES).map(([k,src])=>{const im=new Image();im.src=src;return[k,im]}));
+const eclipseImages=Object.fromEntries(Object.entries(ECLIPSE_SOURCES).map(([k,src])=>{return[k,lazyImage(src)]}));
 let eclipseSpeed=1,eclipseEffects=[],eclipseBlood=[],eclipseInspect=null,eclipsePreviewMode='idle',eclipsePreviewSkill=0,eclipsePreviewAngle=0,eclipseTrialUlt=true;
 const eclipseSeen=Array.from({length:6},()=>new Set());
 function eclipseWorn(a){return a?.hp>0&&a.hp<a.max*.2;}
@@ -2254,7 +2254,7 @@ for(const [id,c] of Object.entries(RP_CONFIG)){CHAMPIONS[id].kit=c.ids;CHAMPIONS
 const rpKey=a=>RP_CONFIG[a.skin]?.key||RP_CONFIG[rpActive].key;
 const rpRelease=q=>q.duration*.5;
 const rpSkill=a=>RP_CONFIG[a.skin].skills;
-const rpImages=Object.fromEntries(Object.entries(RP_SOURCES).map(([k,src])=>{const im=new Image();im.src=src;return[k,im]}));
+const rpImages=Object.fromEntries(Object.entries(RP_SOURCES).map(([k,src])=>{return[k,lazyImage(src)]}));
 let rpSpeed=1,rpEffects=[],rpBlood=[],rpInspect=null,rpPreviewMode='idle',rpPreviewSkill=0,rpPreviewAngle=0,rpTrialUlt=true;
 const rpSeen=Array.from({length:6},()=>new Set());
 function rpWorn(a){return a?.hp>0&&a.hp<a.max*.2;}
@@ -2516,7 +2516,8 @@ async function integrationBoot(){
  // este trecho cadastrar os ouvintes; aguardar esse evento de novo congela a entrada.
  // As imagens continuam carregando em paralelo e serão desenhadas quando prontas.
  const all=[DOJO_BASE_IMAGE,...Object.values(DOJO_STRIKE_IMAGES),...Object.values(dojoKitImages),...Object.values(dojoWoundImages),...Object.values(astralImages),...Object.values(eclipseImages),...Object.values(rpImages)];
- window.arenaAssetsStatus={total:all.length,ready:all.filter(im=>im.complete&&im.naturalWidth>0).length,failed:all.filter(im=>im.complete&&!im.naturalWidth).length};
+ const idleArt=im=>!!(im.__lz&&!im.__lz.on);   // carga sob demanda: imagem parada não conta (perguntar 'complete' a faria baixar)
+ window.arenaAssetsStatus={total:all.length,idle:all.filter(idleArt).length,ready:all.filter(im=>!idleArt(im)&&im.complete&&im.naturalWidth>0).length,failed:all.filter(im=>!idleArt(im)&&im.complete&&!im.naturalWidth).length};
  normalizeChampions();loadSkinAtlas();initChampions();initProgression();initLobby();initJourney();initShop();initArenaModes();initApp();normalizeChampions();saveAccount();
  const submit=$('#profileForm').onsubmit;$('#profileForm').onsubmit=e=>{const isNew=!account.profile;submit(e);if(isNew&&account.profile&&$('#profileScreen').hidden)showScreen('library');};
  $('#profileScreen p').textContent='Escolha seu nome e símbolo. Depois, escolha um dos dez campeões disponíveis.';$('#profileScreen button[type="submit"]').textContent=account.profile?'Salvar nome e símbolo':'Continuar · escolher campeão ↗';
