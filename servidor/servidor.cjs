@@ -1,10 +1,15 @@
 'use strict';
 /*
- * Servidor de partidas do Eldoria (etapa 1): fila de partida rápida 1×1 + luta calculada no servidor.
+ * Servidor de partidas do Eldoria: filas (1×1, 2×2, Trio, Coroa) + luta calculada no servidor.
  *  - WebSocket (ws) na porta PORT (padrão 8787). Mensagens JSON; protocolo v3.
  *  - Cada partida roda numa thread própria (partida.cjs, o jogo sem tela). Threads "aquecidas" ficam prontas para começar na hora.
- *  - GET /saude mostra jogadores, fila, partidas e a saúde dos ticks.
- * Variáveis: PORT, BUILD_MINIMO (versão mínima do jogo instalado aceita), AQUECIDAS (threads prontas, padrão 2), MAX_PARTIDAS (padrão 60), ORIGENS (lista separada por vírgula; vazio = qualquer).
+ *  - Cada partida tem "vagas" (slots): cada vaga é um jogador ou um BOT (IA difícil). Se ninguém mais entra na fila em ESPERA_BOT (30 s),
+ *    bots completam as vagas que faltam. Se um jogador sai no meio da luta, um bot assume o campeão dele; se ele voltar (mensagem
+ *    'reconectar' com o mesmo token do 'hello'), o bot sai e ele volta a controlar.
+ *  - GET /saude mostra jogadores, filas, partidas e a saúde dos ticks.
+ * Variáveis: PORT, BUILD_MINIMO (versão mínima do jogo instalado aceita), AQUECIDAS (threads prontas, padrão 2), MAX_PARTIDAS (padrão 60),
+ *            ORIGENS (lista separada por vírgula; vazio = qualquer), ESPERA_BOT (ms na fila até entrarem bots, padrão 30000),
+ *            TEMPO_SELECAO (ms para escolher o campeão), TEMPO_VOLTA (ms que a partida espera se só sobrarem bots, padrão 90000).
  */
 const http = require('http'), path = require('path'), os = require('os');
 const { WebSocketServer } = require('ws');
@@ -12,20 +17,26 @@ const { Worker } = require('worker_threads');
 const PORT = +process.env.PORT || 8787, AQUECIDAS = process.env.AQUECIDAS != null ? +process.env.AQUECIDAS : 2, MAX_PARTIDAS = +process.env.MAX_PARTIDAS || 60;
 const ORIGENS = (process.env.ORIGENS || '').split(',').map(s => s.trim()).filter(Boolean);
 const TEMPO_SELECAO = +process.env.TEMPO_SELECAO || 30000;   // tempo para escolher o campeão depois de achar os rivais
+const ESPERA_BOT = process.env.ESPERA_BOT != null ? +process.env.ESPERA_BOT : 30000;   // fila sem encher: bots entram no lugar
+const TEMPO_VOLTA = +process.env.TEMPO_VOLTA || 90000;
 const PROTO = 3, BUILD_MINIMO = +process.env.BUILD_MINIMO || 1;   // jogo instalado em versão mais antiga que BUILD_MINIMO precisa atualizar
 const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a);
 
-const jogadores = new Map();      // ws -> { id, perfil, estado: 'novo'|'ocioso'|'fila'|'partida'|'fim', partida, slot }
+const jogadores = new Map();      // ws -> { id, perfil, tok, estado: 'novo'|'ocioso'|'fila'|'partida'|'fim', partida, slot }
 const fila = [];                  // jogadores esperando o 1×1
-const fila2 = [];                 // jogadores esperando o 2×2 (a partida sai quando juntam 4)
+const fila2 = [];                 // jogadores esperando o 2×2
 const fila3 = [];                 // jogadores esperando o Trio de Campeões (2 jogadores, cada um com um time de 3)
 const fila4 = [];                 // jogadores esperando a Disputa da Coroa (4 jogadores, cada um por si)
-const filaDe = j => j.modo === '2v2' ? fila2 : j.modo === 'trio' ? fila3 : j.modo === 'coroa' ? fila4 : fila;
+const FILAS = { '1v1': fila, '2v2': fila2, trio: fila3, coroa: fila4 };
+const TAM = { '1v1': 2, '2v2': 4, trio: 2, coroa: 4 };   // vagas de cada modo
+const filaDe = j => FILAS[j.modo] || fila;
 const todasFilas = [fila, fila2, fila3, fila4];
-const partidas = new Map();       // id -> { id, worker, jog: [j0, j1] (ou 4 no 2×2), fim, criada }
+const partidas = new Map();       // id -> { id, e, modo, slots: [{ j, perfil, bot, tok }], fase, fim, criada }
+const reconectaveis = new Map();  // token -> { p, slot }: quem saiu no meio da luta e pode voltar
 const aquecidas = [];             // workers prontos esperando uma partida
-const stats = { partidasCriadas: 0, partidasTerminadas: 0, tickMedio: 0, ticksTarde: 0, ticks: 0, tickMax: 0, erros: 0, ultimoErro: '' };
+const stats = { partidasCriadas: 0, partidasTerminadas: 0, partidasComBot: 0, voltas: 0, tickMedio: 0, ticksTarde: 0, ticks: 0, tickMax: 0, erros: 0, ultimoErro: '' };
 let proxId = 1;
+const humanos = p => p.slots.filter(s => s.j).map(s => s.j);
 
 /* ---------- threads ---------- */
 function novoWorker() {
@@ -40,7 +51,8 @@ function reporAquecidas() { while (aquecidas.length < AQUECIDAS && partidas.size
 function tratarWorker(e, m) {
   if (m.k === 'pronta') { e.pronta = true; if (m.erros) log('aviso: o jogo carregou com', m.erros, 'erros'); const f = e.esperando; e.esperando = []; f.forEach(fn => fn()); }
   else if (m.k === 'send') { const p = e.p; if (!p) return; enviarPara(p, m.slot, m.m); }
-  else if (m.k === 'fim') { const p = e.p; if (!p || p.fim) return; p.fim = true; stats.partidasTerminadas++; setTimeout(() => encerrar(p), 20000).unref(); }
+  else if (m.k === 'fim') { const p = e.p; if (!p || p.fim) return; p.fim = true; stats.partidasTerminadas++; limparReconexoes(p); setTimeout(() => encerrar(p), 20000).unref(); }
+  else if (m.k === 'estado') { const p = e.p; if (!p) return; const s = p.slots[m.slot]; if (s && s.j) enviar(s.j.ws, JSON.stringify({ ...p.matchObj(m.slot), t: 'volta', est: m.est })); }
   else if (m.k === 'stats') { stats.ticks += m.ticks; stats.ticksTarde += m.tarde; stats.tickMedio = stats.tickMedio * .8 + m.media * .2; stats.tickMax = Math.max(stats.tickMax * .9, m.max); }
   else if (m.k === 'erro') { stats.erros++; stats.ultimoErro = m.m; }
 }
@@ -52,9 +64,10 @@ function enviar(ws, texto) {
   ws.send(texto);
 }
 function enviarPara(p, slot, texto) {
-  if (slot === -1) { for (const j of p.jog) enviar(j.ws, texto); return; }
-  const j = p.jog[slot]; if (j) enviar(j.ws, texto);
+  if (slot === -1) { for (const j of humanos(p)) enviar(j.ws, texto); return; }
+  const s = p.slots[slot]; if (s && s.j) enviar(s.j.ws, texto);
 }
+const avisarOutros = (p, slot, obj) => { const t = JSON.stringify(obj); p.slots.forEach((s, i) => { if (i !== slot && s.j) enviar(s.j.ws, t); }); };
 
 /* ---------- jogadores ---------- */
 const limpo = (s, n) => String(s ?? '').replace(/[\u0000-\u001f<>]/g, '').slice(0, n);
@@ -65,26 +78,54 @@ function perfil(p = {}) {
     hero: Math.max(0, Math.min(9, Math.floor(+p.hero) || 0)), tier: Math.max(0, Math.min(5, +p.tier || 0)), league: limpo(p.league || 'Bronze', 20),
   };
 }
+const NOMES_BOT = ['Kaito', 'Mira', 'Bruno', 'Luna', 'Tiago', 'Sora', 'Nina', 'Davi', 'Yuki', 'Caio', 'Lara', 'Ravi'];
+function perfilBot(ref, usados) {
+  let hero = Math.floor(Math.random() * 10);
+  for (let k = 0; k < 20 && usados.has(hero); k++) hero = Math.floor(Math.random() * 10);
+  usados.add(hero);
+  let nome = NOMES_BOT[Math.floor(Math.random() * NOMES_BOT.length)];
+  for (let k = 0; k < 30 && usados.has('n:' + nome); k++) nome = NOMES_BOT[Math.floor(Math.random() * NOMES_BOT.length)];
+  usados.add('n:' + nome);
+  return { name: 'Bot ' + nome, lv: Math.max(1, ref.lv + Math.floor(Math.random() * 3) - 1), frame: 'azul', photo: 'h' + hero, hero, tier: ref.tier, league: ref.league, bot: true };
+}
+function limparReconexoes(p) { for (const [tok, r] of reconectaveis) if (r.p === p) reconectaveis.delete(tok); }
+
 function sair(j) {
   for (const f of todasFilas) { const i = f.indexOf(j); if (i >= 0) f.splice(i, 1); }
   const p = j.partida; j.partida = null; jogadores.delete(j.ws);
   if (!p) return;
-  if (!p.fim) {   // saiu no meio da luta: avisa os outros e fecha a partida
-    for (const o of p.jog) if (o !== j && o.partida === p && o.ws.readyState === 1) enviar(o.ws, JSON.stringify({ t: 'bye' }));
-    encerrar(p);
-  } else if (p.jog.every(x => x.partida !== p)) encerrar(p);
+  const s = p.slots[j.slot];
+  if (p.fim) { if (!humanos(p).some(x => x !== j && x.partida === p)) encerrar(p); return; }
+  if (p.fase === 'sel') {   // saiu na sala de escolha: avisa os outros e fecha a partida
+    for (const o of humanos(p)) if (o !== j && o.partida === p) enviar(o.ws, JSON.stringify({ t: 'bye' }));
+    encerrar(p); return;
+  }
+  // saiu no meio da luta: um bot assume o campeão dele (e ele pode voltar com o mesmo token)
+  if (s && s.j === j) {
+    s.j = null; s.bot = true;
+    try { p.e.w.postMessage({ k: 'bot', slot: j.slot, on: true }); } catch {}
+    if (j.tok) { s.tok = j.tok; reconectaveis.set(j.tok, { p, slot: j.slot }); }
+    avisarOutros(p, j.slot, { t: 'bot', s: j.slot, on: 1 });
+    log(`partida ${p.id}: ${s.perfil.name} saiu, o bot assume`);
+  }
+  if (!humanos(p).length) {   // só sobraram bots: espera um tempo para alguém voltar, depois encerra
+    clearTimeout(p.timerVazia);
+    p.timerVazia = setTimeout(() => { if (!humanos(p).length) encerrar(p); }, TEMPO_VOLTA);
+    p.timerVazia.unref?.();
+  }
 }
 function entrarNaFila(j, modo) {
-  if (j.partida) { const p = j.partida; j.partida = null; if (p.fim && p.jog.every(x => x.partida !== p)) encerrar(p); }
+  if (j.partida) { const p = j.partida; j.partida = null; if (p.fim && !humanos(p).some(x => x.partida === p)) encerrar(p); }
   for (const f of todasFilas) { const i = f.indexOf(j); if (i >= 0) f.splice(i, 1); }
-  j.modo = modo === '2v2' ? '2v2' : modo === 'trio' ? 'trio' : modo === 'coroa' ? 'coroa' : '1v1'; j.time = null;
+  j.modo = FILAS[modo] ? modo : '1v1'; j.time = null; j.filaDesde = Date.now();
   const f = filaDe(j); f.push(j);
   j.estado = 'fila';
-  f.forEach((x, i) => enviar(x.ws, JSON.stringify({ t: 'fila', pos: i + 1, n: f.length, precisa: j.modo === '2v2' || j.modo === 'coroa' ? 4 : 2, online: jogadores.size })));
+  f.forEach((x, i) => enviar(x.ws, JSON.stringify({ t: 'fila', pos: i + 1, n: f.length, precisa: TAM[j.modo], online: jogadores.size })));
   tentarParear();
 }
 function tentarParear() {
-  for (const [f, tam, modoF] of [[fila, 2, '1v1'], [fila2, 4, '2v2'], [fila3, 2, 'trio'], [fila4, 4, 'coroa']]) {
+  for (const modoF of Object.keys(FILAS)) {
+    const f = FILAS[modoF], tam = TAM[modoF];
     while (f.length >= tam) {
       if (partidas.size >= MAX_PARTIDAS) { f.forEach(x => enviar(x.ws, JSON.stringify({ t: 'cheio' }))); break; }
       // quem espera há mais tempo + os de nível mais próximo entre os primeiros
@@ -99,44 +140,63 @@ function tentarParear() {
     }
   }
 }
+// fila parada há ESPERA_BOT sem encher: bots completam as vagas (os jogadores que esperam ficam juntos, na mesma equipe quando há equipes)
+function completarComBots() {
+  const agora = Date.now();
+  for (const modoF of Object.keys(FILAS)) {
+    const f = FILAS[modoF], tam = TAM[modoF];
+    if (!f.length || f.length >= tam || partidas.size >= MAX_PARTIDAS) continue;
+    if (agora - Math.min(...f.map(x => x.filaDesde || agora)) < ESPERA_BOT) continue;
+    const grupo = f.splice(0, tam);
+    log(`fila ${modoF}: ${grupo.length} jogador(es) esperando há ${Math.round(ESPERA_BOT / 1000)} s, bots completam`);
+    criarPartida(grupo, modoF);
+  }
+}
+setInterval(completarComBots, 1000).unref();
+
 function criarPartida(jog, modo) {
-  const id = proxId++, e = aquecidas.shift() || novoWorker();
+  const id = proxId++, e = aquecidas.shift() || novoWorker(), n = TAM[modo];
+  // vagas: os jogadores nas primeiras vagas, bots (IA difícil) nas que faltam
+  const usados = new Set(jog.map(j => j.perfil.hero));
+  const slots = jog.map(j => ({ j, perfil: j.perfil, bot: false, tok: j.tok || null }));
+  while (slots.length < n) slots.push({ j: null, perfil: perfilBot(jog[0].perfil, usados), bot: true, tok: null });
+  const ref = slots.findIndex(s => s.bot) >= 0;
+  if (ref) stats.partidasComBot++;
   // fase 'sel': os rivais já foram achados e cada um escolhe o campeão (e confirma). Depois vem a fase 'jogo': a thread cria a luta, e ela
   // só começa quando todos terminam de carregar (mensagem 'pronto'); jogos de versão antiga (build < 2) não avisam: contam como prontos
-  const p = { id, e, jog, modo, fase: 'sel', fim: false, criada: Date.now(), pronto_sel: jog.map(() => false), prontos: jog.map(j => j.build < 2), iniciada: false, liberada: false, timerLiberar: null, timerSel: null };
+  const p = { id, e, modo, slots, fase: 'sel', fim: false, criada: Date.now(), pronto_sel: slots.map(s => !s.j), prontos: slots.map(s => !s.j || s.j.build < 2), iniciada: false, liberada: false, timerLiberar: null, timerSel: null, timerVazia: null };
   e.p = p; partidas.set(id, p); stats.partidasCriadas++;
-  jog.forEach((j, i) => { j.partida = p; j.slot = i; j.estado = 'partida'; });
+  slots.forEach((s, i) => { if (s.j) { s.j.partida = p; s.j.slot = i; s.j.estado = 'partida'; } else if (modo === 'trio') s.time = [...Array(10).keys()].sort(() => Math.random() - .5).slice(0, 3); });
   const seed = (Math.random() * 4294967296) | 0;
+  // o que cada jogador recebe ao começar (e ao voltar): a mesma mensagem 'match'
+  p.matchObj = (slot) => {
+    const me = slots[slot], hs = slots.map(s => s.perfil.hero), ps = slots.map(s => s.perfil);
+    if (modo === '2v2' || modo === 'coroa') return { t: 'match', modo, slot, seed, hs, ps };
+    const o = slots[1 - slot];
+    if (modo === 'trio') { const teams = slots.map(s => timeDe(s)); return { t: 'match', modo, slot, seed, teams, hh: teams[1 - slot][0], gh: teams[slot][0], them: o.perfil }; }
+    return { t: 'match', slot, seed, hh: o.perfil.hero, gh: me.perfil.hero, them: o.perfil };
+  };
   p.iniciar = () => {
-    if (modo === '2v2' || modo === 'coroa') {
-      const hs = jog.map(j => j.perfil.hero), ps = jog.map(j => j.perfil);
-      for (const j of jog) enviar(j.ws, JSON.stringify({ t: 'match', modo, slot: j.slot, seed, hs, ps }));
-      e.w.postMessage({ k: 'iniciar', modo, seed, h: hs, n: jog.map(j => j.perfil.name) });
-    } else if (modo === 'trio') {
-      const [a, b] = jog, teams = jog.map(j => timeDe(j));
-      const mk = (j, o) => JSON.stringify({ t: 'match', modo, slot: j.slot, seed, teams, hh: teams[o.slot][0], gh: teams[j.slot][0], them: o.perfil });
-      enviar(a.ws, mk(a, b)); enviar(b.ws, mk(b, a));
-      e.w.postMessage({ k: 'iniciar', modo, seed, h0: teams[0][0], h1: teams[1][0], teams, n0: a.perfil.name, n1: b.perfil.name });
-    } else {
-      const [a, b] = jog;
-      const mk = (j, o) => JSON.stringify({ t: 'match', slot: j.slot, seed, hh: o.perfil.hero, gh: j.perfil.hero, them: o.perfil });
-      enviar(a.ws, mk(a, b)); enviar(b.ws, mk(b, a));
-      e.w.postMessage({ k: 'iniciar', seed, h0: a.perfil.hero, h1: b.perfil.hero, n0: a.perfil.name, n1: b.perfil.name });
-    }
+    slots.forEach((s, i) => { if (s.j) enviar(s.j.ws, JSON.stringify(p.matchObj(i))); });
+    const bots = slots.map(s => !s.j), hs = slots.map(s => s.perfil.hero), nomes = slots.map(s => s.perfil.name);
+    if (modo === '2v2' || modo === 'coroa') e.w.postMessage({ k: 'iniciar', modo, seed, h: hs, n: nomes, bots });
+    else if (modo === 'trio') { const teams = slots.map(s => timeDe(s)); e.w.postMessage({ k: 'iniciar', modo, seed, h0: teams[0][0], h1: teams[1][0], teams, n0: nomes[0], n1: nomes[1], bots }); }
+    else e.w.postMessage({ k: 'iniciar', seed, h0: hs[0], h1: hs[1], n0: nomes[0], n1: nomes[1], bots });
     p.iniciada = true; p.timerLiberar = setTimeout(() => liberar(p), 30000); checarLiberar(p);
   };
-  log(`partida ${id} (${modo}): ${jog.map(j => j.perfil.name).join(' × ')} (ativas: ${partidas.size})`);
+  log(`partida ${id} (${modo}): ${slots.map(s => s.perfil.name).join(' × ')} (ativas: ${partidas.size})`);
   if (jog.every(j => j.sala)) {
-    const ps = jog.map(j => { const { hero, ...resto } = j.perfil; return resto; });   // o campeão do rival só aparece quando a luta começa
+    const ps = slots.map(s => { const { hero, ...resto } = s.perfil; return resto; });   // o campeão do rival só aparece quando a luta começa
     for (const j of jog) enviar(j.ws, JSON.stringify({ t: 'sala', modo, slot: j.slot, ps, ms: TEMPO_SELECAO }));
     p.timerSel = setTimeout(() => comecar(p), TEMPO_SELECAO + 1500);
+    if (p.pronto_sel.every(Boolean)) comecar(p);
   } else comecar(p);   // jogo de versão antiga: não conhece a sala de escolha, começa direto com o campeão que mandou
   setImmediate(reporAquecidas);
 }
 // time de 3 campeões (Trio): o que o jogador escolheu; se faltar, completa com o campeão atual e outros sem repetir
-function timeDe(j) {
-  const t = Array.isArray(j.time) ? j.time.filter((x, i, v) => Number.isInteger(x) && x >= 0 && x <= 9 && v.indexOf(x) === i).slice(0, 3) : [];
-  if (!t.length) t.push(j.perfil.hero);
+function timeDe(s) {
+  const t = Array.isArray(s.time) ? s.time.filter((x, i, v) => Number.isInteger(x) && x >= 0 && x <= 9 && v.indexOf(x) === i).slice(0, 3) : [];
+  if (!t.length) t.push(s.perfil.hero);
   for (let h = 0; t.length < 3 && h < 10; h++) if (!t.includes(h)) t.push(h);
   return t;
 }
@@ -149,16 +209,29 @@ function checarLiberar(p) { if (!p.liberada && p.iniciada && p.prontos.every(Boo
 function liberar(p) { if (p.liberada) return; p.liberada = true; clearTimeout(p.timerLiberar); try { p.e.w.postMessage({ k: 'liberar' }); } catch {} }
 function encerrar(p) {
   if (!partidas.has(p.id)) return;
-  clearTimeout(p.timerLiberar); clearTimeout(p.timerSel);
+  clearTimeout(p.timerLiberar); clearTimeout(p.timerSel); clearTimeout(p.timerVazia); limparReconexoes(p);
   partidas.delete(p.id);
   try { p.e.w.postMessage({ k: 'parar' }); } catch {}
   setTimeout(() => { try { p.e.w.terminate(); } catch {} }, 500).unref();
-  for (const j of p.jog) if (j.partida === p) { j.partida = null; if (j.estado === 'partida' || j.estado === 'fim') j.estado = 'ocioso'; }
+  for (const j of humanos(p)) if (j.partida === p) { j.partida = null; if (j.estado === 'partida' || j.estado === 'fim') j.estado = 'ocioso'; }
 }
 function encerrarPorErro(e) {
   const p = e.p; if (!p || !partidas.has(p.id)) return;
-  for (const j of p.jog) enviar(j.ws, JSON.stringify({ t: 'bye' }));
+  for (const j of humanos(p)) enviar(j.ws, JSON.stringify({ t: 'bye' }));
   encerrar(p);
+}
+// jogador volta para a partida em andamento: o bot sai e a thread manda o estado atual (placar dos rounds, time do Trio...)
+function reconectar(j) {
+  const r = j.tok && reconectaveis.get(j.tok);
+  if (!r || !partidas.has(r.p.id) || r.p.fim || r.p.fase !== 'jogo') { if (j.tok) reconectaveis.delete(j.tok); return enviar(j.ws, JSON.stringify({ t: 'nada' })); }
+  const { p, slot } = r, s = p.slots[slot];
+  if (!s || s.j) return enviar(j.ws, JSON.stringify({ t: 'nada' }));
+  reconectaveis.delete(j.tok); clearTimeout(p.timerVazia);
+  s.j = j; s.bot = false; j.partida = p; j.slot = slot; j.estado = 'partida'; j.modo = p.modo; p.prontos[slot] = true;
+  stats.voltas++;
+  try { p.e.w.postMessage({ k: 'bot', slot, on: false }); p.e.w.postMessage({ k: 'estado', slot }); } catch {}
+  avisarOutros(p, slot, { t: 'bot', s: slot, on: 0 });
+  log(`partida ${p.id}: ${s.perfil.name} voltou`);
 }
 
 /* ---------- mensagens dos jogadores ---------- */
@@ -169,17 +242,21 @@ function tratar(j, texto) {
     if (m.t !== 'hello') return;
     if (m.v !== PROTO) { enviar(j.ws, JSON.stringify({ t: 'erro', m: 'versao' })); return j.ws.close(); }
     if ((+m.build || 1) < BUILD_MINIMO) { enviar(j.ws, JSON.stringify({ t: 'erro', m: 'atualizar', minimo: BUILD_MINIMO })); return j.ws.close(); }
-    j.perfil = perfil(m.p); j.build = +m.build || 1; j.sala = !!m.sala; j.estado = 'ocioso';
-    return enviar(j.ws, JSON.stringify({ t: 'hello', ok: 1, online: jogadores.size, v: PROTO, modos: ['1v1', '2v2', 'trio', 'coroa'] }));
+    j.perfil = perfil(m.p); j.build = +m.build || 1; j.sala = !!m.sala; j.tok = /^[A-Za-z0-9_-]{8,40}$/.test(m.tok || '') ? m.tok : null; j.estado = 'ocioso';
+    return enviar(j.ws, JSON.stringify({ t: 'hello', ok: 1, online: jogadores.size, v: PROTO, modos: ['1v1', '2v2', 'trio', 'coroa'], bots: 1, volta: 1 }));
   }
   switch (m.t) {
     case 'ping': return enviar(j.ws, JSON.stringify({ t: 'pong', at: m.at }));
     case 'perfil': j.perfil = perfil(m.p); return;
     case 'fila': if (j.estado === 'fila' || (j.partida && !j.partida.fim)) return; if (m.p) j.perfil = perfil(m.p); entrarNaFila(j, m.modo); return;
+    case 'reconectar': if (j.estado === 'fila' || j.partida) return; return reconectar(j);
     case 'cancelar': { for (const f of todasFilas) { const i = f.indexOf(j); if (i >= 0) f.splice(i, 1); } if (j.estado === 'fila') j.estado = 'ocioso'; return enviar(j.ws, JSON.stringify({ t: 'ocioso' })); }
     case 'pronto': if (j.partida && !j.partida.fim) { j.partida.prontos[j.slot] = true; checarLiberar(j.partida); } return;
-    case 'pick': { const p = j.partida; if (!p || p.fase !== 'sel') return; if (p.modo === 'trio') { j.time = Array.isArray(m.team) ? m.team.map(x => Math.floor(+x)).filter(x => Number.isInteger(x) && x >= 0 && x <= 9).slice(0, 3) : null; if (j.time && j.time.length) j.perfil.hero = j.time[0]; p.pronto_sel[j.slot] = false; return; } j.perfil.hero = Math.max(0, Math.min(9, Math.floor(+m.hero) || 0)); p.pronto_sel[j.slot] = false; if (p.modo === '2v2') { const o = p.jog[j.slot ^ 1]; if (o) enviar(o.ws, JSON.stringify({ t: 'pick', s: j.slot, hero: j.perfil.hero })); } return; }
-    case 'ready': { const p = j.partida; if (!p || p.fase !== 'sel') return; p.pronto_sel[j.slot] = !!m.v; const msg = JSON.stringify({ t: 'ready', s: j.slot, v: p.pronto_sel[j.slot] ? 1 : 0 }); for (const o of p.jog) if (o !== j) enviar(o.ws, msg); if (p.pronto_sel.every(Boolean)) comecar(p); return; }
+    case 'pick': { const p = j.partida; if (!p || p.fase !== 'sel') return; const s = p.slots[j.slot];
+      if (p.modo === 'trio') { s.time = j.time = Array.isArray(m.team) ? m.team.map(x => Math.floor(+x)).filter(x => Number.isInteger(x) && x >= 0 && x <= 9).slice(0, 3) : null; if (j.time && j.time.length) j.perfil.hero = j.time[0]; p.pronto_sel[j.slot] = false; return; }
+      j.perfil.hero = Math.max(0, Math.min(9, Math.floor(+m.hero) || 0)); p.pronto_sel[j.slot] = false;
+      if (p.modo === '2v2') { const o = p.slots[j.slot ^ 1]; if (o && o.j) enviar(o.j.ws, JSON.stringify({ t: 'pick', s: j.slot, hero: j.perfil.hero })); } return; }
+    case 'ready': { const p = j.partida; if (!p || p.fase !== 'sel') return; p.pronto_sel[j.slot] = !!m.v; avisarOutros(p, j.slot, { t: 'ready', s: j.slot, v: p.pronto_sel[j.slot] ? 1 : 0 }); if (p.pronto_sel.every(Boolean)) comecar(p); return; }
     case 'in': if (j.partida && !j.partida.fim && j.partida.fase === 'jogo') j.partida.e.w.postMessage({ k: 'in', slot: j.slot, m }); return;
     case 'act': if (j.partida && !j.partida.fim && j.partida.fase === 'jogo') j.partida.e.w.postMessage({ k: 'act', slot: j.slot, m }); return;
     case 'teste': if (process.env.TESTE === '1' && j.partida) j.partida.e.w.postMessage({ k: 'teste', m }); return;   // só nos testes
@@ -198,7 +275,7 @@ const servidor = http.createServer((req, res) => {
 const wss = new WebSocketServer({ server: servidor, maxPayload: 4096, perMessageDeflate: false });
 wss.on('connection', (ws, req) => {
   if (ORIGENS.length && !ORIGENS.includes(req.headers.origin || '')) return ws.close(1008, 'origem');
-  const j = { ws, id: proxId++, perfil: null, estado: 'novo', partida: null, slot: 0, msgs: 0, desde: Date.now() };
+  const j = { ws, id: proxId++, perfil: null, tok: null, estado: 'novo', partida: null, slot: 0, msgs: 0, desde: Date.now() };
   jogadores.set(ws, j);
   const hello = setTimeout(() => { if (j.estado === 'novo') ws.close(1008, 'sem hello'); }, 8000);
   ws.on('message', d => {
@@ -212,5 +289,5 @@ wss.on('connection', (ws, req) => {
 // derruba conexões mortas
 setInterval(() => { for (const ws of wss.clients) { if (ws.vivo === false) { ws.terminate(); continue; } ws.vivo = false; try { ws.ping(); } catch {} } }, 15000).unref();
 wss.on('connection', ws => { ws.vivo = true; ws.on('pong', () => { ws.vivo = true; }); });
-servidor.listen(PORT, () => { log(`servidor de partidas na porta ${PORT} · protocolo ${PROTO} · ${AQUECIDAS} threads aquecidas`); reporAquecidas(); });
+servidor.listen(PORT, () => { log(`servidor de partidas na porta ${PORT} · protocolo ${PROTO} · ${AQUECIDAS} threads aquecidas · bots após ${Math.round(ESPERA_BOT / 1000)} s`); reporAquecidas(); });
 process.on('SIGTERM', () => { log('encerrando'); process.exit(0); });

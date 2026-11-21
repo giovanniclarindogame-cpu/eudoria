@@ -10,7 +10,7 @@
  * Mesmas mensagens e mesmo formato da sala entre amigos (js/online_luta_v46.js), então o navegador trata o servidor como o anfitrião.
  */
 (function(){
-const SRV=window.__SRV={on:false,over:false,n:2,inp:[0,1,2,3].map(()=>({x:0,y:0,l:0,a:0,g:0})),snapT:0,roundDone:false,acts:0,rejected:0};
+const SRV=window.__SRV={on:false,over:false,n:2,bot:[false,false,false,false],inp:[0,1,2,3].map(()=>({x:0,y:0,l:0,a:0,g:0})),snapT:0,roundDone:false,acts:0,rejected:0};
 // SL[slot] = campeão de cada jogador. 1×1: slot 0 = p, slot 1 = b. 2×2: slots 0 e 1 são a equipe 0 (p e o aliado), slots 2 e 3 a equipe 1 (b e o rival 2)
 let SL=[];
 const r3=v=>Math.round(v*1000)/1000,r1=v=>Math.round(v*10)/10,num=(v,lo,hi,d=0)=>Number.isFinite(+v)?Math.max(lo,Math.min(hi,+v)):d;
@@ -20,7 +20,9 @@ const actor=s=>SL[s];
 
 // interface desligada: o servidor não desenha nada
 for(const f of ['updateUI','announce','toast','hydrateSkillIcons','refreshModeKit','drawStrips'])window[f]=function(){};
-ai=function(){};                       // os dois lados são pessoas
+const botAI=ai;                         // IA difícil do jogo: só controla as vagas de bot
+ai=function(){};                       // as vagas de jogador são pessoas (a IA do jogo não mexe nelas)
+window.BOT_SIM_P=true;                 // a IA difícil também pode controlar o "p" (vaga 0)
 togglePause=function(){};              // sem pausa no online
 
 SRV.start=function(o){
@@ -36,9 +38,18 @@ SRV.start=function(o){
  SL.forEach((a,i)=>{V3Modes.swapHero(a,hs[i],1000);a.label=String(ns[i]||'Jogador '+(i+1))});
  }
  if(trio)V3Kof.setup(o.teams[0],o.teams[1]);   // slot 0 = time "meu" do servidor, slot 1 = time do rival
+ SRV.bot=SL.map((_,i)=>!!(o.bots&&o.bots[i]));SL.forEach((a,i)=>{a.cwBot=SRV.bot[i]&&!!coroa;if(SRV.bot[i])a.oldBot=false});
  SRV.on=true;SRV.over=false;SRV.roundDone=false;SRV.snapT=0;
  return state;
 };
+// vaga que vira bot (jogador saiu) ou volta a ser jogador (voltou)
+SRV.setBot=function(slot,on){
+ if(!(slot>=0&&slot<SRV.n))return;
+ SRV.bot[slot]=!!on;const a=SL[slot];if(a){a.cwBot=!!on&&!!SRV.coroa;if(on){a.bot=null;a.guard=false}}
+ if(!on){const i=SRV.inp[slot];i.x=i.y=i.l=i.g=0}
+};
+// o que um jogador que volta precisa saber (placar dos rounds, time do Trio...)
+SRV.estado=function(){return{tm:time,serie:window.V3Modes?.serieEstado?.()||null,kof:window.V3Kof?.exportar?.()||null}};
 
 /* ---------- comandos ---------- */
 SRV.input=function(slot,m){
@@ -81,6 +92,25 @@ SRV.act=function(slot,m){
  if(ok!==false){SRV.acts++;const msg={t:'act',s:slot,f:m.f,a:r3(a.a||0),x:r1(a.x),y:r1(a.y),args};for(const i of outros)net(i,msg)}
 };
 
+/* ---------- ações dos bots: repetidas nos navegadores (como as dos jogadores) ----------
+ * A IA do jogo chama cast/rwBeginCharge/rwReleaseCharge e V3API.doDash direto; sem isto os navegadores veriam o bot andar e perder vida,
+ * mas sem golpes nem efeitos. "depth" evita repetir as chamadas internas que uma habilidade faz. */
+let depthBot=0;
+const botSlot=a=>{const i=SL.indexOf(a);return i>=0&&SRV.bot[i]?i:-1};
+for(const f of ['cast','rwBeginCharge','rwReleaseCharge']){
+ const prev=window[f];if(typeof prev!=='function')continue;
+ window[f]=function(a,...args){
+  const i=depthBot===0?botSlot(a):-1;
+  depthBot++;let r;try{r=prev.apply(this,arguments)}finally{depthBot--}
+  if(i>=0&&r!==false&&SRV.on)net(-1,{t:'act',s:i,f,a:r3(a.a||0),x:r1(a.x),y:r1(a.y),args:args.slice(0,3).map(cleanArg)});
+  return r;
+ };
+}
+if(window.V3API&&typeof V3API.doDash==='function'){
+ const prevDash=V3API.doDash;
+ V3API.doDash=function(a){const i=depthBot===0?botSlot(a):-1;depthBot++;let r;try{r=prevDash.apply(this,arguments)}finally{depthBot--}if(i>=0&&r!==false&&SRV.on)net(-1,{t:'act',s:i,f:'dash',a:r3(a.a||0),x:r1(a.x),y:r1(a.y),args:[]});return r};
+}
+
 /* ---------- estado ---------- */
 function trackVel(a,dt){
  if(!a||!(dt>0))return;const v=a.v47||(a.v47={x:a.x,y:a.y,vx:0,vy:0});
@@ -107,7 +137,7 @@ step=function(dt){
  prevStep(dt);
  if(!SRV.on)return;
  if(state==='count')SRV.roundDone=false;
- SL.forEach((a,i)=>{drive(a,SRV.inp[i],dt);trackVel(a,dt)});
+ SL.forEach((a,i)=>{if(SRV.bot[i]){if(state==='fight'&&a.hp>0){try{botAI(dt,a)}catch(e){}}}else drive(a,SRV.inp[i],dt);trackVel(a,dt)});
  SRV.snapT-=dt;if(SRV.snapT<=0){SRV.snapT=1/30;snap()}
  if(state==='end'&&!SRV.over){SRV.over=true;const m={t:'over',w:SRV.coroa?-1:winner()};if(SRV.coroa){const cw=V3Crown.pack();m.rk=V3Crown.rankSlots();m.hs=cw.hs;m.ks=cw.ks}net(-1,m)}
 };

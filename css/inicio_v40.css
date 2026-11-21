@@ -222,3 +222,9 @@ body.v40-on #lobbyNav,body.v40-on #backHome,body.v40-modes-open #lobbyNav,body.v
 
 .v41-league.soon{filter:grayscale(.45) brightness(.92)}
 .v40-menu-grid button.locked{opacity:.55;position:relative}.v40-menu-grid button.locked small{font-size:9px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;color:#c07a00}
+
+/* v60 — RECONECTAR (partida em andamento) */
+.v40-play.reconectar{background:linear-gradient(180deg,#8ef0a0,#35b85a 55%,#1f8a3f)!important;box-shadow:0 5px 0 #136a2c,0 10px 20px rgba(10,90,40,.35)!important;color:#fff!important;text-shadow:0 2px 0 rgba(0,60,20,.5)!important;font-size:15px!important}
+.v41-rec{font-size:22px!important;letter-spacing:.04em}
+.v43-play.reconectar{background:linear-gradient(180deg,#8ef0a0,#35b85a 55%,#1f8a3f)!important;color:#fff!important;box-shadow:0 4px 0 #136a2c!important}
+.v43-play.reconectar small{color:#fff;opacity:.9}

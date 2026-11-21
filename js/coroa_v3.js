@@ -94,9 +94,9 @@ showScreen=function(){
 // bots (só offline): o mais perto corre atrás da coroa no chão; os outros miram em quem está com ela
 const prevAI=ai;
 ai=function(dt,actor){
- if(C.on&&C.bots&&!C.guest){
+ if(C.on&&!C.guest){
   const a=arguments.length>1?actor:b;
-  if(a&&a!==p&&a.hp>0&&!C.crown.holder&&C.runner===a&&state==='fight'){
+  if(a&&a.cwBot&&a.hp>0&&!C.crown.holder&&C.runner===a&&state==='fight'){
    const ang=Math.atan2(C.crown.y-a.y,C.crown.x-a.x);a.a=ang;a.moving=true;
    if(a.cast<=0&&a.root<=0&&a.dodgeTime<=0&&a.dash<=0){const sp=140*(typeof identitySpeed==='function'?identitySpeed(a):1)*(a.slow>0?.55:1);const x0=a.x,y0=a.y;move(a,Math.cos(ang)*sp*dt,Math.sin(ang)*sp*dt);const d=Math.hypot(a.x-x0,a.y-y0);if(d>.02&&!a.rwCast&&!a.guard){a.rwFacing=ang;a.rwStride=((a.rwStride||0)+d/16)%6}}
    return;
@@ -106,7 +106,7 @@ ai=function(dt,actor){
 };
 const prevEnemy=enemy;
 enemy=function(a){
- if(C.on&&C.bots&&!C.guest&&a!==p){const h=C.crown.holder;if(h&&h!==a&&h.hp>0&&dist(a,h)<560)return h}
+ if(C.on&&!C.guest&&a&&a.cwBot){const h=C.crown.holder;if(h&&h!==a&&h.hp>0&&dist(a,h)<560)return h}
  return prevEnemy.apply(this,arguments);
 };
 function setHolder(a,from){
@@ -146,7 +146,7 @@ function rules(dt){
   for(const a of C.players){if(a.hp<=0)continue;const d=Math.hypot(a.x-C.crown.x,a.y-C.crown.y);if(d<PICK+a.r&&d<bd){bd=d;best=a}}
   if(best)setHolder(best,null);
   // bot mais perto da coroa corre até ela
-  if(C.bots){let rb=null,rd=1e9;for(const a of C.players){if(a===p||a.hp<=0)continue;const d=Math.hypot(a.x-C.crown.x,a.y-C.crown.y);if(d<rd){rd=d;rb=a}}C.runner=rb}
+  if(C.players.some(a=>a.cwBot)){let rb=null,rd=1e9;for(const a of C.players){if(!a.cwBot||a.hp<=0)continue;const d=Math.hypot(a.x-C.crown.x,a.y-C.crown.y);if(d<rd){rd=d;rb=a}}C.runner=rb}
  }else if(h.hp>0){const i=C.players.indexOf(h);if(i>=0)C.hold[i]+=dt}
  if(!C.endAt&&time<=0)C.endAt=C.t+.4;
 }
@@ -201,7 +201,7 @@ function setup(heroes,names,localSlots=[0,1,2,3],{guest=false,bots=false}={}){
  P.forEach((a,i)=>{
   const s=localSlots[i];
   M.swapHero(a,heroes[s],1000);
-  a.team=i;a.label=String(names[s]||'Lutador').slice(0,16);a.color=COLORS[i];a.lastHitBy=null;a.cwDead=false;a.cwRespawn=0;
+  a.team=i;a.label=String(names[s]||'Lutador').slice(0,16);a.color=COLORS[i];a.lastHitBy=null;a.cwDead=false;a.cwRespawn=0;a.cwBot=!!bots&&a!==p;
   a.x=C.home[i][0];a.y=C.home[i][1];
  });
  try{M.faceOff()}catch{}

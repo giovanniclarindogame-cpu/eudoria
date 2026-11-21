@@ -182,5 +182,14 @@ function handler(cb){
 }
 handler.label=win=>M.special==='kof'&&K?[win?'RIVAL DERRUBADO':'LUTADOR DERRUBADO',(win?'Seu time continua com a vida que tem':'Entra o próximo do seu time')]:null;
 V3Hooks.add(handler);
-window.V3Kof={open,PK:()=>PK,get state(){return K},begin,setup};
+// série do Trio para quem volta no meio: o servidor manda o estado; "inverter" quando o time do servidor "meu" (vaga 0) é o rival deste navegador
+const exportar=()=>K?JSON.parse(JSON.stringify(K)):null;
+function importar(e,inverter){
+ if(!e||!K)return;
+ K=inverter?{mine:e.foes,foes:e.mine,hpM:e.hpF,hpF:e.hpM,iM:e.iF,iF:e.iM,fights:e.fights}:{...e};
+ M.swapHero(p,K.mine[Math.min(2,K.iM)],1000);M.swapHero(b,K.foes[Math.min(2,K.iF)],1000);
+ try{M.rebuildPlayerUI()}catch{}
+ drawStrips();
+}
+window.V3Kof={open,PK:()=>PK,get state(){return K},begin,setup,exportar,importar};
 })();

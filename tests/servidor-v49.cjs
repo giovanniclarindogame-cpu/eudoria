@@ -88,11 +88,11 @@ const PORT=8790,SRV='ws://localhost:'+PORT;
  await A.click('[data-v45="ready"]');await B.click('[data-v45="ready"]');
  await A.waitForFunction(()=>window.OnlineV46?.match.on&&state==='fight',null,{timeout:45000});await B.waitForFunction(()=>window.OnlineV46?.match.on&&state==='fight',null,{timeout:45000});
  ok(true,'depois de escolher e procurar de novo, os dois entram numa nova partida');
- // saída no meio da luta
+ // saída no meio da luta: um bot assume o campeão de quem saiu e a partida continua (quem saiu pode voltar: tests/bots-v60.cjs)
  await B.close();
- await A.waitForFunction(()=>/saiu/.test(OnlineV45.state.err),null,{timeout:8000}).catch(()=>{});
- ok(await A.evaluate(()=>/saiu/.test(OnlineV45.state.err)&&!OnlineV46.match.on),'se o rival sai no meio da luta, o outro volta com o aviso');
- await sleep(800);const f=await saude();ok(f.partidas===0,`a partida é encerrada no servidor (ativas: ${f.partidas})`);
+ await A.waitForFunction(()=>/\(bot\)/.test(b.label),null,{timeout:8000}).catch(()=>{});
+ ok(await A.evaluate(()=>/\(bot\)/.test(b.label)&&OnlineV46.match.on),'se o rival sai no meio da luta, um bot assume o campeão dele e a luta continua');
+ await sleep(800);const f=await saude();ok(f.partidas===1,`a partida continua no servidor com o bot (ativas: ${f.partidas})`);
  ok(f.erros===0&&f.ticksTarde<=3,`saúde do servidor: erros ${f.erros}, ticks atrasados ${f.ticksTarde} de ${f.ticks}, tick médio ${f.tickMedio} ms`);
  ok(!errs.length,'sem erros de JavaScript nos navegadores '+errs.slice(0,3).join(' | '));
  await br.close();sv.kill();process.exit(process.exitCode||0);
