@@ -205,3 +205,20 @@ body.v40-on #lobbyNav,body.v40-on #backHome,body.v40-modes-open #lobbyNav,body.v
 .v43-play.buscando b{font-size:14px;text-shadow:0 2px 0 rgba(0,40,100,.5)}.v43-play.buscando small{opacity:.9;color:#fff}
 
 .v41-event.soon{filter:grayscale(.75) brightness(.9);cursor:default}.v41-event.soon:hover{transform:none!important;filter:grayscale(.75) brightness(.9)!important}
+
+/* v54 — Metas de hoje dentro da janela de Missões (cartão claro, como o resto da janela) */
+#v40Missions .ret-goals{background:none!important;border:0!important;box-shadow:none!important;padding:0!important;margin:0 0 10px!important;color:var(--v40-ink)!important;width:100%!important;max-width:none!important}
+#v40Missions .ret-goals *{color:inherit}
+#v40Missions .ret-goals-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+#v40Missions .ret-goals .royal-eyebrow{font-size:12px!important;font-weight:900!important;letter-spacing:.08em;color:#c07a00!important}
+#v40Missions .ret-goal{display:flex;align-items:center;gap:10px;background:#fff!important;border-radius:14px;box-shadow:0 2px 0 rgba(20,24,52,.18);padding:10px 12px;margin:6px 0;font-weight:700;font-size:14px}
+#v40Missions .ret-goal-text{flex:1;min-width:0}
+#v40Missions .ret-bar{display:block;height:6px;border-radius:9px;background:#e7e0d4;margin-top:5px;overflow:hidden}
+#v40Missions .ret-bar u{display:block;height:100%;background:linear-gradient(90deg,#ffcf4a,#ff9d1c);text-decoration:none}
+#v40Missions .ret-goal.claimed{opacity:.6}#v40Missions .ret-got{font-style:normal;color:#3fbf5a!important;font-weight:900}#v40Missions .ret-prog{font-style:normal;opacity:.7;font-size:13px}
+#v40Missions .ret-chest{background:#fff!important;border-radius:14px;box-shadow:0 2px 0 rgba(20,24,52,.18);padding:10px 12px;font-weight:800;font-size:13px;text-align:center}
+#v40Missions .ret-goals button,#v40Missions .royal-small-gold{background:linear-gradient(180deg,#ffe066,#ffb21e)!important;color:#3b2100!important;border:0!important;border-radius:12px!important;font-weight:900!important;padding:6px 14px!important;font-size:13px!important;box-shadow:0 3px 0 #c96c00;cursor:pointer}
+.v40-empty{margin:18px 6px;text-align:center;font-weight:800;opacity:.7}
+
+.v41-league.soon{filter:grayscale(.45) brightness(.92)}
+.v40-menu-grid button.locked{opacity:.55;position:relative}.v40-menu-grid button.locked small{font-size:9px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;color:#c07a00}

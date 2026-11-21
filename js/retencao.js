@@ -72,11 +72,17 @@ const GOALS={
  damage:{text:'Cause 2.500 de dano',target:2500,cur:b=>S.damage-b.damage,reward:{c:45}}
 };
 const CHEST={c:0,g:20};
+// enquanto a Caçada do Dia está bloqueada ("em breve"), as metas dela não podem aparecer: viram metas de partidas e de dano
+const CACADA_ON=false;
+function semCacada(ids){const out=[];for(const id of ids){let n=id==='boss'?'matches':id==='hunt'?'damage':id;if(out.includes(n))n=['wins','matches','damage'].find(x=>!out.includes(x)&&!ids.includes(x))||['wins','matches','damage'].find(x=>!out.includes(x));out.push(n)}return out}
 function ensureGoals(){
  const t=dayIdx();
- if(S.goals&&S.goals.day===t)return S.goals;
+ if(S.goals&&S.goals.day===t){
+  if(!CACADA_ON&&S.goals.ids.some(id=>id==='boss'||id==='hunt')){S.goals.ids=semCacada(S.goals.ids);save()}
+  return S.goals;
+ }
  const rot=['damage','matches','hunt'][t%3];
- S.goals={day:t,ids:['wins',rot,'boss'],base:{wins:account.wins,matches:account.matches,boss:bossWins(),tries:huntTries(),damage:S.damage},claimed:[false,false,false],chest:false};
+ S.goals={day:t,ids:CACADA_ON?['wins',rot,'boss']:['wins','matches','damage'],base:{wins:account.wins,matches:account.matches,boss:bossWins(),tries:huntTries(),damage:S.damage},claimed:[false,false,false],chest:false};
  save();return S.goals;
 }
 function goalRows(){

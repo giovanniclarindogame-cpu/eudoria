@@ -107,7 +107,7 @@ function homeMarkup(){
  <header class="v40-top">
   <div class="v40-top-left">
    ${window.ContaV42?ContaV42.chip():`<button class="v40-chip v40-profile v41-profile" data-nav="profile" aria-label="Perfil de ${esc(account.profile.name)}"><span class="v40-avatar"><img src="${heroFace()}" alt=""></span><b>${esc(account.profile.name)}</b></button>`}
-   <button class="v40-chip v40-league v41-league" data-nav="league" data-tier="${(()=>{try{return V3Liga.divOf(L.pts)}catch{return Math.min(5,L.div)}})()}" aria-label="Liga ${esc(L.name)}, ${L.pts} pontos. ${esc(L.txt)}"><span class="v41-emblem">${emblem(L.div)}</span><span><b>${esc(L.name)}</b><span class="v40-bar"><i style="width:${Math.round(L.k*100)}%"></i></span><small>${esc(L.txt)}</small></span></button>
+   <button class="v40-chip v40-league v41-league soon" data-nav="league" aria-disabled="true" data-tier="${(()=>{try{return V3Liga.divOf(L.pts)}catch{return Math.min(5,L.div)}})()}" aria-label="Liga ${esc(L.name)}, ${L.pts} pontos. ${esc(L.txt)}"><span class="v41-emblem">${emblem(L.div)}</span><span><b>${esc(L.name)}</b><span class="v40-bar"><i style="width:${Math.round(L.k*100)}%"></i></span><small>🔒 Ranqueado em breve</small></span></button>
   </div>
   <div class="v40-top-right">
    <button class="v40-cur" data-nav="shop" aria-label="${account.coins} moedas. Abrir loja">${svg('coin','v40gold')}<b>${n(account.coins)}</b><span class="v41-plus">+</span></button>
@@ -167,13 +167,20 @@ renderLobbyNav=function(){prevNav.apply(this,arguments);syncNav()};
 function ensureMissions(){
  let box=$q('#v40Missions');
  if(!box){box=document.createElement('div');box.id='v40Missions';box.className='v40-sheet';box.hidden=true;box.innerHTML=`<div class="v40-sheet-card"><header><b>Missões</b><button class="v40-round" data-v40-close aria-label="Fechar">${svg('close')}</button></header><div class="v40-sheet-body"></div></div>`;document.body.appendChild(box)}
- const j=$q('#homeScreen .v40-legacy #journeyHome');if(j)box.querySelector('.v40-sheet-body').replaceChildren(j);
+ // o conteúdo das missões vive no layout antigo (escondido): "Primeiros passos" (journeyHome, que o jogo esconde depois de concluído) e as
+ // "Metas de hoje" (dailyGoals, que aparecem no lugar dele). Os dois vêm para a janela; sem nenhum dos dois, aparece um aviso.
+ const lg=$q('#homeScreen .v40-legacy'),body=box.querySelector('.v40-sheet-body');
+ const parts=[lg?.querySelector('#dailyGoals'),lg?.querySelector('#journeyHome')].filter(Boolean);
+ parts.forEach(x=>{x.hidden=false});
+ if(parts.length)body.replaceChildren(...parts);
+ else if(!body.querySelector('#dailyGoals,#journeyHome'))body.innerHTML='<p class="v40-empty">Nenhuma missão no momento. Volte mais tarde!</p>';
 }
+document.addEventListener('click',e=>{if(e.target.closest('#v40Missions .v40-sheet-body')&&!e.target.closest('[data-v40-close]'))setTimeout(()=>{if(!$q('#v40Missions')?.hidden)ensureMissions()},160)});   // resgatar uma meta recria o cartão: atualiza a janela
 function openMenu(){
  let box=$q('#v40Menu');
  if(!box){box=document.createElement('div');box.id='v40Menu';box.className='v40-sheet v40-menu';box.hidden=true;document.body.appendChild(box)}
  const items=[['library','hero','Campeões'],['shop','shop','Loja'],['training','dojo','Dojo'],['league','crown','Liga'],['modes','play','Modos de jogo'],['missions','quest','Missões'],['settings','gear','Configurações'],['full','full','Tela cheia']];
- box.innerHTML=`<div class="v40-sheet-card"><header><b>Menu</b><button class="v40-round" data-v40-close aria-label="Fechar">${svg('close')}</button></header><div class="v40-menu-grid">${items.map(([id,ic,l])=>`<button data-v40-go="${id}">${svg(ic)}<span>${l}</span></button>`).join('')}</div></div>`;
+ box.innerHTML=`<div class="v40-sheet-card"><header><b>Menu</b><button class="v40-round" data-v40-close aria-label="Fechar">${svg('close')}</button></header><div class="v40-menu-grid">${items.map(([id,ic,l])=>id==='league'?`<button data-v40-go="league" class="locked" aria-disabled="true">${svg('lock')}<span>${l}</span><small>em breve</small></button>`:`<button data-v40-go="${id}">${svg(ic)}<span>${l}</span></button>`).join('')}</div></div>`;
  box.hidden=false;
 }
 function syncNav(){const on=appScreen==='home'&&!!account.profile;document.body.classList.toggle('v40-on',on);const nav=$q('#lobbyNav'),back=$q('#backHome');const hide=on||document.body.classList.contains('v40-modes-open');for(const el of [nav,back]){if(!el)continue;if(hide)el.style.setProperty('display','none','important');else el.style.removeProperty('display')}}
@@ -258,6 +265,7 @@ document.addEventListener('click',e=>{
  const tab=t.closest('[data-v40-tab]');
  if(tab){e.preventDefault();const c=tab.dataset.v40Tab;if(catLocked(c)){toast?.((CATS.find(x=>x[0]===c)?.[1]||'Este modo')+': em breve');return}modesCat=c;const box=$q('#v40Modes');if(box){box.classList.add('v43-noanim');box.innerHTML=modesMarkup();paintHuntBoss(box);syncBusca();bindDrag(box.querySelector('.v40-strip'))}return}
  const go=t.closest('[data-v40-go]');
+ if(go&&go.dataset.v40Go==='league'){e.preventDefault();toast?.('Liga: em breve');return}
  if(go){e.preventDefault();const id=go.dataset.v40Go;closeAll();
   if(id==='modes')openModes();else if(id==='missions'){ensureMissions();$q('#v40Missions').hidden=false}
   else if(id==='settings')$q('#homeScreen .v40-legacy #openLobbySettings')?.click();
@@ -281,9 +289,11 @@ document.addEventListener('keydown',e=>{
  const el=pick&&ui.querySelector(pick);if(!el)return;
  e.preventDefault();el.click();
 });
+// o Ranqueado está bloqueado por enquanto: nenhum caminho abre a tela da Liga
+document.addEventListener('click',e=>{if(e.target.closest('[data-nav="league"]')){e.preventDefault();e.stopImmediatePropagation();toast?.('Liga: em breve')}},true);
 // qualquer navegação fecha as janelas do início
 const prevShow=showScreen;
-showScreen=function(){closeAll();const r=prevShow.apply(this,arguments);syncNav();return r};
+showScreen=function(){if(arguments[0]==='league'){try{toast('Liga: em breve')}catch{}return}closeAll();const r=prevShow.apply(this,arguments);syncNav();return r};
 
 window.InicioV40={MODES,CATS,current,choose,play,openModes,mountHome};
 })();

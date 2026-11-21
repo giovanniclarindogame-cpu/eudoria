@@ -22,7 +22,7 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
    badges:{missoes:!!document.querySelector('[data-v40-missions] .v41-badge'),plus:document.querySelectorAll('.v41-plus').length,gift:!!document.querySelector('[data-v41-gift]'),evento:!!document.querySelector('[data-v41-hunt]'),liga:document.querySelector('.v41-league small')?.textContent}}});
  ok(cena.loaded&&cena.bg&&cena.lamps>=8&&cena.petals>10,`${tag} cenário em camadas carregado (${cena.lamps} lanternas, ${cena.petals} pétalas)`);
  ok(cena.feet&&cena.heroOnScreen&&cena.heroAbovePlay,`${tag} campeão em pé sobre o emblema do chão, dentro da tela`);
- ok(cena.badges.missoes&&cena.badges.plus===2&&cena.badges.gift&&cena.badges.evento&&/pts até/.test(cena.badges.liga||''),`${tag} selos, "+" nas moedas, presente, Caçada do dia e liga com pontos (${cena.badges.liga})`);
+ ok(cena.badges.missoes&&cena.badges.plus===2&&cena.badges.gift&&cena.badges.evento&&/em breve/.test(cena.badges.liga||''),`${tag} selos, "+" nas moedas, presente, Caçada do dia e liga com pontos (${cena.badges.liga})`);
  await pg.click('[data-v40-modes]');await pg.waitForTimeout(300);
  const m=await pg.evaluate(()=>{const s=document.querySelector('#v40Modes .v40-strip');return{open:!!s&&!document.querySelector('#v40Modes').hidden,overflow:s.scrollWidth>s.clientWidth,cards:document.querySelectorAll('[data-v40-pick]').length,tabs:document.querySelectorAll('[data-v40-tab]').length}});
  const lk=await pg.evaluate(()=>({cards:[...document.querySelectorAll('[data-v40-pick]')].map(b=>b.dataset.v40Pick),locked:[...document.querySelectorAll('[data-v40-tab].locked')].map(b=>b.dataset.v40Tab),on:document.querySelector('[data-v40-tab].on')?.dataset.v40Tab}));
