@@ -1,0 +1,100 @@
+/* Popups v55 — o mesmo visual da tela inicial em todas as janelas: cartão azul com borda dourada, título em etiqueta amarela com texto marrom,
+   botões amarelos, cartões internos azuis. Só aparência: o conteúdo e os botões continuam sendo os de antes.
+   Vale para: Menu e Missões (início), Presente diário, tutorial, boas-vindas e criação de perfil (conta nova). */
+:root{--p55-gold:#ffd45a;--p55-brown:#3b2100;--p55-card:radial-gradient(ellipse at 50% 0%,#4f86ef,#24408f 58%,#182a63);--p55-shadow:0 6px 0 #8a5a00,0 0 40px rgba(255,214,90,.38);--p55-btn:linear-gradient(180deg,#ffe066 0%,#ffc83d 45%,#ff9d1c 100%)}
+/* etiqueta amarela (títulos pequenos) */
+.p55-pill,.v40-sheet-card>header>b,.ret-eyebrow,.profile-box>.eyebrow,.welcome-eyebrow{display:inline-block;background:linear-gradient(180deg,#ffe9a6,#ffc94a);color:var(--p55-brown)!important;font-weight:900!important;letter-spacing:.1em;text-transform:uppercase;padding:3px 14px;border-radius:10px;border:2px solid #7a4a00;box-shadow:0 2px 0 rgba(0,0,0,.35);width:auto;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+/* ---- janelas do início: Menu e Missões ---- */
+.v40-sheet{background:rgba(8,14,44,.7)!important;backdrop-filter:blur(3px)}
+.v40-sheet-card{background:var(--p55-card)!important;border:3px solid var(--p55-gold)!important;border-radius:22px!important;box-shadow:var(--p55-shadow)!important;color:#fff!important}
+.v40-sheet-card>header{padding:12px 14px 6px 18px!important}
+.v40-sheet-card>header>b{font-size:15px!important;padding:5px 18px}
+.v40-sheet-card .v40-round{background:linear-gradient(180deg,#3b6fd6,#24408f)!important;border:2px solid var(--p55-gold)!important;color:#fff!important;box-shadow:0 3px 0 #8a5a00!important}
+.v40-sheet-card .v40-round .v40i{color:#fff}
+.v40-menu-grid{gap:12px!important;padding:8px 16px 18px!important}
+.v40-menu-grid button{background:radial-gradient(circle at 50% 25%,#3b6fd6 0%,#24408f 58%,#182a63 100%)!important;border:3px solid var(--p55-gold)!important;border-radius:18px!important;box-shadow:0 4px 0 #8a5a00,inset 0 2px 0 rgba(255,255,255,.3)!important;color:#fff!important;font-weight:900!important;font-size:12px!important;padding:12px 4px 10px!important;transition:transform .12s,filter .12s}
+.v40-menu-grid button .v40i{color:var(--p55-gold)!important;width:30px;height:30px}
+.v40-menu-grid button span{background:linear-gradient(180deg,#ffe9a6,#ffc94a);color:var(--p55-brown);border:2px solid #7a4a00;border-radius:9px;padding:1px 9px;font-size:11px}
+.v40-menu-grid button:hover{transform:translateY(-2px);filter:brightness(1.12) drop-shadow(0 0 8px rgba(255,214,110,.7))}
+.v40-menu-grid button.locked{filter:grayscale(.6) brightness(.85);opacity:1!important}.v40-menu-grid button.locked small{color:#ffe7a3!important}
+/* Missões: cartões brancos sobre o azul, textos marrons, barra dourada */
+#v40Missions .v40-sheet-body{padding:0 14px 16px!important}
+#v40Missions #journeyHome .eyebrow,#v40Missions #journeyHome .royal-eyebrow,#v40Missions .ret-goals .royal-eyebrow{color:var(--p55-brown)!important;background:linear-gradient(180deg,#ffe9a6,#ffc94a);display:inline-block;border:2px solid #7a4a00;border-radius:9px;padding:2px 12px;box-shadow:0 2px 0 rgba(0,0,0,.3)}
+#v40Missions .ret-goals-head b{color:#fff!important;font-weight:900;text-shadow:0 1px 0 rgba(0,0,0,.4)}
+#v40Missions #journeyHome p,#v40Missions .ret-goals p{color:#e8efff!important;font-weight:700}
+#v40Missions #journeyHome li,#v40Missions #journeyHome .journey-step,#v40Missions #journeyHome [class*=step],#v40Missions #journeyHome [class*=row],#v40Missions .ret-goal,#v40Missions .ret-chest{background:linear-gradient(180deg,#fffaf0,#fff0cf)!important;color:var(--p55-brown)!important;border:2px solid #e3b24a!important;box-shadow:0 3px 0 rgba(0,0,0,.25)!important}
+#v40Missions #journeyHome *{color:inherit}
+#v40Missions .ret-goal *,#v40Missions .ret-chest{color:var(--p55-brown)}
+#v40Missions .ret-bar{background:#e9d9b0!important}
+#v40Missions .v40-empty{color:#fff}
+/* ---- Presente diário, tutorial ---- */
+#retDialog{background:rgba(8,14,44,.74)!important;backdrop-filter:blur(3px)}
+.ret-dialog,.tut-card{background:var(--p55-card)!important;border:3px solid var(--p55-gold)!important;border-radius:22px!important;box-shadow:var(--p55-shadow)!important;color:#fff!important;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+.ret-dialog{text-align:center;padding:18px 22px 20px!important}
+.ret-eyebrow{font-size:11px!important;margin-bottom:8px!important}
+.ret-dialog h2,.tut-card h3{font:900 clamp(22px,3.4vw,30px)/1.1 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif!important;color:#fff!important;text-shadow:0 3px 0 rgba(0,0,0,.4);margin:0 0 6px!important}
+.ret-dialog p,.tut-card p{color:#e3ecff!important;font-weight:700!important;font-size:14px!important}.ret-dialog p b,.tut-card p b{color:var(--p55-gold)!important}
+.ret-days{gap:8px!important;margin:6px 0 16px!important}
+.ret-day{background:linear-gradient(180deg,#3b6fd6,#1d3680)!important;border:2px solid #7ea6ff!important;border-radius:14px!important;box-shadow:0 3px 0 rgba(0,0,0,.35);padding:9px 2px 8px!important}
+.ret-day small{color:#cfe0ff!important;font-weight:900!important}
+.ret-day b{color:#fff!important;font-size:15px!important;font-weight:900!important;text-shadow:0 1px 0 rgba(0,0,0,.4)}
+.ret-day i{color:#8ae8ff!important;font-weight:900!important}
+.ret-day.done{opacity:1!important;border-color:#8fe29a!important;background:linear-gradient(180deg,#2f9e55,#1b6a3a)!important}
+.ret-day.done .ret-check{position:absolute;top:-8px;right:-6px;width:22px;height:22px;display:grid;place-items:center;border-radius:50%;background:var(--p55-gold);color:var(--p55-brown);font-weight:900;font-size:13px;border:2px solid #7a4a00}
+.ret-day.now{background:var(--p55-btn)!important;border-color:#fff!important;box-shadow:0 0 0 3px var(--p55-gold),0 0 22px rgba(255,214,90,.8)!important;animation:p55now 1.6s ease-in-out infinite}
+.ret-day.now small,.ret-day.now b,.ret-day.now i{color:var(--p55-brown)!important;text-shadow:none!important}
+.ret-day.big{border-color:#d49bff!important}.ret-day.big.now{border-color:#fff!important}
+@keyframes p55now{50%{transform:scale(1.06)}}
+.ret-actions{display:flex;justify-content:center;gap:12px}
+.ret-actions button,.tut-actions button{min-width:120px;border-radius:14px!important;font:900 15px system-ui,sans-serif!important;padding:8px 22px!important;cursor:pointer}
+.ret-actions button.gold,.tut-actions button.gold,.tut-actions button:not(.ghost){background:var(--p55-btn)!important;color:var(--p55-brown)!important;border:2px solid #fff!important;box-shadow:0 4px 0 #c96c00!important}
+.ret-actions button.ghost,.tut-actions button.ghost{background:rgba(8,14,44,.45)!important;color:#fff!important;border:2px solid rgba(255,255,255,.45)!important;box-shadow:none!important}
+.ret-actions button:active,.tut-actions button:active{transform:translateY(2px)}
+.tut-card .ret-eyebrow{font-size:10px!important}
+.tut-spot{border-color:var(--p55-gold)!important}
+/* ---- conta nova: boas-vindas ---- */
+#welcomeScreen:before{background:linear-gradient(90deg,#0a1440cc,transparent 30%,transparent 70%,#0a1440cc),linear-gradient(0deg,#0a1440f0 0%,#10226a88 42%,#0a144033 72%)!important}
+.welcome-panel{background:var(--p55-card)!important;border:3px solid var(--p55-gold)!important;border-radius:26px!important;box-shadow:var(--p55-shadow)!important;backdrop-filter:none!important}
+.welcome-crest{color:var(--p55-gold)!important}
+.welcome-eyebrow{font-size:clamp(9px,1.2vw,12px)!important;letter-spacing:.22em!important}
+.welcome-panel h1{font:900 clamp(30px,5vw,56px)/1.05 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif!important;color:#fff!important;text-shadow:0 4px 0 #1a2f78,0 6px 14px rgba(0,0,0,.45)!important;letter-spacing:.01em!important}
+.welcome-panel p{color:#dfe8ff!important;font-weight:700!important;letter-spacing:.04em!important}
+#welcomeEnter{background:var(--p55-btn)!important;color:var(--p55-brown)!important;border:3px solid #fff!important;border-radius:18px!important;font:900 clamp(16px,2vw,22px) system-ui,sans-serif!important;letter-spacing:.12em!important;box-shadow:0 5px 0 #c96c00,0 0 30px rgba(255,200,60,.5)!important}
+/* ---- conta nova: criação do perfil ---- */
+#profileScreen{background:radial-gradient(ellipse at 50% 0%,#3a6fe0,#182a63 70%)!important;isolation:isolate}
+#profileScreen::before{content:"";position:absolute;inset:0;background:url('../assets/inicio_v40/fundo.webp?v=1') center 60%/cover no-repeat;filter:blur(7px) saturate(1.1);opacity:.55;pointer-events:none;z-index:-1}
+#profileScreen .profile-box{position:relative;background:var(--p55-card)!important;border:3px solid var(--p55-gold)!important;border-radius:26px!important;box-shadow:var(--p55-shadow)!important;color:#fff!important}
+.profile-box h1{font:900 clamp(26px,4vw,38px)/1.05 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif!important;color:#fff!important;text-shadow:0 3px 0 rgba(0,0,0,.4)}
+.profile-box>p,.profile-box .cosmetic-note,.skin-preview-panel p{color:#e3ecff!important;font-weight:700}
+.profile-label{display:inline-block;width:auto;background:linear-gradient(180deg,#ffe9a6,#ffc94a);color:var(--p55-brown)!important;font-weight:900!important;letter-spacing:.06em;padding:2px 12px;border-radius:9px;border:2px solid #7a4a00;box-shadow:0 2px 0 rgba(0,0,0,.3);justify-self:start}
+.profile-name{background:#fffaf0!important;color:var(--p55-brown)!important;border:3px solid var(--p55-gold)!important;border-radius:14px!important;font:800 16px system-ui,sans-serif!important;box-shadow:inset 0 2px 0 rgba(0,0,0,.08)}
+.profile-name::placeholder{color:#a58a55!important}
+.avatar-choice,.skin-choice{background:radial-gradient(circle at 50% 25%,#3b6fd6,#24408f 58%,#182a63)!important;border:3px solid #7ea6ff!important;border-radius:16px!important;color:#fff!important;box-shadow:0 3px 0 rgba(0,0,0,.35)}
+.avatar-choice span,.skin-choice strong{color:#fff!important;font-weight:800}.avatar-choice svg{color:var(--p55-gold)}
+.avatar-choice.active,.skin-choice.active{border-color:var(--p55-gold)!important;box-shadow:0 0 0 2px #fff,0 0 18px rgba(255,214,90,.8)!important}
+.skin-choice small{color:#8ae8ff!important}
+.skin-preview-panel{background:rgba(8,14,44,.4)!important;border:2px solid rgba(126,166,255,.6)!important;border-radius:16px!important}
+.skin-preview-panel .eyebrow{color:var(--p55-gold)!important}.skin-preview-panel h2{color:#fff!important}
+.skin-preview-controls button{background:linear-gradient(180deg,#3b6fd6,#24408f)!important;color:#fff!important;border:2px solid #7ea6ff!important;border-radius:10px!important;font-weight:800}
+.profile-box>button[type=submit],.profile-box button.primary,#profileForm>button:last-of-type{background:var(--p55-btn)!important;color:var(--p55-brown)!important;border:3px solid #fff!important;border-radius:16px!important;font:900 18px system-ui,sans-serif!important;letter-spacing:.06em;box-shadow:0 5px 0 #c96c00!important}
+#profileError{color:#ffd0d0!important;font-weight:800}
+
+.profile-box>.eyebrow{justify-self:start;align-self:start;width:max-content!important;max-width:100%}
+.profile-box>.eyebrow{font-size:11px!important}
+
+/* Missões de conta nova ("Primeiros passos"): uma coluna, textos legíveis */
+#v40Missions #journeyHome{display:block!important;grid-template-columns:none!important}
+#v40Missions #journeyHome .journey-card{display:block;background:none!important;border:0!important;box-shadow:none!important;padding:0!important;margin:0 0 10px}
+#v40Missions #journeyHome .eyebrow{font-size:11px!important;margin:0 0 8px;letter-spacing:.1em}
+#v40Missions #journeyHome h2{font:900 20px/1.15 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif!important;color:#fff!important;background:none!important;border:0!important;box-shadow:none!important;padding:0!important;text-shadow:0 2px 0 rgba(0,0,0,.4);letter-spacing:0!important;text-transform:none!important;display:block}
+#v40Missions #journeyHome h3{font:900 14px system-ui!important;color:var(--p55-gold)!important;background:none!important;border:0!important;box-shadow:none!important;padding:0!important;margin:10px 0 6px}
+#v40Missions #journeyHome .journey-tasks>div{display:flex;align-items:center;justify-content:space-between;gap:10px;background:linear-gradient(180deg,#fffaf0,#fff0cf)!important;border:2px solid #e3b24a;border-radius:14px;box-shadow:0 3px 0 rgba(0,0,0,.25);padding:9px 12px!important;margin:7px 0!important}
+#v40Missions #journeyHome .journey-tasks>div span{font-size:14px!important;font-weight:800!important;color:var(--p55-brown)!important;line-height:1.25}
+#v40Missions #journeyHome .journey-tasks>div b{font-size:12px;font-weight:900;color:#2f9e55!important;background:#e6f7ea;border-radius:9px;padding:3px 10px}
+#v40Missions #journeyHome .journey-tasks>div button{flex:none;font-size:13px!important}
+#v40Missions #journeyHome .journey-rewards{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+#v40Missions #journeyHome .journey-rewards button{background:linear-gradient(180deg,#3b6fd6,#24408f)!important;color:#fff!important;border:2px solid var(--p55-gold)!important}
+#v40Missions #journeyHome .journey-rewards button *{color:#fff!important}
+#v40Missions #journeyHome .journey-card>p{font-size:13px;color:#e3ecff!important;font-weight:700;margin:2px 0 8px}
+#v40Missions #journeyHome .journey-card>.eyebrow,#v40Missions #journeyHome .journey-card>span.eyebrow{background:linear-gradient(180deg,#ffe9a6,#ffc94a)!important;color:var(--p55-brown)!important;border:2px solid #7a4a00!important;border-radius:10px!important;display:inline-block!important;padding:3px 14px!important;box-shadow:0 2px 0 rgba(0,0,0,.35)!important}
+#v40Missions #journeyHome .journey-card>.eyebrow *{color:var(--p55-brown)!important}
