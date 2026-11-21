@@ -288,7 +288,7 @@ function stopMatch(){
 }
 function backToLobby(quit){
  stopMatch();
- if(S.mode==='server'&&!quit){try{O.selecionar()}catch{}return}   // partida rápida: "jogar de novo" volta à seleção de campeão
+ if(S.mode==='server'&&!quit){try{O.procurar(S.modo)}catch{}return}   // "jogar de novo": volta ao início já procurando outros rivais
  if(quit||!S.conn){try{O.close()}catch{}return}
  S.ready=false;S.theirReady=false;S.view='lobby';O.open();
 }

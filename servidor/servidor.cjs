@@ -11,6 +11,7 @@ const { WebSocketServer } = require('ws');
 const { Worker } = require('worker_threads');
 const PORT = +process.env.PORT || 8787, AQUECIDAS = process.env.AQUECIDAS != null ? +process.env.AQUECIDAS : 2, MAX_PARTIDAS = +process.env.MAX_PARTIDAS || 60;
 const ORIGENS = (process.env.ORIGENS || '').split(',').map(s => s.trim()).filter(Boolean);
+const TEMPO_SELECAO = +process.env.TEMPO_SELECAO || 30000;   // tempo para escolher o campeão depois de achar os rivais
 const PROTO = 3, BUILD_MINIMO = +process.env.BUILD_MINIMO || 1;   // jogo instalado em versão mais antiga que BUILD_MINIMO precisa atualizar
 const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a);
 
@@ -97,12 +98,13 @@ function tentarParear() {
 }
 function criarPartida(jog, modo) {
   const id = proxId++, e = aquecidas.shift() || novoWorker();
-  // a luta só começa quando todos terminam de carregar (mensagem 'pronto'); jogos de versão antiga (build < 2) não avisam: contam como prontos
-  const p = { id, e, jog, modo, fim: false, criada: Date.now(), prontos: jog.map(j => j.build < 2), iniciada: false, liberada: false, timerLiberar: null };
+  // fase 'sel': os rivais já foram achados e cada um escolhe o campeão (e confirma). Depois vem a fase 'jogo': a thread cria a luta, e ela
+  // só começa quando todos terminam de carregar (mensagem 'pronto'); jogos de versão antiga (build < 2) não avisam: contam como prontos
+  const p = { id, e, jog, modo, fase: 'sel', fim: false, criada: Date.now(), pronto_sel: jog.map(() => false), prontos: jog.map(j => j.build < 2), iniciada: false, liberada: false, timerLiberar: null, timerSel: null };
   e.p = p; partidas.set(id, p); stats.partidasCriadas++;
   jog.forEach((j, i) => { j.partida = p; j.slot = i; j.estado = 'partida'; });
   const seed = (Math.random() * 4294967296) | 0;
-  const iniciar = () => {
+  p.iniciar = () => {
     if (modo === '2v2') {
       const hs = jog.map(j => j.perfil.hero), ps = jog.map(j => j.perfil);
       for (const j of jog) enviar(j.ws, JSON.stringify({ t: 'match', modo, slot: j.slot, seed, hs, ps }));
@@ -115,15 +117,24 @@ function criarPartida(jog, modo) {
     }
     p.iniciada = true; p.timerLiberar = setTimeout(() => liberar(p), 30000); checarLiberar(p);
   };
-  if (e.pronta) iniciar(); else e.esperando.push(iniciar);
   log(`partida ${id} (${modo}): ${jog.map(j => j.perfil.name).join(' × ')} (ativas: ${partidas.size})`);
+  if (jog.every(j => j.sala)) {
+    const ps = jog.map(j => { const { hero, ...resto } = j.perfil; return resto; });   // o campeão do rival só aparece quando a luta começa
+    for (const j of jog) enviar(j.ws, JSON.stringify({ t: 'sala', modo, slot: j.slot, ps, ms: TEMPO_SELECAO }));
+    p.timerSel = setTimeout(() => comecar(p), TEMPO_SELECAO + 1500);
+  } else comecar(p);   // jogo de versão antiga: não conhece a sala de escolha, começa direto com o campeão que mandou
   setImmediate(reporAquecidas);
+}
+function comecar(p) {
+  if (p.fase !== 'sel' || !partidas.has(p.id)) return;
+  p.fase = 'jogo'; clearTimeout(p.timerSel);
+  if (p.e.pronta) p.iniciar(); else p.e.esperando.push(p.iniciar);
 }
 function checarLiberar(p) { if (!p.liberada && p.iniciada && p.prontos.every(Boolean)) liberar(p); }
 function liberar(p) { if (p.liberada) return; p.liberada = true; clearTimeout(p.timerLiberar); try { p.e.w.postMessage({ k: 'liberar' }); } catch {} }
 function encerrar(p) {
   if (!partidas.has(p.id)) return;
-  clearTimeout(p.timerLiberar);
+  clearTimeout(p.timerLiberar); clearTimeout(p.timerSel);
   partidas.delete(p.id);
   try { p.e.w.postMessage({ k: 'parar' }); } catch {}
   setTimeout(() => { try { p.e.w.terminate(); } catch {} }, 500).unref();
@@ -143,7 +154,7 @@ function tratar(j, texto) {
     if (m.t !== 'hello') return;
     if (m.v !== PROTO) { enviar(j.ws, JSON.stringify({ t: 'erro', m: 'versao' })); return j.ws.close(); }
     if ((+m.build || 1) < BUILD_MINIMO) { enviar(j.ws, JSON.stringify({ t: 'erro', m: 'atualizar', minimo: BUILD_MINIMO })); return j.ws.close(); }
-    j.perfil = perfil(m.p); j.build = +m.build || 1; j.estado = 'ocioso';
+    j.perfil = perfil(m.p); j.build = +m.build || 1; j.sala = !!m.sala; j.estado = 'ocioso';
     return enviar(j.ws, JSON.stringify({ t: 'hello', ok: 1, online: jogadores.size, v: PROTO, modos: ['1v1', '2v2'] }));
   }
   switch (m.t) {
@@ -152,8 +163,10 @@ function tratar(j, texto) {
     case 'fila': if (j.estado === 'fila' || (j.partida && !j.partida.fim)) return; if (m.p) j.perfil = perfil(m.p); entrarNaFila(j, m.modo); return;
     case 'cancelar': { for (const f of [fila, fila2]) { const i = f.indexOf(j); if (i >= 0) f.splice(i, 1); } if (j.estado === 'fila') j.estado = 'ocioso'; return enviar(j.ws, JSON.stringify({ t: 'ocioso' })); }
     case 'pronto': if (j.partida && !j.partida.fim) { j.partida.prontos[j.slot] = true; checarLiberar(j.partida); } return;
-    case 'in': if (j.partida && !j.partida.fim) j.partida.e.w.postMessage({ k: 'in', slot: j.slot, m }); return;
-    case 'act': if (j.partida && !j.partida.fim) j.partida.e.w.postMessage({ k: 'act', slot: j.slot, m }); return;
+    case 'pick': { const p = j.partida; if (!p || p.fase !== 'sel') return; j.perfil.hero = Math.max(0, Math.min(9, Math.floor(+m.hero) || 0)); p.pronto_sel[j.slot] = false; if (p.modo === '2v2') { const o = p.jog[j.slot ^ 1]; if (o) enviar(o.ws, JSON.stringify({ t: 'pick', s: j.slot, hero: j.perfil.hero })); } return; }
+    case 'ready': { const p = j.partida; if (!p || p.fase !== 'sel') return; p.pronto_sel[j.slot] = !!m.v; const msg = JSON.stringify({ t: 'ready', s: j.slot, v: p.pronto_sel[j.slot] ? 1 : 0 }); for (const o of p.jog) if (o !== j) enviar(o.ws, msg); if (p.pronto_sel.every(Boolean)) comecar(p); return; }
+    case 'in': if (j.partida && !j.partida.fim && j.partida.fase === 'jogo') j.partida.e.w.postMessage({ k: 'in', slot: j.slot, m }); return;
+    case 'act': if (j.partida && !j.partida.fim && j.partida.fase === 'jogo') j.partida.e.w.postMessage({ k: 'act', slot: j.slot, m }); return;
     case 'teste': if (process.env.TESTE === '1' && j.partida) j.partida.e.w.postMessage({ k: 'teste', m }); return;   // só nos testes
   }
 }

@@ -195,3 +195,11 @@ body.v40-on #lobbyNav,body.v40-on #backHome,body.v40-modes-open #lobbyNav,body.v
  .v41-side button:hover .v41-ico{transform:translateY(-3px)}
  .v40-home button:focus-visible{outline:3px solid #fff;outline-offset:3px}
 }
+
+/* v52 — JOGAR enquanto procura rivais */
+.v40-play.buscando{background:linear-gradient(180deg,#7fd0ff,#3b8fe0 55%,#2563b8)!important;box-shadow:0 5px 0 #1a3f80,0 10px 20px rgba(20,60,150,.35)!important;color:#fff!important;text-shadow:0 2px 0 rgba(0,40,100,.5)!important;font-size:15px!important;letter-spacing:.04em!important}
+.v41-busca{display:flex;flex-direction:column;align-items:center;gap:3px;padding:0 8px}
+.v41-busca b{font-size:16px;font-weight:900;line-height:1.1;text-align:center}.v41-busca small{font-size:11px;font-weight:800;opacity:.85;letter-spacing:.02em;text-shadow:none}
+.v41-busca .v45-spin{width:20px;height:20px;border-width:3px}
+.v43-play.buscando{background:linear-gradient(180deg,#7fd0ff,#3b8fe0 55%,#2563b8)!important;color:#fff!important;box-shadow:0 4px 0 #1a3f80!important}
+.v43-play.buscando b{font-size:14px;text-shadow:0 2px 0 rgba(0,40,100,.5)}.v43-play.buscando small{opacity:.9;color:#fff}

@@ -49,8 +49,9 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  ok(await pg.evaluate(()=>!document.querySelector('#v40Modes').hidden&&account.v40Mode==='duelo'),`${tag} modo "em breve" não é escolhido`);
  await pg.click('#v40Modes [data-v40-close]');await pg.waitForTimeout(200);
  await pg.click('[data-v40-play]');await pg.waitForTimeout(600);
- const play=await pg.evaluate(()=>({sel:!document.querySelector('#onlineV45').hidden&&!!document.querySelector('.v46-sel')&&!document.querySelector('[data-v45="create"]')}));
- ok(play.sel,`${tag} JOGAR com Duelo 1×1 vai direto para a seleção de campeão online (sem menu de sala)`);
+ const play=await pg.evaluate(()=>({sel:!!OnlineV45.state.procurando&&/PROCURANDO/.test(document.querySelector('[data-v40-play]')?.textContent||'')}));
+ ok(play.sel,`${tag} JOGAR com Duelo 1×1 começa a procurar rivais (botão "Procurando rivais…"), sem menu de sala`);
+ await pg.evaluate(()=>OnlineV45.cancelar());
  // recarregar mantém o modo
  await pg.evaluate(()=>{try{saveAccount()}catch{}});await pg.reload();await pg.waitForTimeout(2500);
  const kept=await pg.evaluate(()=>{document.querySelector('#welcomeEnter')?.click();return true});await pg.waitForTimeout(1800);

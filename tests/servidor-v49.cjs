@@ -14,16 +14,31 @@ const PORT=8790,SRV='ws://localhost:'+PORT;
   await pg.getByText('ENTRAR',{exact:true}).click();await pg.fill('#profileName',name);await pg.getByText('Continuar',{exact:true}).click();await pg.waitForTimeout(2200);await pg.evaluate(()=>document.querySelector('#ljModal')?.remove());return pg}
  const A=await player('Ana',1000,560),B=await player('Beto');
  await A.evaluate(()=>{equipChampion(2,false)});await B.evaluate(()=>{equipChampion(4,false)});
- await A.evaluate(()=>OnlineV45.open());
- ok(await A.evaluate(()=>!!document.querySelector('[data-v45="quick"]')),'com o servidor configurado aparece o botão "Partida rápida"');
- await A.click('[data-v45="quick"]');await sleep(600);
- ok(await A.evaluate(()=>OnlineV45.state.view==='lobby'&&OnlineV45.state.mode==='server'&&document.querySelectorAll('.v46-tile').length===10&&document.querySelectorAll('canvas.v46-sprite').length===1&&/PROCURAR RIVAL/.test(document.querySelector('.v46-go').textContent)),'"Partida rápida" abre a tela de seleção de campeão (10 rostos, boneco, botão PROCURAR RIVAL)');
- await A.click('[data-v45-hero="2"]');await sleep(200);
- ok(await A.evaluate(()=>OnlineV45.state.me.hero===2&&/Ronin/.test(document.querySelector('.v46-name.blue').textContent)),'escolher outro campeão na seleção troca o boneco e o nome');
- await A.click('[data-v45="buscar"]');await sleep(1200);
- ok(await A.evaluate(()=>OnlineV45.state.buscando&&/Procurando/.test(document.querySelector('.v46-hint').textContent)&&/CANCELAR/.test(document.querySelector('.v46-go').textContent)),'depois de PROCURAR RIVAL: "Procurando um rival…" e botão CANCELAR');
+ // JOGAR no início (modo padrão Duelo 1×1) começa a busca em segundo plano: o botão vira "Procurando rivais…" e a seleção só aparece quando acham os rivais
+ await A.evaluate(()=>{showScreen('home')});await sleep(800);
+ await A.click('[data-v40-play]');await sleep(900);
+ ok(await A.evaluate(()=>OnlineV45.state.procurando&&(document.querySelector('#onlineV45')?.hidden??true)&&/PROCURANDO/.test(document.querySelector('[data-v40-play]').textContent)),'JOGAR vira "Procurando rivais…" e a seleção de campeão ainda não aparece');
  ok((await saude()).fila===1,'o servidor mostra 1 jogador na fila');
- await B.evaluate(()=>OnlineV45.open());await B.click('[data-v45="quick"]');await sleep(500);await B.click('[data-v45-hero="4"]');await B.click('[data-v45="buscar"]');
+ // dá para mexer no jogo enquanto procura: abre Campeões e volta; a busca continua
+ await A.evaluate(()=>showScreen('library'));await sleep(500);ok(await A.evaluate(()=>OnlineV45.state.procurando&&!document.querySelector('#selection').hidden),'durante a busca dá para navegar (Campeões) e a busca continua');await A.evaluate(()=>showScreen('home'));await sleep(600);
+ ok(await A.evaluate(()=>/PROCURANDO/.test(document.querySelector('[data-v40-play]').textContent)),'ao voltar ao início o botão continua "Procurando rivais…"');
+ // cancelar: toque no botão
+ await A.click('[data-v40-play]');await sleep(500);
+ ok(await A.evaluate(()=>!OnlineV45.state.procurando&&document.querySelector('[data-v40-play]').textContent.includes('JOGAR'))&&(await saude()).fila===0,'tocar no botão cancela a busca (fila vazia, botão volta a JOGAR)');
+ await A.click('[data-v40-play]');await sleep(900);
+ await B.evaluate(()=>{showScreen('home')});await sleep(600);await B.click('[data-v40-play]');
+ if(process.env.DBG){await sleep(3000);console.log('DBG',JSON.stringify(await A.evaluate(()=>({p:OnlineV45.state.procurando,f:OnlineV45.state.fase,m:OnlineV45.state.modo,fila:OnlineV45.state.fila}))),JSON.stringify(await B.evaluate(()=>({p:OnlineV45.state.procurando,f:OnlineV45.state.fase,m:OnlineV45.state.modo,fila:OnlineV45.state.fila,err:OnlineV45.state.err,scr:appScreen}))),JSON.stringify(await saude()))}
+ // os dois acharam rivais: abre a sala de escolha (sem mostrar o campeão do rival)
+ await A.waitForFunction(()=>OnlineV45.state.fase==='sala'&&!(document.querySelector('#onlineV45')?.hidden??true),null,{timeout:20000}).catch(async e=>{console.log('DBG A',JSON.stringify(await A.evaluate(()=>({st:OnlineV45.state.fase,h:document.querySelector('#onlineV45')?.hidden,p:OnlineV45.state.procurando}))),JSON.stringify(await B.evaluate(()=>({st:OnlineV45.state.fase,h:document.querySelector('#onlineV45')?.hidden,p:OnlineV45.state.procurando}))),JSON.stringify(await saude()));throw e});await B.waitForFunction(()=>OnlineV45.state.fase==='sala'&&!(document.querySelector('#onlineV45')?.hidden??true),null,{timeout:20000});
+ await sleep(500);
+ ok(await A.evaluate(()=>document.querySelectorAll('.v46-tile').length===10&&document.querySelectorAll('canvas.v46-sprite').length===1&&document.querySelector('.v46-vs svg')&&/PRONTO/.test(document.querySelector('.v46-go').textContent)&&/Beto/.test(document.querySelector('.v46-chip.right').textContent)&&!!document.querySelector('.v46-art.right.empty')),'sala de escolha: 10 rostos, o rival aparece só com nome e nível (campeão escondido), emblema VS e botão PRONTO');
+ ok(await A.evaluate(()=>/^\d+ s$/.test(document.querySelector('#v45Qt').textContent)),'a sala mostra a contagem do tempo');
+ await A.click('[data-v45-hero="2"]');await sleep(200);
+ ok(await A.evaluate(()=>OnlineV45.state.me.hero===2&&/Ronin/.test(document.querySelector('.v46-name.blue').textContent)),'escolher outro campeão troca o boneco e o nome');
+ await B.click('[data-v45-hero="4"]');await sleep(200);
+ await A.click('[data-v45="ready"]');await sleep(500);
+ ok(await B.evaluate(()=>/PRONTO/.test(document.querySelector('.v46-chip.right').textContent)),'quando um confirma, o outro vê PRONTO no rival');
+ await B.click('[data-v45="ready"]');
  await A.waitForFunction(()=>window.OnlineV46?.match.on&&state==='fight',null,{timeout:40000});await B.waitForFunction(()=>window.OnlineV46?.match.on&&state==='fight',null,{timeout:40000});
  ok(await A.evaluate(()=>Carregamento.ultima&&Carregamento.ultima.ids.includes(2)&&Carregamento.ultima.ids.includes(4)),'a tela de carregamento preparou os dois campeões antes da luta');
  const ia=await A.evaluate(()=>({p:p.skin,b:b.skin,mode:OnlineV45.state.mode,rival:OnlineV45.state.them.name})),ib=await B.evaluate(()=>({p:p.skin,b:b.skin,rival:OnlineV45.state.them.name}));
@@ -67,9 +82,10 @@ const PORT=8790,SRV='ws://localhost:'+PORT;
  await sleep(500);ok((await saude()).partidasTerminadas>=1,'o servidor registrou a partida como terminada');
  ok(await A.evaluate(()=>document.querySelector('#rematch').textContent==='Procurar outro rival'&&document.querySelector('#resultHub').textContent==='Sair'),'tela de resultado: "Procurar outro rival" e "Sair"');
  // jogar de novo: os dois voltam à fila e são pareados de novo
- await A.click('#rematch');await sleep(500);await B.click('#rematch');await sleep(600);
- ok(await A.evaluate(()=>OnlineV45.state.view==='lobby'&&OnlineV45.state.mode==='server'&&!OnlineV45.state.buscando&&/PROCURAR RIVAL/.test(document.querySelector('.v46-go').textContent)),'"Procurar outro rival" volta à seleção de campeão');
- await A.click('[data-v45="buscar"]');await sleep(400);await B.click('[data-v45="buscar"]');
+ await A.click('#rematch');await sleep(500);await B.click('#rematch');await sleep(900);
+ ok(await A.evaluate(()=>OnlineV45.state.mode==='server'&&(OnlineV45.state.procurando||OnlineV45.state.fase==='sala'||OnlineV45.state.fase==='jogo')&&(document.querySelector('#onlineV45')?.hidden??true)!==undefined),'"Procurar outro rival" volta ao início já procurando de novo');
+ await A.waitForFunction(()=>OnlineV45.state.fase==='sala'&&!(document.querySelector('#onlineV45')?.hidden??true),null,{timeout:25000});await B.waitForFunction(()=>OnlineV45.state.fase==='sala'&&!(document.querySelector('#onlineV45')?.hidden??true),null,{timeout:25000});
+ await A.click('[data-v45="ready"]');await B.click('[data-v45="ready"]');
  await A.waitForFunction(()=>window.OnlineV46?.match.on&&state==='fight',null,{timeout:45000});await B.waitForFunction(()=>window.OnlineV46?.match.on&&state==='fight',null,{timeout:45000});
  ok(true,'depois de escolher e procurar de novo, os dois entram numa nova partida');
  // saída no meio da luta
