@@ -80,6 +80,9 @@ step=function(dt){
  else{M.inT-=dt;sendInput(M.inT<=0);smoothRemote(dt);fixRound()}
 };
 // anfitrião: move o campeão do amigo com os comandos dele (mesma conta do movimento do jogador)
+// o jogo só avança o passo da animação de andar (rwStride) e a direção do corpo quando o boneco se mexe DENTRO do passo dele; o rival é movido
+// por fora, então o passo ficava parado num quadro e ele deslizava sem pernas. Aqui avançamos igual ao jogo faz.
+function walkStride(a,dx,dy){const d=Math.hypot(dx,dy);if(d>.02&&!a.rwCast&&!a.guard){a.rwFacing=Math.atan2(dy,dx);a.rwStride=((a.rwStride||0)+d/16)%6}}
 function driveRemote(dt){
  const a=M.remote,i=M.input;if(!a||state!=='fight'||a.hp<=0)return;
  try{setGuard(a,!!i.g)}catch{}
@@ -87,7 +90,7 @@ function driveRemote(dt){
  if(a.moving&&a.cast<=0&&a.root<=0&&a.dodgeTime<=0&&a.dash<=0){
   const B=a.buff||{};
   const speed=150*(typeof identitySpeed==='function'?identitySpeed(a):1)*(B.storm>0?1.25:1)*(B.astralPower>0?1.25:1)*(B.rpMask>0?.8:1)*(B.rpBreath>0?1.35:1)*(B.armor>0?.8:1)*(a.slow>0?.55:1)*(B.wings>0?1.35:1);
-  move(a,i.x*speed*dt,i.y*speed*dt);
+  const x0=a.x,y0=a.y;move(a,i.x*speed*dt,i.y*speed*dt);walkStride(a,a.x-x0,a.y-y0);
  }
  if(Number.isFinite(i.a))a.a=i.a;
 }
@@ -148,6 +151,7 @@ function smoothRemote(dt){
  const sp=Math.hypot(a.x-x0,a.y-y0)/Math.max(dt,.001);
  M.mv=M.mv?(sp>6?M.mv:Math.max(0,M.mv-dt)):0;if(sp>14)M.mv=.12;   // liga rápido, desliga só depois de uma pausa curta (não pisca)
  a.moving=M.mv>0&&!a.guard;
+ if(a.moving)walkStride(a,a.x-x0,a.y-y0);
 }
 // início de cada rodada: cada um no seu lado e virado para o rival (o jogo reinicia assumindo "eu à esquerda, olhando para a direita")
 function fixRound(){

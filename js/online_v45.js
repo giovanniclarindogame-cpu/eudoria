@@ -36,13 +36,17 @@ const svg=k=>`<svg class="v40i" viewBox="0 0 32 32" fill="none" stroke="currentC
 const S={view:'home',mode:null,role:null,code:'',peer:null,conn:null,pc:null,me:null,them:null,ready:false,theirReady:false,rtt:null,err:'',pingT:0,count:0,scan:null,offerCode:'',answerCode:'',busy:''};
 
 /* ---------- perfil enviado ao outro jogador ---------- */
-function myHero(){try{return currentChampion().id}catch{return 0}}
+function myHero(){try{const id=currentChampion().id,o=owned();return o.includes(id)?id:o[0]}catch{return 0}}
 function profile(){
  const C=window.ContaV42,key=C?.photoKey?.()||'auto';
  let tier=0,league='Bronze';try{const pts=V3Liga.rec('1v1').points||0;tier=V3Liga.divOf(pts);league=V3Liga.rankName(pts)}catch{}
  return{v:PROTO,name:account.profile?.name||'Lutador',lv:C?.rec?.().lv||1,frame:C?.frameId?.()||'azul',photo:key==='auto'?'h'+(S.me?.hero??myHero()):key,hero:S.me?.hero??myHero(),tier,league};
 }
-function owned(){try{return CHAMPIONS.filter(c=>(account.champions||[]).includes(c.id)).map(c=>c.id)}catch{return[0]}}
+// online: só vale o que é da conta (comprados + os 3 grátis da semana). A fase de testes que libera tudo no resto do jogo não vale aqui
+function owned(){try{
+ if(ALL_HEROES_DEBUG)return CHAMPIONS.map(c=>c.id);
+ const ok=new Set([...(account.ownedHeroes||[]),...heroesFreeThisWeek()]);
+ const l=CHAMPIONS.filter(c=>ok.has(c.id)).map(c=>c.id);return l.length?l:[0]}catch{return[0]}}
 
 /* ---------- transporte (PeerJS ou canal WebRTC do QR) ---------- */
 // ?netlag=ms simula atraso de rede (só para testes): cada mensagem sai metade desse tempo depois
@@ -298,7 +302,7 @@ function lobbyHtml(){
    </div>
    ${sideChip(me,true,S.ready)}${sideChip(th,false,S.theirReady)}
   </div>
-  <div class="v46-names"><div class="v46-name blue">${esc(mc.name)}</div><div class="v46-hint">${S.mode==='server'?(S.buscando?(S.busy||'Procurando um rival…')+(S.online?` · ${S.online} online`:''):'Escolha seu lutador e procure um rival'):S.ready?'Esperando o amigo ficar pronto…':'Toque para escolher seu lutador'}</div><div class="v46-name red">${tc?esc(tc.name):'? ? ?'}</div></div>
+  <div class="v46-names"><div class="v46-name blue">${esc(mc.name)}</div><div class="v46-hint">${S.mode==='server'?(S.buscando?(S.busy||'Procurando um rival…')+(S.online?` · ${S.online} online`:''):''):S.ready?'Esperando o amigo ficar pronto…':''}</div><div class="v46-name red">${tc?esc(tc.name):'? ? ?'}</div></div>
   <div class="v46-bottom"><span class="v45-ping">${svg('wifi')}<b id="v45Ping">${S.rtt==null?'…':S.rtt+' ms'}</b></span><div class="v46-grid" role="listbox" aria-label="Seu campeão">${tiles}</div>
    ${S.mode==='server'?(S.buscando?'<button class="v46-go cancel" data-v45="qcancel">CANCELAR</button>':'<button class="v46-go" data-v45="buscar">PROCURAR RIVAL</button>'):`<button class="v46-go ${S.ready?'cancel':''}" data-v45="ready" ${th?'':'disabled'}>${S.ready?'CANCELAR':'PRONTO'}</button>`}</div>
  </div>`;
