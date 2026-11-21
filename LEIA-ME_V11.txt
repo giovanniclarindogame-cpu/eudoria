@@ -426,3 +426,11 @@ CRUZADA v49 — cenários pintados (assets/cruzada_v49/<chefe>.webp, 2048×512, 
 
 SERVIDOR (experimento) — servidor/ : roda o jogo atual sem tela em Node + jsdom. Resultados em servidor/LEIA-ME.md
 (12 MB e ~2% de um núcleo por partida; 40 partidas em 4 núcleos a 30 ticks/s; os 10 heróis lutam sem erro). Ainda sem rede/contas.
+
+SERVIDOR DE PARTIDAS (v49) — servidor/ (ver servidor/LEIA-ME.md), js/config_servidor.js, tests/servidor-v49.cjs
+- Fila de partida rápida 1×1: o servidor (Node + ws) calcula a luta numa thread por partida (o jogo sem tela); o navegador age como o
+  "convidado" da sala entre amigos (resposta imediata + estado do servidor 30×/s). Botão "Partida rápida" só aparece com o endereço
+  configurado (js/config_servidor.js ou ?servidor=ws://...). Verificação de versão: ELDORIA_BUILD × BUILD_MINIMO.
+- Correção no cliente (vale também para a sala entre amigos): durante o K.O. da rodada o estado do servidor fica congelado no cliente,
+  para o placar sair da vida do "end" e não de um estado novo que chegue antes (antes isso podia virar "empate" e repetir a rodada).
+- Medido: 24 partidas = 1,2 núcleo e ~2,5 GB; o limite é a memória (~90 MB por partida).

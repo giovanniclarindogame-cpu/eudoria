@@ -16,12 +16,13 @@ const html=fs.readFileSync(path.join(ROOT,'index.html'),'utf8');
 const srcs=[...html.matchAll(/<script[^>]*src="([^"]+)"/g)].map(m=>m[1].split('?')[0]).filter(s=>!/\/lib\//.test(s));
 const code=new Map();for(const s of srcs)code.set(s,new vm.Script(fs.readFileSync(path.join(ROOT,s),'utf8'),{filename:s}));   // compila uma vez, serve para todas as partidas
 const page=html.replace(/<script[\s\S]*?<\/script>/g,'').replace(/<link[^>]*>/g,'');
-async function load(query='?allheroes=1'){
+async function load(query='?allheroes=1',opc={}){
+ const pular=new Set(opc.pular||[]);
  const errs=[];const vc=new VirtualConsole();vc.on('jsdomError',e=>errs.push(String(e.message||e).slice(0,140)));vc.on('error',e=>errs.push(String(e).slice(0,140)));
  const dom=new JSDOM(page,{url:'http://localhost:8000/index.html'+query,runScripts:'outside-only',pretendToBeVisual:false,virtualConsole:vc,beforeParse:stubs});
  if(dom.window.document.readyState!=='complete')await new Promise(r=>dom.window.addEventListener('load',()=>r()));
  const ctx=dom.getInternalVMContext();
- for(const s of srcs){try{code.get(s).runInContext(ctx)}catch(e){errs.push(s+': '+String(e.message).slice(0,120))}}
+ for(const s of srcs){if(pular.has(s))continue;try{code.get(s).runInContext(ctx)}catch(e){errs.push(s+': '+String(e.message).slice(0,120))}}
  dom.window.document.dispatchEvent(new dom.window.Event('DOMContentLoaded'));dom.window.dispatchEvent(new dom.window.Event('load'));
  await new Promise(r=>setTimeout(r,300));
  return{dom,errs,ev:c=>dom.window.eval(c)};
