@@ -19,8 +19,9 @@ const jogadores = new Map();      // ws -> { id, perfil, estado: 'novo'|'ocioso'
 const fila = [];                  // jogadores esperando o 1×1
 const fila2 = [];                 // jogadores esperando o 2×2 (a partida sai quando juntam 4)
 const fila3 = [];                 // jogadores esperando o Trio de Campeões (2 jogadores, cada um com um time de 3)
-const filaDe = j => j.modo === '2v2' ? fila2 : j.modo === 'trio' ? fila3 : fila;
-const todasFilas = [fila, fila2, fila3];
+const fila4 = [];                 // jogadores esperando a Disputa da Coroa (4 jogadores, cada um por si)
+const filaDe = j => j.modo === '2v2' ? fila2 : j.modo === 'trio' ? fila3 : j.modo === 'coroa' ? fila4 : fila;
+const todasFilas = [fila, fila2, fila3, fila4];
 const partidas = new Map();       // id -> { id, worker, jog: [j0, j1] (ou 4 no 2×2), fim, criada }
 const aquecidas = [];             // workers prontos esperando uma partida
 const stats = { partidasCriadas: 0, partidasTerminadas: 0, tickMedio: 0, ticksTarde: 0, ticks: 0, tickMax: 0, erros: 0, ultimoErro: '' };
@@ -76,14 +77,14 @@ function sair(j) {
 function entrarNaFila(j, modo) {
   if (j.partida) { const p = j.partida; j.partida = null; if (p.fim && p.jog.every(x => x.partida !== p)) encerrar(p); }
   for (const f of todasFilas) { const i = f.indexOf(j); if (i >= 0) f.splice(i, 1); }
-  j.modo = modo === '2v2' ? '2v2' : modo === 'trio' ? 'trio' : '1v1'; j.time = null;
+  j.modo = modo === '2v2' ? '2v2' : modo === 'trio' ? 'trio' : modo === 'coroa' ? 'coroa' : '1v1'; j.time = null;
   const f = filaDe(j); f.push(j);
   j.estado = 'fila';
-  f.forEach((x, i) => enviar(x.ws, JSON.stringify({ t: 'fila', pos: i + 1, n: f.length, precisa: j.modo === '2v2' ? 4 : 2, online: jogadores.size })));
+  f.forEach((x, i) => enviar(x.ws, JSON.stringify({ t: 'fila', pos: i + 1, n: f.length, precisa: j.modo === '2v2' || j.modo === 'coroa' ? 4 : 2, online: jogadores.size })));
   tentarParear();
 }
 function tentarParear() {
-  for (const [f, tam, modoF] of [[fila, 2, '1v1'], [fila2, 4, '2v2'], [fila3, 2, 'trio']]) {
+  for (const [f, tam, modoF] of [[fila, 2, '1v1'], [fila2, 4, '2v2'], [fila3, 2, 'trio'], [fila4, 4, 'coroa']]) {
     while (f.length >= tam) {
       if (partidas.size >= MAX_PARTIDAS) { f.forEach(x => enviar(x.ws, JSON.stringify({ t: 'cheio' }))); break; }
       // quem espera há mais tempo + os de nível mais próximo entre os primeiros
@@ -94,7 +95,7 @@ function tentarParear() {
         grupo.push(f.splice(k, 1)[0]);
       }
       // 2×2: a equipe 0 é o mais antigo da fila + o último escolhido (os dois extremos), a equipe 1 os do meio
-      criarPartida(tam === 4 ? [grupo[0], grupo[3], grupo[1], grupo[2]] : grupo, modoF);
+      criarPartida(modoF === '2v2' ? [grupo[0], grupo[3], grupo[1], grupo[2]] : grupo, modoF);
     }
   }
 }
@@ -107,7 +108,7 @@ function criarPartida(jog, modo) {
   jog.forEach((j, i) => { j.partida = p; j.slot = i; j.estado = 'partida'; });
   const seed = (Math.random() * 4294967296) | 0;
   p.iniciar = () => {
-    if (modo === '2v2') {
+    if (modo === '2v2' || modo === 'coroa') {
       const hs = jog.map(j => j.perfil.hero), ps = jog.map(j => j.perfil);
       for (const j of jog) enviar(j.ws, JSON.stringify({ t: 'match', modo, slot: j.slot, seed, hs, ps }));
       e.w.postMessage({ k: 'iniciar', modo, seed, h: hs, n: jog.map(j => j.perfil.name) });
@@ -169,7 +170,7 @@ function tratar(j, texto) {
     if (m.v !== PROTO) { enviar(j.ws, JSON.stringify({ t: 'erro', m: 'versao' })); return j.ws.close(); }
     if ((+m.build || 1) < BUILD_MINIMO) { enviar(j.ws, JSON.stringify({ t: 'erro', m: 'atualizar', minimo: BUILD_MINIMO })); return j.ws.close(); }
     j.perfil = perfil(m.p); j.build = +m.build || 1; j.sala = !!m.sala; j.estado = 'ocioso';
-    return enviar(j.ws, JSON.stringify({ t: 'hello', ok: 1, online: jogadores.size, v: PROTO, modos: ['1v1', '2v2', 'trio'] }));
+    return enviar(j.ws, JSON.stringify({ t: 'hello', ok: 1, online: jogadores.size, v: PROTO, modos: ['1v1', '2v2', 'trio', 'coroa'] }));
   }
   switch (m.t) {
     case 'ping': return enviar(j.ws, JSON.stringify({ t: 'pong', at: m.at }));
@@ -190,7 +191,7 @@ const servidor = http.createServer((req, res) => {
   if (req.url === '/saude' || req.url === '/') {
     const mem = process.memoryUsage();
     res.writeHead(200, { 'content-type': 'application/json', 'access-control-allow-origin': '*' });
-    return res.end(JSON.stringify({ ok: true, proto: PROTO, buildMinimo: BUILD_MINIMO, jogadores: jogadores.size, fila: fila.length, fila2: fila2.length, fila3: fila3.length, partidas: partidas.size, aquecidas: aquecidas.filter(x => x.pronta).length, ...stats, tickMedio: +stats.tickMedio.toFixed(3), tickMax: +stats.tickMax.toFixed(2), memoriaMB: Math.round(mem.rss / 1048576), nucleos: os.cpus().length, uptime: Math.round(process.uptime()) }));
+    return res.end(JSON.stringify({ ok: true, proto: PROTO, buildMinimo: BUILD_MINIMO, jogadores: jogadores.size, fila: fila.length, fila2: fila2.length, fila3: fila3.length, fila4: fila4.length, partidas: partidas.size, aquecidas: aquecidas.filter(x => x.pronta).length, ...stats, tickMedio: +stats.tickMedio.toFixed(3), tickMax: +stats.tickMax.toFixed(2), memoriaMB: Math.round(mem.rss / 1048576), nucleos: os.cpus().length, uptime: Math.round(process.uptime()) }));
   }
   res.writeHead(404); res.end();
 });

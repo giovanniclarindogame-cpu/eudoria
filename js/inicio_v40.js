@@ -29,7 +29,7 @@ const MODES=[
  {id:'duelo',cat:'casual',name:'Duelo 1×1',sub:'Enfrente outro jogador',tag:'1×1',art:4,run:()=>{try{if(window.OnlineV45)return OnlineV45.procurar('1v1')}catch(e){console.error(e)}casual('1v1','1v1')()}},
  {id:'equipes',cat:'casual',name:'Equipes 2×2',sub:'Lute ao lado de um aliado',tag:'2×2',art:5,run:()=>{try{if(window.OnlineV45)return OnlineV45.procurar('2v2')}catch(e){console.error(e)}casual('2v2','2v2')()}},
  {id:'trio',cat:'casual',name:'Trio de Campeões',sub:'Quem vence continua',tag:'3 campeões',art:12,run:()=>{try{if(window.OnlineV45)return OnlineV45.procurar('trio')}catch(e){console.error(e)}window.V3Kof?.open('kof')}},
- {id:'coroa',cat:'casual',name:'Disputa da Coroa',sub:'O último de pé leva',tag:'4 lutadores',art:13,run:()=>window.V3Kof?.open('crown')},
+ {id:'coroa',cat:'casual',name:'Disputa da Coroa',sub:'Segure a coroa por 3 minutos',tag:'4 lutadores',art:13,run:()=>{try{if(window.OnlineV45)return OnlineV45.procurar('coroa')}catch(e){console.error(e)}window.V3Kof?.open('crown')}},
  {id:'zona',cat:'casual',name:'Controle de Zona',sub:'Em reformulação',tag:'2×2',art:11,soon:true},
  {id:'cacada',cat:'desafio',name:'Caçada do Dia',sub:()=>huntName()||'Um chefe por dia',tag:'Solo ou dupla',art:6,run:()=>window.huntQA?.lobby()},
  {id:'guardiao',cat:'desafio',name:'Caçada ao Guardião',sub:'Fuja das áreas vermelhas',tag:'Cooperativo',art:7,run:()=>beginArenaMode('guardian')},
