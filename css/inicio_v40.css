@@ -203,3 +203,5 @@ body.v40-on #lobbyNav,body.v40-on #backHome,body.v40-modes-open #lobbyNav,body.v
 .v41-busca .v45-spin{width:20px;height:20px;border-width:3px}
 .v43-play.buscando{background:linear-gradient(180deg,#7fd0ff,#3b8fe0 55%,#2563b8)!important;color:#fff!important;box-shadow:0 4px 0 #1a3f80!important}
 .v43-play.buscando b{font-size:14px;text-shadow:0 2px 0 rgba(0,40,100,.5)}.v43-play.buscando small{opacity:.9;color:#fff}
+
+.v41-event.soon{filter:grayscale(.75) brightness(.9);cursor:default}.v41-event.soon:hover{transform:none!important;filter:grayscale(.75) brightness(.9)!important}

@@ -96,8 +96,8 @@ function channelAdapter(ch){const a={pc:()=>S.pc,send:o=>ch.send(JSON.stringify(
 const avisar=()=>{try{document.dispatchEvent(new Event('eldoria-busca'))}catch{}};
 function procurar(modo){
  if(!SERVIDOR){try{toast('O servidor de partidas ainda não está configurado.')}catch{}return false}
- if(modo==='1v1'||modo==='2v2')S.modo=modo;if(S.modo!=='2v2')S.modo='1v1';
- cleanup();S.mode='server';S.role='guest';S.err='';S.busy='';S.qt=Date.now();S.online=0;S.fila=0;S.fase='fila';S.procurando=true;S.sala=null;S.me={...profile()};S.them=null;S.ready=S.theirReady=false;
+ if(modo==='1v1'||modo==='2v2'||modo==='trio')S.modo=modo;if(S.modo!=='2v2'&&S.modo!=='trio')S.modo='1v1';
+ cleanup();S.team=null;S.mode='server';S.role='guest';S.err='';S.busy='';S.qt=Date.now();S.online=0;S.fila=0;S.fase='fila';S.procurando=true;S.sala=null;S.me={...profile()};S.them=null;S.ready=S.theirReady=false;
  let sock;try{sock=new WebSocket(SERVIDOR)}catch{return falhaSrv('Endereço do servidor inválido.')}
  S.ws=sock;avisar();
  const timer=setTimeout(()=>{if(S.ws===sock&&sock.readyState!==1)falhaSrv('Servidor indisponível no momento. Tente de novo em instantes.')},9000);
@@ -134,7 +134,7 @@ function abrirSala(){
 function onSrv(m){
  switch(m.t){
   case'hello':
-   if(S.modo==='2v2'&&!(m.modos||[]).includes('2v2')){falhaSrv('O servidor ainda está sendo atualizado para as Equipes 2×2. Tente de novo em alguns minutos.');break}
+   if((S.modo==='2v2'||S.modo==='trio')&&!(m.modos||[]).includes(S.modo)){falhaSrv('O servidor ainda está sendo atualizado para este modo. Tente de novo em alguns minutos.');break}
    S.online=m.online||0;send({t:'fila',p:profile(),modo:S.modo});avisar();break;
   case'fila':S.online=m.online||S.online;S.fila=m.n;S.precisa=m.precisa||2;avisar();break;
   case'cheio':S.busy='Servidor cheio: você continua na fila…';break;
@@ -145,7 +145,8 @@ function onSrv(m){
    S.fase='sala';S.procurando=false;S.ready=S.theirReady=false;S.err='';
    S.sala={slot,modo:m.modo,ps:ps.map(x=>sanitize(x)),fim:Date.now()+(+m.ms||30000),picks:{},ready:{},n};
    S.them=S.sala.ps[n>2?(slot<2?2:0):1-slot]||null;
-   S.me={...profile()};avisar();abrirSala();break}
+   if(S.modo==='trio'){S.team=defaultTeam();S.me={...S.me,hero:S.team[0]}}
+   S.me={...profile()};avisar();abrirSala();if(S.modo==='trio')send({t:'pick',team:S.team});break}
   case'pick':if(S.sala){S.sala.picks[m.s|0]=validHero(m.hero);render()}break;
   case'ready':if(S.sala){S.sala.ready[m.s|0]=!!m.v;if(S.sala.n===2)S.theirReady=!!m.v;render()}break;
   case'match':
@@ -300,7 +301,13 @@ async function startScan(onText){
 function stopScan(){const sc=S.scan;S.scan=null;if(!sc)return;sc.alive=false;try{sc.stream.getTracks().forEach(t=>t.stop())}catch{}}
 
 /* ---------- sala de espera ---------- */
-function pick(id){if(!owned().includes(id)||S.ready)return;S.me.hero=id;if(S.me.photo?.[0]==='h'&&(window.ContaV42?.photoKey?.()||'auto')==='auto')S.me.photo='h'+id;send({t:'pick',hero:id,photo:S.me.photo});render()}
+const defaultTeam=()=>{const f=myHero();return [f,...owned().filter(x=>x!==f)].slice(0,3)};
+function pick(id){if(!owned().includes(id)||S.ready)return;
+ if(S.mode==='server'&&S.modo==='trio'){   // Trio: até 3 campeões, a ordem é a de entrada; com 3, tocar em outro troca o último
+  const t=S.team||(S.team=defaultTeam()),k=t.indexOf(id);
+  if(k>=0){if(t.length>1)t.splice(k,1)}else if(t.length<3)t.push(id);else t[2]=id;
+  S.me.hero=t[0];send({t:'pick',team:t});render();return}S.me.hero=id;if(S.me.photo?.[0]==='h'&&(window.ContaV42?.photoKey?.()||'auto')==='auto')S.me.photo='h'+id;send({t:'pick',hero:id,photo:S.me.photo});render()}
+function moveTeam(i,d){const t=S.team,j=i+d;if(S.ready||!t||j<0||j>=t.length)return;[t[i],t[j]]=[t[j],t[i]];S.me.hero=t[0];send({t:'pick',team:t});render()}
 function toggleReady(){if(!S.conn||!S.them)return;S.ready=!S.ready;send({t:'ready',v:S.ready});render();if(S.role==='host')maybeStart()}
 function maybeStart(){if(S.ready&&S.theirReady&&S.role==='host'){send({t:'start'});countdown()}}
 function countdown(){
@@ -328,16 +335,19 @@ const VS_SVG=`<svg viewBox="0 0 140 140" aria-hidden="true"><defs>
  <circle cx="70" cy="70" r="56" fill="none" stroke="#ffe9a0" stroke-width="2.5" opacity=".7"/>
  <text x="70" y="92" text-anchor="middle" font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif" font-size="62" font-weight="900" fill="url(#vsG)" stroke="#4a2800" stroke-width="7" paint-order="stroke" stroke-linejoin="round" letter-spacing="-2">VS</text></svg>`;
 function lobbyHtml(){
- const srv=S.mode==='server',sa=srv?S.sala:null,x2=!!sa&&sa.n>2;
- const me=S.me,th=S.them,mine=owned(),mc=CHAMPIONS[me.hero]||CHAMPIONS[0];
+ const srv=S.mode==='server',sa=srv?S.sala:null,x2=!!sa&&sa.n>2,trio=srv&&S.modo==='trio'&&!!S.team;
+ const me=S.me,th=S.them,mine=owned(),mc=CHAMPIONS[trio?S.team[0]:me.hero]||CHAMPIONS[0];
  const tc=(!srv&&th)?CHAMPIONS[th.hero]:null;   // pelo servidor, o campeão do rival só aparece quando a luta começa
  const mateSlot=sa?sa.slot^1:0,matePick=x2?sa.picks[mateSlot]:null;
- const tiles=CHAMPIONS.map(c=>{const own=mine.includes(c.id),on=me.hero===c.id,foe=tc&&tc.id===c.id;return `<button class="v46-tile ${on?'on':''} ${own?'':'locked'} ${foe?'foe':''}" data-v45-hero="${c.id}" ${own&&!S.ready?'':'disabled'} aria-pressed="${on}" title="${esc(c.name)}${own?'':' · bloqueado'}" style="--hero:${c.color}"><img data-face="${c.id}" src="${esc(faceSrc(c.id))}" alt="">${foe?'<i class="v46-foe-mark" aria-hidden="true">RIVAL</i>':''}</button>`}).join('');
+ const tiles=CHAMPIONS.map(c=>{const own=mine.includes(c.id),ord=trio?S.team.indexOf(c.id):-1,on=trio?ord>=0:me.hero===c.id,foe=tc&&tc.id===c.id;return `<button class="v46-tile ${on?'on':''} ${own?'':'locked'} ${foe?'foe':''}" data-v45-hero="${c.id}" ${own&&!S.ready?'':'disabled'} aria-pressed="${on}" title="${esc(c.name)}${own?'':' · bloqueado'}" style="--hero:${c.color}"><img data-face="${c.id}" src="${esc(faceSrc(c.id))}" alt="">${ord>=0?`<b class="v46-ord">${ord+1}</b>`:''}${foe?'<i class="v46-foe-mark" aria-hidden="true">RIVAL</i>':''}</button>`}).join('');
  const spr=(id,cls='')=>`<canvas class="v46-sprite ${cls}" data-skin="${id}" width="200" height="200" aria-hidden="true"></canvas>`;
  // lado de cada jogador na sala de escolha (2×2): eu e meu parceiro à esquerda, os dois rivais à direita
  let chips;
  if(x2){const me0=sa.slot,foes=sa.ps.map((_,i)=>i).filter(i=>(i>>1)!==(me0>>1));
   chips=sideChip(me,true,S.ready)+sideChip(sa.ps[mateSlot],true,!!sa.ready[mateSlot],true)+sideChip(sa.ps[foes[0]],false,!!sa.ready[foes[0]])+sideChip(sa.ps[foes[1]],false,!!sa.ready[foes[1]],true)}
+ else if(trio){
+  const row=i=>{const id=S.team[i];return id!=null?`<div class="v46-trow"><i>${i+1}º</i><img src="${esc(faceSrc(id))}" alt=""><span>${esc(CHAMPIONS[id].name)}</span><em><button data-v45-mv="${i},-1" ${S.ready?'disabled':''} aria-label="Entra antes">◀</button><button data-v45-mv="${i},1" ${S.ready?'disabled':''} aria-label="Entra depois">▶</button></em></div>`:`<div class="v46-trow empty"><i>${i+1}º</i><span>— escolha —</span></div>`};
+  chips=`<div class="v46-trio ${S.ready?'ready':''}"><h3>SEU TIME · ordem de entrada</h3>${[0,1,2].map(row).join('')}</div>`+sideChip(th,false,S.theirReady)}
  else chips=sideChip(me,true,S.ready)+sideChip(th,false,S.theirReady);
  const secs=sa?Math.max(0,Math.ceil((sa.fim-Date.now())/1000)):0;
  const mid=x2?`<div class="v46-fighter blue"><i class="v46-plat"></i>${spr(mc.id)}</div>
@@ -345,7 +355,7 @@ function lobbyHtml(){
     <div class="v46-vs">${VS_SVG}<small>2×2</small></div>
     <div class="v46-fighter red"><i class="v46-plat"></i><span class="v46-q">?</span></div><div class="v46-fighter red"><i class="v46-plat"></i><span class="v46-q">?</span></div>`
   :`<div class="v46-fighter blue"><i class="v46-plat"></i>${spr(mc.id)}</div>
-    <div class="v46-vs">${VS_SVG}<small>1×1</small></div>
+    <div class="v46-vs">${VS_SVG}<small>${trio?'3×3':'1×1'}</small></div>
     <div class="v46-fighter red"><i class="v46-plat"></i>${tc?spr(tc.id,'flip'):'<span class="v46-q">?</span>'}</div>`;
  return `<div class="v46-sel" style="--me:${mc.color};--th:${tc?.color||'#e2264d'}">
   <div class="v46-stage">
@@ -356,7 +366,7 @@ function lobbyHtml(){
   </div>
   <div class="v46-names"><div class="v46-name blue">${esc(mc.name)}</div><div class="v46-hint">${srv?`<span class="v46-time">⏱ <b id="v45Qt">${secs} s</b></span>`:S.ready?'Esperando o amigo ficar pronto…':''}</div><div class="v46-name red">${tc?esc(tc.name):'? ? ?'}</div></div>
   <div class="v46-bottom"><span class="v45-ping">${svg('wifi')}<b id="v45Ping">${S.rtt==null?'…':S.rtt+' ms'}</b></span><div class="v46-grid" role="listbox" aria-label="Seu campeão">${tiles}</div>
-   <button class="v46-go ${S.ready?'cancel':''}" data-v45="ready" ${srv||th?'':'disabled'}>${S.ready?'CANCELAR':'PRONTO'}</button></div>
+   <button class="v46-go ${S.ready?'cancel':''}" data-v45="ready" ${(trio?S.team.length===3:(srv||th))?'':'disabled'}>${S.ready?'CANCELAR':trio&&S.team.length<3?S.team.length+'/3':'PRONTO'}</button></div>
  </div>`;
 }
 // bonecos animados em repouso (o mesmo desenho da seleção offline)
@@ -382,7 +392,7 @@ function playerCard(p,me,ready){
   <div class="v45-state">${ready?`${svg('check')} PRONTO`:'Escolhendo…'}</div></div>`;
 }
 function view(){
- const top=(title,back='home')=>`<header class="v43-top v45-top"><button class="v40-round v43-back" data-v45-back="${back}" aria-label="Voltar">${svg('back')}</button><b>${title}</b><span class="v45-tag">${S.mode==='server'&&S.modo==='2v2'?'2×2':'1×1'}</span></header>`;
+ const top=(title,back='home')=>`<header class="v43-top v45-top"><button class="v40-round v43-back" data-v45-back="${back}" aria-label="Voltar">${svg('back')}</button><b>${title}</b><span class="v45-tag">${S.mode==='server'&&S.modo==='2v2'?'2×2':S.mode==='server'&&S.modo==='trio'?'3×3':'1×1'}</span></header>`;
  const err=S.err?`<p class="v45-err" role="alert">${esc(S.err)}</p>`:'';
  const busy=S.busy?`<p class="v45-busy"><span class="v45-spin"></span>${esc(S.busy)}</p>`:'';
  switch(S.view){
@@ -419,7 +429,7 @@ function view(){
   ${S.answerCode?`<div class="v45-step"><span class="v45-num">2</span><b>Mostre este QR para o anfitrião</b><div class="v45-qr" id="v45Qr"></div><button class="v45-link" data-v45="copyAnswer">${svg('copy')}Sem câmera? Copiar código</button><p class="v45-wait"><span class="v45-dots"><i></i><i></i><i></i></span>Esperando o anfitrião ler…</p></div>`
   :`<div class="v45-step"><span class="v45-num">1</span><b>Leia o QR do anfitrião</b><div class="v45-scan" id="v45Scan"><button class="v45-btn blue" data-v45="scanOffer">${svg('cam')}Abrir câmera</button></div>
    <details class="v45-paste"><summary>Colar código</summary><textarea id="v45Paste" rows="3" placeholder="Cole aqui o código do anfitrião"></textarea><button class="v45-btn gold" data-v45="pasteOffer">Usar código</button></details></div>`}</div>`;
- case'lobby':return top(S.mode==='server'?(S.modo==='2v2'?'EQUIPES 2×2':'DUELO 1×1'):'SALA '+(S.mode==='near'?'PERTO':S.code),S.mode==='server'?'sair':'home')+(S.err?err:'')+lobbyHtml();
+ case'lobby':return top(S.mode==='server'?(S.modo==='2v2'?'EQUIPES 2×2':S.modo==='trio'?'TRIO DE CAMPEÕES':'DUELO 1×1'):'SALA '+(S.mode==='near'?'PERTO':S.code),S.mode==='server'?'sair':'home')+(S.err?err:'')+lobbyHtml();
  case'count':return `<div class="v45-count"><span>A luta começa em</span><b id="v45Count">3</b></div>`;
  case'wait':return `<div class="v45-count"><span class="v45-spin"></span><span>Entrando na arena…</span></div>`;
  case'stage2':return top('SALA '+(S.mode==='near'?'PERTO':S.code),'lobby')+`<div class="v45-body v45-center">
@@ -457,6 +467,7 @@ function bind(el){
  el.addEventListener('click',async e=>{
   const b=e.target.closest('button');if(!b||b.disabled)return;
   if(b.dataset.v45Back){const to=b.dataset.v45Back;if(to==='sair')return cancelar();if(to==='close')return close();if(to==='lobby')return go('lobby');cleanup();S.err='';return go(to)}
+  if(b.dataset.v45Mv){const [i,d]=b.dataset.v45Mv.split(',').map(Number);return moveTeam(i,d)}
   if(b.dataset.v45Hero!=null)return pick(+b.dataset.v45Hero);
   const a=b.dataset.v45;if(!a)return;
   S.err='';

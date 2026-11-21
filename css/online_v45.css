@@ -178,3 +178,15 @@ body.v46-match #pauseBtn{display:none!important}
 .v46-chip.up{bottom:58px}
 @media (max-height:430px){.v46-chip.up{bottom:50px}.v46-time{font-size:11px;padding:1px 8px}}
 .v46-mid.x2 .v46-vs{width:clamp(80px,15vh,140px);height:clamp(80px,15vh,140px)}
+
+/* Trio de Campeões: time de 3 na sala de escolha */
+.v46-trio{position:absolute;left:max(10px,env(safe-area-inset-left));bottom:6px;width:min(34%,250px);background:rgba(10,18,55,.86);border:2px solid rgba(255,212,90,.6);border-radius:14px;padding:5px 8px 6px;z-index:2}
+.v46-trio.ready{border-color:#9df07a;box-shadow:0 0 16px rgba(157,240,122,.55)}
+.v46-trio h3{margin:0 0 3px;font-size:9px;letter-spacing:.08em;color:#ffe7a3;font-weight:900}
+.v46-trow{display:flex;align-items:center;gap:6px;height:30px;font-size:12px;font-weight:800}
+.v46-trow i{font-style:normal;color:#ffd45a;font-weight:900;width:20px}
+.v46-trow img{width:26px;height:26px;border-radius:8px;object-fit:cover;border:1.5px solid #ffd45a;flex:none}
+.v46-trow span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.v46-trow.empty{opacity:.55}
+.v46-trow em{display:flex;gap:2px}.v46-trow em button{width:24px;height:24px;border-radius:7px;border:0;background:#2a4aa8;color:#fff;font-size:11px;font-weight:900;padding:0}.v46-trow em button:disabled{opacity:.35}
+.v46-ord{position:absolute;top:2px;left:2px;min-width:16px;height:16px;border-radius:8px;background:#ffd45a;color:#3b2100;font:900 11px/16px system-ui;text-align:center}
+@media (max-height:430px){.v46-trow{height:26px;font-size:11px}.v46-trow img{width:22px;height:22px}.v46-trio{padding:3px 6px 4px}.v46-trio h3{font-size:8px}}
