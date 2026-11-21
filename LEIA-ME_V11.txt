@@ -434,3 +434,7 @@ SERVIDOR DE PARTIDAS (v49) — servidor/ (ver servidor/LEIA-ME.md), js/config_se
 - Correção no cliente (vale também para a sala entre amigos): durante o K.O. da rodada o estado do servidor fica congelado no cliente,
   para o placar sair da vida do "end" e não de um estado novo que chegue antes (antes isso podia virar "empate" e repetir a rodada).
 - Medido: 24 partidas = 1,2 núcleo e ~2,5 GB; o limite é a memória (~90 MB por partida).
+
+IMPLANTAÇÃO (Hostinger VPS) — servidor/implantar/: Dockerfile + docker-compose.yml (servidor + Caddy com HTTPS/wss automático), instalar.sh
+(Docker, firewall, atualizações automáticas, limite de partidas pela memória), atualizar.sh e LEIA-ME.md (passo a passo). Testado aqui: sintaxe dos
+scripts, compose válido, servidor rodando só com index.html + js/ + servidor/. NÃO testado: construção da imagem e instalação numa máquina de verdade.
