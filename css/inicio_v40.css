@@ -117,7 +117,7 @@ body.v40-on #lobbyNav,body.v40-on #backHome,body.v40-modes-open #lobbyNav,body.v
 @keyframes v41flick{0%,100%{opacity:.85;scale:1}40%{opacity:1;scale:1.08}55%{opacity:.7;scale:.96}70%{opacity:.95;scale:1.03}}
 .v40-home[data-motion=off] .v41-lamp,body:not(.v40-motion) .v41-lamp{animation:none}
 /* campeão maior, sobre o emblema, com pedestal de luz */
-.v40-stage.v41-stage{left:50%;top:70%;width:min(62vh,420px);transform:translate(-50%,-78%);pointer-events:none}
+.v40-stage.v41-stage{left:50%;top:70%;width:min(46vh,280px);transform:translate(-50%,-78%);pointer-events:none}
 .v41-pedestal{position:absolute;left:50%;bottom:20%;width:56%;aspect-ratio:3.2;transform:translate(-50%,50%);pointer-events:none}
 .v41-pedestal i{position:absolute;inset:0;border-radius:50%}
 .v41-pedestal i:first-child{background:radial-gradient(ellipse,rgba(255,236,170,.6),rgba(255,200,90,.22) 45%,transparent 70%)}
@@ -177,3 +177,21 @@ body.v40-on #lobbyNav,body.v40-on #backHome,body.v40-modes-open #lobbyNav,body.v
 .v41-league b{color:#fff}.v41-league small{color:#ffe7a3!important;opacity:1!important}.v41-league .v40-bar{background:rgba(0,0,0,.3)}
 .v41-event{background:linear-gradient(180deg,#e0564d,#a3263a)!important;color:#fff!important;border:2px solid #ffd45a}
 .v41-event>small{color:#ffe7a3!important}.v41-event>b{color:#fff}.v41-event>em{color:#fff;opacity:.9!important}
+
+/* v41.3 — PC: campeão menor (a arte tem 440 px e ficava esticada, borrada), menu no estilo azul/dourado, cartão de modo colorido, teclas e brilho ao passar o mouse */
+.v41-menu{background:linear-gradient(180deg,#3b6fd6,#24408f)!important;color:#fff!important;border:2px solid #ffd45a}
+.v41-menu .v40i{color:#fff}
+.v40-mode{background:linear-gradient(180deg,#3b6fd6,#24408f)!important;color:#fff;border:2px solid #ffd45a!important;border-left:6px solid var(--cat)!important}
+.v40-mode .v40-mode-txt small{color:#ffe7a3;filter:none}.v40-mode .v40-mode-txt em{color:#fff;opacity:.88}.v40-mode-chev .v40i{color:#fff;opacity:.8}
+.v40-mode .v40-mode-art{border:2px solid #ffd45a}
+.v41-key{display:none}
+@media (hover:hover) and (pointer:fine){
+ .v41-key{display:grid;place-items:center;position:absolute;min-width:20px;height:20px;padding:0 5px;border-radius:6px;background:rgba(15,20,50,.82);color:#ffe7a3;border:1px solid #ffd45a;font:900 11px/1 system-ui,sans-serif;text-transform:uppercase;pointer-events:none;z-index:3}
+ .v41-side button .v41-key{top:2px;left:2px}
+ .v41-key-play{left:50%;top:-11px;transform:translateX(-50%);font-size:10px}
+ .v40-play,.v40-mode,.v41-menu,.v41-side button,.v40-chip,.v40-cur,.v41-event,.v41-gift{transition:transform .12s,filter .12s}
+ .v40-play:hover,.v40-mode:hover,.v41-menu:hover,.v40-chip:hover,.v40-cur:hover,.v41-event:hover,.v41-gift:hover{filter:brightness(1.12) drop-shadow(0 0 10px rgba(255,214,110,.75));transform:translateY(-2px)}
+ .v41-side button:hover{filter:brightness(1.12) drop-shadow(0 0 10px rgba(255,214,110,.75))}
+ .v41-side button:hover .v41-ico{transform:translateY(-3px)}
+ .v40-home button:focus-visible{outline:3px solid #fff;outline-offset:3px}
+}
