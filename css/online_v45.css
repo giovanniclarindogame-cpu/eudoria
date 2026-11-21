@@ -175,8 +175,8 @@ body.v46-match #pauseBtn{display:none!important}
 .v46-mid.x2 .v46-q{font-size:44px}
 
 .v46-time{display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:900;color:#ffe7a3;background:rgba(10,18,55,.7);border:2px solid rgba(255,212,90,.6);border-radius:12px;padding:2px 10px}
-.v46-chip.up{bottom:58px}
-@media (max-height:430px){.v46-chip.up{bottom:50px}.v46-time{font-size:11px;padding:1px 8px}}
+.v46-chip.up1{bottom:58px}.v46-chip.up2{bottom:110px}
+@media (max-height:430px){.v46-chip.up1{bottom:50px}.v46-chip.up2{bottom:94px}.v46-time{font-size:11px;padding:1px 8px}}
 .v46-mid.x2 .v46-vs{width:clamp(80px,15vh,140px);height:clamp(80px,15vh,140px)}
 
 /* Trio de Campeões: time de 3 na sala de escolha */

@@ -35,21 +35,25 @@ function begin(role,m){
  // 2×2 (só pelo servidor): 4 jogadores. slots 0 e 1 = equipe 0, slots 2 e 3 = equipe 1
  const x2=role==='guest'&&m.modo==='2v2'&&Array.isArray(m.hs)&&m.hs.length===4&&m.hs.every(ok)&&m.slot>=0&&m.slot<4;
  // Trio de Campeões (só pelo servidor): cada jogador leva um time de 3 e lutam um contra um, quem vence continua
+ // Disputa da Coroa (só pelo servidor): 4 jogadores, cada um por si; eu sou sempre o "p" e os outros três são b, c e d
+ const ffa=role==='guest'&&m.modo==='coroa'&&Array.isArray(m.hs)&&m.hs.length===4&&m.hs.every(ok)&&m.slot>=0&&m.slot<4;
  const trio=role==='guest'&&m.modo==='trio'&&Array.isArray(m.teams)&&m.teams.length===2&&m.teams.every(t=>Array.isArray(t)&&t.length===3&&t.every(ok))&&(m.slot===0||m.slot===1);
- const mine=x2?m.hs[m.slot]:trio?m.teams[m.slot][0]:(role==='host'?m.hh:m.gh),foe=trio?m.teams[1-m.slot][0]:role==='host'?m.gh:m.hh;
- if(!ok(mine)||(!x2&&!ok(foe)))return;
+  const mine=(x2||ffa)?m.hs[m.slot]:trio?m.teams[m.slot][0]:(role==='host'?m.hh:m.gh),foe=trio?m.teams[1-m.slot][0]:role==='host'?m.gh:m.hh;
+ if(!ok(mine)||(!x2&&!ffa&&!ok(foe)))return;
  const ov=$q('#onlineV45');if(ov)ov.hidden=true;document.body.classList.remove('v45-open');
- Object.assign(M,{rem:[],bySlot:{},x2,freeze:false,mv:0,slot:x2?m.slot:role==='guest'?(m.slot===0?0:1):0,on:true,role,roundDone:false,force:false,target:null,snapT:0,inT:0,input:{x:0,y:0,l:0,a:0,g:0},acts:0});
+ Object.assign(M,{rem:[],bySlot:{},x2,ffa,multi:x2||ffa,freeze:false,mv:0,slot:(x2||ffa)?m.slot:role==='guest'?(m.slot===0?0:1):0,on:true,role,roundDone:false,force:false,target:null,snapT:0,inT:0,input:{x:0,y:0,l:0,a:0,g:0},acts:0});
  document.body.classList.add('v46-match');
  try{equipChampion(mine,false)}catch{}
  // tela de carregamento: baixa e aquece os dois campeões; cada lado avisa "pronto" e a luta só começa quando os dois estão prontos
  if(window.Carregamento){Carregamento.opcoes={esperar:true};Carregamento.aoPreparar=()=>{O.send({t:'pronto'})}}
  const R=Math.random;Math.random=rng(m.seed);
  const modo=x2?'2v2':'1v1';
+ if(ffa)V3Modes.pending='crown';
  if(trio)V3Modes.pending='kof';   // série de 3 lutas: o duelo em rounds não entra junto
  try{lobbyPrefs.mode=modo;queueMatch(modo)}catch(e){console.error('[Eldoria online] início',e)}finally{Math.random=R}
  if(!p||!b||state==='select'){M.on=false;document.body.classList.remove('v46-match');try{toast('Não foi possível começar a luta.')}catch{}return backToLobby(false)}
  if(x2)return begin2(m);
+ if(ffa)return beginFfa(m);
  try{V3Modes.swapHero(b,foe,1000)}catch{}
  p.label=S.me?.name||'Você';b.label=S.them?.name||'Rival';
  if(role==='guest'&&m.slot!==0){const x=p.x,y=p.y;p.x=b.x;p.y=b.y;b.x=x;b.y=y;const a=p.a;p.a=b.a;b.a=a}
@@ -61,6 +65,15 @@ function begin(role,m){
 }
 // 2×2: o jogo local tem [p, b, aliado, rival 2]. Aqui eu sou sempre o "p"; meu parceiro é o aliado; os dois adversários são b e o rival 2.
 // Cada um é colocado no lugar do jogador do servidor que ele representa (os slots 0,1 ficam à esquerda e os 2,3 à direita).
+// Disputa da Coroa: V3Crown.setup coloca cada um no canto da sua vaga; as regras (coroa, quedas, tempo) vêm do servidor
+function beginFfa(m){
+ const s=m.slot,others=[0,1,2,3].filter(x=>x!==s),slots=[s,...others],ps=Array.isArray(m.ps)?m.ps:[];
+ const names=[0,1,2,3].map(i=>String(ps[i]?.name||'Jogador').slice(0,16));
+ let P;try{P=V3Crown.setup(m.hs,names,slots,{guest:true})}catch(e){console.error('[Eldoria online] coroa',e);return}
+ M.remote=null;M.host=M.guest=null;
+ for(let i=1;i<4;i++){const E={a:P[i],slot:slots[i],target:null,mv:0,pred:[]};M.rem.push(E);M.bySlot[slots[i]]=E}
+ try{V3Modes.rebuildPlayerUI()}catch{}
+}
 function begin2(m){
  const s=m.slot,mate=s^1,en=s<2?[2,3]:[0,1],ps=Array.isArray(m.ps)?m.ps:[];
  const ally=actors[2],rival=actors[3];
@@ -148,14 +161,19 @@ function applySnap(m){
  if(state==='count'&&Number.isFinite(m.c))count=m.c;
  if(Number.isFinite(m.tm))time=m.tm;
  applyAll(m);
+ if(m.cw&&window.V3Crown)V3Crown.applyServer(m.cw);
 }
 function applyAll(m){
- if(M.x2){if(Array.isArray(m.a))m.a.forEach((d,i)=>{if(i===M.slot)apply(p,d,true);else{const E=M.bySlot[i];if(E)apply(E.a,d,false)}});return}
+ if(M.multi){if(Array.isArray(m.a))m.a.forEach((d,i)=>{if(i===M.slot)apply(p,d,true);else{const E=M.bySlot[i];if(E)apply(E.a,d,false)}});return}
  apply(M.host,m.h,false);apply(M.guest,m.g,true);
 }
 function apply(a,d,local){
  if(!a||!d)return;
  const E=local?null:M.rem.find(e=>e.a===a);
+ if(M.ffa){   // quem caiu volta ao seu canto: tira o estado de "caído" do boneco
+  if(a.v46dead&&d.hp>0){a.v46dead=false;try{V3Modes.resetFighter(a,{keepHp:true})}catch{}}
+  if(d.hp<=0)a.v46dead=true;
+ }
  if(local)a.hp=d.hp;
  else{const now=performance.now(),win=(S.rtt||100)+140,pr=E?(E.pred=E.pred.filter(e=>now-e.t<win)):[];const pend=pr.reduce((n,e)=>n+e.d,0);a.hp=d.hp<=0?0:Math.max(1,d.hp-pend)}
  a.max=d.mx||a.max;a.st=d.st;
@@ -185,6 +203,10 @@ function smoothRemote(E,dt){
 // início de cada rodada: cada um no seu lado e virado para o rival (o jogo reinicia assumindo "eu à esquerda, olhando para a direita")
 function fixRound(){
  if(state!=='count'||!p||!b)return;
+ if(M.ffa){   // todos contra todos: cada um encara o mais perto
+  for(const a of V3Crown.state.players){const f=V3Crown.state.players.filter(e=>e!==a).sort((u,v)=>Math.hypot(u.x-a.x,u.y-a.y)-Math.hypot(v.x-a.x,v.y-a.y))[0];if(f)a.a=Math.atan2(f.y-a.y,f.x-a.x)}
+  return;
+ }
  if(M.x2&&M.L4){
   const [P,A,B,R]=M.L4;
   if(M.slot>=2?P.x<B.x:P.x>B.x){for(const [u,v] of [[P,B],[A,R]]){const x=u.x,y=u.y;u.x=v.x;u.y=v.y;v.x=x;v.y=y}for(const E of M.rem)E.target=null}
@@ -286,7 +308,7 @@ const LBL={rematch:['Jogar novamente','Revanche · voltar à sala','Procurar out
 function labels(online){const k=online?(S.mode==='server'?2:1):0;for(const [id,t] of Object.entries(LBL)){const el=document.getElementById(id);if(el&&el.textContent!==t[k])el.textContent=t[k]}}
 function stopMatch(){
  labels(false);try{if(window.Carregamento){Carregamento.cancelar();Carregamento.aoPreparar=null}}catch{}
- M.on=false;M.freeze=false;Q.length=0;HIST.length=0;delayedMove=null;M.remote=M.host=M.guest=M.target=M.L4=null;M.rem=[];M.bySlot={};M.x2=false;document.body.classList.remove('v46-match');
+ M.on=false;M.freeze=false;Q.length=0;HIST.length=0;delayedMove=null;M.remote=M.host=M.guest=M.target=M.L4=null;M.rem=[];M.bySlot={};M.x2=false;M.ffa=false;M.multi=false;document.body.classList.remove('v46-match');
  try{$q('#outcome').style.display='none'}catch{}
  try{leave()}catch{try{state='select';$q('#battle').style.display='none'}catch{}}
 }
@@ -307,8 +329,8 @@ function onMsg(m){
   case'in':if(M.on&&M.role==='host')M.input={x:+m.x||0,y:+m.y||0,l:+m.l||0,a:+m.a||0,g:m.g?1:0};break;
   case'snap':if(M.on&&M.role==='guest')applySnap(m);break;
   case'act':if(M.on)doAct(m);break;
-  case'end':if(M.role==='guest')endGuest(m);break;
-  case'over':break;
+  case'end':if(M.role==='guest'&&!M.ffa)endGuest(m);break;
+  case'over':if(M.on&&M.ffa&&window.V3Crown)V3Crown.finishOnline(m);break;
   case'pronto':if(M.role==='host'&&window.Carregamento)Carregamento.liberar();break;   // sala entre amigos: o anfitrião só começa quando o convidado terminou de carregar
  }
 }

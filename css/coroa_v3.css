@@ -14,3 +14,14 @@
 .cs-card.dead{opacity:.5;filter:grayscale(.8)}
 .cs-card.dead .cs-out{display:grid}
 body[data-crown] #battle .hud .fighterhud.enemy,body[data-crown] #battle .hud .mini-card{display:none!important}
+
+/* v57 — 4 cartões (você + 3 rivais), dono da coroa em destaque */
+.cs-card{border-color:var(--cc,#ee7c7c)!important;width:clamp(78px,11.5vw,116px)!important;height:58px!important}
+.cs-card .cs-bar i{background:var(--cc,#ee5c5c)!important}
+.cs-body{align-content:center}
+.cs-time{font:800 9px system-ui;color:#ffe7a3;font-style:normal;white-space:nowrap}
+.cs-crown{display:none;position:absolute;top:-9px;left:50%;transform:translateX(-50%);width:26px;height:20px;filter:drop-shadow(0 0 6px #ffd45a)}
+.cs-crown svg{width:100%;height:100%;display:block}
+.cs-card.holder{box-shadow:0 0 0 2px #ffd45a,0 0 16px #ffd45acc;background:#3a2a08f0}
+.cs-card.holder .cs-crown{display:block}
+.cs-card.dead .cs-time{color:#ff9d9d}
