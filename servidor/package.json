@@ -1,0 +1,6 @@
+{
+  "name": "eldoria-servidor",
+  "private": true,
+  "description": "Experimentos do servidor de partidas: roda o jogo atual sem tela, em Node (jsdom).",
+  "dependencies": { "jsdom": "^24.1.3" }
+}
