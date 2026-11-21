@@ -13,7 +13,7 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
    modeName:document.querySelector('.v40-mode-txt b')?.textContent}});
  ok(home.full&&home.nav==='none',`${tag} início novo ocupa a tela e esconde o menu lateral antigo`);
  ok(home.play&&home.mode&&home.side&&home.top&&home.hero,`${tag} JOGAR, cartão do modo, atalhos, moedas e campeão animado visíveis`);
- ok(home.modeName==='Liga 1×1',`${tag} modo padrão: ${home.modeName}`);
+ ok(home.modeName==='Duelo 1×1',`${tag} modo padrão: ${home.modeName}`);
  await pg.waitForTimeout(800);
  const cena=await pg.evaluate(()=>{const imgs=[...document.querySelectorAll('.v41-scene img')],bg=['.v41-far','.v41-wall','.v41-front-l'].map(q=>getComputedStyle(document.querySelector(q)).backgroundImage);
   const m=document.querySelector('.v41-mark').getBoundingClientRect(),st=document.querySelector('.v41-stage .v40-hero-wrap').getBoundingClientRect(),play=document.querySelector('[data-v40-play]').getBoundingClientRect();
@@ -25,16 +25,13 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  ok(cena.badges.missoes&&cena.badges.plus===2&&cena.badges.gift&&cena.badges.evento&&/pts até/.test(cena.badges.liga||''),`${tag} selos, "+" nas moedas, presente, Caçada do dia e liga com pontos (${cena.badges.liga})`);
  await pg.click('[data-v40-modes]');await pg.waitForTimeout(300);
  const m=await pg.evaluate(()=>{const s=document.querySelector('#v40Modes .v40-strip');return{open:!!s&&!document.querySelector('#v40Modes').hidden,overflow:s.scrollWidth>s.clientWidth,cards:document.querySelectorAll('[data-v40-pick]').length,tabs:document.querySelectorAll('[data-v40-tab]').length}});
- ok(m.open&&m.cards>=14&&m.tabs===4&&m.overflow,`${tag} tela de modos: ${m.cards} cartões, 4 abas e rolagem lateral`);
- await pg.click('[data-v40-tab="desafio"]');await pg.waitForTimeout(700);
- const sc=await pg.evaluate(()=>{const s=document.querySelector('#v40Modes .v40-strip'),g=s.querySelector('[data-cat="desafio"]');return{left:s.scrollLeft,g:Math.min(g.offsetLeft-8,s.scrollWidth-s.clientWidth),on:document.querySelector('[data-v40-tab].on')?.dataset.v40Tab}});
- ok(sc.left>0&&Math.abs(sc.left-sc.g)<40&&sc.on==='desafio',`${tag} aba Desafios leva até a seção (${Math.round(sc.left)})`);
- if(!touch){   // arrastar com o mouse
-  const box=await pg.locator('#v40Modes .v40-strip').boundingBox();const before=await pg.evaluate(()=>document.querySelector('#v40Modes .v40-strip').scrollLeft);
-  await pg.mouse.move(box.x+box.width*.3,box.y+box.height*.5);await pg.mouse.down();await pg.mouse.move(box.x+box.width*.7,box.y+box.height*.5,{steps:8});await pg.mouse.up();
-  const after=await pg.evaluate(()=>document.querySelector('#v40Modes .v40-strip').scrollLeft);
-  ok(Math.abs(after-before)>100,`${tag} arrastar com o mouse rola os modos (${Math.round(before)} → ${Math.round(after)})`);
- }
+ const lk=await pg.evaluate(()=>({cards:[...document.querySelectorAll('[data-v40-pick]')].map(b=>b.dataset.v40Pick),locked:[...document.querySelectorAll('[data-v40-tab].locked')].map(b=>b.dataset.v40Tab),on:document.querySelector('[data-v40-tab].on')?.dataset.v40Tab}));
+ ok(m.open&&m.tabs===4&&lk.cards.join()==='duelo,equipes,trio,coroa,zona'&&lk.locked.join()==='rank,desafio'&&lk.on==='casual',`${tag} tela de modos mostra só o Casual (${lk.cards.length} cartões); Ranqueado e Desafios bloqueados na barra`);
+ await pg.click('[data-v40-tab="desafio"]',{force:true});await pg.waitForTimeout(300);
+ ok(await pg.evaluate(()=>document.querySelector('[data-v40-tab].on')?.dataset.v40Tab==='casual'&&!document.querySelector('[data-v40-pick="cacada"]')),`${tag} tocar em Desafios (bloqueado) não troca de grupo`);
+ await pg.click('[data-v40-tab="treino"]');await pg.waitForTimeout(300);
+ ok(await pg.evaluate(()=>[...document.querySelectorAll('[data-v40-pick]')].map(b=>b.dataset.v40Pick).join()==='dojo'&&!document.querySelector('[data-v40-pick="duelo"]')),`${tag} aba Treino mostra só o Dojo (nada de outro grupo nos cantos)`);
+ await pg.click('[data-v40-tab="casual"]');await pg.waitForTimeout(300);
  await pg.evaluate(()=>document.querySelector('[data-v40-pick="duelo"]').scrollIntoView({inline:'center'}));
  await pg.click('[data-v40-pick="duelo"]');await pg.waitForTimeout(400);
  const back=await pg.evaluate(()=>({closed:document.querySelector('#v40Modes').hidden,name:document.querySelector('.v40-mode-txt b')?.textContent,saved:account.v40Mode}));
@@ -43,7 +40,7 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
   return{on:on?.dataset.v40Pick,check:!!on?.querySelector('.v43-check'),play:document.querySelector('[data-v43-play] small')?.textContent,reward:document.querySelectorAll('.v43-reward').length,rank:document.querySelectorAll('.v43-rank').length,
    soonLast:st.querySelector('.v40-group:last-child')?.dataset.cat,tabIcons:document.querySelectorAll('.v43-tabs .v40i').length,home:!!document.querySelector('#v40Modes [aria-label="Início"]'),scrollbar:getComputedStyle(st).scrollbarWidth,left:first.left}});
  ok(v43.on==='duelo'&&v43.check&&v43.play==='Duelo 1×1',`${tag} cartão escolhido em destaque e JOGAR da tela de modos mostra o modo`);
- ok(v43.reward>=12&&v43.rank===4&&v43.soonLast==='breve'&&v43.tabIcons===4&&!v43.home&&v43.scrollbar==='none',`${tag} recompensas, rank das 4 ligas, "em breve" no fim, abas com ícone, sem barra de rolagem`);
+ ok(v43.reward>=4&&v43.rank===0&&v43.soonLast==='casual'&&v43.tabIcons===4&&!v43.home,`${tag} recompensas, sem cartões de liga, abas com ícone`);
  await pg.click('#v40Modes [data-v40-close]');await pg.waitForTimeout(300);
  const back2=await pg.evaluate(()=>({closed:document.querySelector('#v40Modes').hidden,name:document.querySelector('.v40-mode-txt b')?.textContent}));
  ok(back2.closed&&back2.name==='Duelo 1×1',`${tag} voltar mostra o modo escolhido no início`);
@@ -52,15 +49,15 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  ok(await pg.evaluate(()=>!document.querySelector('#v40Modes').hidden&&account.v40Mode==='duelo'),`${tag} modo "em breve" não é escolhido`);
  await pg.click('#v40Modes [data-v40-close]');await pg.waitForTimeout(200);
  await pg.click('[data-v40-play]');await pg.waitForTimeout(600);
- const play=await pg.evaluate(()=>({kof:!!document.querySelector('.kx')&&!document.querySelector('#modeScreen').hidden,mode:lobbyPrefs.mode}));
- ok(play.kof&&play.mode==='1v1',`${tag} JOGAR com Duelo 1×1 abre a escolha de campeão do duelo`);
+ const play=await pg.evaluate(()=>({sel:!document.querySelector('#onlineV45').hidden&&!!document.querySelector('.v46-sel')&&!document.querySelector('[data-v45="create"]')}));
+ ok(play.sel,`${tag} JOGAR com Duelo 1×1 vai direto para a seleção de campeão online (sem menu de sala)`);
  // recarregar mantém o modo
  await pg.evaluate(()=>{try{saveAccount()}catch{}});await pg.reload();await pg.waitForTimeout(2500);
  const kept=await pg.evaluate(()=>{document.querySelector('#welcomeEnter')?.click();return true});await pg.waitForTimeout(1800);
  ok(await pg.evaluate(()=>account.v40Mode==='duelo'),`${tag} o modo escolhido continua salvo depois de recarregar`);
  // outros modos abrem sem erro
- const opened=await pg.evaluate(async()=>{const r={};for(const id of ['liga1','equipes','trio','coroa','cacada','torneio','dojo']){showScreen('home');InicioV40.choose(id);try{InicioV40.play();r[id]=true}catch(e){r[id]=e.message}await new Promise(z=>setTimeout(z,150))}showScreen('home');return r});
- ok(Object.values(opened).every(v=>v===true),`${tag} Liga, Equipes, Trio, Coroa, Caçada, Torneio e Dojo abrem pelo JOGAR (${JSON.stringify(opened)})`);
+ const opened=await pg.evaluate(async()=>{const r={};const bloq={};for(const id of ['liga1','liga2','cacada','torneio'])bloq[id]=InicioV40.choose(id);r.bloqueados=Object.values(bloq).every(v=>v===false);for(const id of ['equipes','trio','coroa','dojo']){showScreen('home');InicioV40.choose(id);try{InicioV40.play();r[id]=true}catch(e){r[id]=e.message}await new Promise(z=>setTimeout(z,150))}showScreen('home');return r});
+ ok(Object.values(opened).every(v=>v===true),`${tag} Ranqueado e Desafios não podem ser escolhidos; Equipes, Trio, Coroa e Dojo abrem pelo JOGAR (${JSON.stringify(opened)})`);
  ok(errs.length===0,`${tag} sem erros de JavaScript `+errs.slice(0,3));
  await pg.close();}
  await br.close();

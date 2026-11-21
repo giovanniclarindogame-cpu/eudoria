@@ -16,11 +16,9 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
   await pg.evaluate(()=>document.querySelector('#ljModal')?.remove());return pg;
  }
  const A=await player('Ana',844,390),B=await player('Beto',1280,720);
- // abre pelo cartão "Online com amigo" na tela de modos
- await A.click('[data-v40-modes]');await A.waitForTimeout(400);
- await A.evaluate(()=>document.querySelector('[data-v40-pick="online"]').scrollIntoView({inline:'center'}));await A.click('[data-v40-pick="online"]');await A.waitForTimeout(200);
- await A.click('[data-v43-play]');await A.waitForTimeout(500);
- ok(await A.evaluate(()=>!document.querySelector('#onlineV45').hidden&&document.querySelectorAll('[data-v45="create"],[data-v45="join"],[data-v45="near"]').length===3),'cartão Online abre a tela com Criar sala, Entrar na sala e Jogar perto');
+ // a tela de salas entre amigos continua existindo por dentro (OnlineV45.open), mas não tem mais cartão: o Duelo 1×1 vai direto à seleção
+ await A.evaluate(()=>OnlineV45.open());await A.waitForTimeout(500);
+ ok(await A.evaluate(()=>!document.querySelector('#onlineV45').hidden&&document.querySelectorAll('[data-v45="create"],[data-v45="join"],[data-v45="near"]').length===3),'a tela com Criar sala, Entrar na sala e Jogar perto abre');
  await A.click('[data-v45="create"]');
  await A.waitForFunction(()=>OnlineV45.state.code.length===5,null,{timeout:10000});
  const code=await A.evaluate(()=>OnlineV45.state.code);
