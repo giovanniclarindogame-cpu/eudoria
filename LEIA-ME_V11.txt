@@ -423,3 +423,6 @@ CRUZADA v49 — cenários pintados (assets/cruzada_v49/<chefe>.webp, 2048×512, 
 - Chão da imagem (abaixo de 46% da altura) esticado na faixa de luta (y 189 → beirada); paisagem (acima de 46%) na mesma escala,
   apoiada na linha do chão; repetidos lado a lado com emenda suavizada (64 colunas misturadas). Beirada e primeiro plano escuro
   continuam por código. Se a imagem não carregar, fica o cenário antigo por código.
+
+SERVIDOR (experimento) — servidor/ : roda o jogo atual sem tela em Node + jsdom. Resultados em servidor/LEIA-ME.md
+(12 MB e ~2% de um núcleo por partida; 40 partidas em 4 núcleos a 30 ticks/s; os 10 heróis lutam sem erro). Ainda sem rede/contas.
