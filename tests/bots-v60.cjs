@@ -59,7 +59,7 @@ const PORT=8797,SRV='ws://localhost:'+PORT;
  const q=await Promise.all([P1,P2].map(pg=>pg.evaluate(()=>({me:[p.x,p.y],riv:[b.x,b.y]}))));
  ok(Math.hypot(q[0].me[0]-q[1].riv[0],q[0].me[1]-q[1].riv[1])<30&&Math.hypot(q[1].me[0]-q[0].riv[0],q[1].me[1]-q[0].riv[1])<30,'as duas telas voltam a mostrar os lutadores nos mesmos lugares');
  // quem voltou controla: anda e o outro vê
- const y0=await P1.evaluate(()=>b.y);await P2.evaluate(()=>{joy={x:0,y:1}});await sleep(900);await P2.evaluate(()=>{joy={x:0,y:0}});await sleep(500);
+ const y0=await P1.evaluate(()=>b.y);await P2.evaluate(()=>{joy={x:0,y:(p.y<H/2?1:-1)}});await sleep(900);await P2.evaluate(()=>{joy={x:0,y:0}});await sleep(500);
  const y1=await P1.evaluate(()=>b.y);ok(Math.abs(y1-y0)>40,`quem voltou controla o campeão de novo (o outro viu ele andar ${Math.round(Math.abs(y1-y0))} px)`);
  await c1.close();await c2.close();
 
