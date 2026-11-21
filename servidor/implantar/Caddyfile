@@ -1,0 +1,5 @@
+# Caddy: pega o certificado HTTPS sozinho (Let's Encrypt) e repassa as conexões WebSocket para o servidor.
+{$DOMINIO} {
+	encode zstd gzip
+	reverse_proxy servidor:8787
+}

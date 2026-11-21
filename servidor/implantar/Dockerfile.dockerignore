@@ -1,0 +1,7 @@
+**
+!index.html
+!js
+!servidor
+js/lib
+servidor/node_modules
+servidor/implantar
