@@ -202,7 +202,7 @@ const ZorvathSprite=(()=>{
  /* ---------- contorno e cache ---------- */
  const cache=new Map();let external=null;
  function outline(c){
-  const g=c.getContext('2d'),w=c.width,h=c.height,im=g.getImageData(0,0,w,h),d=im.data,out=new Uint8ClampedArray(d);
+  const g=c.getContext('2d',{willReadFrequently:true}),w=c.width,h=c.height,im=g.getImageData(0,0,w,h),d=im.data,out=new Uint8ClampedArray(d);
   for(let y=0;y<h;y++)for(let x=0;x<w;x++){
    const i=(y*w+x)*4;if(d[i+3]>40)continue;
    const n=(x>0&&d[i-4+3]>40)||(x<w-1&&d[i+4+3]>40)||(y>0&&d[i-w*4+3]>40)||(y<h-1&&d[i+w*4+3]>40);

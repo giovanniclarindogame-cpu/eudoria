@@ -9,7 +9,7 @@ const hunter32Registrations=new Map();
 function hunter32Register(adult=false){
  const key=adult?'adult':'body';if(hunter32Registrations.has(key))return hunter32Registrations.get(key);
  const im=adult?HUNTER32_ADULT:HUNTER32_BODY;if(!im.complete||!im.naturalWidth)return null;
- const c=document.createElement('canvas');c.width=1254;c.height=adult?836:1254;const g=c.getContext('2d');g.drawImage(im,0,0);
+ const c=document.createElement('canvas');c.width=1254;c.height=adult?836:1254;const g=c.getContext('2d',{willReadFrequently:true});g.drawImage(im,0,0);
  const d=g.getImageData(0,0,c.width,209).data;let top=209,bottom=-1;
  for(let y=0;y<209;y++)for(let x=0;x<209;x++)if(d[(y*1254+x)*4+3]>170){top=Math.min(top,y);bottom=Math.max(bottom,y);}
  if(bottom<0)return null;const reg={height:bottom-top+1};hunter32Registrations.set(key,reg);return reg;

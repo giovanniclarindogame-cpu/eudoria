@@ -7,11 +7,11 @@ const fs = require('fs'), path = require('path');
 const { load } = require('./carregador.cjs');
 const HOST = fs.readFileSync(path.join(__dirname, 'anfitriao.js'), 'utf8');
 const DT = 1 / 30, PERIODO = 1000 / 30;
-let g = null, w = null, timer = null, rodando = false, over = false;
+let g = null, w = null, timer = null, rodando = false, over = false, criada = false;
 const st = { ticks: 0, tarde: 0, soma: 0, max: 0 };
 
 async function preparar() {
-  g = await load('?allheroes=1', { pular: ['js/online_v45.js', 'js/online_luta_v46.js'] });
+  g = await load('?allheroes=1', { pular: ['js/online_v45.js', 'js/online_luta_v46.js', 'js/carregamento_v51.js', 'js/precarga_dados.js'] });
   w = g.dom.window;
   w.__net = (slot, texto) => parentPort.postMessage({ k: 'send', slot, m: texto });
   g.ev(`document.querySelector('#welcomeEnter')?.click();document.querySelector('#profileName').value='Servidor';
@@ -41,7 +41,11 @@ function laco(proximo) {
 parentPort.on('message', (msg) => {
   try {
     if (msg.k === 'iniciar') {
-      const r = w.__SRV.start({ seed: msg.seed, h0: msg.h0, h1: msg.h1, n0: msg.n0, n1: msg.n1 });
+      // cria a luta, mas ainda NÃO anda: espera o 'liberar' (os dois jogadores terminaram de carregar)
+      w.__SRV.start({ seed: msg.seed, h0: msg.h0, h1: msg.h1, n0: msg.n0, n1: msg.n1 });
+      criada = true;
+    } else if (msg.k === 'liberar') {
+      if (!criada || rodando) return;
       rodando = true; laco(performance.now());
       setInterval(() => {
         parentPort.postMessage({ k: 'stats', ticks: st.ticks, tarde: st.tarde, media: st.ticks ? st.soma / st.ticks : 0, max: st.max, acoes: w.__SRV.acts, recusadas: w.__SRV.rejected });

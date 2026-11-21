@@ -10,14 +10,15 @@
  */
 (function(){
  const DEBUG=/[?&]lazydebug=1/.test(location.search);
- const stats=window.LazyArt={criadas:0,iniciadas:0,origem:{}};
- if(/[?&]preload=1/.test(location.search)){window.lazyImage=src=>{const i=new Image();i.src=src;stats.criadas++;stats.iniciadas++;return i};return}
+ const stats=window.LazyArt={criadas:0,iniciadas:0,origem:{},porUrl:new Map()};   // porUrl: endereço pedido -> Image (para a tela de carregamento)
+ if(/[?&]preload=1/.test(location.search)){window.lazyImage=src=>{const i=new Image();i.src=src;stats.criadas++;stats.iniciadas++;stats.porUrl.set(src,i);return i};return}
  const P=HTMLImageElement.prototype,g=n=>Object.getOwnPropertyDescriptor(P,n).get;
  const GET={complete:g('complete'),naturalWidth:g('naturalWidth'),naturalHeight:g('naturalHeight')};
+ window.lazyStart=function(im){const z=im&&im.__lz;if(z&&!z.on){z.on=true;stats.iniciadas++;im.src=z.src}return im};
  function start(im){const z=im.__lz;if(z&&!z.on){z.on=true;stats.iniciadas++;if(DEBUG){const l=(new Error().stack||'').split('\n').slice(2,5).map(x=>x.trim().replace(/^at /,'').replace(/https?:\/\/[^/]+\/js\//,'')).join(' < ');stats.origem[l]=(stats.origem[l]||0)+1}im.src=z.src}}
  window.lazyImage=function(src){
-  const im=new Image();im.__lz={src,on:false};stats.criadas++;
-  for(const k of ['complete','naturalWidth','naturalHeight'])Object.defineProperty(im,k,{configurable:true,get(){start(im);return GET[k].call(im)}});
+  const im=new Image();im.__lz={src,on:false};stats.criadas++;stats.porUrl.set(src,im);
+  for(const k of ['complete','naturalWidth','naturalHeight'])Object.defineProperty(im,k,{configurable:true,get(){start(im);try{return GET[k].call(im)}catch{return k==='complete'?false:0}}});
   return im;
  };
  const draw=CanvasRenderingContext2D.prototype.drawImage;

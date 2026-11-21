@@ -3,7 +3,7 @@ const { chromium } = require('playwright');
 const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else console.log('ok  -',m)};
 (async()=>{
  const br=await chromium.launch();const ctx=await br.newContext({viewport:{width:844,height:390}});const pg=await ctx.newPage();const errs=[];pg.on('pageerror',e=>errs.push(e.message));
- await pg.goto('http://localhost:8000/index.html?allheroes=1');await pg.waitForTimeout(800);
+ await pg.goto('http://localhost:8000/index.html?semcarga=1&allheroes=1');await pg.waitForTimeout(800);
  await pg.getByText('ENTRAR',{exact:true}).click();await pg.fill('input','Teste');await pg.getByText('Continuar',{exact:true}).click();await pg.waitForTimeout(1400);
  await pg.evaluate(()=>{matchMode='1v1';battleActivity='casual';start()});await pg.waitForTimeout(4600);
  const r=await pg.evaluate(()=>{

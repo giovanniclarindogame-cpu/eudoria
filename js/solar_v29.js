@@ -9,7 +9,7 @@ function solar29Register(){
  if(solar29Registration)return solar29Registration;
  if(!SOLAR29_BODY.complete||!SOLAR29_BODY.naturalWidth)return null;
  const c=document.createElement('canvas');c.width=c.height=1254;
- const g=c.getContext('2d');g.drawImage(SOLAR29_BODY,0,0);
+ const g=c.getContext('2d',{willReadFrequently:true});g.drawImage(SOLAR29_BODY,0,0);
  const data=g.getImageData(0,0,1254,1254).data,frames=[];
  for(let i=0;i<36;i++){
   const x=i%6*209,y=Math.floor(i/6)*209;let top=209,bottom=-1;

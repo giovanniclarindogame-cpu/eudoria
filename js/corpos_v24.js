@@ -7,7 +7,7 @@ function body24Register(key){
  // cache measurements from a partially decoded atlas during the first lobby draw.
  const im=BODY24[key];if(!im.complete||!im.naturalWidth)return null;
  const rows=key.endsWith('base')?6:4,c=document.createElement('canvas');c.width=im.naturalWidth;c.height=im.naturalHeight;
- const g=c.getContext('2d');g.drawImage(im,0,0);const pixels=g.getImageData(0,0,c.width,c.height).data,frames=[];
+ const g=c.getContext('2d',{willReadFrequently:true});g.drawImage(im,0,0);const pixels=g.getImageData(0,0,c.width,c.height).data,frames=[];
  for(let i=0;i<6*rows;i++){
   const x=Math.round(i%6*c.width/6),y=Math.round(Math.floor(i/6)*c.height/rows),w=Math.round((i%6+1)*c.width/6)-x,h=Math.round((Math.floor(i/6)+1)*c.height/rows)-y;
   let top=h,bottom=0;for(let yy=0;yy<h;yy++)for(let xx=0;xx<w;xx++)if(pixels[((y+yy)*c.width+x+xx)*4+3]>170){top=Math.min(top,yy);bottom=Math.max(bottom,yy);}

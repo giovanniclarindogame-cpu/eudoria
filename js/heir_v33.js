@@ -9,7 +9,7 @@ const heir33Falls=new WeakMap();
 function heir33Register(){
  if(heir33Height)return heir33Height;
  if(!HEIR33_BODY.complete||!HEIR33_BODY.naturalWidth)return 0;
- const c=document.createElement('canvas');c.width=c.height=209;const g=c.getContext('2d');g.drawImage(HEIR33_BODY,0,0);
+ const c=document.createElement('canvas');c.width=c.height=209;const g=c.getContext('2d',{willReadFrequently:true});g.drawImage(HEIR33_BODY,0,0);
  const d=g.getImageData(0,0,209,209).data;let top=209,bottom=-1;
  for(let y=0;y<209;y++)for(let x=0;x<209;x++)if(d[(y*209+x)*4+3]>170){top=Math.min(top,y);bottom=Math.max(bottom,y);}
  if(bottom>=0)heir33Height=bottom-top+1;return heir33Height;

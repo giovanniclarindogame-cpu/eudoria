@@ -3,7 +3,7 @@ const { chromium } = require('playwright');
 const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else console.log('ok  -',m)};
 (async()=>{
  const br=await chromium.launch();const pg=await (await br.newContext({viewport:{width:1000,height:450},hasTouch:true})).newPage();const errs=[];pg.on('pageerror',e=>errs.push(e.message));
- await pg.goto('http://localhost:8000/index.html?allheroes=1');await pg.waitForTimeout(900);await pg.getByText('ENTRAR',{exact:true}).click();await pg.fill('#profileName','Teste');await pg.getByText('Continuar',{exact:true}).click();await pg.waitForTimeout(1400);
+ await pg.goto('http://localhost:8000/index.html?semcarga=1&allheroes=1');await pg.waitForTimeout(900);await pg.getByText('ENTRAR',{exact:true}).click();await pg.fill('#profileName','Teste');await pg.getByText('Continuar',{exact:true}).click();await pg.waitForTimeout(1400);
  // arenas → seleção
  let r=await pg.evaluate(()=>{showArenaModes();const b=document.querySelector('[data-arena-mode="ffa"]');return{name:b?b.closest('article,.arena-mode,div')?.textContent.slice(0,140):null}});
  ok(/Disputa da Coroa/.test(r.name||''),'a lista de Arenas mostra "Disputa da Coroa"');

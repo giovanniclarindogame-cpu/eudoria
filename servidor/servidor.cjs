@@ -89,7 +89,8 @@ function tentarParear() {
 }
 function criarPartida(a, b) {
   const id = proxId++, e = aquecidas.shift() || novoWorker();
-  const p = { id, e, jog: [a, b], fim: false, criada: Date.now() };
+  // a luta só começa quando os dois terminam de carregar (mensagem 'pronto'); jogos de versão antiga (build < 2) não avisam: contam como prontos
+  const p = { id, e, jog: [a, b], fim: false, criada: Date.now(), prontos: [a.build < 2, b.build < 2], iniciada: false, liberada: false, timerLiberar: null };
   e.p = p; partidas.set(id, p); stats.partidasCriadas++;
   a.partida = p; a.slot = 0; a.estado = 'partida'; b.partida = p; b.slot = 1; b.estado = 'partida';
   const seed = (Math.random() * 4294967296) | 0;
@@ -97,13 +98,17 @@ function criarPartida(a, b) {
     const mk = (j, o) => JSON.stringify({ t: 'match', slot: j.slot, seed, hh: o.perfil.hero, gh: j.perfil.hero, them: o.perfil });
     enviar(a.ws, mk(a, b)); enviar(b.ws, mk(b, a));
     e.w.postMessage({ k: 'iniciar', seed, h0: a.perfil.hero, h1: b.perfil.hero, n0: a.perfil.name, n1: b.perfil.name });
+    p.iniciada = true; p.timerLiberar = setTimeout(() => liberar(p), 30000); checarLiberar(p);
   };
   if (e.pronta) iniciar(); else e.esperando.push(iniciar);
   log(`partida ${id}: ${a.perfil.name} × ${b.perfil.name} (ativas: ${partidas.size})`);
   setImmediate(reporAquecidas);
 }
+function checarLiberar(p) { if (!p.liberada && p.iniciada && p.prontos[0] && p.prontos[1]) liberar(p); }
+function liberar(p) { if (p.liberada) return; p.liberada = true; clearTimeout(p.timerLiberar); try { p.e.w.postMessage({ k: 'liberar' }); } catch {} }
 function encerrar(p) {
   if (!partidas.has(p.id)) return;
+  clearTimeout(p.timerLiberar);
   partidas.delete(p.id);
   try { p.e.w.postMessage({ k: 'parar' }); } catch {}
   setTimeout(() => { try { p.e.w.terminate(); } catch {} }, 500).unref();
@@ -123,7 +128,7 @@ function tratar(j, texto) {
     if (m.t !== 'hello') return;
     if (m.v !== PROTO) { enviar(j.ws, JSON.stringify({ t: 'erro', m: 'versao' })); return j.ws.close(); }
     if ((+m.build || 1) < BUILD_MINIMO) { enviar(j.ws, JSON.stringify({ t: 'erro', m: 'atualizar', minimo: BUILD_MINIMO })); return j.ws.close(); }
-    j.perfil = perfil(m.p); j.estado = 'ocioso';
+    j.perfil = perfil(m.p); j.build = +m.build || 1; j.estado = 'ocioso';
     return enviar(j.ws, JSON.stringify({ t: 'hello', ok: 1, online: jogadores.size, v: PROTO }));
   }
   switch (m.t) {
@@ -131,6 +136,7 @@ function tratar(j, texto) {
     case 'perfil': j.perfil = perfil(m.p); return;
     case 'fila': if (j.estado === 'fila' || (j.partida && !j.partida.fim)) return; if (m.p) j.perfil = perfil(m.p); entrarNaFila(j); return;
     case 'cancelar': { const i = fila.indexOf(j); if (i >= 0) fila.splice(i, 1); if (j.estado === 'fila') j.estado = 'ocioso'; return enviar(j.ws, JSON.stringify({ t: 'ocioso' })); }
+    case 'pronto': if (j.partida && !j.partida.fim) { j.partida.prontos[j.slot] = true; checarLiberar(j.partida); } return;
     case 'in': if (j.partida && !j.partida.fim) j.partida.e.w.postMessage({ k: 'in', slot: j.slot, m }); return;
     case 'act': if (j.partida && !j.partida.fim) j.partida.e.w.postMessage({ k: 'act', slot: j.slot, m }); return;
     case 'teste': if (process.env.TESTE === '1' && j.partida) j.partida.e.w.postMessage({ k: 'teste', m }); return;   // só nos testes

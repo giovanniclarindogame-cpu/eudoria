@@ -35,9 +35,11 @@ function begin(role,m){
  const mine=role==='host'?m.hh:m.gh,foe=role==='host'?m.gh:m.hh;
  if(!ok(mine)||!ok(foe))return;
  const ov=$q('#onlineV45');if(ov)ov.hidden=true;document.body.classList.remove('v45-open');
- Object.assign(M,{pred:[],freeze:false,on:true,role,roundDone:false,force:false,target:null,snapT:0,inT:0,input:{x:0,y:0,l:0,a:0,g:0},acts:0});
+ Object.assign(M,{pred:[],freeze:false,mv:0,slot:role==='guest'?(m.slot===0?0:1):0,on:true,role,roundDone:false,force:false,target:null,snapT:0,inT:0,input:{x:0,y:0,l:0,a:0,g:0},acts:0});
  document.body.classList.add('v46-match');
  try{equipChampion(mine,false)}catch{}
+ // tela de carregamento: baixa e aquece os dois campeões; cada lado avisa "pronto" e a luta só começa quando os dois estão prontos
+ if(window.Carregamento){Carregamento.opcoes={esperar:true};Carregamento.aoPreparar=()=>{O.send({t:'pronto'})}}
  const R=Math.random;Math.random=rng(m.seed);
  try{lobbyPrefs.mode='1v1';queueMatch('1v1')}catch(e){console.error('[Eldoria online] início',e)}finally{Math.random=R}
  if(!p||!b||state==='select'){M.on=false;document.body.classList.remove('v46-match');try{toast('Não foi possível começar a luta.')}catch{}return backToLobby(false)}
@@ -74,8 +76,8 @@ step=function(dt){
  if(!M.on)return;
  if(state==='count'){if(M.roundDone)diag('count',{});M.roundDone=false}
  if(state==='end')labels(true);
- if(M.role==='host'){driveRemote(dt);trackVel(M.host,dt);trackVel(M.guest,dt);M.snapT-=dt;if(M.snapT<=0){M.snapT=SNAP_DT;sendSnap()}}
- else{M.inT-=dt;sendInput(M.inT<=0);smoothRemote(dt)}
+ if(M.role==='host'){fixRound();driveRemote(dt);trackVel(M.host,dt);trackVel(M.guest,dt);M.snapT-=dt;if(M.snapT<=0){M.snapT=SNAP_DT;sendSnap()}}
+ else{M.inT-=dt;sendInput(M.inT<=0);smoothRemote(dt);fixRound()}
 };
 // anfitrião: move o campeão do amigo com os comandos dele (mesma conta do movimento do jogador)
 function driveRemote(dt){
@@ -111,6 +113,7 @@ function trackVel(a,dt){
 const pack=a=>({vx:Math.round(a.v47?.vx||0),vy:Math.round(a.v47?.vy||0),x:r1(a.x),y:r1(a.y),a:r3(a.a||0),hp:Math.round(a.hp),mx:a.max,mp:Math.round(a.mp),st:Math.round(a.st),g:a.guard?1:0,mv:a.moving?1:0,cd:a.kit.map(id=>Math.round((a.cd[id]||0)*100)/100)});
 function sendSnap(){if(!M.host||!M.guest)return;(O.sendFast||O.send)({t:'snap',st:state,c:r3(count),tm:r1(time),h:pack(M.host),g:pack(M.guest)})}
 function applySnap(m){
+ if(window.Carregamento&&Carregamento.esperando)Carregamento.liberar();   // 1º estado do anfitrião/servidor: a luta de lá começou
  // enquanto o nocaute da rodada passa na tela, o placar é decidido pela vida que veio no "end": o estado da rodada seguinte
  // (vida cheia nos dois) pode chegar antes do fim da sequência e faria o jogo achar que foi empate
  if(M.freeze){if(state==='count'||state==='end'||performance.now()-M.freezeAt>9000)M.freeze=false;else return}
@@ -137,8 +140,20 @@ function apply(a,d,local){
 }
 function smoothRemote(dt){
  const a=M.remote,t=M.target;if(!a||!t)return;
+ const x0=a.x,y0=a.y;
  if(t.age<.25){t.x+=(t.vx||0)*dt;t.y+=(t.vy||0)*dt;t.age+=dt}   // continua andando entre um pacote e outro
  const k=Math.min(1,dt*18);a.x+=(t.x-a.x)*k;a.y+=(t.y-a.y)*k;
+ // a animação de andar do rival depende de "moving": vem da velocidade real do boneco a cada quadro (o valor do pacote chega 30×/s e é
+ // zerado pelo jogo entre um pacote e outro, o que fazia o rival deslizar sem animação)
+ const sp=Math.hypot(a.x-x0,a.y-y0)/Math.max(dt,.001);
+ M.mv=M.mv?(sp>6?M.mv:Math.max(0,M.mv-dt)):0;if(sp>14)M.mv=.12;   // liga rápido, desliga só depois de uma pausa curta (não pisca)
+ a.moving=M.mv>0&&!a.guard;
+}
+// início de cada rodada: cada um no seu lado e virado para o rival (o jogo reinicia assumindo "eu à esquerda, olhando para a direita")
+function fixRound(){
+ if(state!=='count'||!p||!b)return;
+ if(M.role==='guest'&&(M.slot===1?p.x<b.x:p.x>b.x)){const x=p.x,y=p.y;p.x=b.x;p.y=b.y;b.x=x;b.y=y;M.target=null}
+ p.a=Math.atan2(b.y-p.y,b.x-p.x);b.a=Math.atan2(p.y-b.y,p.x-b.x);
 }
 
 /* ---------- ações repetidas no outro aparelho ---------- */
@@ -231,14 +246,14 @@ document.addEventListener('click',e=>{
 const LBL={rematch:['Jogar novamente','Revanche · voltar à sala','Procurar outro rival'],change:['Trocar campeão','Trocar campeão','Procurar outro rival'],resultHub:['Voltar ao início','Sair da sala','Sair']};
 function labels(online){const k=online?(S.mode==='server'?2:1):0;for(const [id,t] of Object.entries(LBL)){const el=document.getElementById(id);if(el&&el.textContent!==t[k])el.textContent=t[k]}}
 function stopMatch(){
- labels(false);
+ labels(false);try{if(window.Carregamento){Carregamento.cancelar();Carregamento.aoPreparar=null}}catch{}
  M.on=false;M.freeze=false;Q.length=0;HIST.length=0;delayedMove=null;M.remote=M.host=M.guest=M.target=null;document.body.classList.remove('v46-match');
  try{$q('#outcome').style.display='none'}catch{}
  try{leave()}catch{try{state='select';$q('#battle').style.display='none'}catch{}}
 }
 function backToLobby(quit){
  stopMatch();
- if(S.mode==='server'&&!quit&&S.conn){try{O.quick()}catch{}return}   // partida rápida: "jogar de novo" procura outro rival
+ if(S.mode==='server'&&!quit){try{O.selecionar()}catch{}return}   // partida rápida: "jogar de novo" volta à seleção de campeão
  if(quit||!S.conn){try{O.close()}catch{}return}
  S.ready=false;S.theirReady=false;S.view='lobby';O.open();
 }
@@ -255,6 +270,7 @@ function onMsg(m){
   case'act':if(M.on)doAct(m);break;
   case'end':if(M.role==='guest')endGuest(m);break;
   case'over':break;
+  case'pronto':if(M.role==='host'&&window.Carregamento)Carregamento.liberar();break;   // sala entre amigos: o anfitrião só começa quando o convidado terminou de carregar
  }
 }
 window.OnlineV46={beginServer:m=>begin('guest',m),onMsg,hostGo,abort,backToLobby,hostDelay,get match(){return M}};

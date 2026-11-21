@@ -27,7 +27,8 @@ jogo instalado), `ORIGENS` (lista separada por vírgula; vazio = qualquer). `TES
 - `anfitriao.js` — roda dentro do jogo da thread: comandos dos dois jogadores, ações conferidas, estado 30×/s, rodadas (melhor de 3).
 - No navegador: `js/online_v45.js` (botão "Partida rápida", fila) e `js/online_luta_v46.js` (a luta: o servidor faz o papel do anfitrião).
 - Mensagens (JSON, protocolo v3): `hello` (versão do protocolo + build do jogo), `fila`, `cancelar`, `ping/pong`, `match`, `in` (comandos), `act` (golpes),
-  `snap` (estado), `end` (fim de rodada), `over` (fim do duelo), `bye` (rival saiu), `erro` (`versao`/`atualizar`).
+  `pronto` (terminei de carregar), `snap` (estado), `end` (fim de rodada), `over` (fim do duelo), `bye` (rival saiu), `erro` (`versao`/`atualizar`).
+  A luta só começa (thread recebe `liberar`) quando os dois mandam `pronto` ou em 30 s; build < 2 conta como pronto.
 
 ## Versões diferentes do jogo instalado
 O servidor roda o código da pasta do jogo que está junto dele. Quem está com versão antiga na mão simula a luta com regras antigas
