@@ -9,9 +9,10 @@ Tempo: cerca de 30 minutos na primeira vez. Você só copia e cola. **Nunca mand
 - **Tamanho:** cada partida usa uns 100 MB de memória e pouco processador.
   | Memória | Partidas ao mesmo tempo | Jogadores |
   |---|---|---|
+  | 2 GB (só testes com amigos) | ~10 | ~20 |
   | 4 GB | ~30 | ~60 |
   | 8 GB | ~70 | ~140 |
-  Comece com **4 GB e 2 vCPU**; dá para aumentar depois no painel. Confira os preços de **contratação e de renovação** antes de pagar.
+  Para testes com amigos, **2 GB bastam** (o instalador cria 2 GB de swap sozinho nesse caso). Para abrir ao público, **4 GB e 2 vCPU** ou mais; dá para aumentar depois no painel. Confira os preços de **contratação e de renovação** antes de pagar.
 
 ## 2. Domínio (nome do servidor)
 O jogo no celular só aceita conexão segura (`wss://`), e isso exige um nome (domínio) apontando para o IP do VPS. Escolha um:

@@ -37,6 +37,14 @@ apt-get install -y unattended-upgrades >/dev/null 2>&1 || echo "(não consegui i
 echo "==> 5/6  Configuração (.env)"
 RAM_MB="$(awk '/MemTotal/ {print int($2/1024)}' /proc/meminfo)"
 MAX=$(( (RAM_MB - 900) / 100 )); [ "$MAX" -lt 4 ] && MAX=4
+AQUECIDAS=2; [ "$RAM_MB" -lt 3000 ] && AQUECIDAS=1
+# pouca memória: cria 2 GB de troca (swap) para a instalação e os picos não derrubarem o servidor
+if [ "$RAM_MB" -lt 3500 ] && [ -z "$(swapon --show --noheadings 2>/dev/null)" ]; then
+  echo "Pouca memória (${RAM_MB} MB): criando 2 GB de swap"
+  fallocate -l 2G /swapfile 2>/dev/null || dd if=/dev/zero of=/swapfile bs=1M count=2048 status=none
+  chmod 600 /swapfile && mkswap /swapfile >/dev/null && swapon /swapfile
+  grep -q '^/swapfile' /etc/fstab || echo '/swapfile none swap sw 0 0' >> /etc/fstab
+fi
 if [ -f "$DIR/.env" ]; then
   echo "Já existe um .env: mantido. (Apague-o se quiser que eu gere de novo.)"
 else
@@ -44,7 +52,7 @@ else
 DOMINIO=$DOMINIO
 # partidas ao mesmo tempo: cerca de 100 MB de memória cada (esta máquina tem ${RAM_MB} MB)
 MAX_PARTIDAS=$MAX
-AQUECIDAS=2
+AQUECIDAS=$AQUECIDAS
 # versão mínima do jogo instalado aceita (suba quando mudar as regras da luta)
 BUILD_MINIMO=1
 # deixe vazio para aceitar qualquer origem
