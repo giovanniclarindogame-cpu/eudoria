@@ -18,7 +18,7 @@
 (function(){
 const O=window.OnlineV45;if(!O)return;
 const S=O.state,$q=s=>document.querySelector(s);
-const M={on:false,role:null,remote:null,host:null,guest:null,input:{x:0,y:0,l:0,a:0,g:0},snapT:0,inT:0,roundDone:false,force:false,depth:0,target:null,acts:0};
+const M={on:false,rem:[],bySlot:{},x2:false,role:null,remote:null,host:null,guest:null,input:{x:0,y:0,l:0,a:0,g:0},snapT:0,inT:0,roundDone:false,force:false,depth:0,target:null,acts:0};
 const r3=v=>Math.round(v*1000)/1000,r1=v=>Math.round(v*10)/10;
 function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 
@@ -32,23 +32,43 @@ function hostGo(){
 function begin(role,m){
  clearInterval(S.count);
  const ok=id=>Number.isInteger(id)&&CHAMPIONS[id];
- const mine=role==='host'?m.hh:m.gh,foe=role==='host'?m.gh:m.hh;
- if(!ok(mine)||!ok(foe))return;
+ // 2×2 (só pelo servidor): 4 jogadores. slots 0 e 1 = equipe 0, slots 2 e 3 = equipe 1
+ const x2=role==='guest'&&m.modo==='2v2'&&Array.isArray(m.hs)&&m.hs.length===4&&m.hs.every(ok)&&m.slot>=0&&m.slot<4;
+ const mine=x2?m.hs[m.slot]:(role==='host'?m.hh:m.gh),foe=role==='host'?m.gh:m.hh;
+ if(!ok(mine)||(!x2&&!ok(foe)))return;
  const ov=$q('#onlineV45');if(ov)ov.hidden=true;document.body.classList.remove('v45-open');
- Object.assign(M,{pred:[],freeze:false,mv:0,slot:role==='guest'?(m.slot===0?0:1):0,on:true,role,roundDone:false,force:false,target:null,snapT:0,inT:0,input:{x:0,y:0,l:0,a:0,g:0},acts:0});
+ Object.assign(M,{rem:[],bySlot:{},x2,freeze:false,mv:0,slot:x2?m.slot:role==='guest'?(m.slot===0?0:1):0,on:true,role,roundDone:false,force:false,target:null,snapT:0,inT:0,input:{x:0,y:0,l:0,a:0,g:0},acts:0});
  document.body.classList.add('v46-match');
  try{equipChampion(mine,false)}catch{}
  // tela de carregamento: baixa e aquece os dois campeões; cada lado avisa "pronto" e a luta só começa quando os dois estão prontos
  if(window.Carregamento){Carregamento.opcoes={esperar:true};Carregamento.aoPreparar=()=>{O.send({t:'pronto'})}}
  const R=Math.random;Math.random=rng(m.seed);
- try{lobbyPrefs.mode='1v1';queueMatch('1v1')}catch(e){console.error('[Eldoria online] início',e)}finally{Math.random=R}
+ const modo=x2?'2v2':'1v1';
+ try{lobbyPrefs.mode=modo;queueMatch(modo)}catch(e){console.error('[Eldoria online] início',e)}finally{Math.random=R}
  if(!p||!b||state==='select'){M.on=false;document.body.classList.remove('v46-match');try{toast('Não foi possível começar a luta.')}catch{}return backToLobby(false)}
+ if(x2)return begin2(m);
  try{V3Modes.swapHero(b,foe,1000)}catch{}
  p.label=S.me?.name||'Você';b.label=S.them?.name||'Rival';
  if(role==='guest'&&m.slot!==0){const x=p.x,y=p.y;p.x=b.x;p.y=b.y;b.x=x;b.y=y;const a=p.a;p.a=b.a;b.a=a}
  M.remote=b;M.host=role==='host'?p:b;M.guest=role==='host'?b:p;
+ if(role==='guest'){const E={a:b,slot:M.slot===0?1:0,target:null,mv:0,pred:[]};M.rem=[E];M.bySlot[E.slot]=E}
  try{V3Modes.rebuildPlayerUI()}catch{}
  try{V3Modes.banner('DUELO ONLINE',`${S.me.name} × ${S.them.name}`,2200)}catch{}
+}
+// 2×2: o jogo local tem [p, b, aliado, rival 2]. Aqui eu sou sempre o "p"; meu parceiro é o aliado; os dois adversários são b e o rival 2.
+// Cada um é colocado no lugar do jogador do servidor que ele representa (os slots 0,1 ficam à esquerda e os 2,3 à direita).
+function begin2(m){
+ const s=m.slot,mate=s^1,en=s<2?[2,3]:[0,1],ps=Array.isArray(m.ps)?m.ps:[];
+ const ally=actors[2],rival=actors[3];
+ const spot=[p,ally,b,rival].map(a=>({x:a.x,y:a.y,a:a.a}));   // lugar inicial de cada slot do servidor (p, aliado, b, rival 2)
+ const L=[[p,s],[ally,mate],[b,en[0]],[rival,en[1]]];
+ for(const [a,slot] of L){a.x=spot[slot].x;a.y=spot[slot].y;a.a=spot[slot].a}
+ for(const [a,slot] of L){if(a===p)continue;try{V3Modes.swapHero(a,m.hs[slot],1000)}catch{}}
+ for(const [a,slot] of L)a.label=String(ps[slot]?.name||'Jogador').slice(0,16);
+ M.remote=null;M.host=M.guest=null;M.L4=[p,ally,b,rival];
+ for(const [a,slot] of L){if(a===p)continue;const E={a,slot,target:null,mv:0,pred:[]};M.rem.push(E);M.bySlot[slot]=E}
+ try{V3Modes.rebuildPlayerUI()}catch{}
+ try{V3Modes.banner('EQUIPES 2×2',`${p.label} e ${ally.label} × ${b.label} e ${rival.label}`,2400)}catch{}
 }
 
 /* ---------- a cada passo da luta ---------- */
@@ -77,7 +97,7 @@ step=function(dt){
  if(state==='count'){if(M.roundDone)diag('count',{});M.roundDone=false}
  if(state==='end')labels(true);
  if(M.role==='host'){fixRound();driveRemote(dt);trackVel(M.host,dt);trackVel(M.guest,dt);M.snapT-=dt;if(M.snapT<=0){M.snapT=SNAP_DT;sendSnap()}}
- else{M.inT-=dt;sendInput(M.inT<=0);smoothRemote(dt);fixRound()}
+ else{M.inT-=dt;sendInput(M.inT<=0);for(const E of M.rem)smoothRemote(E,dt);fixRound()}
 };
 // anfitrião: move o campeão do amigo com os comandos dele (mesma conta do movimento do jogador)
 // o jogo só avança o passo da animação de andar (rwStride) e a direção do corpo quando o boneco se mexe DENTRO do passo dele; o rival é movido
@@ -123,12 +143,17 @@ function applySnap(m){
  if(m.st==='fight'&&state==='count'){state='fight';try{$q('#countdown').style.display='none'}catch{}}
  if(state==='count'&&Number.isFinite(m.c))count=m.c;
  if(Number.isFinite(m.tm))time=m.tm;
+ applyAll(m);
+}
+function applyAll(m){
+ if(M.x2){if(Array.isArray(m.a))m.a.forEach((d,i)=>{if(i===M.slot)apply(p,d,true);else{const E=M.bySlot[i];if(E)apply(E.a,d,false)}});return}
  apply(M.host,m.h,false);apply(M.guest,m.g,true);
 }
 function apply(a,d,local){
  if(!a||!d)return;
+ const E=local?null:M.rem.find(e=>e.a===a);
  if(local)a.hp=d.hp;
- else{const now=performance.now(),win=(S.rtt||100)+140;M.pred=(M.pred||[]).filter(e=>now-e.t<win);const pend=M.pred.reduce((n,e)=>n+e.d,0);a.hp=d.hp<=0?0:Math.max(1,d.hp-pend)}
+ else{const now=performance.now(),win=(S.rtt||100)+140,pr=E?(E.pred=E.pred.filter(e=>now-e.t<win)):[];const pend=pr.reduce((n,e)=>n+e.d,0);a.hp=d.hp<=0?0:Math.max(1,d.hp-pend)}
  a.max=d.mx||a.max;a.st=d.st;
  if(local){a.mp=Math.min(a.mp,d.mp+1);d.cd?.forEach((v,i)=>{const id=a.kit[i];if(id!=null)a.cd[id]=Math.max(a.cd[id]||0,v)})}
  else{a.mp=d.mp;d.cd?.forEach((v,i)=>{const id=a.kit[i];if(id!=null)a.cd[id]=v})}
@@ -137,26 +162,32 @@ function apply(a,d,local){
   if(e>90){a.x=d.x;a.y=d.y}else if(still&&e>3){a.x+=(d.x-a.x)*.3;a.y+=(d.y-a.y)*.3}
  }else{
   const lead=Math.min(.18,(S.rtt||80)/2000+.02),vx=d.mv?d.vx||0:0,vy=d.mv?d.vy||0:0;
-  M.target={x:d.x+vx*lead,y:d.y+vy*lead,vx,vy,age:0};a.a=d.a;a.guard=!!d.g;a.moving=!!d.mv;
-  if(Math.hypot(M.target.x-a.x,M.target.y-a.y)>160){a.x=M.target.x;a.y=M.target.y}
+  const T={x:d.x+vx*lead,y:d.y+vy*lead,vx,vy,age:0};if(E)E.target=T;a.a=d.a;a.guard=!!d.g;a.moving=!!d.mv;
+  if(Math.hypot(T.x-a.x,T.y-a.y)>160){a.x=T.x;a.y=T.y}
  }
 }
-function smoothRemote(dt){
- const a=M.remote,t=M.target;if(!a||!t)return;
+function smoothRemote(E,dt){
+ const a=E.a,t=E.target;if(!a||!t)return;
  const x0=a.x,y0=a.y;
  if(t.age<.25){t.x+=(t.vx||0)*dt;t.y+=(t.vy||0)*dt;t.age+=dt}   // continua andando entre um pacote e outro
  const k=Math.min(1,dt*18);a.x+=(t.x-a.x)*k;a.y+=(t.y-a.y)*k;
  // a animação de andar do rival depende de "moving": vem da velocidade real do boneco a cada quadro (o valor do pacote chega 30×/s e é
  // zerado pelo jogo entre um pacote e outro, o que fazia o rival deslizar sem animação)
  const sp=Math.hypot(a.x-x0,a.y-y0)/Math.max(dt,.001);
- M.mv=M.mv?(sp>6?M.mv:Math.max(0,M.mv-dt)):0;if(sp>14)M.mv=.12;   // liga rápido, desliga só depois de uma pausa curta (não pisca)
- a.moving=M.mv>0&&!a.guard;
+ E.mv=E.mv?(sp>6?E.mv:Math.max(0,E.mv-dt)):0;if(sp>14)E.mv=.12;   // liga rápido, desliga só depois de uma pausa curta (não pisca)
+ a.moving=E.mv>0&&!a.guard;
  if(a.moving)walkStride(a,a.x-x0,a.y-y0);
 }
 // início de cada rodada: cada um no seu lado e virado para o rival (o jogo reinicia assumindo "eu à esquerda, olhando para a direita")
 function fixRound(){
  if(state!=='count'||!p||!b)return;
- if(M.role==='guest'&&(M.slot===1?p.x<b.x:p.x>b.x)){const x=p.x,y=p.y;p.x=b.x;p.y=b.y;b.x=x;b.y=y;M.target=null}
+ if(M.x2&&M.L4){
+  const [P,A,B,R]=M.L4;
+  if(M.slot>=2?P.x<B.x:P.x>B.x){for(const [u,v] of [[P,B],[A,R]]){const x=u.x,y=u.y;u.x=v.x;u.y=v.y;v.x=x;v.y=y}for(const E of M.rem)E.target=null}
+  for(const a of M.L4){const foes=(a===P||a===A)?[B,R]:[P,A];const f=foes.sort((u,v)=>Math.hypot(u.x-a.x,u.y-a.y)-Math.hypot(v.x-a.x,v.y-a.y))[0];a.a=Math.atan2(f.y-a.y,f.x-a.x)}
+  return;
+ }
+ if(M.role==='guest'&&(M.slot===1?p.x<b.x:p.x>b.x)){const x=p.x,y=p.y;p.x=b.x;p.y=b.y;b.x=x;b.y=y;for(const E of M.rem)E.target=null}
  p.a=Math.atan2(b.y-p.y,b.x-p.x);b.a=Math.atan2(p.y-b.y,p.x-b.x);
 }
 
@@ -191,10 +222,10 @@ function hostDash(e){
 document.addEventListener('pointerdown',e=>{if(M.on&&e.target.closest?.('#attack.v3-dash')){if(!hostDash(e))sendDash()}},true);
 window.addEventListener('keydown',e=>{if(M.on&&!e.repeat&&(e.code==='Space'||e.code==='ShiftLeft')){if(!hostDash(e))sendDash()}},true);
 function doAct(m){
- const a=M.remote;if(!a||a.hp<=0||state!=='fight')return;
+ const E=m.s!=null&&M.bySlot?M.bySlot[m.s]:null,a=E?E.a:M.remote;if(!a||a.hp<=0||state!=='fight')return;
  if(Number.isFinite(m.a))a.a=m.a;
  if(Number.isFinite(m.x)&&Number.isFinite(m.y)){
-  if(M.role==='guest'){a.x=m.x;a.y=m.y;M.target={x:m.x,y:m.y,vx:0,vy:0,age:1}}
+  if(M.role==='guest'){a.x=m.x;a.y=m.y;const T=E||M.rem.find(e=>e.a===a);if(T)T.target={x:m.x,y:m.y,vx:0,vy:0,age:1}}
   else if(Math.hypot(a.x-m.x,a.y-m.y)<70){a.x=m.x;a.y=m.y}
  }
  const args=Array.isArray(m.args)?m.args:[];
@@ -208,13 +239,13 @@ function doAct(m){
 
 /* ---------- regras durante a luta online ---------- */
 const prevAI=ai;
-ai=function(dt,actor){const a=arguments.length>1?actor:b;if(M.on&&a===M.remote)return;return prevAI.apply(this,arguments)};
+ai=function(dt,actor){const a=arguments.length>1?actor:b;if(M.on&&(a===M.remote||M.rem.some(e=>e.a===a)))return;return prevAI.apply(this,arguments)};
 const prevHit=hit;
 hit=function(t,n,o,k,an,id){
- if(M.on&&M.role==='guest'&&t&&(t===p||t===b)&&!M.force){
+ if(M.on&&M.role==='guest'&&t&&!M.force&&(t===p||M.rem.some(e=>e.a===t))){
   const hp=t.hp,r=prevHit.apply(this,arguments);
   if(t===p)t.hp=hp;   // a própria vida só muda pelo anfitrião
-  else{const d=hp-t.hp;if(d>0){(M.pred||(M.pred=[])).push({d,t:performance.now()});if(t.hp<1)t.hp=1}}   // dano no rival: aparece na hora
+  else{const d=hp-t.hp,E=M.rem.find(e=>e.a===t);if(d>0&&E){E.pred.push({d,t:performance.now()});if(t.hp<1)t.hp=1}}   // dano no rival: aparece na hora
   return r;
  }
  return prevHit.apply(this,arguments);
@@ -236,7 +267,7 @@ function endGuest(m){
  diag('end',{on:M.on});
  if(!M.on||M.roundDone)return;M.roundDone=true;
  if(Number.isFinite(m.tm))time=m.tm;
- apply(M.host,m.h,false);apply(M.guest,m.g,true);
+ applyAll(m);
  M.force=true;try{state='fight';finish()}finally{M.force=false}
  if(state!=='end'){M.freeze=true;M.freezeAt=performance.now()}
  diag('forcou',{});
@@ -251,7 +282,7 @@ const LBL={rematch:['Jogar novamente','Revanche · voltar à sala','Procurar out
 function labels(online){const k=online?(S.mode==='server'?2:1):0;for(const [id,t] of Object.entries(LBL)){const el=document.getElementById(id);if(el&&el.textContent!==t[k])el.textContent=t[k]}}
 function stopMatch(){
  labels(false);try{if(window.Carregamento){Carregamento.cancelar();Carregamento.aoPreparar=null}}catch{}
- M.on=false;M.freeze=false;Q.length=0;HIST.length=0;delayedMove=null;M.remote=M.host=M.guest=M.target=null;document.body.classList.remove('v46-match');
+ M.on=false;M.freeze=false;Q.length=0;HIST.length=0;delayedMove=null;M.remote=M.host=M.guest=M.target=M.L4=null;M.rem=[];M.bySlot={};M.x2=false;document.body.classList.remove('v46-match');
  try{$q('#outcome').style.display='none'}catch{}
  try{leave()}catch{try{state='select';$q('#battle').style.display='none'}catch{}}
 }

@@ -42,7 +42,7 @@ parentPort.on('message', (msg) => {
   try {
     if (msg.k === 'iniciar') {
       // cria a luta, mas ainda NÃO anda: espera o 'liberar' (os dois jogadores terminaram de carregar)
-      w.__SRV.start({ seed: msg.seed, h0: msg.h0, h1: msg.h1, n0: msg.n0, n1: msg.n1 });
+      w.__SRV.start({ seed: msg.seed, modo: msg.modo, h0: msg.h0, h1: msg.h1, n0: msg.n0, n1: msg.n1, h: msg.h, n: msg.n });
       criada = true;
     } else if (msg.k === 'liberar') {
       if (!criada || rodando) return;
