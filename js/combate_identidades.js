@@ -54,7 +54,9 @@ hurtConstructs=function(owner,x,y,r,damage,angle=0,arc=TAU,contact=null){
 function rwArc(a,angle,range,damage,slot,arc=1.7,knock=8,extra={}){
  let count=0;for(const target of opponents(a)){
   const delta=Math.abs(Math.atan2(Math.sin(Math.atan2(target.y-a.y,target.x-a.x)-angle),Math.cos(Math.atan2(target.y-a.y,target.x-a.x)-angle)));
-  if(target.hp<=0||dist(a,target)>range+target.r||delta>arc/2||!rwVisible(a,target))continue;
+  // colado no lutador (ou com ele já atrás depois do avanço do golpe) o ângulo não vale: acerta mesmo assim
+  const colado=dist(a,target)<(a.r+target.r)*.95;
+  if(target.hp<=0||dist(a,target)>range+target.r||(delta>arc/2&&!colado)||!rwVisible(a,target))continue;
   if(hit(target,damage,a,knock,angle,a.kit[slot])){count++;if(extra.air){const s=reworkState(target);s.air=Math.max(s.air,extra.air);s.airTotal=s.air;target.root=Math.max(target.root,extra.air);}if(extra.exposed)reworkState(target).exposed=extra.exposed;}
  }
  hurtConstructs(a,a.x,a.y,range,extra.constructDamage||damage,angle,arc);return count;

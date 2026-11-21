@@ -28,7 +28,7 @@ const MODES=[
  {id:'ligaCoroa',cat:'rank',name:'Liga da Coroa',sub:'Cada um por si',tag:'4 lutadores',art:3,run:liga('ffa')},
  {id:'duelo',cat:'casual',name:'Duelo 1×1',sub:'Enfrente outro jogador',tag:'1×1',art:4,run:()=>{try{if(window.OnlineV45)return OnlineV45.procurar('1v1')}catch(e){console.error(e)}casual('1v1','1v1')()}},
  {id:'equipes',cat:'casual',name:'Equipes 2×2',sub:'Lute ao lado de um aliado',tag:'2×2',art:5,run:()=>{try{if(window.OnlineV45)return OnlineV45.procurar('2v2')}catch(e){console.error(e)}casual('2v2','2v2')()}},
- {id:'trio',cat:'casual',name:'Trio de Campeões',sub:'Quem vence continua',tag:'3×3',art:12,run:()=>window.V3Kof?.open('kof')},
+ {id:'trio',cat:'casual',name:'Trio de Campeões',sub:'Quem vence continua',tag:'3 campeões',art:12,run:()=>{try{if(window.OnlineV45)return OnlineV45.procurar('trio')}catch(e){console.error(e)}window.V3Kof?.open('kof')}},
  {id:'coroa',cat:'casual',name:'Disputa da Coroa',sub:'O último de pé leva',tag:'4 lutadores',art:13,run:()=>window.V3Kof?.open('crown')},
  {id:'zona',cat:'casual',name:'Controle de Zona',sub:'Em reformulação',tag:'2×2',art:11,soon:true},
  {id:'cacada',cat:'desafio',name:'Caçada do Dia',sub:()=>huntName()||'Um chefe por dia',tag:'Solo ou dupla',art:6,run:()=>window.huntQA?.lobby()},
@@ -120,7 +120,7 @@ function homeMarkup(){
   <div class="v41-pedestal" aria-hidden="true"><i></i><i></i></div>
   <div class="v40-hero-wrap"><span class="v40-slot-hero"></span></div>
  </section>
- ${ev.boss?`<button class="v41-event" data-v41-hunt aria-label="Caçada do dia: ${esc(ev.boss.name)}"><small>CAÇADA DO DIA</small><b>${esc(ev.boss.name.split(',')[0])}</b><em>⏳ troca em ${ev.left}</em></button>`:''}
+ ${ev.boss?`<button class="v41-event soon" data-v41-hunt aria-disabled="true" aria-label="Caçada do dia: em breve"><small>CAÇADA DO DIA</small><b>${esc(ev.boss.name.split(',')[0])}</b><em>🔒 em breve</em></button>`:''}
  <nav class="v40-side v41-side" aria-label="Atalhos">
   <button data-nav="library" style="--i:0" title="Campeões (C)"><span class="v41-ico"></span><span class="v41-lbl">Campeões</span><kbd class="v41-key">C</kbd></button>
   <button data-v40-missions style="--i:1" title="Missões (M)"><span class="v41-ico"></span><span class="v41-lbl">Missões</span><kbd class="v41-key">M</kbd>${mb?`<i class="v41-badge">${mb}</i>`:''}</button>
@@ -246,7 +246,7 @@ document.addEventListener('click',e=>{
  const t=e.target;
  if(t.closest('[data-v40-play]')||t.closest('[data-v43-play]')){e.preventDefault();play();return}
  if(t.closest('[data-v41-gift]')){e.preventDefault();$q('#homeScreen .v40-legacy #openDaily')?.click();return}
- if(t.closest('[data-v41-hunt]')){e.preventDefault();closeAll();try{window.huntQA?.lobby()}catch(err){console.error(err)}return}
+ if(t.closest('[data-v41-hunt]')){e.preventDefault();toast?.('Caçada do Dia: em breve');return}
  if(t.closest('[data-v40-modes]')){e.preventDefault();openModes();return}
  if(t.closest('[data-v40-menu]')){e.preventDefault();openMenu();return}
  if(t.closest('[data-v40-missions]')){e.preventDefault();ensureMissions();$q('#v40Missions').hidden=false;return}

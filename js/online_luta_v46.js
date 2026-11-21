@@ -34,7 +34,9 @@ function begin(role,m){
  const ok=id=>Number.isInteger(id)&&CHAMPIONS[id];
  // 2×2 (só pelo servidor): 4 jogadores. slots 0 e 1 = equipe 0, slots 2 e 3 = equipe 1
  const x2=role==='guest'&&m.modo==='2v2'&&Array.isArray(m.hs)&&m.hs.length===4&&m.hs.every(ok)&&m.slot>=0&&m.slot<4;
- const mine=x2?m.hs[m.slot]:(role==='host'?m.hh:m.gh),foe=role==='host'?m.gh:m.hh;
+ // Trio de Campeões (só pelo servidor): cada jogador leva um time de 3 e lutam um contra um, quem vence continua
+ const trio=role==='guest'&&m.modo==='trio'&&Array.isArray(m.teams)&&m.teams.length===2&&m.teams.every(t=>Array.isArray(t)&&t.length===3&&t.every(ok))&&(m.slot===0||m.slot===1);
+ const mine=x2?m.hs[m.slot]:trio?m.teams[m.slot][0]:(role==='host'?m.hh:m.gh),foe=trio?m.teams[1-m.slot][0]:role==='host'?m.gh:m.hh;
  if(!ok(mine)||(!x2&&!ok(foe)))return;
  const ov=$q('#onlineV45');if(ov)ov.hidden=true;document.body.classList.remove('v45-open');
  Object.assign(M,{rem:[],bySlot:{},x2,freeze:false,mv:0,slot:x2?m.slot:role==='guest'?(m.slot===0?0:1):0,on:true,role,roundDone:false,force:false,target:null,snapT:0,inT:0,input:{x:0,y:0,l:0,a:0,g:0},acts:0});
@@ -44,6 +46,7 @@ function begin(role,m){
  if(window.Carregamento){Carregamento.opcoes={esperar:true};Carregamento.aoPreparar=()=>{O.send({t:'pronto'})}}
  const R=Math.random;Math.random=rng(m.seed);
  const modo=x2?'2v2':'1v1';
+ if(trio)V3Modes.pending='kof';   // série de 3 lutas: o duelo em rounds não entra junto
  try{lobbyPrefs.mode=modo;queueMatch(modo)}catch(e){console.error('[Eldoria online] início',e)}finally{Math.random=R}
  if(!p||!b||state==='select'){M.on=false;document.body.classList.remove('v46-match');try{toast('Não foi possível começar a luta.')}catch{}return backToLobby(false)}
  if(x2)return begin2(m);
@@ -53,7 +56,8 @@ function begin(role,m){
  M.remote=b;M.host=role==='host'?p:b;M.guest=role==='host'?b:p;
  if(role==='guest'){const E={a:b,slot:M.slot===0?1:0,target:null,mv:0,pred:[]};M.rem=[E];M.bySlot[E.slot]=E}
  try{V3Modes.rebuildPlayerUI()}catch{}
- try{V3Modes.banner('DUELO ONLINE',`${S.me.name} × ${S.them.name}`,2200)}catch{}
+ if(trio){try{V3Kof.setup(m.teams[m.slot],m.teams[1-m.slot]);p.label=S.me?.name||'Você';b.label=S.them?.name||'Rival'}catch(e){console.error('[Eldoria online] trio',e)}}
+ else try{V3Modes.banner('DUELO ONLINE',`${S.me.name} × ${S.them.name}`,2200)}catch{}
 }
 // 2×2: o jogo local tem [p, b, aliado, rival 2]. Aqui eu sou sempre o "p"; meu parceiro é o aliado; os dois adversários são b e o rival 2.
 // Cada um é colocado no lugar do jogador do servidor que ele representa (os slots 0,1 ficam à esquerda e os 2,3 à direita).

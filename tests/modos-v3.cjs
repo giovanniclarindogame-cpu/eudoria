@@ -19,7 +19,7 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  /* ---- rounds ---- */
  await go();
  const r0=await pg.evaluate(()=>({on:V3Series.state.on,t:time,pips:!document.getElementById('roundPips').hidden}));
- ok(r0.on&&r0.t<=90&&r0.t>80&&r0.pips,'duelo começa no ROUND 1 (melhor de 3) com o placar visível');
+ ok(r0.on&&r0.t<=120&&r0.t>110&&r0.pips,'duelo começa no ROUND 1 (melhor de 3) com o placar visível');
  await kill('b');
  ok(await pump("V3Series.state.round===2&&state==='count'"),'depois do K.O. começa o ROUND 2');
  const r1=await pg.evaluate(()=>({w:V3Series.state.w.join(),hp:[p.hp,b.hp],t:time,over:getComputedStyle(document.getElementById('outcome')).display}));

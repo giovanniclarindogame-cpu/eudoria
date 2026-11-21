@@ -99,7 +99,7 @@ window.V3Hooks={
 window.V3Modes={faceOff,swapHero,resetFighter,clearField,rebuildPlayerUI,startCount,banner,heroName,special:null};
 
 /* ---------- melhor de 3 rounds (1×1 e 2×2) ---------- */
-const ROUND_TIME=90;
+const ROUND_TIME=120;
 const S={on:false,round:1,w:[0,0],draws:0,init:[]};
 const pips=document.createElement('div');pips.id='roundPips';pips.hidden=true;
 pips.innerHTML='<i></i><i></i><b>ROUND 1</b><i></i><i></i>';

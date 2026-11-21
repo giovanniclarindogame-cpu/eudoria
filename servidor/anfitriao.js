@@ -24,12 +24,14 @@ ai=function(){};                       // os dois lados são pessoas
 togglePause=function(){};              // sem pausa no online
 
 SRV.start=function(o){
- const mode=o.modo==='2v2'?'2v2':'1v1';
+ const mode=o.modo==='2v2'?'2v2':'1v1',trio=o.modo==='trio'&&Array.isArray(o.teams);
  const R=Math.random;Math.random=rng(o.seed);
+ if(trio)V3Modes.pending='kof';   // série de 3 lutas: o duelo em rounds não entra junto
  try{lobbyPrefs.mode=mode;queueMatch(mode)}finally{Math.random=R}
  SL=mode==='2v2'?[actors[0],actors[2],actors[1],actors[3]]:[actors[0],actors[1]];SRV.n=SL.length;
  const hs=Array.isArray(o.h)?o.h:[o.h0,o.h1],ns=Array.isArray(o.n)?o.n:[o.n0,o.n1];
  SL.forEach((a,i)=>{V3Modes.swapHero(a,hs[i],1000);a.label=String(ns[i]||'Jogador '+(i+1))});
+ if(trio)V3Kof.setup(o.teams[0],o.teams[1]);   // slot 0 = time "meu" do servidor, slot 1 = time do rival
  SRV.on=true;SRV.over=false;SRV.roundDone=false;SRV.snapT=0;
  return state;
 };

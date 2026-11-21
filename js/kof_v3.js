@@ -6,7 +6,7 @@
 (function(){
 if(!window.COMBAT_V3||!window.V3Modes)return;
 const M=window.V3Modes,$q=s=>document.querySelector(s);
-const FIGHT_TIME=99;
+const FIGHT_TIME=120;
 let K=null,pick=[],sel=-1;
 // tipos de seleção: KOF (3 lutadores) e os modos do lobby (1×1, liga, 2×2) com a mesma tela
 const KINDS={
@@ -122,13 +122,18 @@ start=function(){
 function begin(mine){
  const pool=CHAMPIONS.map(c=>c.id).filter(id=>!mine.includes(id));
  const foes=[];while(foes.length<3){const k=Math.floor(Math.random()*pool.length);foes.push(pool.splice(k,1)[0])}
- K={mine,foes,hpM:[1000,1000,1000],hpF:[1000,1000,1000],iM:0,iF:0,fights:0};
  M.pending='kof';battleActivity='casual';matchMode='1v1';arenaModeId=null;modeRun=null;
  $q('#modeScreen').hidden=true;
  start();
+ setup(mine,foes);
+ p.label=account.profile?.name||'Você';b.label=M.heroName(foes[0]);
+}
+// prepara a série com os dois times (offline: o time sorteado do rival; online: o time que o outro jogador escolheu). Chamar com a luta já criada
+// e V3Modes.pending='kof' antes do start() (para o duelo em rounds não entrar junto).
+function setup(mine,foes){
+ K={mine,foes,hpM:[1000,1000,1000],hpF:[1000,1000,1000],iM:0,iF:0,fights:0};
  M.special='kof';
  M.swapHero(p,mine[0],1000);M.swapHero(b,foes[0],1000);
- p.label=account.profile?.name||'Você';b.label=M.heroName(foes[0]);
  M.rebuildPlayerUI();time=FIGHT_TIME;
  drawStrips();
  M.banner('TRIO DE CAMPEÕES · 3×3',M.heroName(mine[0])+' × '+M.heroName(foes[0]),2400);
@@ -177,5 +182,5 @@ function handler(cb){
 }
 handler.label=win=>M.special==='kof'&&K?[win?'RIVAL DERRUBADO':'LUTADOR DERRUBADO',(win?'Seu time continua com a vida que tem':'Entra o próximo do seu time')]:null;
 V3Hooks.add(handler);
-window.V3Kof={open,PK:()=>PK,get state(){return K},begin};
+window.V3Kof={open,PK:()=>PK,get state(){return K},begin,setup};
 })();
