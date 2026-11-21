@@ -4,4 +4,4 @@
 window.ELDORIA_SERVIDOR='wss://179-199-140-168.sslip.io';
 // Versão do jogo instalado. Aumente este número a cada versão que muda as regras da luta ou o protocolo; o servidor (BUILD_MINIMO)
 // recusa quem estiver com versão mais antiga e mostra "atualize o jogo".
-window.ELDORIA_BUILD=1;
+window.ELDORIA_BUILD=2;

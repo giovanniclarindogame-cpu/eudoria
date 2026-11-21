@@ -454,3 +454,23 @@ DESEMPENHO v50 — carga sob demanda das artes (js/carga_preguicosa.js, js/recup
 - Para apagar arquivos antigos sem risco: o texto do código engana (ex.: reforged_v9 parecia sem uso e é baixado). O jeito seguro é registrar,
   numa sessão completa (todas as telas, heróis, modos e fases), quais arquivos o navegador pediu, e só apagar o que nunca foi pedido.
 - Medidas (CPU 4× mais lenta, tela 844×390, 2×): duelo ~15,5 fps nos dois casos (o custo da luta em si é o próximo alvo), Cruzada 38,9 → 44,5 fps.
+
+TELA DE CARREGAMENTO + CORREÇÕES DO ONLINE (v51) — js/carregamento_v51.js, css/carregamento_v51.css, js/precarga_dados.js, js/medidor_fps.js
+- Toda luta passa por start(): o gancho segura a luta (state='loading'), mostra a tela (os dois campeões revelados, barra, dica), baixa as artes da
+  lista de cada campeão (js/precarga_dados.js, GERADA por `node scripts/gerar_precarga.cjs` — rode de novo quando trocar artes), decodifica,
+  "aquece" (desenha cada campeão uma vez fora da tela; aquecedores próprios do Eclipse e do Ronin em Carregamento.aquecer) e só então começa a
+  contagem. Se tudo já está pronto (repetir a luta com os mesmos campeões) a tela nem aparece. Tempo máximo 25 s. ?semcarga=1 desliga.
+  Luta que muda o state logo depois do start() (tutorial, lutas que começam direto) não recebe a tela por cima.
+- Por que: o que travava a luta em celular lento era trabalho de PRIMEIRA vez no meio dela (decodificar folhas grandes, getImageData, enviar à placa
+  de vídeo). Medido (CPU 4× mais lenta): Guerreiro×Eclipse travadas >120 ms somavam 2474 ms → 185 ms; Ninja×Ronin 2326 → 536 ms.
+  Corsário×Alquimista não melhorou (o custo ali é o desenho das construções do Alquimista, constante, não de 1ª vez).
+- Os pontos que leem pixels (getImageData) criam a tela de apoio com willReadFrequently.
+- Online: a partida rápida agora tem TELA DE SELEÇÃO (mesma da sala entre amigos) antes de procurar o rival; depois de "PROCURAR RIVAL" aparece a
+  tela de carregamento com o rival revelado. Cada lado avisa {t:'pronto'} e o servidor só libera a luta (mensagem 'liberar' para a thread) quando os
+  dois estão prontos (ou em 30 s); jogos com build < 2 contam como prontos. Na sala entre amigos o anfitrião espera o 'pronto' do convidado.
+  "Procurar outro rival" volta à seleção. ELDORIA_BUILD=2.
+- Correções do online: (1) o rival "deslizava" sem animação: o "moving" dele vinha do pacote (30/s) e o jogo zerava entre um e outro; agora vem da
+  velocidade real do boneco a cada quadro. (2) rodada 2 com os bonecos de costas (só para o jogador 1): o jogo reinicia assumindo "eu à esquerda,
+  olhando para a direita"; agora cada rodada reposiciona e vira os dois um para o outro (fixRound).
+- ?fps=1 mostra um medidor (fps, pior quadro, travadas >100 ms) para medir no celular de verdade.
+- ATUALIZAR O SERVIDOR (Hostinger) para esta versão: `bash /opt/eldoria/servidor/implantar/atualizar.sh` (o servidor ganhou o gate 'pronto').

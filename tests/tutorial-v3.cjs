@@ -3,7 +3,7 @@ const { chromium } = require('playwright');
 const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else console.log('ok  -',m)};
 (async()=>{
  const br=await chromium.launch();const pg=await (await br.newContext({viewport:{width:1000,height:450}})).newPage();const errs=[];pg.on('pageerror',e=>errs.push(e.message));
- await pg.goto('http://localhost:8000/index.html?allheroes=1');await pg.waitForTimeout(900);await pg.getByText('ENTRAR',{exact:true}).click();await pg.fill('#profileName','Teste');await pg.getByText('Continuar',{exact:true}).click();await pg.waitForTimeout(1400);
+ await pg.goto('http://localhost:8000/index.html?semcarga=1&allheroes=1');await pg.waitForTimeout(900);await pg.getByText('ENTRAR',{exact:true}).click();await pg.fill('#profileName','Teste');await pg.getByText('Continuar',{exact:true}).click();await pg.waitForTimeout(1400);
  // oferta automática desligada em ?allheroes=1; abre manualmente
  let r=await pg.evaluate(()=>{window.requestAnimationFrame=()=>0;account.coins=0;V3Tutorial.start();const T=V3Tutorial.state;
   return{on:T.on,phase:T.phase,dummy:b.trainingDummy&&b.hp===450,series:V3Series.state.on,sp:V3Modes.special,box:!document.getElementById('tutBox').hidden,mode:matchMode,act:battleActivity}});

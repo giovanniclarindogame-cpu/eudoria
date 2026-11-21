@@ -210,7 +210,7 @@ const BossSprite=(()=>{
  /* ---------- contorno e cache ---------- */
  const cache=new Map();
  function outline(c,ink){
-  const g=c.getContext('2d'),w=c.width,h=c.height,im=g.getImageData(0,0,w,h),d=im.data,out=new Uint8ClampedArray(d);
+  const g=c.getContext('2d',{willReadFrequently:true}),w=c.width,h=c.height,im=g.getImageData(0,0,w,h),d=im.data,out=new Uint8ClampedArray(d);
   const r=parseInt(ink.slice(1,3),16),gg=parseInt(ink.slice(3,5),16),bb=parseInt(ink.slice(5,7),16);
   for(let y=0;y<h;y++)for(let x=0;x<w;x++){
    const i=(y*w+x)*4;if(d[i+3]>40)continue;

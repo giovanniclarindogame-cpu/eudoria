@@ -7,7 +7,7 @@ let eclipse30Registration=null;
 function eclipse30Register(){
  if(eclipse30Registration)return eclipse30Registration;
  if(!ECLIPSE30_BODY.complete||!ECLIPSE30_BODY.naturalWidth)return null;
- const c=document.createElement('canvas');c.width=c.height=1254;const g=c.getContext('2d');g.drawImage(ECLIPSE30_BODY,0,0);
+ const c=document.createElement('canvas');c.width=c.height=1254;const g=c.getContext('2d',{willReadFrequently:true});g.drawImage(ECLIPSE30_BODY,0,0);
  const data=g.getImageData(0,0,1254,1254).data;let top=209,bottom=-1;
  for(let y=0;y<209;y++)for(let x=0;x<209;x++)if(data[(y*1254+x)*4+3]>170){top=Math.min(top,y);bottom=Math.max(bottom,y);}
  return bottom<0?null:(eclipse30Registration={height:bottom-top+1});
@@ -35,7 +35,7 @@ const eclipse30Clean=new Map();
 function eclipse30Cell(key,f){
  const id=key+':'+f;let c=eclipse30Clean.get(id);if(c)return c;
  const im=ECLIPSE30_FX[key];
- c=document.createElement('canvas');c.width=c.height=256;const g=c.getContext('2d');
+ c=document.createElement('canvas');c.width=c.height=256;const g=c.getContext('2d',{willReadFrequently:true});
  g.drawImage(im,f%6*256,Math.floor(f/6)*256,256,256,0,0,256,256);
  // Repulsion now has clean source alpha; do not alter its ring or fragments.
  if(key==='repulse'){eclipse30Clean.set(id,c);return c;}

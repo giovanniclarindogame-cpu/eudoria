@@ -91,7 +91,7 @@ for(const type of ['pointerup','pointercancel','lostpointercapture'])stick.addEv
 const faceCache=new Map(),faceBusy=new Set();
 function faceCrop(img){
  const W=img.naturalWidth,H=img.naturalHeight,sc=Math.min(1,160/W),w=Math.max(8,Math.round(W*sc)),h=Math.max(8,Math.round(H*sc));
- const c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d');g.drawImage(img,0,0,w,h);
+ const c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d',{willReadFrequently:true});g.drawImage(img,0,0,w,h);
  const d=g.getImageData(0,0,w,h).data;
  let y0=0;for(;y0<h;y0++){let n=0;for(let x=0;x<w;x++)if(d[(y0*w+x)*4+3]>60)n++;if(n>2)break}
  const band0=y0+Math.round(h*.04),band1=y0+Math.round(h*.13),xs=[];

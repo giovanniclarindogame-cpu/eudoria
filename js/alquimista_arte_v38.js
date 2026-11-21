@@ -44,7 +44,7 @@ function alc38Effect(g,key,frame,x,y,size,angle=0,directional=false,alpha=1){
 }
 function alc38Registration(im){
  if(!im.complete||!im.naturalWidth)return null;if(alc38Bounds.has(im))return alc38Bounds.get(im);
- const c=document.createElement('canvas');c.width=c.height=256;const g=c.getContext('2d'),frames=[];
+ const c=document.createElement('canvas');c.width=c.height=256;const g=c.getContext('2d',{willReadFrequently:true}),frames=[];
  for(let f=0;f<24;f++){
   g.clearRect(0,0,256,256);g.drawImage(im,f%6*256,Math.floor(f/6)*256,256,256,0,0,256,256);
   const d=g.getImageData(0,0,256,256).data;let left=256,right=-1,top=256,bottom=-1;

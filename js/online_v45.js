@@ -84,13 +84,24 @@ function attach(conn){
 function peerConnAdapter(c){const a={pc:()=>c.peerConnection,send:o=>c.send(o),close:()=>c.close()};c.on('data',d=>a.onData?.(d));c.on('close',()=>lost('O outro jogador saiu da sala.'));c.on('error',()=>lost('A conexão caiu.'));return a}
 function channelAdapter(ch){const a={pc:()=>S.pc,send:o=>ch.send(JSON.stringify(o)),close:()=>ch.close()};ch.onmessage=e=>{try{a.onData?.(JSON.parse(e.data))}catch{}};ch.onclose=()=>lost('O outro jogador saiu.');return a}
 /* ---------- partida rápida pelo servidor ---------- */
+// tela de seleção da partida rápida (a mesma da sala entre amigos): escolhe o campeão e só então procura o rival
+function selecionar(manterErro){
+ if(!SERVIDOR){S.err='O servidor de partidas ainda não está configurado.';return go('home')}
+ const hero=S.me?.hero,err=manterErro?S.err:'';
+ cleanup();S.mode='server';S.role='guest';S.err=err;S.busy='';S.buscando=false;
+ S.me={...profile()};if(Number.isInteger(hero)&&owned().includes(hero))S.me.hero=hero;
+ S.them=null;S.ready=false;
+ const el=root();if(el.hidden){el.hidden=false;document.body.classList.add('v45-open')}   // vindo da tela de resultado a janela online está escondida
+ go('lobby');
+}
+function falhaSrv(msg){const h=S.me?.hero;cleanup();S.err=msg;S.me={...profile(),hero:h??profile().hero};S.mode='server';S.role='guest';S.them=null;S.buscando=false;go('lobby')}
 function quick(){
  if(!SERVIDOR){S.err='O servidor de partidas ainda não está configurado.';return go('home')}
- cleanup();S.mode='server';S.role='guest';S.err='';S.busy='Conectando ao servidor…';S.qt=Date.now();S.online=0;go('queue');
+ const hero=S.me?.hero;cleanup();S.mode='server';S.role='guest';S.err='';S.busy='Conectando ao servidor…';S.qt=Date.now();S.online=0;S.buscando=true;S.me={...profile(),hero:hero??profile().hero};S.them=null;go('lobby');
  S.qTimer=setInterval(()=>{const el=$q('#v45Qt');if(el)el.textContent=Math.floor((Date.now()-S.qt)/1000)+' s'},500);
- let sock;try{sock=new WebSocket(SERVIDOR)}catch{return fail('Endereço do servidor inválido.')}
+ let sock;try{sock=new WebSocket(SERVIDOR)}catch{return falhaSrv('Endereço do servidor inválido.')}
  S.ws=sock;
- const timer=setTimeout(()=>{if(S.ws===sock&&sock.readyState!==1)fail('Servidor indisponível no momento. Tente de novo em instantes.')},9000);
+ const timer=setTimeout(()=>{if(S.ws===sock&&sock.readyState!==1)falhaSrv('Servidor indisponível no momento. Tente de novo em instantes.')},9000);
  sock.onopen=()=>{
   clearTimeout(timer);if(S.ws!==sock)return;
   S.conn={pc:()=>null,send:o=>sock.send(JSON.stringify(o)),close:()=>sock.close()};
@@ -98,7 +109,7 @@ function quick(){
   S.pingT=setInterval(()=>send({t:'ping',at:performance.now()}),2000);
  };
  sock.onmessage=e=>{let m;try{m=JSON.parse(e.data)}catch{return}if(S.ws===sock)onSrv(m)};
- sock.onclose=()=>{clearTimeout(timer);if(S.ws!==sock)return;if(S.conn)lost('Conexão com o servidor perdida.');else fail('Não foi possível conectar ao servidor.')};
+ sock.onclose=()=>{clearTimeout(timer);if(S.ws!==sock)return;if(S.conn)lost('Conexão com o servidor perdida.');else falhaSrv('Não foi possível conectar ao servidor.')};
  sock.onerror=()=>{};
 }
 function onSrv(m){
@@ -107,10 +118,10 @@ function onSrv(m){
   case'fila':S.online=m.online||S.online;S.fila=m.n;render();break;
   case'cheio':S.busy='Servidor cheio: você continua na fila…';render();break;
   case'ocioso':break;
-  case'erro':fail(m.m==='versao'||m.m==='atualizar'?'Seu jogo está desatualizado. Atualize o jogo (ou a página) e tente de novo.':'O servidor recusou a conexão.');break;
+  case'erro':falhaSrv(m.m==='versao'||m.m==='atualizar'?'Seu jogo está desatualizado. Atualize o jogo (ou a página) e tente de novo.':'O servidor recusou a conexão.');break;
   case'match':
-   S.me={...profile()};S.them=sanitize(m.them);S.busy='';S.err='';clearInterval(S.qTimer);
-   try{window.OnlineV46.beginServer(m)}catch(e){console.error('[Eldoria online] partida',e);fail('Não foi possível começar a partida.')}
+   S.me={...profile()};S.them=sanitize(m.them);S.busy='';S.err='';S.buscando=false;clearInterval(S.qTimer);
+   try{window.OnlineV46.beginServer(m)}catch(e){console.error('[Eldoria online] partida',e);falhaSrv('Não foi possível começar a partida.')}
    break;
   default:onMsg(m);
  }
@@ -270,12 +281,12 @@ function updatePing(){const el=$q('#v45Ping');if(el){el.textContent=S.rtt==null?
 const faceSrc=id=>{try{return(window.v3FaceSrc&&v3FaceSrc({skin:id,kit:CHAMPIONS[id].kit}))||championArt(CHAMPIONS[id])}catch{return''}};
 const artSrc=id=>{try{return championArt(CHAMPIONS[id])}catch{return''}};
 function sideChip(p,me,ready){
- if(!p)return `<div class="v46-chip ${me?'left':'right'} wait"><span class="v45-dots"><i></i><i></i><i></i></span><b>Esperando o amigo…</b></div>`;
+ if(!p){const t=S.mode==='server'?(S.buscando?'Procurando um rival…':'O rival aparece aqui'):'Esperando o amigo…';return `<div class="v46-chip ${me?'left':'right'} wait">${S.mode==='server'&&!S.buscando?'':'<span class="v45-dots"><i></i><i></i><i></i></span>'}<b>${t}</b></div>`}
  return `<div class="v46-chip ${me?'left':'right'} ${ready?'ready':''}">${avatar(p,'sm')}<span><b>${esc(p.name)}${me?' <em>(você)</em>':''}</b><small>Nv ${p.lv} · <span class="v43-rank" data-tier="${p.tier}">${esc(p.league)}</span></small></span><i class="v46-st">${ready?svg('check')+'PRONTO':'escolhendo'}</i></div>`;
 }
 function lobbyHtml(){
  const me=S.me,th=S.them,mine=owned(),mc=CHAMPIONS[me.hero]||CHAMPIONS[0],tc=th?CHAMPIONS[th.hero]:null;
- const tiles=CHAMPIONS.map(c=>{const own=mine.includes(c.id),on=me.hero===c.id,foe=th&&th.hero===c.id;return `<button class="v46-tile ${on?'on':''} ${own?'':'locked'} ${foe?'foe':''}" data-v45-hero="${c.id}" ${own&&!S.ready?'':'disabled'} aria-pressed="${on}" title="${esc(c.name)}${own?'':' · bloqueado'}" style="--hero:${c.color}"><img data-face="${c.id}" src="${esc(faceSrc(c.id))}" alt="">${foe?'<i class="v46-foe-mark" aria-hidden="true">RIVAL</i>':''}</button>`}).join('');
+ const tiles=CHAMPIONS.map(c=>{const own=mine.includes(c.id),on=me.hero===c.id,foe=th&&th.hero===c.id;return `<button class="v46-tile ${on?'on':''} ${own?'':'locked'} ${foe?'foe':''}" data-v45-hero="${c.id}" ${own&&!S.ready&&!S.buscando?'':'disabled'} aria-pressed="${on}" title="${esc(c.name)}${own?'':' · bloqueado'}" style="--hero:${c.color}"><img data-face="${c.id}" src="${esc(faceSrc(c.id))}" alt="">${foe?'<i class="v46-foe-mark" aria-hidden="true">RIVAL</i>':''}</button>`}).join('');
  return `<div class="v46-sel" style="--me:${mc.color};--th:${tc?.color||'#e2264d'}">
   <div class="v46-stage">
    <div class="v46-art left"><img src="${esc(artSrc(mc.id))}" alt=""></div>
@@ -287,9 +298,9 @@ function lobbyHtml(){
    </div>
    ${sideChip(me,true,S.ready)}${sideChip(th,false,S.theirReady)}
   </div>
-  <div class="v46-names"><div class="v46-name blue">${esc(mc.name)}</div><div class="v46-hint">${S.ready?'Esperando o amigo ficar pronto…':'Toque para escolher seu lutador'}</div><div class="v46-name red">${tc?esc(tc.name):'? ? ?'}</div></div>
+  <div class="v46-names"><div class="v46-name blue">${esc(mc.name)}</div><div class="v46-hint">${S.mode==='server'?(S.buscando?(S.busy||'Procurando um rival…')+(S.online?` · ${S.online} online`:''):'Escolha seu lutador e procure um rival'):S.ready?'Esperando o amigo ficar pronto…':'Toque para escolher seu lutador'}</div><div class="v46-name red">${tc?esc(tc.name):'? ? ?'}</div></div>
   <div class="v46-bottom"><span class="v45-ping">${svg('wifi')}<b id="v45Ping">${S.rtt==null?'…':S.rtt+' ms'}</b></span><div class="v46-grid" role="listbox" aria-label="Seu campeão">${tiles}</div>
-   <button class="v46-go ${S.ready?'cancel':''}" data-v45="ready" ${th?'':'disabled'}>${S.ready?'CANCELAR':'PRONTO'}</button></div>
+   ${S.mode==='server'?(S.buscando?'<button class="v46-go cancel" data-v45="qcancel">CANCELAR</button>':'<button class="v46-go" data-v45="buscar">PROCURAR RIVAL</button>'):`<button class="v46-go ${S.ready?'cancel':''}" data-v45="ready" ${th?'':'disabled'}>${S.ready?'CANCELAR':'PRONTO'}</button>`}</div>
  </div>`;
 }
 // bonecos animados em repouso (o mesmo desenho da seleção offline)
@@ -352,7 +363,7 @@ function view(){
   ${S.answerCode?`<div class="v45-step"><span class="v45-num">2</span><b>Mostre este QR para o anfitrião</b><div class="v45-qr" id="v45Qr"></div><button class="v45-link" data-v45="copyAnswer">${svg('copy')}Sem câmera? Copiar código</button><p class="v45-wait"><span class="v45-dots"><i></i><i></i><i></i></span>Esperando o anfitrião ler…</p></div>`
   :`<div class="v45-step"><span class="v45-num">1</span><b>Leia o QR do anfitrião</b><div class="v45-scan" id="v45Scan"><button class="v45-btn blue" data-v45="scanOffer">${svg('cam')}Abrir câmera</button></div>
    <details class="v45-paste"><summary>Colar código</summary><textarea id="v45Paste" rows="3" placeholder="Cole aqui o código do anfitrião"></textarea><button class="v45-btn gold" data-v45="pasteOffer">Usar código</button></details></div>`}</div>`;
- case'lobby':return top('SALA '+(S.mode==='near'?'PERTO':S.code))+lobbyHtml();
+ case'lobby':return top(S.mode==='server'?'PARTIDA RÁPIDA':'SALA '+(S.mode==='near'?'PERTO':S.code),S.mode==='server'?'home':'home')+(S.err?err:'')+lobbyHtml();
  case'count':return `<div class="v45-count"><span>A luta começa em</span><b id="v45Count">3</b></div>`;
  case'wait':return `<div class="v45-count"><span class="v45-spin"></span><span>Entrando na arena…</span></div>`;
  case'stage2':return top('SALA '+(S.mode==='near'?'PERTO':S.code),'lobby')+`<div class="v45-body v45-center">
@@ -396,8 +407,9 @@ function bind(el){
   if(a==='create')return createRoom();
   if(a==='join'){cleanup();return go('join')}
   if(a==='enter')return joinRoom($q('#v45Code')?.value);
-  if(a==='quick')return quick();
-  if(a==='qcancel'){cleanup();return go('home')}
+  if(a==='quick')return selecionar();
+  if(a==='buscar')return quick();
+  if(a==='qcancel'){return selecionar()}
   if(a==='near'){cleanup();return go('near')}
   if(a==='nearHost')return nearHost();
   if(a==='nearGuest'){cleanup();S.mode='near';S.role='guest';return go('nearGuest')}
@@ -426,5 +438,5 @@ addEventListener('beforeunload',()=>{try{send({t:'bye'})}catch{}});
  },500);
 })();
 
-window.OnlineV45={quick,sendFast,send,render,go,owned,profile,state:S,open,close,pack,unpack,cleanCode,_createRoom:createRoom,_join:joinRoom,_nearHostRead:nearHostRead,_nearGuestRead:nearGuestRead};
+window.OnlineV45={selecionar,quick,sendFast,send,render,go,owned,profile,state:S,open,close,pack,unpack,cleanCode,_createRoom:createRoom,_join:joinRoom,_nearHostRead:nearHostRead,_nearGuestRead:nearGuestRead};
 })();
