@@ -442,3 +442,15 @@ scripts, compose válido, servidor rodando só com index.html + js/ + servidor/.
 NO AR (testes com amigos): servidor na Hostinger (VPS Ubuntu 24.04, 1 vCPU), https/wss em 179-199-140-168.sslip.io (endereço em js/config_servidor.js).
 Medido de fora, com jogadores simulados: 10 partidas (20 jogadores) a 30 atualizações/s, 0,07% de ticks atrasados, ~1 GB de memória. Atualizar o servidor:
 no terminal do VPS, `bash /opt/eldoria/servidor/implantar/atualizar.sh`. sslip.io é compartilhado: para ficar de vez, trocar por domínio próprio.
+
+DESEMPENHO v50 — carga sob demanda das artes (js/carga_preguicosa.js, js/recuperar_artes.js, js/arte_identidades.js, js/jogo.js)
+- Antes: ao abrir, o jogo baixava 415 arquivos / 112 MB de imagens (as artes dos 10 heróis) e levava ~4,5 s até a tela inicial num celular lento
+  simulado (CPU 4× mais lenta). Agora: 145 arquivos / 10,9 MB e ~2,6 s. Cada herói só baixa quando entra em cena (uma luta usa ~11 imagens).
+- Como funciona: window.lazyImage(src) cria uma Image que só começa a baixar quando o código pergunta image.complete/naturalWidth/naturalHeight
+  ou a desenha (drawImage é interceptado). rwImage e as imagens antigas de heróis do jogo.js usam lazyImage.
+  recuperar_artes.js (tentar de novo se falhar) e arenaAssetsStatus não "acordam" imagens paradas (antes liam .complete de todas).
+- ?preload=1 volta ao comportamento antigo; ?lazydebug=1 registra em LazyArt.origem quem acordou cada imagem.
+- Regra para o futuro: NÃO ler .complete/.naturalWidth de todas as imagens de uma vez (isso baixa tudo de novo).
+- Para apagar arquivos antigos sem risco: o texto do código engana (ex.: reforged_v9 parecia sem uso e é baixado). O jeito seguro é registrar,
+  numa sessão completa (todas as telas, heróis, modos e fases), quais arquivos o navegador pediu, e só apagar o que nunca foi pedido.
+- Medidas (CPU 4× mais lenta, tela 844×390, 2×): duelo ~15,5 fps nos dois casos (o custo da luta em si é o próximo alvo), Cruzada 38,9 → 44,5 fps.

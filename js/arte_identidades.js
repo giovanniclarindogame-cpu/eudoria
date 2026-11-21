@@ -3,7 +3,7 @@
 const REWORK_ART=new Map();
 // Arquivos antigos do Goku (geração reforged_v10) que foram removidos: qualquer pedido deles vira uma imagem vazia
 const REMOVED_ART=new Set(["assets/reforged_v10/astral-0.webp", "assets/reforged_v10/astral-1.webp", "assets/reforged_v10/astral-2.webp", "assets/reforged_v10/astral-3.webp", "assets/reforged_v10/astral-4.webp", "assets/reforged_v10/astral-5.webp", "assets/reforged_v10/astral-0-icon.webp", "assets/reforged_v10/astral-1-icon.webp", "assets/reforged_v10/astral-2-icon.webp", "assets/reforged_v10/astral-3-icon.webp", "assets/reforged_v10/astral-4-icon.webp", "assets/reforged_v10/astral-5-icon.webp", "assets/reforged_v10/astral-combo-vfx.webp", "assets/reforged_v10/astral14-blast.webp", "assets/reforged_v10/astral14-body.webp"]);
-function rwImage(file){if(REMOVED_ART.has(file))file='assets/ui/vazio.webp';if(!REWORK_ART.has(file)){const im=new Image();im.src=file;REWORK_ART.set(file,im);}return REWORK_ART.get(file);}
+function rwImage(file){if(REMOVED_ART.has(file))file='assets/ui/vazio.webp';if(!REWORK_ART.has(file)){REWORK_ART.set(file,window.lazyImage?lazyImage(file):Object.assign(new Image(),{src:file}));}return REWORK_ART.get(file);}
 function reworkPreload(skin){const k=identityKit(skin);if(!k)return;if(skin>=6)rwImage(`assets/dojo4/${k.key}-states.webp`);for(let i=0;i<6;i++){rwImage(`assets/${k.assets||'reforged_v9'}/${k.key}-${i}.webp`);rwImage(`assets/${k.assets||'reforged_v9'}/${k.key}-${i}-icon.webp`);}}
 function orientSkillSprite(g,angle=0){const left=Math.cos(angle)<0;g.rotate(left?Math.atan2(-Math.sin(angle),-Math.cos(angle)):angle);if(left)g.scale(-1,1);}
 championArt=c=>`assets/champions_v7/${String(c.id+1).padStart(2,'0')}.webp`;
