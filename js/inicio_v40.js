@@ -26,8 +26,8 @@ const MODES=[
  {id:'liga2',cat:'rank',name:'Liga 2×2',sub:'Você e um aliado',tag:'2×2',art:1,run:liga('2v2')},
  {id:'ligaTrio',cat:'rank',name:'Liga Trio',sub:'Três campeões por lado',tag:'3×3',art:2,run:liga('kof')},
  {id:'ligaCoroa',cat:'rank',name:'Liga da Coroa',sub:'Cada um por si',tag:'4 lutadores',art:3,run:liga('ffa')},
- {id:'duelo',cat:'casual',name:'Duelo 1×1',sub:'Enfrente outro jogador',tag:'1×1',art:4,run:()=>{try{if(window.OnlineV45)return OnlineV45.selecionar()}catch(e){console.error(e)}casual('1v1','1v1')()}},
- {id:'equipes',cat:'casual',name:'Equipes 2×2',sub:'Lute ao lado de um aliado',tag:'2×2',art:5,run:()=>{try{if(window.OnlineV45)return OnlineV45.selecionar('2v2')}catch(e){console.error(e)}casual('2v2','2v2')()}},
+ {id:'duelo',cat:'casual',name:'Duelo 1×1',sub:'Enfrente outro jogador',tag:'1×1',art:4,run:()=>{try{if(window.OnlineV45)return OnlineV45.procurar('1v1')}catch(e){console.error(e)}casual('1v1','1v1')()}},
+ {id:'equipes',cat:'casual',name:'Equipes 2×2',sub:'Lute ao lado de um aliado',tag:'2×2',art:5,run:()=>{try{if(window.OnlineV45)return OnlineV45.procurar('2v2')}catch(e){console.error(e)}casual('2v2','2v2')()}},
  {id:'trio',cat:'casual',name:'Trio de Campeões',sub:'Quem vence continua',tag:'3×3',art:12,run:()=>window.V3Kof?.open('kof')},
  {id:'coroa',cat:'casual',name:'Disputa da Coroa',sub:'O último de pé leva',tag:'4 lutadores',art:13,run:()=>window.V3Kof?.open('crown')},
  {id:'zona',cat:'casual',name:'Controle de Zona',sub:'Em reformulação',tag:'2×2',art:11,soon:true},
@@ -41,7 +41,15 @@ const byId=id=>MODES.find(m=>m.id===id);
 const subOf=m=>typeof m.sub==='function'?m.sub():m.sub;
 function current(){const m=byId(account.v40Mode);return m&&!m.soon&&!catLocked(m.cat)?m:byId('duelo')}
 function choose(id){const m=byId(id);if(!m||m.soon||catLocked(m.cat))return false;account.v40Mode=id;try{saveAccount()}catch{}return true}
-function play(){const m=current();closeAll();try{m.run()}catch(e){console.error('[Eldoria] iniciar modo',m.id,e);toast?.('Não foi possível abrir '+m.name)}}
+// busca por rivais em andamento: o botão JOGAR vira "Procurando rivais…" e tocar nele cancela
+const buscando=()=>{try{return !!(window.OnlineV45&&OnlineV45.state.procurando)}catch{return false}};
+function syncBusca(){
+ const on=buscando();
+ document.querySelectorAll('[data-v40-play]').forEach(b=>{b.classList.toggle('buscando',on);b.innerHTML=on?'<span class="v41-busca"><span class="v45-spin"></span><b>PROCURANDO RIVAIS…</b><small>toque para cancelar</small></span>':'JOGAR'+(b.classList.contains('v41-play')?'<kbd class="v41-key v41-key-play">Enter</kbd>':'')});
+ document.querySelectorAll('[data-v43-play]').forEach(b=>{b.classList.toggle('buscando',on);const t=b.querySelector('b'),sm=b.querySelector('small');if(t)t.textContent=on?'PROCURANDO…':'JOGAR';if(sm&&on)sm.textContent='toque para cancelar'; else if(sm)sm.textContent=current().name});
+}
+document.addEventListener('eldoria-busca',syncBusca);
+function play(){if(buscando()){try{OnlineV45.cancelar()}catch{}syncBusca();return}const m=current();closeAll();try{m.run()}catch(e){console.error('[Eldoria] iniciar modo',m.id,e);toast?.('Não foi possível abrir '+m.name)}}
 
 /* ---------- ícones ---------- */
 const I={
@@ -151,7 +159,7 @@ function mountHome(){
  try{window.CenaV41?.mount(ui)}catch(e){console.error('[Eldoria] cenário',e)}
 }
 const prevHome=renderLobbyHome;
-renderLobbyHome=function(){prevHome.apply(this,arguments);try{mountHome()}catch(e){console.error('[Eldoria] início v40',e)}};
+renderLobbyHome=function(){prevHome.apply(this,arguments);try{mountHome();syncBusca()}catch(e){console.error('[Eldoria] início v40',e)}};
 const prevNav=renderLobbyNav;
 renderLobbyNav=function(){prevNav.apply(this,arguments);syncNav()};
 
@@ -215,11 +223,11 @@ function modesMarkup(){
  <div class="v43-bottom"><nav class="v40-tabs v43-tabs" aria-label="Categorias">${CATS.map(([c,l,,lock])=>`<button data-v40-tab="${c}" class="${c===cat?'on':''} ${lock?'locked':''}" ${lock?'aria-disabled="true" title="Em breve"':''}>${svg(lock?'lock':CAT_ICON[c])}<span>${l}</span>${lock?'<small>em breve</small>':''}</button>`).join('')}</nav>
  <button class="v43-play" data-v43-play aria-label="Jogar ${esc(m.name)}"><small>${esc(m.name)}</small><b>JOGAR</b></button></div>`;
 }
-function refreshModes(){const box=$q('#v40Modes');if(!box||box.hidden)return;const strip=box.querySelector('.v40-strip'),x=strip.scrollLeft;box.innerHTML=modesMarkup();paintHuntBoss(box);box.classList.add('v43-noanim');const s2=box.querySelector('.v40-strip');s2.scrollLeft=x;bindDrag(s2);s2.addEventListener('scroll',()=>syncTab(s2),{passive:true});syncTab(s2)}
+function refreshModes(){const box=$q('#v40Modes');if(!box||box.hidden)return;const strip=box.querySelector('.v40-strip'),x=strip.scrollLeft;box.innerHTML=modesMarkup();paintHuntBoss(box);box.classList.add('v43-noanim');syncBusca();const s2=box.querySelector('.v40-strip');s2.scrollLeft=x;bindDrag(s2);s2.addEventListener('scroll',()=>syncTab(s2),{passive:true});syncTab(s2)}
 function openModes(){
  let box=$q('#v40Modes');
  if(!box){box=document.createElement('section');box.id='v40Modes';box.setAttribute('aria-label','Modos de jogo');document.body.appendChild(box)}
- modesCat=current().cat;box.classList.remove('v43-noanim');box.innerHTML=modesMarkup();paintHuntBoss(box);box.hidden=false;document.body.classList.add('v40-modes-open');syncNav();
+ modesCat=current().cat;box.classList.remove('v43-noanim');box.innerHTML=modesMarkup();paintHuntBoss(box);box.hidden=false;document.body.classList.add('v40-modes-open');syncNav();syncBusca();
  const strip=box.querySelector('.v40-strip'),on=box.querySelector('.v40-card.on');
  if(on)strip.scrollLeft=Math.max(0,on.offsetLeft-strip.clientWidth/2+on.offsetWidth/2);
  bindDrag(strip);strip.addEventListener('scroll',()=>syncTab(strip),{passive:true});
@@ -248,7 +256,7 @@ document.addEventListener('click',e=>{
   if(m?.soon){toast?.(m.name+': '+subOf(m));return}
   if(choose(pick.dataset.v40Pick)){refreshModes();try{if(appScreen==='home')renderLobbyHome()}catch{}}return}
  const tab=t.closest('[data-v40-tab]');
- if(tab){e.preventDefault();const c=tab.dataset.v40Tab;if(catLocked(c)){toast?.((CATS.find(x=>x[0]===c)?.[1]||'Este modo')+': em breve');return}modesCat=c;const box=$q('#v40Modes');if(box){box.classList.add('v43-noanim');box.innerHTML=modesMarkup();paintHuntBoss(box);bindDrag(box.querySelector('.v40-strip'))}return}
+ if(tab){e.preventDefault();const c=tab.dataset.v40Tab;if(catLocked(c)){toast?.((CATS.find(x=>x[0]===c)?.[1]||'Este modo')+': em breve');return}modesCat=c;const box=$q('#v40Modes');if(box){box.classList.add('v43-noanim');box.innerHTML=modesMarkup();paintHuntBoss(box);syncBusca();bindDrag(box.querySelector('.v40-strip'))}return}
  const go=t.closest('[data-v40-go]');
  if(go){e.preventDefault();const id=go.dataset.v40Go;closeAll();
   if(id==='modes')openModes();else if(id==='missions'){ensureMissions();$q('#v40Missions').hidden=false}

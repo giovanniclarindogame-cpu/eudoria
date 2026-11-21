@@ -17,14 +17,16 @@ const PORT=8791,SRV='ws://localhost:'+PORT;
  const nomes=['Ana','Beto','Caio','Duda'];
  const P=[];for(let i=0;i<4;i++)P.push(await player(nomes[i],H[i]));
  const [A,B,C,D]=P;
- await A.evaluate(()=>InicioV40.choose('equipes'));
- // o cartão Equipes 2×2 vai direto à seleção
- await A.evaluate(()=>{InicioV40.play()});await sleep(500);
- ok(await A.evaluate(()=>!document.querySelector('#onlineV45').hidden&&OnlineV45.state.modo==='2v2'&&document.querySelectorAll('.v46-fighter').length===4&&/EQUIPES/.test(document.querySelector('.v45-top b').textContent)),'o cartão Equipes 2×2 abre a seleção de campeão com 4 lutadores no palco');
- await A.click('[data-v45="buscar"]');await sleep(900);
- ok(await A.evaluate(()=>OnlineV45.state.buscando&&/1\/4/.test(document.querySelector('.v46-hint').textContent)),'procurando: "Formando as equipes… 1/4"');
+ await A.evaluate(()=>{InicioV40.choose('equipes');showScreen('home')});await sleep(800);
+ await A.click('[data-v40-play]');await sleep(900);
+ ok(await A.evaluate(()=>OnlineV45.state.procurando&&OnlineV45.state.modo==='2v2'&&/PROCURANDO/.test(document.querySelector('[data-v40-play]').textContent)),'JOGAR no Equipes 2×2 vira "Procurando rivais…"');
  ok((await saude()).fila2===1,'o servidor mostra 1 jogador na fila de 2×2');
- for(const pg of [B,C,D]){await pg.evaluate(()=>OnlineV45.selecionar('2v2'));await sleep(300);await pg.click('[data-v45="buscar"]');await sleep(500)}
+ for(const pg of [B,C,D]){await pg.evaluate(()=>{InicioV40.choose('equipes');showScreen('home')});await sleep(500);await pg.click('[data-v40-play]');await sleep(500)}
+ for(const pg of P)await pg.waitForFunction(()=>OnlineV45.state.fase==='sala'&&!(document.querySelector('#onlineV45')?.hidden??true),null,{timeout:30000});
+ await sleep(400);
+ ok(await A.evaluate(()=>document.querySelectorAll('.v46-fighter').length===4&&document.querySelectorAll('.v46-chip').length===4&&/EQUIPES/.test(document.querySelector('.v45-top b').textContent)&&!!document.querySelector('.v46-vs svg')),'a sala de escolha do 2×2 mostra 4 lutadores, 4 jogadores e o emblema VS');
+ await B.click('[data-v45-hero="4"]');await sleep(150);
+ for(const pg of P){await pg.click('[data-v45="ready"]');await sleep(150)}
  for(const pg of P)await pg.waitForFunction(()=>window.OnlineV46?.match.on&&state==='fight',null,{timeout:60000});
  const sh=await saude();ok(sh.partidas===1&&sh.fila2===0&&sh.jogadores===4,`servidor: ${sh.partidas} partida de 2×2 com ${sh.jogadores} jogadores`);
  // cada tela: eu sou p; aliado = parceiro; b e rival = adversários
