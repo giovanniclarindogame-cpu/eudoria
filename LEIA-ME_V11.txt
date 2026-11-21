@@ -438,3 +438,7 @@ SERVIDOR DE PARTIDAS (v49) — servidor/ (ver servidor/LEIA-ME.md), js/config_se
 IMPLANTAÇÃO (Hostinger VPS) — servidor/implantar/: Dockerfile + docker-compose.yml (servidor + Caddy com HTTPS/wss automático), instalar.sh
 (Docker, firewall, atualizações automáticas, limite de partidas pela memória), atualizar.sh e LEIA-ME.md (passo a passo). Testado aqui: sintaxe dos
 scripts, compose válido, servidor rodando só com index.html + js/ + servidor/. NÃO testado: construção da imagem e instalação numa máquina de verdade.
+
+NO AR (testes com amigos): servidor na Hostinger (VPS Ubuntu 24.04, 1 vCPU), https/wss em 179-199-140-168.sslip.io (endereço em js/config_servidor.js).
+Medido de fora, com jogadores simulados: 10 partidas (20 jogadores) a 30 atualizações/s, 0,07% de ticks atrasados, ~1 GB de memória. Atualizar o servidor:
+no terminal do VPS, `bash /opt/eldoria/servidor/implantar/atualizar.sh`. sslip.io é compartilhado: para ficar de vez, trocar por domínio próprio.
