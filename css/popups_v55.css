@@ -98,3 +98,20 @@
 #v40Missions #journeyHome .journey-card>p{font-size:13px;color:#e3ecff!important;font-weight:700;margin:2px 0 8px}
 #v40Missions #journeyHome .journey-card>.eyebrow,#v40Missions #journeyHome .journey-card>span.eyebrow{background:linear-gradient(180deg,#ffe9a6,#ffc94a)!important;color:var(--p55-brown)!important;border:2px solid #7a4a00!important;border-radius:10px!important;display:inline-block!important;padding:3px 14px!important;box-shadow:0 2px 0 rgba(0,0,0,.35)!important}
 #v40Missions #journeyHome .journey-card>.eyebrow *{color:var(--p55-brown)!important}
+
+/* ---- Minha conta (código de recuperação) ---- */
+#v55Conta{z-index:70}
+.conta-card{width:min(520px,100%)!important}
+.conta-body{display:grid;gap:10px;padding-bottom:16px!important}
+.conta-p{margin:0;color:#e3ecff;font-weight:700;font-size:13px;line-height:1.45}.conta-p b{color:var(--p55-gold)}
+.conta-rot{display:inline-block;justify-self:start;background:linear-gradient(180deg,#ffe9a6,#ffc94a);color:var(--p55-brown);font:900 11px system-ui;letter-spacing:.08em;padding:3px 12px;border-radius:9px;border:2px solid #7a4a00;box-shadow:0 2px 0 rgba(0,0,0,.3)}
+.conta-codigo{font:900 clamp(22px,5vw,32px)/1 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.08em;text-align:center;color:var(--p55-brown);background:linear-gradient(180deg,#fffaf0,#fff0cf);border:3px solid var(--p55-gold);border-radius:16px;padding:14px 8px;box-shadow:0 4px 0 rgba(0,0,0,.3);user-select:all}
+.conta-linha{display:flex;gap:10px}.conta-linha .conta-btn{flex:1}
+.conta-btn{border:2px solid #fff;border-radius:14px;background:var(--p55-btn);color:var(--p55-brown);font:900 14px system-ui;padding:10px 16px;box-shadow:0 4px 0 #c96c00;cursor:pointer}
+.conta-btn.azul{background:linear-gradient(180deg,#5b8ff0,#2a4fb8);color:#fff;border-color:var(--p55-gold);box-shadow:0 4px 0 #162a63}
+.conta-btn.grande{font-size:17px;padding:14px}.conta-btn:disabled{opacity:.6}.conta-btn:active{transform:translateY(2px)}
+.conta-input{width:100%;box-sizing:border-box;background:#fffaf0;color:var(--p55-brown);border:3px solid var(--p55-gold);border-radius:14px;font:800 17px ui-monospace,Menlo,Consolas,monospace;letter-spacing:.06em;text-align:center;padding:10px;text-transform:uppercase}
+.conta-bloco{display:grid;gap:8px;margin-top:6px}
+.conta-ok{margin:0;color:#8fe29a;font-weight:800;font-size:13px}
+.conta-det{background:rgba(8,14,44,.35);border:2px solid rgba(126,166,255,.5);border-radius:14px;padding:8px 12px}.conta-det summary{cursor:pointer;font-weight:900;color:#fff}
+.conta-msg{min-height:18px;margin:0;color:#ffe7a3;font-weight:800;font-size:13px;text-align:center}

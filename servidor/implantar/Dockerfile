@@ -9,6 +9,8 @@ COPY index.html ./
 COPY js ./js
 COPY servidor ./servidor
 WORKDIR /app/servidor
+RUN mkdir -p /dados && chown node:node /dados
+ENV DADOS=/dados
 USER node
 EXPOSE 8787
 CMD ["node", "servidor.cjs"]

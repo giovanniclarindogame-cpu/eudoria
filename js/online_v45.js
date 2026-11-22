@@ -104,10 +104,13 @@ function abrirSocket(aoHello){
  let sock;try{sock=new WebSocket(SERVIDOR)}catch{falhaSrv('Endereço do servidor inválido.');return null}
  S.ws=sock;avisar();
  const timer=setTimeout(()=>{if(S.ws===sock&&sock.readyState!==1)falhaSrv('Servidor indisponível no momento. Tente de novo em instantes.')},9000);
- sock.onopen=()=>{
+ sock.onopen=async()=>{
   clearTimeout(timer);if(S.ws!==sock)return;
   S.conn={pc:()=>null,send:o=>sock.send(JSON.stringify(o)),close:()=>sock.close()};
-  sock.send(JSON.stringify({t:'hello',v:PROTO_SRV,build:window.ELDORIA_BUILD||1,sala:1,tok:TOK,p:profile()}));
+  // conta: cria na primeira vez e envia o progresso atual, para o servidor conferir os campeões liberados
+  try{await window.ContaSrv?.garantir?.()}catch{}
+  if(S.ws!==sock||sock.readyState!==1)return;
+  sock.send(JSON.stringify({t:'hello',v:PROTO_SRV,build:window.ELDORIA_BUILD||1,sala:1,tok:TOK,conta:window.ContaSrv?.codigo?.()||undefined,p:profile()}));
   S.pingT=setInterval(()=>send({t:'ping',at:performance.now()}),2000);
  };
  sock.onmessage=e=>{let m;try{m=JSON.parse(e.data)}catch{return}if(S.ws===sock)onSrv(m)};

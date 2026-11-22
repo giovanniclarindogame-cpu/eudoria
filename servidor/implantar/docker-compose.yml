@@ -11,6 +11,8 @@ services:
       AQUECIDAS: "${AQUECIDAS:-2}"
       BUILD_MINIMO: "${BUILD_MINIMO:-1}"
       ORIGENS: "${ORIGENS:-}"
+    volumes:
+      - dados:/dados
     expose:
       - "8787"
     healthcheck:
@@ -38,5 +40,6 @@ services:
       - caddy_data:/data
       - caddy_config:/config
 volumes:
+  dados:
   caddy_data:
   caddy_config:

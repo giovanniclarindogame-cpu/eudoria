@@ -14,11 +14,13 @@
 const http = require('http'), path = require('path'), os = require('os');
 const { WebSocketServer } = require('ws');
 const { Worker } = require('worker_threads');
+const contas = require('./contas.cjs');
 const PORT = +process.env.PORT || 8787, AQUECIDAS = process.env.AQUECIDAS != null ? +process.env.AQUECIDAS : 2, MAX_PARTIDAS = +process.env.MAX_PARTIDAS || 60;
 const ORIGENS = (process.env.ORIGENS || '').split(',').map(s => s.trim()).filter(Boolean);
 const TEMPO_SELECAO = +process.env.TEMPO_SELECAO || 30000;   // tempo para escolher o campeão depois de achar os rivais
 const ESPERA_BOT = process.env.ESPERA_BOT != null ? +process.env.ESPERA_BOT : 30000;   // fila sem encher: bots entram no lugar
 const TEMPO_VOLTA = +process.env.TEMPO_VOLTA || 90000;
+const ACEITA_TODOS = process.env.ACEITA_TODOS_HEROIS === '1';   // só nos testes: não confere os campeões liberados da conta
 const PROTO = 3, BUILD_MINIMO = +process.env.BUILD_MINIMO || 1;   // jogo instalado em versão mais antiga que BUILD_MINIMO precisa atualizar
 const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a);
 
@@ -77,6 +79,14 @@ function perfil(p = {}) {
     frame: /^[a-z]{2,10}$/.test(p.frame) ? p.frame : 'azul', photo: /^[hs]\d+$/.test(p.photo || '') ? p.photo : 'h0',
     hero: Math.max(0, Math.min(9, Math.floor(+p.hero) || 0)), tier: Math.max(0, Math.min(5, +p.tier || 0)), league: limpo(p.league || 'Bronze', 20),
   };
+}
+// campeões que o jogador pode usar: se ele tem conta, só os da conta (comprados + grátis da semana); sem conta vale o que ele mandar
+function heroiOk(j, h) {
+  h = Math.max(0, Math.min(9, Math.floor(+h) || 0));
+  if (ACEITA_TODOS || !j.conta) return h;
+  const c = contas.porCodigo(j.conta); if (!c) return h;
+  const ok = contas.heroisPermitidos(c);
+  return ok.has(h) ? h : [...ok][0];
 }
 const NOMES_BOT = ['Kaito', 'Mira', 'Bruno', 'Luna', 'Tiago', 'Sora', 'Nina', 'Davi', 'Yuki', 'Caio', 'Lara', 'Ravi'];
 function perfilBot(ref, usados) {
@@ -242,19 +252,19 @@ function tratar(j, texto) {
     if (m.t !== 'hello') return;
     if (m.v !== PROTO) { enviar(j.ws, JSON.stringify({ t: 'erro', m: 'versao' })); return j.ws.close(); }
     if ((+m.build || 1) < BUILD_MINIMO) { enviar(j.ws, JSON.stringify({ t: 'erro', m: 'atualizar', minimo: BUILD_MINIMO })); return j.ws.close(); }
-    j.perfil = perfil(m.p); j.build = +m.build || 1; j.sala = !!m.sala; j.tok = /^[A-Za-z0-9_-]{8,40}$/.test(m.tok || '') ? m.tok : null; j.estado = 'ocioso';
+    j.perfil = perfil(m.p); j.conta = typeof m.conta === 'string' && contas.porCodigo(m.conta) ? m.conta : null; j.perfil.hero = heroiOk(j, j.perfil.hero); j.build = +m.build || 1; j.sala = !!m.sala; j.tok = /^[A-Za-z0-9_-]{8,40}$/.test(m.tok || '') ? m.tok : null; j.estado = 'ocioso';
     return enviar(j.ws, JSON.stringify({ t: 'hello', ok: 1, online: jogadores.size, v: PROTO, modos: ['1v1', '2v2', 'trio', 'coroa'], bots: 1, volta: 1 }));
   }
   switch (m.t) {
     case 'ping': return enviar(j.ws, JSON.stringify({ t: 'pong', at: m.at }));
-    case 'perfil': j.perfil = perfil(m.p); return;
-    case 'fila': if (j.estado === 'fila' || (j.partida && !j.partida.fim)) return; if (m.p) j.perfil = perfil(m.p); entrarNaFila(j, m.modo); return;
+    case 'perfil': j.perfil = perfil(m.p); j.perfil.hero = heroiOk(j, j.perfil.hero); return;
+    case 'fila': if (j.estado === 'fila' || (j.partida && !j.partida.fim)) return; if (m.p) { j.perfil = perfil(m.p); j.perfil.hero = heroiOk(j, j.perfil.hero); } entrarNaFila(j, m.modo); return;
     case 'reconectar': if (j.estado === 'fila' || j.partida) return; return reconectar(j);
     case 'cancelar': { for (const f of todasFilas) { const i = f.indexOf(j); if (i >= 0) f.splice(i, 1); } if (j.estado === 'fila') j.estado = 'ocioso'; return enviar(j.ws, JSON.stringify({ t: 'ocioso' })); }
     case 'pronto': if (j.partida && !j.partida.fim) { j.partida.prontos[j.slot] = true; checarLiberar(j.partida); } return;
     case 'pick': { const p = j.partida; if (!p || p.fase !== 'sel') return; const s = p.slots[j.slot];
-      if (p.modo === 'trio') { s.time = j.time = Array.isArray(m.team) ? m.team.map(x => Math.floor(+x)).filter(x => Number.isInteger(x) && x >= 0 && x <= 9).slice(0, 3) : null; if (j.time && j.time.length) j.perfil.hero = j.time[0]; p.pronto_sel[j.slot] = false; return; }
-      j.perfil.hero = Math.max(0, Math.min(9, Math.floor(+m.hero) || 0)); p.pronto_sel[j.slot] = false;
+      if (p.modo === 'trio') { s.time = j.time = Array.isArray(m.team) ? m.team.map(x => Math.floor(+x)).filter(x => Number.isInteger(x) && x >= 0 && x <= 9).map(x => heroiOk(j, x)).filter((x, i, v) => v.indexOf(x) === i).slice(0, 3) : null; if (j.time && j.time.length) j.perfil.hero = j.time[0]; p.pronto_sel[j.slot] = false; return; }
+      j.perfil.hero = heroiOk(j, m.hero); p.pronto_sel[j.slot] = false;
       if (p.modo === '2v2') { const o = p.slots[j.slot ^ 1]; if (o && o.j) enviar(o.j.ws, JSON.stringify({ t: 'pick', s: j.slot, hero: j.perfil.hero })); } return; }
     case 'ready': { const p = j.partida; if (!p || p.fase !== 'sel') return; p.pronto_sel[j.slot] = !!m.v; avisarOutros(p, j.slot, { t: 'ready', s: j.slot, v: p.pronto_sel[j.slot] ? 1 : 0 }); if (p.pronto_sel.every(Boolean)) comecar(p); return; }
     case 'in': if (j.partida && !j.partida.fim && j.partida.fase === 'jogo') j.partida.e.w.postMessage({ k: 'in', slot: j.slot, m }); return;
@@ -264,11 +274,40 @@ function tratar(j, texto) {
 }
 
 /* ---------- http + websocket ---------- */
+/* ---------- contas (HTTP) ---------- */
+const CORS = { 'access-control-allow-origin': '*', 'access-control-allow-headers': 'content-type', 'access-control-allow-methods': 'POST, GET, OPTIONS' };
+const limites = new Map();   // ip -> { t, n, c }: máximo de pedidos por minuto e de contas novas por hora
+function ipDe(req) { return String(req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim(); }
+function limite(ip, criando) {
+  const agora = Date.now(); let l = limites.get(ip); if (!l) { l = { t: agora, n: 0, h: agora, c: 0 }; limites.set(ip, l); }
+  if (agora - l.t > 60000) { l.t = agora; l.n = 0; } if (agora - l.h > 3600000) { l.h = agora; l.c = 0; }
+  l.n++; if (criando) l.c++;
+  return l.n > 60 || (criando && l.c > 12);
+}
+setInterval(() => { const x = Date.now() - 3600000; for (const [ip, l] of limites) if (l.h < x) limites.delete(ip); }, 600000).unref();
+function responder(res, cod, obj) { res.writeHead(cod, { 'content-type': 'application/json', ...CORS }); res.end(JSON.stringify(obj)); }
+function rotaConta(req, res) {
+  if (req.method === 'OPTIONS') { res.writeHead(204, CORS); return res.end(); }
+  if (req.method !== 'POST') return responder(res, 405, { erro: 'metodo' });
+  const rota = req.url.split('?')[0], ip = ipDe(req);
+  if (limite(ip, rota === '/conta/criar')) return responder(res, 429, { erro: 'muitos' });
+  let corpo = '', estourou = false;
+  req.on('data', d => { corpo += d; if (corpo.length > 400 * 1024) { estourou = true; req.destroy(); } });
+  req.on('end', () => {
+    if (estourou) return;
+    let m; try { m = JSON.parse(corpo || '{}'); } catch { return responder(res, 400, { erro: 'json' }); }
+    if (rota === '/conta/criar') { const r = contas.criar(m.chaves); if (r.erro) return responder(res, r.erro === 'cheio' ? 503 : 400, r); log(`conta criada (${contas.total()} no total)`); return responder(res, 200, r); }
+    if (rota === '/conta/entrar') { const r = contas.entrar(m.codigo); return r ? responder(res, 200, r) : responder(res, 404, { erro: 'codigo' }); }
+    if (rota === '/conta/salvar') { const r = contas.salvar(m.codigo, m.chaves, m.base); if (r.erro) return responder(res, r.erro === 'codigo' ? 404 : 400, r); return responder(res, r.conflito ? 409 : 200, r); }
+    responder(res, 404, { erro: 'rota' });
+  });
+}
 const servidor = http.createServer((req, res) => {
+  if (req.url.startsWith('/conta/')) return rotaConta(req, res);
   if (req.url === '/saude' || req.url === '/') {
     const mem = process.memoryUsage();
     res.writeHead(200, { 'content-type': 'application/json', 'access-control-allow-origin': '*' });
-    return res.end(JSON.stringify({ ok: true, proto: PROTO, buildMinimo: BUILD_MINIMO, jogadores: jogadores.size, fila: fila.length, fila2: fila2.length, fila3: fila3.length, fila4: fila4.length, partidas: partidas.size, aquecidas: aquecidas.filter(x => x.pronta).length, ...stats, tickMedio: +stats.tickMedio.toFixed(3), tickMax: +stats.tickMax.toFixed(2), memoriaMB: Math.round(mem.rss / 1048576), nucleos: os.cpus().length, uptime: Math.round(process.uptime()) }));
+    return res.end(JSON.stringify({ ok: true, proto: PROTO, buildMinimo: BUILD_MINIMO, jogadores: jogadores.size, fila: fila.length, fila2: fila2.length, fila3: fila3.length, fila4: fila4.length, contas: contas.total(), partidas: partidas.size, aquecidas: aquecidas.filter(x => x.pronta).length, ...stats, tickMedio: +stats.tickMedio.toFixed(3), tickMax: +stats.tickMax.toFixed(2), memoriaMB: Math.round(mem.rss / 1048576), nucleos: os.cpus().length, uptime: Math.round(process.uptime()) }));
   }
   res.writeHead(404); res.end();
 });

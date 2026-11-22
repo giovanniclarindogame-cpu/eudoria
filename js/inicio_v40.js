@@ -185,7 +185,7 @@ document.addEventListener('click',e=>{if(e.target.closest('#v40Missions .v40-she
 function openMenu(){
  let box=$q('#v40Menu');
  if(!box){box=document.createElement('div');box.id='v40Menu';box.className='v40-sheet v40-menu';box.hidden=true;document.body.appendChild(box)}
- const items=[['library','hero','Campeões'],['shop','shop','Loja'],['training','dojo','Dojo'],['league','crown','Liga'],['modes','play','Modos de jogo'],['missions','quest','Missões'],['settings','gear','Configurações'],['full','full','Tela cheia']];
+ const items=[['library','hero','Campeões'],['shop','shop','Loja'],['training','dojo','Dojo'],['league','crown','Liga'],['modes','play','Modos de jogo'],['missions','quest','Missões'],['conta','hero','Minha conta'],['settings','gear','Configurações'],['full','full','Tela cheia']];
  box.innerHTML=`<div class="v40-sheet-card"><header><b>Menu</b><button class="v40-round" data-v40-close aria-label="Fechar">${svg('close')}</button></header><div class="v40-menu-grid">${items.map(([id,ic,l])=>id==='league'?`<button data-v40-go="league" class="locked" aria-disabled="true">${svg('lock')}<span>${l}</span><small>em breve</small></button>`:`<button data-v40-go="${id}">${svg(ic)}<span>${l}</span></button>`).join('')}</div></div>`;
  box.hidden=false;
 }
@@ -272,6 +272,7 @@ document.addEventListener('click',e=>{
  if(tab){e.preventDefault();const c=tab.dataset.v40Tab;if(catLocked(c)){toast?.((CATS.find(x=>x[0]===c)?.[1]||'Este modo')+': em breve');return}modesCat=c;const box=$q('#v40Modes');if(box){box.classList.add('v43-noanim');box.innerHTML=modesMarkup();paintHuntBoss(box);syncBusca();bindDrag(box.querySelector('.v40-strip'))}return}
  const go=t.closest('[data-v40-go]');
  if(go&&go.dataset.v40Go==='league'){e.preventDefault();toast?.('Liga: em breve');return}
+ if(go&&go.dataset.v40Go==='conta'){e.preventDefault();closeAll();try{ContaSrv.abrir()}catch(err){console.error(err)}return}
  if(go){e.preventDefault();const id=go.dataset.v40Go;closeAll();
   if(id==='modes')openModes();else if(id==='missions'){ensureMissions();$q('#v40Missions').hidden=false}
   else if(id==='settings')$q('#homeScreen .v40-legacy #openLobbySettings')?.click();
