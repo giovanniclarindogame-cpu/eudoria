@@ -28,3 +28,6 @@ Este arquivo é para a sessão do Claude que roda **no computador** (onde a exte
 
 ## Conferir antes de enviar
 `python3 scripts/validar_folha.py ARQUIVO.webp` confere tamanho, transparência, quadros vazios, margens, laço e peso (folha de quadros). Para faixa que se repete (rastro no chão): `--faixa`. Rode e corrija até aparecer `RESULTADO: OK`.
+
+## Prévia fiel do rastro de fogo
+`python3 scripts/previa_rastro.py rastro_novo.webp previa.png --comparar assets/efeitos_v39/rastroFogo_antigo.webp` mostra a faixa repetida do jeito que o jogo desenha: em pé sobre o piso de pedra e SOMANDO luz. Atenção: somar luz sobre o piso azul-acinzentado lava as cores escuras (vermelho escuro vira rosa). Use laranjas e amarelos saturados e evite vermelhos escuros grandes.
