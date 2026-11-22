@@ -165,6 +165,13 @@ function tutorialShow(){
   <div class="tut-card" role="dialog" aria-modal="true" aria-labelledby="tutTitle" style="left:${cx}px;top:${cy}px;transform:translate(-50%,${below?'0':'-100%'})">
    <span class="ret-eyebrow">COMO JOGAR · ${tut.i+1}/${STEPS.length}</span><h3 id="tutTitle">${st.title}</h3><p>${st.text}</p>
    <div class="tut-actions"><button class="ghost" data-tut-skip>Pular</button><button class="gold" data-tut-next>${tut.i===STEPS.length-1?'Entendi, vamos lutar!':'Próximo'}</button></div></div>`;
+ const card=el.querySelector('.tut-card');
+ if(card){ // usa a largura/altura REAIS do cartão (no PC ele é ampliado pela escala da interface) para nunca sair da tela
+  const cw=card.offsetWidth,ch=card.offsetHeight,m=10;
+  card.style.left=clamp(cx,cw/2+m,innerWidth-cw/2-m)+'px';
+  if(below){ if(cy+ch>innerHeight-m)card.style.top=Math.max(m,innerHeight-m-ch)+'px'; }
+  else{ if(cy-ch<m){card.style.transform='translate(-50%,0)';card.style.top=m+'px'} }
+ }
  el.querySelector('[data-tut-next]').focus?.();
 }
 function startTutorial(after){
