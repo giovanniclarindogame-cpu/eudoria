@@ -1,0 +1,7 @@
+/* v70: ping pequeno durante a luta online */
+#fightPing{position:fixed;z-index:70;display:flex;align-items:center;gap:4px;height:20px;padding:0 8px 0 6px;border-radius:10px;background:rgba(6,14,40,.62);border:1px solid rgba(255,255,255,.22);color:#9dffb0;font:800 11px/1 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;letter-spacing:.2px;pointer-events:none;user-select:none;-webkit-user-select:none;backdrop-filter:blur(2px)}
+#fightPing[hidden]{display:none}
+#fightPing svg{width:13px;height:13px;flex:none}
+#fightPing[data-q="ok"]{color:#ffe066}
+#fightPing[data-q="ruim"]{color:#ff8a98}
+@media (max-height:430px){#fightPing{height:18px;font-size:10px;padding:0 6px 0 5px}#fightPing svg{width:11px;height:11px}}
