@@ -6,7 +6,7 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const PORT=8799,HTTP='http://localhost:'+PORT,SRV='ws://localhost:'+PORT;
 const DADOS=fs.mkdtempSync(path.join(os.tmpdir(),'eldoria-contas-'));
 let sv,svlog='';
-function subir(){sv=spawn('node',['servidor.cjs'],{cwd:path.join(__dirname,'..','servidor'),env:{...process.env,PORT:String(PORT),DADOS,AQUECIDAS:'1',ESPERA_BOT:'60000'},stdio:['ignore','pipe','pipe']});sv.stdout.on('data',d=>svlog+=d);sv.stderr.on('data',d=>svlog+=d)}
+function subir(){sv=spawn('node',['servidor.cjs'],{cwd:path.join(__dirname,'..','servidor'),env:{...process.env,PORT:String(PORT),DADOS,AQUECIDAS:'1',ESPERA_BOT:'60000',FASE_TESTE:'0'},stdio:['ignore','pipe','pipe']});sv.stdout.on('data',d=>svlog+=d);sv.stderr.on('data',d=>svlog+=d)}
 async function esperar(){for(let i=0;i<40;i++){try{await fetch(HTTP+'/saude');return}catch{await sleep(250)}}}
 const post=async(r,b)=>{const x=await fetch(HTTP+r,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(b)});return{status:x.status,...(await x.json().catch(()=>({})))}};
 (async()=>{

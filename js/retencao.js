@@ -123,7 +123,7 @@ renderLobbyHome=function(){
   document.getElementById('dailyGoals')?.remove();
   bottom.classList.remove('single');bottom.appendChild(goalsCard());
  }
- if(auto&&!giftState().claimedToday&&!window.__giftShown){window.__giftShown=true;setTimeout(()=>{if(appScreen==='home'&&state==='select'&&!giftState().claimedToday)openGift()},900)}
+ if(auto&&!giftState().claimedToday&&!window.__giftShown){window.__giftShown=true;setTimeout(()=>{if(appScreen==='home'&&state==='select'&&!giftState().claimedToday&&!(window.ELDORIA_TESTE_ON&&ELDORIA_TESTE_ON('semPresentes')))openGift()},900)}
 };
 function refreshHome(){if(appScreen==='home'){const keep=window.__giftShown;renderLobbyHome();window.__giftShown=keep}}
 document.addEventListener('click',e=>{
@@ -173,7 +173,7 @@ function startTutorial(after){
 document.addEventListener('click',e=>{
  if(!tut)return;
  if(e.target.closest('[data-tut-next]')){tut.i++;if(tut.i>=STEPS.length){S.tutorial=true;save();tutorialEnd(true)}else tutorialShow()}
- else if(e.target.closest('[data-tut-skip]')){S.tutorial=true;save();tutorialEnd(false)}
+ else if(e.target.closest('[data-tut-skip]')){if(window.ELDORIA_TESTE_ON&&ELDORIA_TESTE_ON('tutorialObrigatorio')&&!S.tutorial)return;S.tutorial=true;save();tutorialEnd(false)}
 });
 addEventListener('resize',()=>{if(tut)tutorialShow()});
 const prevStart=start;

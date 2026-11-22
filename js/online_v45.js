@@ -44,7 +44,7 @@ function profile(){
 }
 // online: só vale o que é da conta (comprados + os 3 grátis da semana). A fase de testes que libera tudo no resto do jogo não vale aqui
 function owned(){try{
- if(ALL_HEROES_DEBUG)return CHAMPIONS.map(c=>c.id);
+ if(ALL_HEROES_DEBUG||(window.ELDORIA_TESTE_ON&&ELDORIA_TESTE_ON('todosHerois')))return CHAMPIONS.map(c=>c.id);   // fase de teste: todos liberados
  const ok=new Set([...(account.ownedHeroes||[]),...heroesFreeThisWeek()]);
  const l=CHAMPIONS.filter(c=>ok.has(c.id)).map(c=>c.id);return l.length?l:[0]}catch{return[0]}}
 
