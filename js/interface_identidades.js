@@ -32,9 +32,9 @@ const rwPriorBuild=renderLobbyBuild;
 renderLobbyBuild=function(){rwPriorBuild();const c=currentChampion();if(c?.id<6)return;const foot=$('#lobbyBuild .lobby-build-foot>span');if(foot)foot.textContent=identityKit(c.id).resource+' · ULT: '+rwUltText[c.id-6];};
 const rwPriorUI=updateUI;
 updateUI=function(){rwPriorUI();if(!p)return;
- for(const [prefix,a]of [['p',p],['b',b]]){const r=a&&reworkResource(a),bar=$('#'+prefix+'mbar');if(!bar)continue;bar.style.background=r?r.color:'';bar.parentElement.setAttribute('aria-label',r?`${r.label}: ${Math.floor(r.value)} de ${r.max}`:'Mana');if(r){bar.style.width=100*r.value/r.max+'%';bar.parentElement.title=r.label;}}
- const r=reworkResource(p);if(r){const s=reworkState(p),status=s.arm>0?' · BRAÇO '+Math.ceil(s.arm)+'s':s.finger>0?' · DEDO '+Math.ceil(s.finger)+'s':s.tired>0?' · CANSADO':s.turbo>0?' · TURBO':s.empowered?' · ENERGIZADO':s.cosmic>0?' · BRILHO ESTELAR':'';$('#resText').textContent=`${r.label.toUpperCase()} ${Math.floor(r.value)}/${r.max}${status}`;}
- const enemyLabel=$('#enemyResource');if(enemyLabel){const er=b&&reworkResource(b);enemyLabel.textContent=er?er.label+' '+Math.floor(er.value)+'/'+er.max:'';}
+ for(const [prefix,a]of [['p',p],['b',b]]){const r=a&&reworkResource(a),bar=$('#'+prefix+'mbar');if(!bar)continue;bar.style.background=r?r.color:'';hudAttr(bar.parentElement,'aria-label',r?`${r.label}: ${Math.floor(r.value)} de ${r.max}`:'Mana');if(r){bar.style.width=100*r.value/r.max+'%';bar.parentElement.title=r.label;}}
+ const r=reworkResource(p);if(r){const s=reworkState(p),status=s.arm>0?' · BRAÇO '+Math.ceil(s.arm)+'s':s.finger>0?' · DEDO '+Math.ceil(s.finger)+'s':s.tired>0?' · CANSADO':s.turbo>0?' · TURBO':s.empowered?' · ENERGIZADO':s.cosmic>0?' · BRILHO ESTELAR':'';hudText($('#resText'),p.skin<6?(r.textOnly?r.label:r.label.toUpperCase()+' '+Math.floor(r.value)+'/'+r.max):`${r.label.toUpperCase()} ${Math.floor(r.value)}/${r.max}${status}`);}
+ const enemyLabel=$('#enemyResource');if(enemyLabel){const er=b&&reworkResource(b);hudText(enemyLabel,er?(b.skin<6&&er.textOnly?er.label:er.label+' '+Math.floor(er.value)+'/'+er.max):'');}
 };
 const rwPriorPracticeSettings=practiceSettingsMarkup;
 practiceSettingsMarkup=function(prefix){const html=rwPriorPracticeSettings(prefix);return currentChampion()?.id>=6?html.replace('Energia infinita e habilidades sem recarga','Sem recarga (mantém o recurso do campeão)'):html;};

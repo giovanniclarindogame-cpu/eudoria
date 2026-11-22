@@ -251,11 +251,12 @@ function refresh(){
  const cd=dashCooldown(p),tot=dashTotal(p);
  const lb=d.querySelector('small');if(lb&&lb.textContent!=='DASH')lb.textContent='DASH';
  d.classList.toggle('cooling',cd>0);d.style.setProperty('--cd',tot>0?String(clamp(cd/tot,0,1)):'0');
- const t=d.querySelector('.v3-cd');if(t)t.textContent=cd>0?(cd<10?cd.toFixed(1):Math.ceil(cd)):'';
- arcOrder(p).forEach((slot,pos)=>{const hk=document.querySelectorAll('#equipped .skill')[slot]?.querySelector('.hotkey');const t=pos===3?'ULT':String(pos+1);if(hk&&hk.textContent!==t)hk.textContent=t});
+ const t=d.querySelector('.v3-cd');if(t)hudText(t,cd>0?(cd<10?cd.toFixed(1):Math.ceil(cd)):'');
+ const buttons=document.querySelectorAll('#equipped .skill');
+ arcOrder(p).forEach((slot,pos)=>{const hk=buttons[slot]?.querySelector('.hotkey');const t=pos===3?'ULT':String(pos+1);if(hk&&hk.textContent!==t)hk.textContent=t});
  // Kakashi: com clone na tela, a habilidade 2 mostra TROCAR
  const eq=document.getElementById('equipped');
- const el=eq&&eq.querySelectorAll('.skill')[1];
+ const el=eq&&buttons[1];
  if(el&&p.skin===1){const sw=hasClone(p);el.classList.toggle('v3-swap',sw)}
 }
 window.V3Relayout=()=>{try{layout()}catch{}};

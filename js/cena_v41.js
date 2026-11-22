@@ -73,9 +73,9 @@ function start(ui,sc){
  const ro=new ResizeObserver(fit);ro.observe(ui);fit();setTimeout(placeHero,60);
  // imagens carregadas mudam o tamanho do chão: reposiciona o campeão
  sc.querySelectorAll('img').forEach(im=>{if(!im.complete)im.addEventListener('load',()=>{placeHero()},{once:true})});
- function spawnPetal(init){const bw=box.clientWidth,bh=box.clientHeight;petals.push({x:Math.random()*bw*1.2-bw*.1,y:init?Math.random()*bh:-12,s:3+Math.random()*4,vx:14+Math.random()*22,vy:18+Math.random()*24,a:Math.random()*6.28,va:(Math.random()-.5)*3,w:Math.random()*6.28})}
+ function spawnPetal(init){const bw=W+80,bh=H;petals.push({x:Math.random()*bw*1.2-bw*.1,y:init?Math.random()*bh:-12,s:3+Math.random()*4,vx:14+Math.random()*22,vy:18+Math.random()*24,a:Math.random()*6.28,va:(Math.random()-.5)*3,w:Math.random()*6.28})}
  for(let i=0;i<26;i++)spawnPetal(true);
- function spawnBirds(){const bh=box.clientHeight,y=bh*(.08+Math.random()*.18),dir=Math.random()<.5?1:-1,n=3+Math.floor(Math.random()*4),x0=dir>0?-40:box.clientWidth+40;for(let i=0;i<n;i++)birds.push({x:x0-dir*i*18,y:y+(i%2?8:-4)*i*.6,vx:dir*(38+Math.random()*10),f:Math.random()*6.28,s:.8+Math.random()*.4})}
+ function spawnBirds(){const bh=H,y=bh*(.08+Math.random()*.18),dir=Math.random()<.5?1:-1,n=3+Math.floor(Math.random()*4),x0=dir>0?-40:W+120;for(let i=0;i<n;i++)birds.push({x:x0-dir*i*18,y:y+(i%2?8:-4)*i*.6,vx:dir*(38+Math.random()*10),f:Math.random()*6.28,s:.8+Math.random()*.4})}
  let nextBirds=1.5;
  function frame(t){
   if(!alive)return;raf=requestAnimationFrame(frame);
@@ -89,7 +89,9 @@ function start(ui,sc){
   for(const L of layers){const d=+L.dataset.depth||0;L.style.transform=`translate3d(${(-px*14*d).toFixed(2)}px,${(-py*6*d).toFixed(2)}px,0)`}
   const sky=layers[0];if(sky&&mv){sky.firstChild.style.transform=`translateX(${(Math.sin(t/14000)*1.6).toFixed(3)}%) scale(1.05)`}
   // efeitos
-  const bw=box.clientWidth,bh=box.clientHeight;g.clearRect(0,0,bw,bh);
+  // fit() already records the box dimensions. Reading clientWidth after the
+  // transforms above forced the browser to recalculate layout every frame.
+  const bw=W+80,bh=H;g.clearRect(0,0,bw,bh);
   if(!mv){return}
   nextBirds-=dt;if(nextBirds<=0){spawnBirds();nextBirds=7+Math.random()*8}
   g.strokeStyle='rgba(40,30,70,.7)';g.lineWidth=1.6;g.lineCap='round';
@@ -101,7 +103,7 @@ function start(ui,sc){
    if(p.y>bh+12||p.x>bw+20){petals.splice(i,1);spawnPetal(false)}}
  }
  raf=requestAnimationFrame(frame);
- return{stop(){alive=false;cancelAnimationFrame(raf);ro.disconnect();removeEventListener('deviceorientation',onTilt)},placeHero,fit,get petals(){return petals.length}};
+ return{stop(){alive=false;cancelAnimationFrame(raf);ro.disconnect();ui.removeEventListener('pointermove',onMove);removeEventListener('deviceorientation',onTilt)},placeHero,fit,get petals(){return petals.length}};
 }
 window.CenaV41={mount,get state(){return S},LIGHTS,EMBLEM};
 })();

@@ -135,13 +135,13 @@ function mkMini(id,cls){
 }
 const allyCard=mkMini('allyCard','ally'),foeCard=mkMini('foe2Card','foe');
 function fillMini(el,a){
- if(!a||a.hp===undefined){el.hidden=true;return}
- el.hidden=false;
+ if(!a||a.hp===undefined){hudHidden(el,true);return}
+ hudHidden(el,false);
  el.classList.toggle('down',a.hp<=0);
  const face=el.querySelector('.mc-face'),src=(window.v3FaceSrc&&window.v3FaceSrc(a))||'assets/portraits/campeao_'+String(a.skin+1).padStart(2,'0')+'.webp';
  if(face.getAttribute('src')!==src)face.src=src;
- el.querySelector('.mc-name').textContent=(a.label||'').replace(/^FOCO · /,'');
- el.querySelector('.mc-hp').textContent=Math.max(0,Math.ceil(a.hp));
+ hudText(el.querySelector('.mc-name'),(a.label||'').replace(/^FOCO · /,''));
+ hudText(el.querySelector('.mc-hp'),Math.max(0,Math.ceil(a.hp)));
  el.querySelector('.hp i').style.width=(100*clamp(a.hp/a.max,0,1))+'%';
  let rv=0,rc='#7fb8d8';
  try{const r=reworkResource(a);if(r&&r.max){rv=clamp(r.value/r.max,0,1);rc=r.color||rc}else rv=clamp(a.mp/120,0,1)}catch{rv=clamp((a.mp||0)/120,0,1)}
@@ -149,7 +149,7 @@ function fillMini(el,a){
 }
 function updateMini(){
  const royale=document.getElementById('battle').dataset.arena==='survival';
- if(!p||royale||modeRun&&!modeRun.hunt&&!modeRun.gb&&false){allyCard.hidden=true;foeCard.hidden=true;return}
+ if(!p||royale||modeRun&&!modeRun.hunt&&!modeRun.gb&&false){hudHidden(allyCard,true);hudHidden(foeCard,true);return}
  const allies=actors.filter(a=>a!==p&&a.team===p.team&&isHeroLike(a));
  const foes=actors.filter(a=>a.team!==p.team&&isHeroLike(a));
  const focus=typeof enemy==='function'?enemy(p):null;

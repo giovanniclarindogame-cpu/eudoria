@@ -774,8 +774,8 @@ try{vfxQuality=localStorage.getItem('eldoria-vfx-quality')==='low'?'low':'auto'}
 let teamHudSignature='';
 function updateTeamHud(){
   const container=$('#teamHud');
-  if(matchMode!=='2v2'){container.hidden=true;return}
-  container.hidden=false;
+  if(matchMode!=='2v2'){hudHidden(container,true);return}
+  hudHidden(container,false);
   const ally=actors.find(a=>a.team===p.team&&a!==p);
   const other=actors.find(a=>a.team!==p.team&&a!==b);
   const members=[ally,other].filter(Boolean),signature=members.map(a=>actors.indexOf(a)+':'+a.skin).join('|');
@@ -794,28 +794,32 @@ function skillControlState(a,s){
   const text=remaining>0?(remaining<1?remaining.toFixed(1).replace('.',','):String(Math.ceil(remaining))):noMana?'MP':locked?'—':'';
   return{ready,noMana,locked,remaining,text,cooldown,fraction:clamp(cooldown/s.cd,0,1)};
 }
+// Keep unchanged HUD text/attributes out of the browser's mutation/layout work.
+function hudText(el,value){const text=String(value);if(el.textContent!==text)el.textContent=text;}
+function hudAttr(el,name,value){const text=String(value);if(el.getAttribute(name)!==text)el.setAttribute(name,text);}
+function hudHidden(el,value){if(el.hidden!==value)el.hidden=value;}
 function updateUI(){
   if(!p)return;
   if(opponents(p).length){const focus=enemy(p);if(focus!==b){b=focus;$('#botkit').innerHTML=b.kit.map(id=>`<span title="${skills[id].name}">${icon(id)}</span>`).join('');hydrateSkillIcons()}}
   updateTeamHud();
-  $('.fighterhud.enemy .title b').textContent='FOCO · '+(b.label||'Rival');
+  hudText($('.fighterhud.enemy .title b'),(window.COMBAT_V3?'':'FOCO · ')+(b.label||'Rival'));
   $('#attack').classList.toggle('recovering',p.basic>0||p.skillLock>0);$('#attack').classList.toggle('punching',p.punchTime>0);
-  $('#attack small').textContent=p.actionRecovery>0?'RECUPERA':'SOCO';
-  $('#defend').classList.toggle('guarding',p.guard);$('#defend').setAttribute('aria-pressed',String(p.guard));
-  $('#defend small').textContent=p.guardBreak>0?'QUEBRA':p.guard?'DEFESA':'SEGURE';
-  $('#php').textContent=Math.ceil(p.hp)+' / '+p.max;$('#bhp').textContent=Math.ceil(b.hp)+' / '+b.max;
-  for(const [id,a]of [['p',p],['b',b]]){$('#'+id+'hbar').style.width=100*a.hp/a.max+'%';$('#'+id+'mbar').style.width=a.mp/1.2+'%';$('#'+id+'sbar').style.width=a.st+'%'}
-  $('#resText').textContent='MP '+Math.floor(p.mp)+' · ST '+Math.floor(p.st);
-  const sec=Math.ceil(time);$('#timer').textContent=Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0');
+  hudText($('#attack small'),$('#attack').dataset.v3?'DASH':p.actionRecovery>0?'RECUPERA':'SOCO');
+  $('#defend').classList.toggle('guarding',p.guard);hudAttr($('#defend'),'aria-pressed',p.guard);
+  hudText($('#defend small'),p.guardBreak>0?Math.ceil(p.guardBreak)+'s':p.guard?'DEFESA':'SEGURE');
+  hudText($('#php'),Math.ceil(p.hp)+' / '+p.max);hudText($('#bhp'),Math.ceil(b.hp)+' / '+b.max);
+  for(const [id,a]of [['p',p],['b',b]]){$('#'+id+'hbar').style.width=100*a.hp/a.max+'%';if(typeof reworkResource!=='function'||!reworkResource(a))$('#'+id+'mbar').style.width=a.mp/1.2+'%';$('#'+id+'sbar').style.width=a.st+'%'}
+  if(typeof reworkResource!=='function'||!reworkResource(p))hudText($('#resText'),'MP '+Math.floor(p.mp)+' · ST '+Math.floor(p.st));
+  const sec=Math.ceil(time);hudText($('#timer'),battleActivity==='training'&&trainingSession?'∞':Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0'));
   document.querySelectorAll('.skill').forEach((el,i)=>{
     const s=skills[p.kit[i]],u=skillControlState(p,s),cover=el.querySelector('.cool');
     el.classList.toggle('is-ready',u.ready);el.classList.toggle('no-mana',u.noMana);el.classList.toggle('temporarily-locked',!u.ready&&!u.noMana&&u.cooldown<=0);
-    el.setAttribute('aria-disabled',String(!u.ready));
-    cover.hidden=u.ready;cover.textContent=u.text;cover.style.display=u.ready?'none':'grid';
+    hudAttr(el,'aria-disabled',!u.ready);
+    hudHidden(cover,u.ready);hudText(cover,u.text);cover.style.display=u.ready?'none':'grid';
     cover.style.background=u.cooldown>0?`conic-gradient(from -90deg,#061411dc ${u.fraction*360}deg,#06141170 0deg)`:'#07171499';
   });
-  $('#dodge').classList.toggle('no-resource',p.st<25);$('#dodge').setAttribute('aria-disabled',String(p.st<25||p.dodgeCD>0));
-  $('#dodge small').textContent=p.dodgeCD>0?Math.ceil(p.dodgeCD)+'s':p.st<25?'ST':'25 ST';
+  $('#dodge').classList.toggle('no-resource',p.st<25);hudAttr($('#dodge'),'aria-disabled',p.st<25||p.dodgeCD>0);
+  hudText($('#dodge small'),p.dodgeCD>0?Math.ceil(p.dodgeCD)+'s':p.st<25?'ST':'25 ST');
   applyProgressionHUD();modeHUD();
 }
 function drawTeamMarker(a){
@@ -1132,10 +1136,11 @@ function prepareProgressionMatch(){
 }
 function applyProgressionHUD(){
   if(battleActivity==='training'&&trainingSession){
-    $('#timer').textContent='∞';$('.mid-hud small').textContent='TREINO';
-    $('#botkit').textContent=({still:'Parado',guard:'Defendendo',attack:'Atacando'})[practiceOptions.dummy];
-    $('#practiceMeter').innerHTML=`<b>${trainingSession.damage} dano</b><span>${trainingSession.hits} acertos · ${trainingSession.targets} alvos</span><span>${Math.floor(trainingSession.elapsed)}s · ${practiceOptions.free?'MP/recargas livres':'regras normais'}</span>`;
-  }else if(battleActivity==='league'&&leagueMatch)$('.mid-hud small').textContent='LIGA · '+LEAGUE_DIVISIONS[leagueMatch.index].toUpperCase();
+    hudText($('#timer'),'∞');hudText($('.mid-hud small'),'TREINO');
+    hudText($('#botkit'),({still:'Parado',guard:'Defendendo',attack:'Atacando'})[practiceOptions.dummy]);
+    const meter=$('#practiceMeter'),html=`<b>${trainingSession.damage} dano</b><span>${trainingSession.hits} acertos · ${trainingSession.targets} alvos</span><span>${Math.floor(trainingSession.elapsed)}s · ${practiceOptions.free?'MP/recargas livres':'regras normais'}</span>`;
+    if(meter.innerHTML!==html)meter.innerHTML=html;
+  }else if(battleActivity==='league'&&leagueMatch)hudText($('.mid-hud small'),'LIGA · '+LEAGUE_DIVISIONS[leagueMatch.index].toUpperCase());
 }
 function practiceAI(dt,a){
   a.a=aim(a);a.moving=false;
@@ -1439,7 +1444,7 @@ function stepArenaMode(dt){if(!modeRun)return;const r=modeRun;r.elapsed+=dt;
  else if(p.hp<=0||!opponents(p).length||time<=0){const ours=p.hp/p.max,theirs=b.hp/b.max;return endArenaMode(ours>theirs,ours===theirs)}
 }
 function endArenaMode(win,draw=false){if(!modeRun||modeRun.settled)return;modeRun.settled=true;state='end';clearInputs();const before=JSON.stringify(account),c=ARENA_MODES[modeRun.id];let reward=0;account.matches++;if(win&&!draw)account.wins++;if(!draw)reward=awardMatchCoins(win?c.prize:25);const ok=saveAccount();if(!ok){account=JSON.parse(before);reward=0}rewardGranted=true;$('#resultTitle').textContent=draw?'Empate.':win?'Objetivo concluído!':'Tentativa encerrada.';$('#resultText').textContent=c.name+' · '+(ok?`+${reward} moedas. ${dailyIncomeText()}`:'Não foi possível salvar. Nenhuma moeda foi registrada.');$('#stats').innerHTML=`<span>${Math.floor(modeRun.elapsed)}s</span><span>${Math.round(p.damage)} dano</span><span>+${reward} moedas</span>`;$('#outcome').style.display='flex';updateUI()}
-function modeHUD(){if(!modeRun){$('#modeObjective').hidden=true;return}const r=modeRun;$('#modeObjective').hidden=false;let text=ARENA_MODES[r.id].name;if(r.id==='zone')text+=` · ${Math.floor(r.score[0])} × ${Math.floor(r.score[1])} / 90 · zona muda em ${40-Math.floor(r.elapsed%40)}s`;else if(r.id==='survival')text+=` · onda ${r.wave}/9`;else if(r.id==='tournament')text+=` · duelo ${r.round}/3`;else if(r.id==='guardian')text+=` · fase ${b.hp<b.max*.5?2:1} · ${Math.ceil(b.hp)} HP`;else if(r.id==='daily')text+=' · '+dailyRuleText(r.rule);else if(r.id==='ffa')text+=' · abates: '+r.score.join(' / ');if(p.hp<=0&&['zone','ffa'].includes(r.id))text+=` · volta em ${Math.max(0,5-Math.floor(p.respawn||0))}s`;$('#modeObjective').textContent=text;$('.mid-hud small').textContent=({zone:'ZONA · 2×2',guardian:'GUARDIÃO',survival:'ONDAS',stage:'ARCADE',tournament:'TORNEIO',mirror:'ESPELHO',daily:'DIÁRIO',ffa:'LIVRE'})[r.id]}
+function modeHUD(){if(!modeRun){hudHidden($('#modeObjective'),true);return}const r=modeRun;hudHidden($('#modeObjective'),false);let text=ARENA_MODES[r.id].name;if(r.id==='zone')text+=` · ${Math.floor(r.score[0])} × ${Math.floor(r.score[1])} / 90 · zona muda em ${40-Math.floor(r.elapsed%40)}s`;else if(r.id==='survival')text+=` · onda ${r.wave}/9`;else if(r.id==='tournament')text+=` · duelo ${r.round}/3`;else if(r.id==='guardian')text+=` · fase ${b.hp<b.max*.5?2:1} · ${Math.ceil(b.hp)} HP`;else if(r.id==='daily')text+=' · '+dailyRuleText(r.rule);else if(r.id==='ffa')text+=' · abates: '+r.score.join(' / ');if(p.hp<=0&&['zone','ffa'].includes(r.id))text+=` · volta em ${Math.max(0,5-Math.floor(p.respawn||0))}s`;hudText($('#modeObjective'),text);$('.mid-hud small').textContent=({zone:'ZONA · 2×2',guardian:'GUARDIÃO',survival:'ONDAS',stage:'ARCADE',tournament:'TORNEIO',mirror:'ESPELHO',daily:'DIÁRIO',ffa:'LIVRE'})[r.id]}
 function drawModeWorld(){if(modeRun?.id==='zone'){const z=zoneCenter();ctx.save();ctx.fillStyle='#9cdcc522';ctx.strokeStyle='#a6dec9';ctx.lineWidth=4;ctx.beginPath();ctx.arc(z.x,z.y,145,0,TAU);ctx.fill();ctx.stroke();ctx.fillStyle='#dcead2';ctx.font='18px system-ui';ctx.textAlign='center';ctx.fillText('CONTROLE',z.x,z.y);ctx.restore()}for(const h of modeRun?.hazards||[]){ctx.save();ctx.fillStyle='#ed765b44';ctx.strokeStyle='#ffb184';ctx.lineWidth=4;ctx.beginPath();ctx.arc(h.x,h.y,h.r,0,TAU);ctx.fill();ctx.stroke();ctx.restore()}}
 function drawGuardian(a){ctx.save();ctx.translate(a.x,a.y);ctx.fillStyle=a.hp<a.max*.5?'#be8769':'#789d91';ctx.strokeStyle='#e8d4a1';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(0,-38);ctx.lineTo(29,-12);ctx.lineTo(24,25);ctx.lineTo(0,38);ctx.lineTo(-24,25);ctx.lineTo(-29,-12);ctx.closePath();ctx.fill();ctx.stroke();ctx.fillStyle='#e9dfb2';ctx.fillRect(-15,-9,10,5);ctx.fillRect(5,-9,10,5);ctx.restore()}
 function drawArenaMap(){if(!p)return;const w=90,h=w*H/W,x=cw-w-9,y=42,k=w/W;ctx.save();ctx.fillStyle='#071b18df';ctx.fillRect(x,y,w,h);ctx.strokeStyle='#86a899';ctx.strokeRect(x,y,w,h);ctx.strokeStyle='#d5dcb655';ctx.strokeRect(x-ox/scale*k,y-oy/scale*k,cw/scale*k,ch/scale*k);if(modeRun?.id==='zone'){const z=zoneCenter();ctx.strokeStyle='#e7d497';ctx.beginPath();ctx.arc(x+z.x*k,y+z.y*k,145*k,0,TAU);ctx.stroke()}for(const a of actors)if(a.hp>0){ctx.fillStyle=a===p?'#fff4c5':a.team===p.team?'#76cae0':'#ed998b';ctx.beginPath();ctx.arc(x+a.x*k,y+a.y*k,a===p?3:2.5,0,TAU);ctx.fill()}ctx.restore()}
@@ -1618,7 +1623,7 @@ step=function(dt){const old=actors.map(a=>({a,x:a.x,y:a.y,dashing:a.dash>0}));ch
 const championOldControlState=skillControlState;
 skillControlState=function(a,s){const u=championOldControlState(a,s);if(s.ultimate&&!canUseUltimate(a)){u.ready=false;u.locked=true;u.text='HP ≤20%'}return u};
 const championOldUpdateUI=updateUI;
-updateUI=function(){championOldUpdateUI();if(!p)return;$('#attack small').textContent=p.actionRecovery>0?'RECUPERA':p.skin===2||p.skin===3?'CORTE':'ATAQUE';document.querySelectorAll('.skill').forEach((el,i)=>{const s=skills[p.kit[i]];el.classList.toggle('ultimate-skill',!!s?.ultimate);el.classList.toggle('ultimate-ready',!!s?.ultimate&&skillControlState(p,s).ready);el.querySelector('.hotkey').textContent=s?.ultimate?'ULT':i+1});$('#resText').textContent+=' · ULT '+(canUseUltimate(p)?'LIBERADA':'≤ '+Math.floor(p.max*.2)+' HP')};
+updateUI=function(){championOldUpdateUI();if(!p)return;if(!$('#attack').dataset.v3)hudText($('#attack small'),p.actionRecovery>0?'RECUPERA':p.skin===2||p.skin===3?'CORTE':'ATAQUE');document.querySelectorAll('.skill').forEach((el,i)=>{const s=skills[p.kit[i]];el.classList.toggle('ultimate-skill',!!s?.ultimate);el.classList.toggle('ultimate-ready',!!s?.ultimate&&skillControlState(p,s).ready);if(!window.COMBAT_V3||el.hidden)hudText(el.querySelector('.hotkey'),s?.ultimate?'ULT':i+1)});if(!window.COMBAT_V3)$('#resText').textContent+=' · ULT '+(canUseUltimate(p)?'LIBERADA':'≤ '+Math.floor(p.max*.2)+' HP')};
 const championOldBindSkill=bindSkill;
 bindSkill=function(btn,index){btn.addEventListener('pointerdown',e=>{if(skills[p?.kit[index]]?.ultimate&&!canUseUltimate(p)){toast('Ultimate bloqueada · exige HP de 20% ou menos');e.stopImmediatePropagation()}});championOldBindSkill(btn,index)};
 const championOldPunch=punch;
@@ -1973,7 +1978,7 @@ breakGuard=function(a){
 };
 punch=function(a,angle,dmg){return championOldPunch(a,angle,dmg)};
 const revisionUpdateUI=updateUI;
-updateUI=function(){revisionUpdateUI();if(!p)return;const el=$('#defend'),label=el?.querySelector('small');if(label)label.textContent=p.guardBreak>0?Math.ceil(p.guardBreak)+'s':p.guard?'DEFESA':'SEGURE';el?.setAttribute('aria-disabled',String(p.guardBreak>0));el?.classList.toggle('no-resource',p.guardBreak>0);if($('#attack small'))$('#attack small').textContent=p.actionRecovery>0?'RECUPERA':'ATAQUE';};
+updateUI=function(){revisionUpdateUI();if(!p)return;const el=$('#defend'),label=el?.querySelector('small');if(label)hudText(label,p.guardBreak>0?Math.ceil(p.guardBreak)+'s':p.guard?'DEFESA':'SEGURE');if(el)hudAttr(el,'aria-disabled',p.guardBreak>0);el?.classList.toggle('no-resource',p.guardBreak>0);if($('#attack small')&&!$('#attack').dataset.v3)hudText($('#attack small'),p.actionRecovery>0?'RECUPERA':'ATAQUE');};
 function revisionTeleport(a,angle,range){
  // Only the landing position collides; the path can cross any obstacle or actor.
  for(let distance=range;distance>=8;distance-=2){const x=a.x+Math.cos(angle)*distance,y=a.y+Math.sin(angle)*distance;
@@ -2405,7 +2410,7 @@ const integratedStart=start;
 start=function(){dojoEntities=[];dojoBursts=[];dojoBlood=[];ninjaEffects=[];astralEffects=[];astralBlood=[];eclipseEffects=[];eclipseBlood=[];rpEffects=[];rpBlood=[];const r=integratedStart();$('#dodge').innerHTML='<img class="dojo-dodge-art" alt="" draggable="false" src="'+DOJO_DODGE_SRC+'"><small>25 ST</small>';if(p){p.max=p.hp=1000;for(const a of actors)if(!a.boss&&!a.trainingDummy){a.max=a.hp=1000;a.astralFacing=a.eclipseFacing=a.rpFacing=a.dojoFacingAngle=a.a;}}if(battleActivity==='training')resetPractice();return r;};
 skillControlState=function(a,s){const u=championOldControlState(a,s);if(s?.ultimate&&!canUseUltimate(a)){u.ready=false;u.locked=true;u.text='HP ≤20%';}return u;};
 const integratedUpdate=updateUI;
-updateUI=function(){integratedUpdate();if(!p)return;$('#resText').textContent='MP '+Math.floor(p.mp)+' · ST '+Math.floor(p.st)+' · ULT '+(battleActivity==='training'?'livre':'≤20%');$('#attack small').textContent=p.actionRecovery>0?'RECUPERA':'ATAQUE';const label=$('#defend small');if(label)label.textContent=p.guardBreak>0?Math.ceil(p.guardBreak)+'s':p.guard?'DEFESA':'SEGURE';if($('#riftCombatToggle'))$('#riftCombatToggle').hidden=p.skin!==1;};
+updateUI=function(){integratedUpdate();if(!p)return;if(typeof reworkResource!=='function'||!reworkResource(p))$('#resText').textContent='MP '+Math.floor(p.mp)+' · ST '+Math.floor(p.st)+' · ULT '+(battleActivity==='training'?'livre':'≤20%');if(!$('#attack').dataset.v3)hudText($('#attack small'),p.actionRecovery>0?'RECUPERA':'ATAQUE');const label=$('#defend small');if(label)hudText(label,p.guardBreak>0?Math.ceil(p.guardBreak)+'s':p.guard?'DEFESA':'SEGURE');if($('#riftCombatToggle'))hudHidden($('#riftCombatToggle'),true);};
 for(const c of CHAMPIONS){if(c.id<6)c.kit.forEach((id,slot)=>Object.assign(skills[id],{champion:c.id,slot,ultimate:slot===5}));}
 for(let i=0;i<LEAGUE_RIVALS.length;i++){const c=CHAMPIONS[i%6];LEAGUE_RIVALS[i].kit=[...c.kit];LEAGUE_RIVALS[i].name=c.name;}
 const integratedCamera=updateArenaCamera;updateArenaCamera=function(){if(battleActivity!=='training')return integratedCamera();if(!p||!cw||!ch)return;scale=Math.min(cw/(W-40),ch/(H-40));ox=(cw-W*scale)/2;oy=(ch-H*scale)/2;};

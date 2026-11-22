@@ -13,6 +13,8 @@
 const $q=s=>document.querySelector(s);
 const OFF=/[?&]semcarga=1/.test(location.search);
 const MAX_MS=25000,MIN_MS=700;
+// Decoded/uploaded images survive between matches; prepare only new sheets.
+const decodificadas=new WeakSet(),enviadas=new WeakSet();
 const C=window.Carregamento={aquecer:{},on:false,esperando:false,morno:new Set(),opcoes:null,aoPreparar:null,liberado:false,ultima:null};
 const DICAS=[
  'Arraste uma habilidade para escolher a direção do golpe.',
@@ -87,23 +89,30 @@ async function preparar(ids,imgs,mostrarTela){
  const passo=msg=>{feito++;if(mostrarTela)progresso(feito/total,msg)};
  // 1) baixar
  imgs.forEach(im=>{try{lazyStart(im)}catch{}});
+ const cancelar=[];
  const baixar=Promise.all(imgs.map(im=>new Promise(res=>{
-  const fim=()=>{passo(`Carregando as artes… ${Math.min(feito+1,imgs.length)}/${imgs.length}`);res()};
-  if(pronta(im))return fim();
-  im.addEventListener('load',fim,{once:true});im.addEventListener('error',fim,{once:true});
+  let concluida=false;
+  const fim=()=>{if(concluida)return;concluida=true;im.removeEventListener('load',fim);im.removeEventListener('error',fim);passo(`Carregando as artes… ${Math.min(feito+1,imgs.length)}/${imgs.length}`);res()};
+  if(pronta(im)||im.complete)return fim(); // a completed network error must not wait another 25 s
+  im.addEventListener('load',fim);im.addEventListener('error',fim);cancelar.push(fim);
  })));
- await Promise.race([baixar,new Promise(r=>setTimeout(r,MAX_MS))]);
+ let limite;
+ try{await Promise.race([baixar,new Promise(r=>{limite=setTimeout(r,MAX_MS)})])}
+ finally{clearTimeout(limite);for(const fim of cancelar)fim()}
  if(state!=='loading'&&mostrarTela)return false;
  // 2) decodificar (em lotes, para a tela continuar viva)
  if(mostrarTela)progresso(null,'Preparando as imagens…');
- for(let i=0;i<imgs.length;i+=4){
-  await Promise.all(imgs.slice(i,i+4).map(im=>{try{return pronta(im)&&im.decode?im.decode().catch(()=>{}):0}catch{return 0}}));
+ const novas=imgs.filter(im=>pronta(im)&&!decodificadas.has(im));
+ for(let i=0;i<novas.length;i+=4){
+  await Promise.all(novas.slice(i,i+4).map(async im=>{try{if(im.decode)await im.decode();decodificadas.add(im)}catch{}}));
   await quadro();
   if(performance.now()-t0>MAX_MS+8000)break;
  }
  // 2b) passa cada folha inteira por um desenho reduzido: obriga o navegador a decodificá-la e mandá-la à placa de vídeo agora
  {const mini=document.createElement('canvas');mini.width=mini.height=48;const gm=mini.getContext('2d');
-  for(let i=0;i<imgs.length;i++){const im=imgs[i];try{if(pronta(im))gm.drawImage(im,0,0,im.naturalWidth,im.naturalHeight,0,0,48,48)}catch{}if(i%3===2)await quadro()}}
+  const enviar=imgs.filter(im=>pronta(im)&&!enviadas.has(im));
+  for(let i=0;i<enviar.length;i++){const im=enviar[i];try{gm.drawImage(im,0,0,im.naturalWidth,im.naturalHeight,0,0,48,48);enviadas.add(im)}catch{}if(i%3===2)await quadro()}
+  mini.width=mini.height=0;}
  // 2c) aquecedores próprios de cada campeão (a 1ª leitura de pixels de cada folha de efeito é a parte cara; as seguintes são baratas)
  for(const id of ids){const w=C.aquecer[id];if(w&&!C.morno.has(id)){try{await w()}catch(e){console.warn('[Eldoria] aquecedor',id,e)}await quadro()}}
  // 3) aquecer: desenha cada campeão uma vez fora da tela (monta os recortes de sprites e envia as imagens à placa de vídeo)
