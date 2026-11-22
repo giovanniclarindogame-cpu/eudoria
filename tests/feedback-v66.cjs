@@ -1,0 +1,40 @@
+// Feedback: janela (tipo, nota, texto), contexto automático, servidor guarda, leitura só com a chave, limites.
+const { chromium } = require('playwright');const { spawn } = require('child_process');const path=require('path');const fs=require('fs');const os=require('os');
+const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else console.log('ok  -',m)};
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const PORT=8802,HTTP='http://localhost:'+PORT,SRV='ws://localhost:'+PORT;
+const DADOS=fs.mkdtempSync(path.join(os.tmpdir(),'eldoria-fb-'));
+(async()=>{
+ const sv=spawn('node',['servidor.cjs'],{cwd:path.join(__dirname,'..','servidor'),env:{...process.env,PORT:String(PORT),DADOS,AQUECIDAS:'0'},stdio:['ignore','pipe','pipe']});
+ for(let i=0;i<40;i++){try{await fetch(HTTP+'/saude');break}catch{await sleep(250)}}
+ const chave=fs.readFileSync(path.join(DADOS,'chave-feedback.txt'),'utf8').trim();
+ ok(/^[0-9a-f]{24}$/.test(chave),'o servidor cria uma chave de leitura do feedback');
+ const br=await chromium.launch();const errs=[];
+ const pg=await (await br.newContext({viewport:{width:900,height:480}})).newPage();pg.on('pageerror',e=>errs.push(e.message));
+ await pg.goto('http://localhost:8000/index.html?semcarga=1&servidor='+encodeURIComponent(SRV));await pg.waitForTimeout(900);
+ await pg.getByText('ENTRAR',{exact:true}).click();await pg.fill('#profileName','Testador');await pg.getByText('Continuar',{exact:true}).click();await pg.waitForSelector('.v40-home',{timeout:20000});await pg.waitForTimeout(2200);
+ await pg.evaluate(()=>{account.tutorialDone=true;saveAccount();document.querySelector('#ljModal')?.remove()});
+ await pg.evaluate(()=>document.querySelector('[data-v40-menu]').click());await pg.waitForTimeout(300);
+ ok(await pg.evaluate(()=>!!document.querySelector('[data-v40-go="feedback"]')),'o Menu tem "Enviar feedback"');
+ await pg.evaluate(()=>document.querySelector('[data-v40-go="feedback"]').click());await pg.waitForTimeout(300);
+ ok(await pg.evaluate(()=>document.querySelectorAll('.fb-chip').length===4&&document.querySelectorAll('.fb-nota').length===5&&!!document.querySelector('#v55FbTexto')),'a janela tem 4 tipos, 5 estrelas e o campo de texto');
+ await pg.evaluate(()=>document.querySelector('[data-fb-enviar]').click());await pg.waitForTimeout(200);
+ ok(await pg.evaluate(()=>/Escreva um pouquinho/.test(document.querySelector('.conta-msg').textContent)),'texto vazio não envia');
+ await pg.evaluate(()=>{document.querySelector('[data-fb-tipo="ideia"]').click();document.querySelector('[data-fb-nota="4"]').click();document.querySelector('#v55FbTexto').value='O Cavaleiro está forte demais no 2×2. Ideia: mostrar o tempo da coroa.'});
+ await pg.evaluate(()=>setTimeout(()=>{throw new Error('erro de teste do feedback')},0));await pg.waitForTimeout(200);
+ await pg.evaluate(()=>document.querySelector('[data-fb-enviar]').click());await pg.waitForTimeout(1200);
+ ok(await pg.evaluate(()=>/Obrigado/.test(document.querySelector('#v55Feedback').textContent)),'depois de enviar aparece o agradecimento');
+ const lido=await (await fetch(HTTP+'/feedback/ler?k='+chave)).json();
+ const f=lido.itens[0];
+ ok(lido.total===1&&f.tipo==='ideia'&&f.nota===4&&/Cavaleiro/.test(f.texto),`o servidor guardou o feedback (${f&&f.tipo}, nota ${f&&f.nota})`);
+ ok(f.ctx.perfil&&/Testador/.test(f.ctx.perfil)&&f.ctx.heroi&&f.ctx.aparelho&&f.ctx.tela_px&&f.ctx.versao,`o contexto vai junto (${f.ctx.perfil} · ${f.ctx.heroi} · tela ${f.ctx.tela_px})`);
+ ok(Array.isArray(f.ctx.erros)&&f.ctx.erros.some(e=>/erro de teste/.test(e)),'os últimos erros do jogo vão junto');
+ ok(!JSON.stringify(f).includes('127.0.0.1')&&/^[0-9a-f]{6}$/.test(f.pessoa),'o endereço de internet não é guardado (só um hash curto)');
+ ok((await fetch(HTTP+'/feedback/ler?k=errada123')).status===403&&(await fetch(HTTP+'/feedback/ler')).status===403,'sem a chave certa não dá para ler (403)');
+ const post=b=>fetch(HTTP+'/feedback/enviar',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(b)});
+ ok((await post({tipo:'bug',texto:'ab'})).status===400,'mensagem curta demais é recusada');
+ let st=[];for(let i=0;i<8;i++)st.push((await post({tipo:'bug',texto:'mensagem de teste '+i})).status);
+ ok(st.includes(429),`muitas mensagens seguidas são limitadas (${st})`);
+ ok(errs.length===1&&/erro de teste/.test(errs[0]),'sem outros erros de JavaScript');
+ await br.close();sv.kill();fs.rmSync(DADOS,{recursive:true,force:true});
+})();

@@ -143,7 +143,7 @@ function finishTutorial(){
  account.tutorialDone=true;if(!semM)account.coins=(account.coins||0)+REWARD;
  try{saveAccount()}catch{}
  showScreen('home');
- modal(semM?`<span class="lj-gift-tag">TUTORIAL CONCLUÍDO</span><h2>Você está pronto!</h2><p>Bom trabalho! Todos os campeões estão liberados na fase de teste. Escolha um modo e jogue com seus amigos.</p><button class="gold" data-lj-close>Vamos lá</button>`:`<span class="lj-gift-tag">TUTORIAL CONCLUÍDO</span><h2>Você está pronto!</h2><p>Bom trabalho! Ganhou <b>+${REWARD} moedas</b>. Vá para a Liga, a Cruzada ou a Loja. Todo campeão novo custa 7.000 moedas, e 3 são grátis a cada semana.</p><button class="gold" data-lj-close>Vamos lá</button>`);
+ modal(semM?`<span class="lj-gift-tag">TUTORIAL CONCLUÍDO</span><h2>Você está pronto!</h2><p>Bom trabalho! Todos os campeões estão liberados na fase de teste. Escolha um modo e jogue com seus amigos. Achou um bug ou tem uma ideia? Use <b>Menu › Enviar feedback</b>.</p><button class="gold" data-lj-close>Vamos lá</button>`:`<span class="lj-gift-tag">TUTORIAL CONCLUÍDO</span><h2>Você está pronto!</h2><p>Bom trabalho! Ganhou <b>+${REWARD} moedas</b>. Vá para a Liga, a Cruzada ou a Loja. Todo campeão novo custa 7.000 moedas, e 3 são grátis a cada semana.</p><button class="gold" data-lj-close>Vamos lá</button>`);
 }
 const prevStep=step;
 step=function(dt){

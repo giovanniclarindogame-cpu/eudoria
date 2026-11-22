@@ -15,6 +15,7 @@ const http = require('http'), path = require('path'), os = require('os');
 const { WebSocketServer } = require('ws');
 const { Worker } = require('worker_threads');
 const contas = require('./contas.cjs');
+const feedback = require('./feedback.cjs');
 const PORT = +process.env.PORT || 8787, AQUECIDAS = process.env.AQUECIDAS != null ? +process.env.AQUECIDAS : 2, MAX_PARTIDAS = +process.env.MAX_PARTIDAS || 60;
 const ORIGENS = (process.env.ORIGENS || '').split(',').map(s => s.trim()).filter(Boolean);
 const TEMPO_SELECAO = +process.env.TEMPO_SELECAO || 30000;   // tempo para escolher o campeão depois de achar os rivais
@@ -302,8 +303,34 @@ function rotaConta(req, res) {
     responder(res, 404, { erro: 'rota' });
   });
 }
+// feedback dos jogadores: POST /feedback/enviar (limite de 6 por minuto) e GET /feedback/ler?k=CHAVE (só quem tem a chave)
+function rotaFeedback(req, res) {
+  if (req.method === 'OPTIONS') { res.writeHead(204, CORS); return res.end(); }
+  const [rota, qs] = req.url.split('?');
+  if (rota === '/feedback/ler' && req.method === 'GET') {
+    const k = new URLSearchParams(qs || '').get('k'), n = Math.max(1, Math.min(500, +new URLSearchParams(qs || '').get('n') || 100));
+    if (limite(ipDe(req), false) || !feedback.chaveOk(k)) return responder(res, 403, { erro: 'chave' });
+    return responder(res, 200, feedback.listar(n));
+  }
+  if (rota === '/feedback/enviar' && req.method === 'POST') {
+    const ip = ipDe(req);
+    const l = limites.get(ip + '#fb') || { t: Date.now(), n: 0 }; if (Date.now() - l.t > 60000) { l.t = Date.now(); l.n = 0; } l.n++; limites.set(ip + '#fb', l);
+    if (l.n > 6) return responder(res, 429, { erro: 'muitos' });
+    let corpo = '', estourou = false;
+    req.on('data', d => { corpo += d; if (corpo.length > 20 * 1024) { estourou = true; req.destroy(); } });
+    req.on('end', () => {
+      if (estourou) return;
+      let m; try { m = JSON.parse(corpo || '{}'); } catch { return responder(res, 400, { erro: 'json' }); }
+      const r = feedback.guardar(m, ip); if (r.erro) return responder(res, r.erro === 'vazio' ? 400 : 500, r);
+      log(`feedback recebido (${feedback.listar(1).total} no total)`); responder(res, 200, r);
+    });
+    return;
+  }
+  responder(res, 404, { erro: 'rota' });
+}
 const servidor = http.createServer((req, res) => {
   if (req.url.startsWith('/conta/')) return rotaConta(req, res);
+  if (req.url.startsWith('/feedback/')) return rotaFeedback(req, res);
   if (req.url === '/saude' || req.url === '/') {
     const mem = process.memoryUsage();
     res.writeHead(200, { 'content-type': 'application/json', 'access-control-allow-origin': '*' });
@@ -328,5 +355,5 @@ wss.on('connection', (ws, req) => {
 // derruba conexões mortas
 setInterval(() => { for (const ws of wss.clients) { if (ws.vivo === false) { ws.terminate(); continue; } ws.vivo = false; try { ws.ping(); } catch {} } }, 15000).unref();
 wss.on('connection', ws => { ws.vivo = true; ws.on('pong', () => { ws.vivo = true; }); });
-servidor.listen(PORT, () => { log(`servidor de partidas na porta ${PORT} · protocolo ${PROTO} · ${AQUECIDAS} threads aquecidas · bots após ${Math.round(ESPERA_BOT / 1000)} s`); reporAquecidas(); });
+servidor.listen(PORT, () => { log(`chave de leitura do feedback: ${feedback.chave()} (também em ${process.env.DADOS || 'servidor/dados'}/chave-feedback.txt)`); log(`servidor de partidas na porta ${PORT} · protocolo ${PROTO} · ${AQUECIDAS} threads aquecidas · bots após ${Math.round(ESPERA_BOT / 1000)} s`); reporAquecidas(); });
 process.on('SIGTERM', () => { log('encerrando'); process.exit(0); });
