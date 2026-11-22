@@ -31,6 +31,24 @@ const PORT=8793,SRV='ws://localhost:'+PORT;
  await A.p.waitForSelector('.a68-amigo.st-on [data-a68-conv]',{timeout:8000});await B.p.waitForSelector('.a68-amigo.st-on [data-a68-conv]',{timeout:8000});
  ok(true,'viraram amigos: cada um aparece online na lista do outro');
  await A.p.screenshot({path:'/tmp/claude-0/amigos_tela.png'});
+ // ---- chat na tela ----
+ ok(await A.p.evaluate(()=>/\d+ ONLINE/.test(document.querySelector('.a68-col-lista .a68-rot').textContent)&&/1 ONLINE/.test(document.querySelector('.a68-col-lista .a68-rot').textContent)),'a lista mostra quantos amigos estão online (1 ONLINE)');
+ await B.p.click('[data-a68-chat]');await B.p.waitForSelector('#a68Txt',{timeout:6000});
+ ok(await B.p.evaluate(()=>/Ana/.test(document.getElementById('a68CabNome').textContent)&&/Online/.test(document.getElementById('a68CabSt').textContent)),'o chat mostra o nome e que a Ana está Online');
+ await B.p.fill('#a68Txt','Bora jogar uma partida?');await B.p.press('#a68Txt','Enter');
+ await B.p.waitForSelector('.a68-m.eu',{timeout:6000});ok(true,'Beto envia pelo Enter e a mensagem aparece (balão dourado)');
+ // Ana ainda está na lista (fora do chat): vê o contador de não lidas
+ await A.p.waitForSelector('.a68-chatbtn .a68-n',{timeout:6000});ok(await A.p.evaluate(()=>document.querySelector('.a68-chatbtn .a68-n').textContent==='1'),'Ana vê o contador 1 de mensagem não lida no 💬');
+ await A.p.click('[data-a68-chat]');await A.p.waitForSelector('.a68-m.ele',{timeout:6000});
+ ok(await A.p.evaluate(()=>document.querySelector('.a68-m.ele span').textContent==='Bora jogar uma partida?'),'Ana abre o chat e lê a mensagem do Beto (balão azul)');
+ await A.p.click('[data-a68-rapida="1"]');await B.p.waitForFunction(()=>[...document.querySelectorAll('.a68-m.ele span')].some(e=>/Já vou/.test(e.textContent)),null,{timeout:6000});
+ ok(true,'frase rápida "Já vou!" chega no Beto em tempo real (com o chat aberto)');
+ await A.p.screenshot({path:'/tmp/claude-0/amigos_chat.png'});
+ // Beto sai do chat; Ana escreve de novo -> aviso/contador no Beto
+ await B.p.click('[data-a68-chat-voltar]');await B.p.waitForSelector('.a68-amigo.st-on',{timeout:6000});
+ await A.p.fill('#a68Txt','Cheguei!');await A.p.press('#a68Txt','Enter');
+ await B.p.waitForSelector('.a68-chatbtn .a68-n',{timeout:6000});ok(true,'mensagem nova aparece como não lida na lista do Beto');
+ await A.p.click('[data-a68-chat-voltar]');await B.p.waitForTimeout(300);
  // 3) convite "contra": Beto convida Ana, ela recusa
  await B.p.click('[data-a68-conv][data-tipo="contra"]');await A.p.waitForSelector('#amigosConv68:not([hidden]) [data-a68-recusar]',{timeout:8000});
  ok(/duelo 1×1/.test(await A.p.textContent('#amigosConv68')),'Ana vê o convite para o duelo 1×1');
@@ -61,5 +79,5 @@ const PORT=8793,SRV='ws://localhost:'+PORT;
  await A.p.waitForFunction(()=>AmigosV68.state.lista.amigos.length===0,null,{timeout:6000});ok(true,'remover amigo funciona');
  await B.p.waitForFunction(()=>AmigosV68.state.lista&&AmigosV68.state.lista.amigos.length===0,null,{timeout:8000});ok(true,'e some da lista do outro também');
  ok(errs.length===0,'sem erros de JavaScript '+errs.slice(0,3).join('|'));
- await br.close();sv.kill();fs.rmSync(tmp,{recursive:true,force:true});
+ await br.close();sv.kill();await sleep(1200);try{fs.rmSync(tmp,{recursive:true,force:true})}catch{}
 })();

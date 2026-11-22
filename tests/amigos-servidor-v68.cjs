@@ -35,6 +35,21 @@ function cli(conta,nome,{social=true,sala=false}={}){return new Promise(res=>{co
  const fa=await A.espera('amigos',3000,m=>m.amigos.length===1),fb=await B_.espera('amigos',3000,m=>m.amigos.length===1);
  ok(fa&&fb&&fa.amigos[0].nome==='Beto'&&fb.amigos[0].nome==='Ana'&&fa.recebidos.length+fa.enviados.length===0,'viraram amigos (mútuo) e os pedidos sumiram');
  ok(fa.amigos[0].st==='on'&&fa.amigos[0].lv===5,'status online e nível aparecem na lista');
+ // ---- chat ----
+ const idB0=fa.amigos[0].id,idA0=fb.amigos[0].id;
+ A.envia({t:'chat',id:idB0,texto:'  oi <b>Beto</b>!   tudo bem?  '});
+ const cm=await B_.espera('chat_msg'),eco=await A.espera('chat_msg');
+ ok(cm&&cm.nome==='Ana'&&cm.texto.startsWith('oi')&&!/[<>]/.test(cm.texto)&&!/  /.test(cm.texto)&&cm.texto===cm.texto.trim(),'amigo recebe a mensagem na hora (sem < >, espaços limpos)');
+ ok(eco&&eco.eu===1&&eco.id===idB0,'quem escreveu recebe o eco (vale para outros aparelhos dele)');
+ A.envia({t:'chat',id:idB0,texto:'   '});ok((await A.espera('chat_erro')).erro==='vazio','mensagem vazia é recusada');
+ A.envia({t:'chat',id:'naoexiste',texto:'oi'});ok((await A.espera('chat_erro')).erro==='amigo','só dá para escrever para amigos');
+ B_.envia({t:'amigos'});const lb2=await B_.espera('amigos');ok(lb2.amigos[0].nao===1,'a lista do Beto mostra 1 mensagem não lida da Ana');
+ B_.envia({t:'chat_hist',id:idA0});const h=await B_.espera('chat_hist');ok(h.msgs.length===1&&h.msgs[0].eu===false&&h.msgs[0].t===cm.texto,'histórico da conversa');
+ B_.envia({t:'amigos'});ok((await B_.espera('amigos')).amigos[0].nao===0,'abrir a conversa zera as não lidas');
+ B_.envia({t:'chat',id:idA0,texto:'tudo certo!'});const rb=await A.espera('chat_msg');ok(rb&&rb.texto==='tudo certo!'&&!rb.eu,'resposta chega para a Ana');await B_.espera('chat_msg');
+ for(let i=0;i<10;i++)A.envia({t:'chat',id:idB0,texto:'spam '+i});
+ await sleep(500);ok(A.msgs.some(m=>m.t==='chat_erro'&&m.erro==='rapido'),'muitas mensagens seguidas são limitadas');
+ A.msgs.length=0;B_.msgs.length=0;
  // pedido cruzado vira amizade na hora
  C.envia({t:'amigo_add',cod:la.cod});await C.espera('amigo_res');A.envia({t:'amigos'});const pa=await A.espera('amigos',3000,m=>m.recebidos.length===1);
  A.envia({t:'amigo_add',cod:lc.cod});const r3=await A.espera('amigo_res');ok(r3.ok===1&&r3.aceito,'se o outro já tinha pedido, adicionar vira amizade na hora');
@@ -65,9 +80,16 @@ function cli(conta,nome,{social=true,sala=false}={}){return new Promise(res=>{co
  // convite para amigo ocupado / offline
  GA.fecha();GB.fecha();await sleep(500);
  B_.fecha();await sleep(500);A.envia({t:'convite',id:idB,tipo:'contra'});ok((await A.espera('convite_res')).erro==='off','convite para amigo offline avisa');
+ // mensagem para amigo offline: fica guardada
+ await sleep(11000);   // espera a janela de limite do chat passar
+ A.envia({t:'chat',id:idB,texto:'está aí?'});await A.espera('chat_msg');
+ const B2=await cli(cB,'Beto');await B2.espera('hello');B2.envia({t:'amigos'});const lb3=await B2.espera('amigos');
+ ok(lb3.amigos[0].nao>=1,'mensagem enviada com o amigo offline chega como "não lida" quando ele volta');
+ B2.envia({t:'chat_hist',id:lb3.amigos[0].id});const hh=await B2.espera('chat_hist');ok(hh.msgs.some(m=>m.t==='está aí?'),'e está no histórico');B2.fecha();
  // a amizade sobrevive a reiniciar o servidor
  A.fecha();C.fecha();sv.kill();await sleep(800);await iniciar();
  const A2=await cli(cA,'Ana');await A2.espera('hello');A2.envia({t:'amigos'});const l2=await A2.espera('amigos');ok(l2.amigos.length===1&&l2.amigos[0].nome==='Beto'&&l2.cod===la.cod,'amizade e código continuam depois de reiniciar o servidor');
  ok(l2.amigos[0].st==='off','e o status volta a "offline" para quem não está conectado');
- A2.fecha();sv.kill();fs.rmSync(tmp,{recursive:true,force:true});
+ A2.envia({t:'chat_hist',id:l2.amigos[0].id});const h2=await A2.espera('chat_hist');ok(h2.msgs.length>=3,`a conversa continua depois de reiniciar o servidor (${h2.msgs.length} mensagens)`);
+ A2.fecha();sv.kill();await sleep(1500);try{fs.rmSync(tmp,{recursive:true,force:true})}catch{}
 })();

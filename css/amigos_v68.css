@@ -50,3 +50,18 @@
 .a68-badge{position:absolute;top:6px;right:8px;min-width:20px;height:20px;padding:0 5px;border-radius:99px;background:#e0243a;border:2px solid #fff;color:#fff;font:900 11px/16px system-ui;text-align:center;font-style:normal}
 .a68-badge[hidden]{display:none}
 body.a68-open #lobbyNav{display:none!important}
+
+/* chat entre amigos */
+.a68-chatbtn{position:relative;width:38px;height:34px;border:2px solid #cfe0ff;border-radius:10px;background:linear-gradient(180deg,#6ea0ff,#3b6fd6);font-size:16px;cursor:pointer;box-shadow:0 3px 0 #1a3a8a}
+.a68-n{position:absolute;top:-8px;right:-8px;min-width:18px;height:18px;padding:0 4px;border-radius:99px;background:#e0243a;border:2px solid #fff;color:#fff;font:900 10px/14px system-ui;text-align:center;font-style:normal}
+.a68-top .a68-face{width:40px;height:40px}.a68-top .a68-info{flex:1}.a68-cab-acoes{display:flex;gap:6px}.a68-cab-acoes .a68-btn{padding:8px 12px;font-size:16px}
+.a68-chat{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px;padding:6px max(14px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));max-width:760px;width:100%;margin:0 auto}
+.a68-msgs{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:6px;padding:10px;border:3px solid #ffd45a;border-radius:18px;background:#0e1d4ccc;box-shadow:0 4px 0 #8a5a00}
+.a68-m{max-width:78%;padding:7px 11px;border-radius:14px;font-weight:700;font-size:15px;line-height:1.3;word-break:break-word}
+.a68-m small{display:block;margin-top:2px;font-size:10px;font-weight:700;opacity:.7}
+.a68-m.eu{align-self:flex-end;background:linear-gradient(180deg,#ffe066,#f5b800);color:#3b2100;border-bottom-right-radius:4px}
+.a68-m.ele{align-self:flex-start;background:linear-gradient(180deg,#4f86ef,#2f55b8);color:#fff;border-bottom-left-radius:4px}
+.a68-rapidas{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}.a68-rapidas::-webkit-scrollbar{display:none}
+.a68-chip{flex:none;padding:6px 12px;border:2px solid #ffffff55;border-radius:99px;background:#24408f;color:#fff;font:800 12px system-ui;cursor:pointer}
+.a68-envio{display:flex;gap:8px}.a68-envio input{flex:1;min-width:0;padding:11px 14px;border:2px solid #fff3c2;border-radius:14px;background:#fff8e1;color:#3b2506;font:700 16px system-ui}
+small.a68-on{display:block;margin-top:2px;color:#9dffb0!important;font-weight:900}

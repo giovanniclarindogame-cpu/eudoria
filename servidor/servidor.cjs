@@ -264,7 +264,8 @@ const statusDe = id => estadoDas().get(id) || 'off';
 function paraConta(id, obj) { const t = JSON.stringify(obj); for (const x of jogadores.values()) if (x.social && x.contaId === id) enviar(x.ws, t); }
 function listaPara(c) {
   const l = contas.lista(c), st = estadoDas();
-  return { t: 'amigos', cod: l.cod, amigos: l.amigos.map(a => ({ ...a, st: st.get(a.id) || 'off' })), recebidos: l.recebidos, enviados: l.enviados };
+  const nao = contas.naoLidas(c);
+  return { t: 'amigos', cod: l.cod, amigos: l.amigos.map(a => ({ ...a, st: st.get(a.id) || 'off', nao: nao[a.id] || 0 })), recebidos: l.recebidos, enviados: l.enviados };
 }
 function atualizarLista(...ids) { for (const id of new Set(ids)) { const c = contas.porId(id); if (c) paraConta(id, listaPara(c)); } }
 function presenca(id) {   // avisa os amigos conectados que esta conta mudou de estado
@@ -340,6 +341,16 @@ function tratarAmigos(j, m) {
     case 'amigo_del': { const id = String(m.id || ''); const r = contas.removerAmigo(c, id); res('amigo_res', { ok: r.ok ? 1 : 0, removeu: 1 }); atualizarLista(c.id, id); return; }
     case 'convite': return convidar(j, m);
     case 'convite_resp': return responderConvite(j, m);
+    case 'chat_hist': { const r = contas.chatHistorico(c, String(m.id || '')); if (r.erro) return; return res('chat_hist', { id: String(m.id), msgs: r.msgs }); }
+    case 'chat_lido': { contas.chatHistorico(c, String(m.id || '')); return; }
+    case 'chat': {
+      const l = j.chatL = j.chatL && agora - j.chatL.t < 10000 ? j.chatL : { t: agora, n: 0 }; if (++l.n > 8) return res('chat_erro', { erro: 'rapido' });   // no máximo 8 mensagens a cada 10 s
+      const r = contas.chatEnviar(c, String(m.id || ''), m.texto); if (r.erro) return res('chat_erro', { erro: r.erro });
+      const eu = contas.resumo(c), msg = { t: 'chat_msg', de: c.id, nome: eu.nome, texto: r.m.t, ts: r.m.ts };
+      paraConta(c.id, { ...msg, eu: 1, id: String(m.id) });            // aparece também nos outros aparelhos de quem escreveu
+      paraConta(String(m.id), msg);                                    // e para o amigo, se estiver online
+      return;
+    }
   }
 }
 
@@ -360,8 +371,8 @@ function tratar(j, texto) {
     }
     return enviar(j.ws, JSON.stringify({ t: 'hello', ok: 1, online: onlineN(), v: PROTO, modos: ['1v1', '2v2', 'trio', 'coroa'], bots: 1, volta: 1 }));
   }
-  if (j.social && !['ping', 'perfil', 'amigos', 'amigo_add', 'amigo_resp', 'amigo_del', 'convite', 'convite_resp'].includes(m.t)) return;   // conexão social só fala de amigos
-  if (j.contaId && ['amigos', 'amigo_add', 'amigo_resp', 'amigo_del', 'convite', 'convite_resp'].includes(m.t)) return tratarAmigos(j, m);
+  if (j.social && !['ping', 'perfil', 'amigos', 'amigo_add', 'amigo_resp', 'amigo_del', 'convite', 'convite_resp', 'chat', 'chat_hist', 'chat_lido'].includes(m.t)) return;   // conexão social só fala de amigos
+  if (j.contaId && ['amigos', 'amigo_add', 'amigo_resp', 'amigo_del', 'convite', 'convite_resp', 'chat', 'chat_hist', 'chat_lido'].includes(m.t)) return tratarAmigos(j, m);
   switch (m.t) {
     case 'ping': return enviar(j.ws, JSON.stringify({ t: 'pong', at: m.at }));
     case 'perfil': j.perfil = perfil(m.p); j.perfil.hero = heroiOk(j, j.perfil.hero); return;

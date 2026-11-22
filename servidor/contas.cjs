@@ -14,17 +14,17 @@ const ARQ = path.join(DIR, 'contas.json');
 const CHAVES = ['eldoria-champions-v1', 'eldoria.retencao.v1', 'eldoria.cacada.v1', 'eldoria.arcade.v1', 'eldoria-lobby-v18', 'ecos-loadout'];
 const MAX_CHAVE = 120 * 1024, MAX_TOTAL = 300 * 1024, MAX_CONTAS = +process.env.MAX_CONTAS || 20000;
 const ALFA = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';   // sem I, L, O, 0 e 1 (não se confundem ao digitar)
-let contas = {}, porHash = new Map(), porCod = new Map(), sujo = false, timer = null;   // porCod: código de amigo -> id
+let contas = {}, chats = {}, porHash = new Map(), porCod = new Map(), sujo = false, timer = null;   // chats: "idA:idB" -> [{de,t,ts}]   // porCod: código de amigo -> id
 
 function carregar() {
   try { fs.mkdirSync(DIR, { recursive: true }); } catch {}
-  try { const d = JSON.parse(fs.readFileSync(ARQ, 'utf8')); contas = d.contas || {}; } catch { contas = {}; }
+  try { const d = JSON.parse(fs.readFileSync(ARQ, 'utf8')); contas = d.contas || {}; chats = d.chats || {}; } catch { contas = {}; chats = {}; }
   porHash = new Map(Object.values(contas).map(c => [c.hash, c.id]));
   porCod = new Map(Object.values(contas).filter(c => c.cod).map(c => [c.cod, c.id]));
 }
 function gravar() {
   sujo = false;
-  try { const tmp = ARQ + '.tmp'; fs.writeFileSync(tmp, JSON.stringify({ versao: 1, contas })); fs.renameSync(tmp, ARQ); } catch (e) { console.error('[contas] erro ao gravar', e.message); }
+  try { const tmp = ARQ + '.tmp'; fs.writeFileSync(tmp, JSON.stringify({ versao: 1, contas, chats })); fs.renameSync(tmp, ARQ); } catch (e) { console.error('[contas] erro ao gravar', e.message); }
 }
 function agendar() { sujo = true; if (!timer) timer = setTimeout(() => { timer = null; if (sujo) gravar(); }, 1500); timer.unref?.(); }
 function sair() { if (timer) { clearTimeout(timer); timer = null; } if (sujo) gravar(); }
@@ -140,8 +140,37 @@ function removerAmigo(c, id) {   // remove amizade ou cancela um pedido enviado
   garantirListas(c); const o = porId(id); if (!o) return { erro: 'nada' }; garantirListas(o);
   c.amigos = c.amigos.filter(i => i !== id); o.amigos = o.amigos.filter(i => i !== c.id);
   c.enviados = c.enviados.filter(i => i !== id); o.recebidos = o.recebidos.filter(i => i !== c.id);
-  agendar(); return { ok: true };
+  delete chats[chave(c.id, id)]; agendar(); return { ok: true };
+}
+
+/* ---------- chat entre amigos ---------- */
+// Mensagens ficam guardadas no servidor (as últimas 60 de cada dupla) para chegarem mesmo com o amigo offline. "lidas": quando cada um leu a conversa.
+const CHAT_MAX = 60, CHAT_TEXTO = 200;
+const chave = (a, b) => (a < b ? a + ':' + b : b + ':' + a);
+const limpaTexto = t => String(t ?? '').replace(/[\u0000-\u001f\u007f<>]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, CHAT_TEXTO);
+function chatEnviar(c, idAmigo, texto) {
+  const o = porId(idAmigo); if (!o || !saoAmigos(c, o.id)) return { erro: 'amigo' };
+  const t = limpaTexto(texto); if (!t) return { erro: 'vazio' };
+  const k = chave(c.id, o.id), l = chats[k] = chats[k] || [];
+  const m = { de: c.id, t, ts: Date.now() };
+  l.push(m); if (l.length > CHAT_MAX) l.splice(0, l.length - CHAT_MAX);
+  c.lidas = c.lidas || {}; c.lidas[o.id] = m.ts;   // quem escreve já leu a conversa
+  agendar(); return { ok: true, m, outro: resumo(o) };
+}
+function chatHistorico(c, idAmigo, marcarLida = true) {
+  const o = porId(idAmigo); if (!o || !saoAmigos(c, o.id)) return { erro: 'amigo' };
+  const l = chats[chave(c.id, o.id)] || [];
+  if (marcarLida) { c.lidas = c.lidas || {}; c.lidas[o.id] = Date.now(); agendar(); }
+  return { ok: true, msgs: l.map(m => ({ eu: m.de === c.id, t: m.t, ts: m.ts })) };
+}
+function naoLidas(c) {   // amigo -> quantidade de mensagens dele que ainda não li
+  const r = {}; garantirListas(c);
+  for (const id of c.amigos) {
+    const l = chats[chave(c.id, id)]; if (!l || !l.length) continue;
+    const lida = (c.lidas && c.lidas[id]) || 0; const n = l.filter(m => m.de === id && m.ts > lida).length; if (n) r[id] = n;
+  }
+  return r;
 }
 
 carregar();
-module.exports = { porId, codAmigo, atualizarPerfil, lista, saoAmigos, pedirAmizade, responderPedido, removerAmigo, resumo, criar, entrar, salvar, porCodigo, heroisPermitidos, livresDaSemana, normaliza, CHAVES, total: () => Object.keys(contas).length, gravar };
+module.exports = { chatEnviar, chatHistorico, naoLidas, porId, codAmigo, atualizarPerfil, lista, saoAmigos, pedirAmizade, responderPedido, removerAmigo, resumo, criar, entrar, salvar, porCodigo, heroisPermitidos, livresDaSemana, normaliza, CHAVES, total: () => Object.keys(contas).length, gravar };
