@@ -12,11 +12,11 @@ const N=+process.argv[2]||1,Q=process.argv[3]||'';
    matchMode='1v1';battleActivity='casual';start();window.requestAnimationFrame=()=>0;
    const A=side?b:p,B=side?p:b;
    V3Modes.swapHero(A,a,1000);V3Modes.swapHero(B,c,1000);A.skin=a;B.skin=c;
-   try{window.V3Balance&&V3Balance.aplicar&&[A,B].forEach(x=>V3Balance.aplicar(x))}catch{}
    state='fight';count=0;time=120;let steps=0;const first={};
-   const oc=cast;cast=function(x,id,mn){const r=oc(x,id,mn);if(r&&skills[id]?.ultimate&&first[x.skin]===undefined)first[x.skin]=steps/60;return r};
+   const oc=cast,ob=rwBeginCharge;cast=function(x,id,mn){const r=oc(x,id,mn);if(r&&skills[id]?.ultimate&&first[x.skin]===undefined)first[x.skin]=steps/60;return r};
+   rwBeginCharge=function(x,an,slot){const r=ob(x,an,slot);if(r&&slot===5&&first[x.skin]===undefined)first[x.skin]=steps/60;return r};
    while(state==='fight'&&time>0&&p.hp>0&&b.hp>0&&steps<7300){ai(1/60,p);ai(1/60,b);step(1/60);steps++}
-   cast=oc;
+   cast=oc;rwBeginCharge=ob;
    const ha=A.hp/A.max,hb=B.hp/B.max;
    if(Math.abs(ha-hb)<1e-4){D[a]++;D[c]++}else if(ha>hb){W[a]++;L[c]++}else{W[c]++;L[a]++}
    for(const h of [a,c]){dur[h].push(steps/60);if(first[h]!==undefined)ult1[h].push(first[h])}

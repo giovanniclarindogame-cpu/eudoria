@@ -44,6 +44,7 @@ function resetFighter(a,{keepHp=true}={}){
  a.cd=a.cd.map(()=>0);a.mp=120;a.st=100;a.buff={};a.dots=[];a.guard=false;a.root=0;a.cast=0;a.slow=0;a.inv=1.8;a.rwCast=null;a.knockedDown=false;a.hitReact=0;a.koAge=undefined;a.dash=0;a.dodgeTime=0;a.actionRecovery=0;a.skillLock=0;a.punchTime=0;a.guardBreak=0;a.flash=0;a.moving=false;a.identity=undefined;a.modeDead=false;
  for(const k of Object.keys(a))if(/^v3/.test(k)||k==='bot')delete a[k];
  if(!keepHp)a.hp=a.max;
+ try{window.V3Balance?.aplicar(a)}catch{}   // equilíbrio de largada (js/equilibrio_v3.js)
 }
 // todos voltam a encarar o rival no início de uma luta/round (quem caiu ficava virado para trás)
 function faceOff(){
@@ -60,6 +61,7 @@ function swapHero(a,id,hp){
  resetFighter(a,{keepHp:true});
  a.skin=id;a.champion=id;a.kit=[...c.kit];a.max=1000;a.hp=hp??1000;
  try{reworkPreload(id)}catch{}
+ try{window.V3Balance?.aplicar(a)}catch{}
 }
 function clearField(){
  try{clearArenaEffects()}catch{}
@@ -119,6 +121,7 @@ const prevStart=start;
 start=function(){
  const r=prevStart.apply(this,arguments);
  window.V3Modes.special=window.V3Modes.pending||null;window.V3Modes.pending=null;
+ try{actors.forEach(x=>window.V3Balance?.aplicar(x))}catch{}
  S.on=eligible();S.round=1;S.w=[0,0];S.draws=0;
  if(S.on){time=ROUND_TIME;S.init=actors.map(a=>({a,x:a.x,y:a.y}))}
  drawPips();
