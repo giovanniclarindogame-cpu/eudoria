@@ -1,0 +1,18 @@
+/* v67: modo PC (mouse + tela larga): botões numa barra embaixo, lado a lado; sem joystick; cursor de espada.
+   Liga/desliga pela classe body.pc-ui (js/pc_ui.js). ?pc=0 volta ao layout de toque. */
+body.v3.pc-ui #battle{--atk:84px;--pcb:84px;--pcgap:22px}
+/* âncora da barra: centro da tela, colada embaixo */
+body.v3.pc-ui #battle .control-center,body.v3.pc-ui #battle .action-group{right:auto!important;left:50%!important;bottom:calc(18px + var(--pcb)/2)!important;transform:none!important}
+/* DASH | 1 | 2 | 3 | ULT  (posição de cada botão a partir do centro) */
+body.v3.pc-ui #battle .action-group #attack.v3-dash{--sz:var(--pcb)!important;--dx:calc(var(--pcb)*-2 - var(--pcgap)*2)!important;--dy:0px!important;width:var(--pcb)!important;height:var(--pcb)!important;min-width:var(--pcb)!important;min-height:var(--pcb)!important;left:calc(var(--dx) - var(--pcb)/2)!important;top:calc(var(--dy) - var(--pcb)/2)!important;position:absolute!important;margin:0!important}
+body.v3.pc-ui #battle #equipped .skill{--sz:var(--pcb)!important;--dy:0px!important}
+body.v3.pc-ui #battle #equipped .skill[data-arc="0"]{--dx:calc(var(--pcb)*-1 - var(--pcgap))!important}
+body.v3.pc-ui #battle #equipped .skill[data-arc="1"]{--dx:0px!important}
+body.v3.pc-ui #battle #equipped .skill[data-arc="2"]{--dx:calc(var(--pcb) + var(--pcgap))!important}
+body.v3.pc-ui #battle #equipped .skill[data-arc="3"]{--dx:calc(var(--pcb)*2 + var(--pcgap)*2)!important;--sz:var(--pcb)!important}
+/* teclas em destaque */
+body.v3.pc-ui #battle #equipped .skill .hotkey{font-size:13px!important}
+/* mouse mira e clica para atacar: sem joystick */
+body.v3.pc-ui #battle #stick,body.v3.pc-ui #battle .stick-zone{display:none!important}
+/* cursor: mini espada (ponta = ponto de mira) */
+body.v3.pc-ui #battle,body.v3.pc-ui #battle canvas#arena,body.v3.pc-ui #battle button{cursor:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 36 36'><path d='M3 3l5 1 17 17-3 3L5 8z' fill='%23e8f3ff' stroke='%23101a2c' stroke-width='1.6' stroke-linejoin='round'/><path d='M3 3l2.2 5.6L8 4z' fill='%23ffffff'/><path d='M20 22l5-5 3 3-5 5z' fill='%23f2b705' stroke='%23101a2c' stroke-width='1.6' stroke-linejoin='round'/><path d='M23 25l7 7' stroke='%23101a2c' stroke-width='5' stroke-linecap='round'/><path d='M23 25l7 7' stroke='%238a4b1f' stroke-width='2.6' stroke-linecap='round'/><circle cx='31.4' cy='33' r='2' fill='%23f2b705' stroke='%23101a2c' stroke-width='1.2'/></svg>") 3 3,crosshair}

@@ -233,10 +233,12 @@ updateArenaCamera=function(){
  if(!R||courtyardWide||cw<ch||!p||!cw)return prevCam();
  const pts=actors.filter(a=>a.hp>0&&(a===p||a===R.a));if(pts.length<2)return prevCam();
  // reserva as áreas dos controles (analógico à esquerda; habilidades e ações à direita)
- const key=cw+'x'+ch;
+ const pc=document.body.classList.contains('pc-ui'),key=cw+'x'+ch+(pc?'p':'');
  if(key!==camKey){camKey=key;const st=document.querySelector('#stick'),cc=document.querySelector('.control-center');
-  if(st){const r=st.getBoundingClientRect();camL=Math.max(40,r.right+10)}
-  if(cc){const r=cc.getBoundingClientRect();camR=Math.max(120,cw-r.left+10)}}
+  if(pc){camL=40;camR=40}   // modo PC: os botões ficam numa barra embaixo (a altura já é reservada abaixo), laterais livres
+  else{
+   if(st){const r=st.getBoundingClientRect();camL=Math.max(40,r.right+10)}
+   if(cc){const r=cc.getBoundingClientRect();camR=Math.max(120,cw-r.left+10)}}}
  const top=window.battleTop?battleTop():(ch<520?58:88),xs=pts.map(a=>a.x),ys=pts.map(a=>a.y);
  const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
  const freeW=cw-camL-camR,fit=Math.min(freeW/(x1-x0+170),(ch-top-120)/(y1-y0+170));
