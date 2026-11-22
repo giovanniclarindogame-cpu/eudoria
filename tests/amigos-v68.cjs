@@ -8,11 +8,13 @@ const PORT=8793,SRV='ws://localhost:'+PORT;
  const sv=spawn('node',['servidor.cjs'],{cwd:path.join(__dirname,'..','servidor'),env:{...process.env,PORT:String(PORT),DADOS:tmp,TESTE:'1',AQUECIDAS:'1',ESPERA_BOT:'90000'},stdio:'ignore'});
  for(let i=0;i<50;i++){try{await fetch('http://localhost:'+PORT+'/saude');break}catch{await sleep(200)}}
  const br=await chromium.launch();const errs=[];
- async function jogador(nome,pasta=''){const c=await br.newContext({viewport:{width:900,height:480}});const p=await c.newPage();p.on('pageerror',e=>errs.push(nome+': '+e.message));
+ async function jogador(nome,pasta=''){const c=await br.newContext({viewport:{width:900,height:480}});const p=await c.newPage();
+  await p.addInitScript(()=>{window.__tons=0;const AC=window.AudioContext;if(AC){window.AudioContext=class extends AC{createOscillator(){window.__tons++;return super.createOscillator()}}}});p.on('pageerror',e=>errs.push(nome+': '+e.message));
   await p.goto('http://localhost:8000/index.html?allheroes=1&servidor='+encodeURIComponent(SRV));await p.waitForTimeout(900);
   await p.getByText('ENTRAR',{exact:true}).click();await p.fill('#profileName',nome);await p.getByText('Continuar',{exact:true}).click();await p.waitForTimeout(2000);await p.evaluate(()=>document.querySelector('#ljModal')?.remove());
   return{c,p}}
  const A=await jogador('Ana'),B=await jogador('Beto');
+ const convida=async(J,tipo)=>{await J.p.waitForSelector('[data-a68-opcoes]:not([disabled])',{timeout:8000});await J.p.click('[data-a68-opcoes]');await J.p.click(`.a68-opcoes [data-tipo="${tipo}"]`)};
  const abrir=async J=>{await J.p.evaluate(()=>AmigosV68.abrir());await sleep(300)};
  // 1) sem conta: oferece criar
  await abrir(A);ok(await A.p.evaluate(()=>!!document.querySelector('[data-a68-conta]')),'sem conta: a tela oferece "Criar minha conta"');
@@ -28,7 +30,7 @@ const PORT=8793,SRV='ws://localhost:'+PORT;
  // código errado
  await B.p.fill('#a68In','ZZZZZZ');await B.p.click('.a68-add button[type=submit]');await B.p.waitForSelector('.a68-aviso.erro',{timeout:6000});ok(/Não achei/.test(await B.p.textContent('.a68-aviso')),'código inexistente mostra aviso');
  await A.p.click('[data-a68-resp][data-ok="1"]');
- await A.p.waitForSelector('.a68-amigo.st-on [data-a68-conv]',{timeout:8000});await B.p.waitForSelector('.a68-amigo.st-on [data-a68-conv]',{timeout:8000});
+ await A.p.waitForSelector('.a68-amigo.st-on [data-a68-opcoes]',{timeout:8000});await B.p.waitForSelector('.a68-amigo.st-on [data-a68-opcoes]',{timeout:8000});
  ok(true,'viraram amigos: cada um aparece online na lista do outro');
  await A.p.screenshot({path:'/tmp/claude-0/amigos_tela.png'});
  // ---- chat na tela ----
@@ -49,13 +51,48 @@ const PORT=8793,SRV='ws://localhost:'+PORT;
  await A.p.fill('#a68Txt','Cheguei!');await A.p.press('#a68Txt','Enter');
  await B.p.waitForSelector('.a68-chatbtn .a68-n',{timeout:6000});ok(true,'mensagem nova aparece como não lida na lista do Beto');
  await A.p.click('[data-a68-chat-voltar]');await B.p.waitForTimeout(300);
+ // ---- tela inicial: ícone de Amigos, menu enxuto, teclado, som ----
+ await A.p.evaluate(()=>{AmigosV68.fechar()});await A.p.waitForTimeout(500);
+ ok(await A.p.evaluate(()=>!!document.querySelector('[data-v68-amigos]')&&document.querySelector('[data-v68-amigos] .v41-lbl').textContent==='Amigos'),'a tela inicial tem o atalho "Amigos" junto de Campeões e Dojo');
+ ok(await A.p.evaluate(()=>document.querySelector('[data-v68-amigos]').classList.contains('v68-on')),'o ícone mostra o ponto verde quando há amigo online');
+ const menu=await A.p.evaluate(()=>{document.querySelector('[data-v40-menu]').click();return [...document.querySelectorAll('#v40Menu .v40-menu-grid button')].map(b=>b.textContent.trim())});
+ ok(menu.length===4&&/conta/i.test(menu[0])&&/feedback/i.test(menu[1])&&/Configura/i.test(menu[2])&&/Tela cheia/i.test(menu[3]),`o menu tem só 4 botões: ${menu.join(' · ')}`);
+ await A.p.evaluate(()=>document.querySelector('#v40Menu [data-v40-close]').click());await A.p.waitForTimeout(300);
+ // som e aviso: Beto escreve enquanto a Ana está na tela inicial
+ const tons0=await A.p.evaluate(()=>window.__tons);
+ await B.p.click('[data-a68-chat]');await B.p.waitForSelector('#a68Txt');await B.p.fill('#a68Txt','Oi Ana!');await B.p.press('#a68Txt','Enter');
+ await A.p.waitForFunction(()=>document.querySelector('[data-v68-amigos] .v68-n'),null,{timeout:6000});
+ ok(await A.p.evaluate(()=>document.querySelector('[data-v68-amigos] .v68-n').textContent==='1'),'mensagem nova: bolinha vermelha "1" no ícone de Amigos da tela inicial');
+ ok(await A.p.evaluate(t=>window.__tons>t,tons0),'a mensagem nova toca o aviso sonoro');
+ await A.p.keyboard.press('a');await A.p.waitForFunction(()=>!document.querySelector('#amigosV68').hidden,null,{timeout:4000});ok(true,'a tecla A abre os amigos na tela inicial');
+ // silenciar
+ await A.p.click('[data-a68-som]');const tons1=await A.p.evaluate(()=>window.__tons);
+ await B.p.fill('#a68Txt','segunda mensagem');await B.p.press('#a68Txt','Enter');await A.p.waitForTimeout(600);
+ ok(await A.p.evaluate(t=>window.__tons===t,tons1),'com o som desligado (🔕) não toca nada');
+ await A.p.click('[data-a68-som]');   // liga de novo
+ await A.p.click('[data-a68-chat]');await A.p.waitForSelector('.a68-m.ele',{timeout:6000});await A.p.click('[data-a68-chat-voltar]');await B.p.click('[data-a68-chat-voltar]');await A.p.waitForTimeout(300);
+ // ---- convite Trio e Coroa pelas opções de modo ----
+ for(const [tipo,modo,n] of [['trio','trio',2],['coroa','coroa',4]]){
+  await A.p.waitForSelector('[data-a68-opcoes]:not([disabled])',{timeout:8000});await A.p.click('[data-a68-opcoes]');
+  ok(await A.p.evaluate(()=>document.querySelectorAll('.a68-opcoes .a68-op').length===4),'o botão "Jogar" abre as 4 opções de modo');
+  await A.p.click(`.a68-opcoes [data-tipo="${tipo}"]`);
+  await B.p.waitForSelector('#amigosConv68:not([hidden]) [data-a68-aceitar]',{timeout:8000});
+  ok(new RegExp(tipo==='trio'?'Trio de Campe':'Disputa da Coroa').test(await B.p.textContent('#amigosConv68')),`o convite mostra o modo certo (${tipo})`);
+  await B.p.click('[data-a68-aceitar]');
+  const sala=J=>J.p.waitForFunction(()=>OnlineV45.state.fase==='sala'&&!(document.querySelector('#onlineV45')?.hidden??true),null,{timeout:40000});
+  await Promise.all([sala(A),sala(B)]);
+  ok(await A.p.evaluate(([m,n])=>OnlineV45.state.sala.modo===m&&OnlineV45.state.sala.ps.length===n,[modo,n]),`os dois amigos entram na sala ${modo} (${n} vagas)`);
+  await A.p.evaluate(()=>OnlineV45.cancelar());await B.p.evaluate(()=>OnlineV45.cancelar());await sleep(900);
+  await A.p.evaluate(()=>AmigosV68.abrir());await B.p.evaluate(()=>AmigosV68.abrir());await sleep(500);
+ }
+ await A.p.screenshot({path:'/tmp/claude-0/amigos_opcoes.png'});
  // 3) convite "contra": Beto convida Ana, ela recusa
- await B.p.click('[data-a68-conv][data-tipo="contra"]');await A.p.waitForSelector('#amigosConv68:not([hidden]) [data-a68-recusar]',{timeout:8000});
+ await convida(B,'contra');await A.p.waitForSelector('#amigosConv68:not([hidden]) [data-a68-recusar]',{timeout:8000});
  ok(/duelo 1×1/.test(await A.p.textContent('#amigosConv68')),'Ana vê o convite para o duelo 1×1');
  await A.p.screenshot({path:'/tmp/claude-0/amigos_convite.png'});
  await A.p.click('[data-a68-recusar]');await B.p.waitForFunction(()=>/recusou/.test(document.querySelector('.a68-aviso')?.textContent||''),null,{timeout:6000});ok(true,'recusar avisa o Beto');
  // 4) convite "junto" (2×2): aceita e os dois caem na sala, na mesma equipe
- await B.p.click('[data-a68-conv][data-tipo="junto"]');await A.p.waitForSelector('#amigosConv68:not([hidden]) [data-a68-aceitar]',{timeout:8000});
+ await convida(B,'junto');await A.p.waitForSelector('#amigosConv68:not([hidden]) [data-a68-aceitar]',{timeout:8000});
  ok(/junto com você/.test(await A.p.textContent('#amigosConv68')),'Ana vê o convite para jogar junto (2×2)');
  await A.p.click('[data-a68-aceitar]');
  const naSala=J=>J.p.waitForFunction(()=>OnlineV45.state.fase==='sala'&&!(document.querySelector('#onlineV45')?.hidden??true),null,{timeout:40000});
@@ -69,8 +106,8 @@ const PORT=8793,SRV='ws://localhost:'+PORT;
  // voltam ao início
  await A.p.evaluate(()=>OnlineV45.cancelar());await B.p.evaluate(()=>OnlineV45.cancelar());await sleep(800);
  // 6) convite "contra": aceita -> sala 1×1
- await abrir(B);await B.p.waitForSelector('.a68-amigo.st-on [data-a68-conv]',{timeout:10000});
- await B.p.click('[data-a68-conv][data-tipo="contra"]');await A.p.waitForSelector('[data-a68-aceitar]',{timeout:8000});await A.p.click('[data-a68-aceitar]');
+ await abrir(B);await B.p.waitForSelector('.a68-amigo.st-on [data-a68-opcoes]',{timeout:10000});
+ await convida(B,'contra');await A.p.waitForSelector('[data-a68-aceitar]',{timeout:8000});await A.p.click('[data-a68-aceitar]');
  await Promise.all([naSala(A),naSala(B)]);
  ok(await A.p.evaluate(()=>OnlineV45.state.sala.modo==='1v1'&&OnlineV45.state.sala.ps.length===2),'convite "contra": os dois entram numa sala 1×1 um contra o outro');
  // 7) remover amigo

@@ -2,8 +2,9 @@
 const { chromium } = require('playwright');
 const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else console.log('ok  -',m)};
 (async()=>{const b=await chromium.launch();
- for(const [w,h] of [[915,412],[844,390],[667,375]]){
+ for(const [w,h] of [[915,412],[1000,450],[844,390],[667,375]]){
   const ctx=await b.newContext({viewport:{width:w,height:h},deviceScaleFactor:2,hasTouch:true,isMobile:true});const p=await ctx.newPage();const cdp=await ctx.newCDPSession(p);
+  await p.addInitScript(()=>{Element.prototype.requestFullscreen=()=>Promise.reject(new Error('sem tela cheia no teste'));Element.prototype.webkitRequestFullscreen=undefined});   // o jogo pede tela cheia ao entrar; no teste isso encolhe a janela para 800 px e os toques além disso caem fora
   await p.goto('http://localhost:8000/index.html');await p.waitForTimeout(900);
   await p.getByText('ENTRAR',{exact:true}).click();await p.fill('input','Teste');await p.getByText('Continuar',{exact:true}).click();await p.waitForTimeout(1800);
   await p.evaluate(()=>showScreen('library'));await p.waitForTimeout(1200);

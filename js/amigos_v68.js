@@ -11,8 +11,38 @@ const PROTO=3;
 const url=()=>(new URLSearchParams(location.search).get('servidor')||window.ELDORIA_SERVIDOR||'').trim();
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const $q=s=>document.querySelector(s);
-const SOC={ws:null,ok:false,tent:0,lista:null,chat:null,convites:[],msg:'',msgTipo:'',aberta:false,pingT:0,pollT:0,retry:0,ocupado:new Set()};
+const SOC={ws:null,ok:false,tent:0,lista:null,chat:null,opcoes:null,convites:[],msg:'',msgTipo:'',aberta:false,pingT:0,pollT:0,retry:0,ocupado:new Set()};
 const NOMES_ST={on:'Online',jogo:'Em partida',off:'Offline'};
+// modos que dá para jogar com um amigo (o servidor completa com bots as vagas que faltam)
+const TIPOS=[
+ {id:'contra',ico:'⚔',nome:'Duelo 1×1',desc:'Um contra o outro',convite:'te chamou para um <b>duelo 1×1</b>'},
+ {id:'junto',ico:'🤝',nome:'Equipe 2×2',desc:'Os dois no mesmo time',convite:'quer jogar <b>junto com você</b> (equipe 2×2)'},
+ {id:'trio',ico:'🛡',nome:'Trio de Campeões',desc:'Time de 3 contra time de 3',convite:'te chamou para o <b>Trio de Campeões</b> (um contra o outro, 3 campeões cada)'},
+ {id:'coroa',ico:'👑',nome:'Disputa da Coroa',desc:'Cada um por si; bots completam',convite:'te chamou para a <b>Disputa da Coroa</b> (cada um por si, bots completam)'}
+];
+const tipoDe=id=>TIPOS.find(t=>t.id===id)||TIPOS[0];
+const chipsTipo=idAmigo=>`<div class="a68-opcoes" role="group" aria-label="Escolha o modo">${TIPOS.map(t=>`<button class="a68-op" data-a68-conv="${esc(idAmigo)}" data-tipo="${t.id}"><b>${t.ico} ${t.nome}</b><small>${t.desc}</small></button>`).join('')}</div>`;
+
+/* ---------- som de aviso (sem arquivos: tons gerados na hora) ---------- */
+const SOM_CH='eldoria.amigos.som';
+const somLigado=()=>{try{return localStorage.getItem(SOM_CH)!=='0'}catch{return true}};
+let audioCtx=null;
+function tons(lista){   // lista de [frequência, início(s), duração(s)]
+ if(!somLigado())return;
+ try{
+  audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();
+  if(audioCtx.state==='suspended')audioCtx.resume();
+  const t0=audioCtx.currentTime;
+  for(const [f,ini,dur] of lista){
+   const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='sine';o.frequency.value=f;
+   g.gain.setValueAtTime(0,t0+ini);g.gain.linearRampToValueAtTime(.18,t0+ini+.015);g.gain.exponentialRampToValueAtTime(.001,t0+ini+dur);
+   o.connect(g).connect(audioCtx.destination);o.start(t0+ini);o.stop(t0+ini+dur+.02);
+  }
+ }catch{}
+}
+const somMsg=()=>tons([[880,0,.12],[1175,.11,.16]]);               // mensagem nova: dois tons curtos
+const somConvite=()=>tons([[660,0,.14],[880,.14,.14],[1175,.28,.22]]);   // convite: três tons subindo
+const somPedido=()=>tons([[784,0,.12],[988,.12,.18]]);             // pedido de amizade
 
 /* ---------- conexão social ---------- */
 function perfil(){try{return OnlineV45.profile()}catch{return{name:account?.profile?.name||'Lutador',lv:1,photo:'h0',frame:'azul'}}}
@@ -39,7 +69,7 @@ function tratar(m){
  switch(m.t){
   case'hello':if(m.social)ligado();break;
   case'erro':if(m.m==='conta'){SOC.ws&&SOC.ws.close()}break;
-  case'amigos':SOC.lista=m;badge();redesenhar();break;
+  case'amigos':{const antes=SOC.lista?SOC.lista.recebidos.length:null;SOC.lista=m;if(antes!=null&&m.recebidos.length>antes)somPedido();badge();redesenhar();break}
   case'amigo_st':{const a=SOC.lista?.amigos?.find(x=>x.id===m.id);if(a){a.st=m.st;badge();redesenhar()}break}
   case'amigo_res':{
    if(m.ok){
@@ -72,6 +102,7 @@ function convidado(m){
  SOC.convites=SOC.convites.filter(c=>c.cid!==m.cid);
  SOC.convites.push({...m,fim:Date.now()+(m.ms||40000)});
  try{if(navigator.vibrate)navigator.vibrate(120)}catch{}
+ somConvite();
  redesenhar();badge();
 }
 function responder(cid,ok){
@@ -83,7 +114,7 @@ function irParaSala(m){
  SOC.convites=SOC.convites.filter(c=>c.cid!==m.cid);
  fechar();
  try{document.querySelectorAll('#v40Modes,#v40Menu').forEach(x=>x.hidden=true);document.body.classList.remove('v40-modes-open')}catch{}
- try{OnlineV45.procurar(m.modo==='2v2'?'2v2':'1v1',{cid:m.cid,amigo:m.com?.nome})}catch(e){console.error('[Eldoria] amigos',e)}
+ try{OnlineV45.procurar(['1v1','2v2','trio','coroa'].includes(m.modo)?m.modo:'1v1',{cid:m.cid,amigo:m.com?.nome})}catch(e){console.error('[Eldoria] amigos',e)}
  redesenhar();badge();
 }
 
@@ -93,15 +124,14 @@ function faceDe(a){
  return`<span class="a68-ini">${esc((a.nome||'?').slice(0,1).toUpperCase())}</span>`;
 }
 function linhaAmigo(a){
- const pode=a.st==='on';
+ const pode=a.st==='on',aberto=SOC.opcoes===a.id;
  return`<li class="a68-amigo st-${esc(a.st)}"><span class="a68-face">${faceDe(a)}<i class="a68-dot" aria-hidden="true"></i></span>
   <span class="a68-info"><b>${esc(a.nome)}</b><small>Nv ${a.lv|0} · ${NOMES_ST[a.st]||'Offline'}</small></span>
   <span class="a68-acoes">
    <button class="a68-chatbtn" data-a68-chat="${esc(a.id)}" aria-label="Conversar com ${esc(a.nome)}" title="Conversar">💬${a.nao?`<i class="a68-n">${a.nao>9?'9+':a.nao}</i>`:''}</button>
-   <button class="a68-btn" data-a68-conv="${esc(a.id)}" data-tipo="contra" ${pode?'':'disabled'} title="Duelo 1×1 contra ${esc(a.nome)}">⚔ Contra</button>
-   <button class="a68-btn azul" data-a68-conv="${esc(a.id)}" data-tipo="junto" ${pode?'':'disabled'} title="Equipe 2×2 junto com ${esc(a.nome)}">🤝 Junto</button>
+   <button class="a68-btn ${aberto?'azul':''}" data-a68-opcoes="${esc(a.id)}" ${pode?'':'disabled'} aria-expanded="${aberto}" title="${pode?'Convidar para jogar':'Só dá para convidar quem está online'}">🎮 Jogar ${aberto?'▴':'▾'}</button>
    <button class="a68-x" data-a68-del="${esc(a.id)}" aria-label="Remover ${esc(a.nome)}" title="Remover amigo">✕</button>
-  </span></li>`;
+  </span>${aberto&&pode?chipsTipo(a.id):''}</li>`;
 }
 function conteudo(){
  const L=SOC.lista,tem=podeConectar();
@@ -133,7 +163,7 @@ function redesenhar(){
  const el=$q('#amigosV68');if(!el||el.hidden)return;
  if(SOC.chat){atualizarCabChat();return}
  const foco=document.activeElement&&document.activeElement.id==='a68In'?document.getElementById('a68In').value:null;
- el.innerHTML=`<header class="a68-top"><button class="v40-round v43-back" data-a68-fechar aria-label="Voltar">‹</button><b>AMIGOS</b><span class="a68-estado ${SOC.ok?'on':''}">${SOC.ok?'conectado':'sem conexão'}</span></header>
+ el.innerHTML=`<header class="a68-top"><button class="v40-round v43-back" data-a68-fechar aria-label="Voltar">‹</button><b>AMIGOS</b><button class="a68-som" data-a68-som aria-pressed="${somLigado()}" title="Som de avisos" aria-label="Som de avisos">${somLigado()?'🔔':'🔕'}</button><span class="a68-estado ${SOC.ok?'on':''}">${SOC.ok?'conectado':'sem conexão'}</span></header>
   ${SOC.msg?`<p class="a68-aviso ${SOC.msgTipo}" role="status">${esc(SOC.msg)}</p>`:''}
   <div class="a68-corpo">${conteudo()}</div>`;
  if(foco!=null){const i=document.getElementById('a68In');if(i){i.value=foco;i.focus()}}
@@ -158,7 +188,8 @@ function abrirChat(id){
  el.innerHTML=`<header class="a68-top"><button class="v40-round v43-back" data-a68-chat-voltar aria-label="Voltar para a lista">‹</button>
    <span class="a68-face" id="a68CabFace">${faceDe(a)}<i class="a68-dot" aria-hidden="true"></i></span>
    <span class="a68-info"><b id="a68CabNome">${esc(a.nome)}</b><small id="a68CabSt"></small></span>
-   <span class="a68-cab-acoes"><button class="a68-btn" data-a68-conv="${esc(id)}" data-tipo="contra" id="a68CabContra">⚔</button><button class="a68-btn azul" data-a68-conv="${esc(id)}" data-tipo="junto" id="a68CabJunto">🤝</button></span></header>
+   <span class="a68-cab-acoes"><button class="a68-btn azul" data-a68-opcoes-chat="${esc(id)}" id="a68CabJogar">🎮 Jogar ▾</button></span></header>
+  <div id="a68CabOp" hidden></div>
   <p class="a68-aviso" id="a68Aviso" hidden></p>
   <div class="a68-chat"><div class="a68-msgs" id="a68Msgs" aria-live="polite"><p class="a68-vazio peq">Carregando conversa…</p></div>
    <div class="a68-rapidas">${RAPIDAS.map((t,i)=>`<button class="a68-chip" data-a68-rapida="${i}">${esc(t)}</button>`).join('')}</div>
@@ -172,7 +203,7 @@ function atualizarCabChat(){
  const c=SOC.chat;if(!c)return;const a=amigoDe(c.id);if(!a)return;
  const st=document.getElementById('a68CabSt');if(st)st.textContent=`Nv ${a.lv|0} · ${NOMES_ST[a.st]||'Offline'}`;
  const dot=document.getElementById('a68CabFace');if(dot)dot.className='a68-face st-'+a.st;
- for(const id of ['a68CabContra','a68CabJunto']){const b=document.getElementById(id);if(b)b.disabled=a.st!=='on'}
+ {const b=document.getElementById('a68CabJogar');if(b)b.disabled=a.st!=='on'}
  const av=document.getElementById('a68Aviso');if(av){av.hidden=!SOC.msg;av.textContent=SOC.msg;av.className='a68-aviso '+SOC.msgTipo}
 }
 function pintarChat(rolar){
@@ -193,9 +224,10 @@ function chegouMsg(m){
  const idAmigo=m.eu?m.id:m.de;
  if(SOC.chat&&SOC.chat.id===idAmigo&&SOC.aberta){
   SOC.chat.msgs.push({eu:!!m.eu,t:m.texto,ts:m.ts});if(SOC.chat.msgs.length>60)SOC.chat.msgs.shift();pintarChat(!!m.eu);
-  if(!m.eu)enviar({t:'chat_lido',id:idAmigo});return;
+  if(!m.eu){enviar({t:'chat_lido',id:idAmigo});if(document.hidden)somMsg()}return;
  }
  if(m.eu)return;
+ somMsg();
  const a=amigoDe(idAmigo);if(a)a.nao=(a.nao||0)+1;
  try{toast(`💬 ${m.nome}: ${String(m.texto).slice(0,40)}`)}catch{}
  try{if(navigator.vibrate)navigator.vibrate(60)}catch{}
@@ -215,7 +247,7 @@ function desenharConvites(){
  box.hidden=false;
  box.innerHTML=`<div class="a68-conv"><small class="a68-rot">CONVITE DE AMIGO</small>
   <div class="a68-conv-quem"><span class="a68-face grande">${faceDe({photo:c.de.photo,nome:c.de.nome})}</span><div><b>${esc(c.de.nome)}</b><small>Nv ${c.de.lv|0}</small></div></div>
-  <p>${c.tipo==='junto'?'quer jogar <b>junto com você</b> (equipe 2×2)':'te chamou para um <b>duelo 1×1</b>'}</p>
+  <p>${tipoDe(c.tipo).convite}</p>
   <div class="a68-linha"><button class="a68-btn grande" data-a68-aceitar="${esc(c.cid)}">Aceitar (${seg}s)</button><button class="a68-btn cinza" data-a68-recusar="${esc(c.cid)}">Recusar</button></div></div>`;
 }
 setInterval(()=>{const antes=SOC.convites.length;SOC.convites=SOC.convites.filter(c=>c.fim>Date.now()-500);if(SOC.convites.length||antes)desenharConvites();if(antes&&!SOC.convites.length)badge()},1000);
@@ -229,10 +261,13 @@ function clique(e){
  if(b.hasAttribute('data-a68-compartilhar')){
   const cod=SOC.lista?.cod||'',txt=`Me adiciona no Eldoria! Meu código de amigo: ${cod}`;
   if(navigator.share){navigator.share({title:'Eldoria',text:txt}).catch(()=>{})}else window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank','noopener');return}
+ if(b.hasAttribute('data-a68-som')){try{localStorage.setItem(SOM_CH,somLigado()?'0':'1')}catch{}if(somLigado())somMsg();redesenhar();return}
  if(b.dataset.a68Chat)return abrirChat(b.dataset.a68Chat);
  if(b.hasAttribute('data-a68-chat-voltar')){fecharChat();return}
  if(b.dataset.a68Rapida!=null){enviarChat(b.dataset.a68Rapida);return}
- if(b.dataset.a68Conv){enviar({t:'convite',id:b.dataset.a68Conv,tipo:b.dataset.tipo});return}
+ if(b.dataset.a68Opcoes){SOC.opcoes=SOC.opcoes===b.dataset.a68Opcoes?null:b.dataset.a68Opcoes;redesenhar();return}
+ if(b.dataset.a68OpcoesChat){const box=document.getElementById('a68CabOp');if(box){box.hidden=!box.hidden;box.innerHTML=box.hidden?'':chipsTipo(b.dataset.a68OpcoesChat)}return}
+ if(b.dataset.a68Conv){SOC.opcoes=null;const box=document.getElementById('a68CabOp');if(box){box.hidden=true;box.innerHTML=''}enviar({t:'convite',id:b.dataset.a68Conv,tipo:b.dataset.tipo});redesenhar();return}
  if(b.dataset.a68Del){if(confirm('Remover esse amigo (ou cancelar o pedido)?'))enviar({t:'amigo_del',id:b.dataset.a68Del});return}
  if(b.dataset.a68Resp){enviar({t:'amigo_resp',id:b.dataset.a68Resp,ok:b.dataset.ok==='1'?1:0});return}
  if(b.dataset.a68Aceitar)return responder(b.dataset.a68Aceitar,true);
@@ -252,6 +287,7 @@ function pendentes(){return (SOC.lista?.recebidos?.length||0)+SOC.convites.lengt
 function badge(){
  const n=pendentes();
  const on=(SOC.lista?.amigos||[]).filter(a=>a.st!=='off').length;
+ document.querySelectorAll('[data-v68-amigos]').forEach(b=>{let i=b.querySelector('.v68-n');if(n&&!i){i=document.createElement('i');i.className='v41-badge v68-n';b.appendChild(i)}if(i){i.textContent=n>9?'9+':n;i.hidden=!n}b.classList.toggle('v68-on',on>0);b.title='Amigos (A)'+(on?' · '+on+' online':'')});
  document.querySelectorAll('[data-v40-go="amigos"]').forEach(b=>{let i=b.querySelector('.a68-badge');if(n&&!i){i=document.createElement('i');i.className='a68-badge';b.appendChild(i)}if(i){i.textContent=n>9?'9+':n;i.hidden=!n}
   let sm=b.querySelector('small.a68-on');if(on&&!sm){sm=document.createElement('small');sm.className='a68-on';b.appendChild(sm)}if(sm){sm.textContent=on+' online';sm.hidden=!on}});
  document.querySelectorAll('[data-v40-menu],#openMenu,.v40-menu-btn').forEach(b=>b.classList.toggle('a68-tem',n>0));
