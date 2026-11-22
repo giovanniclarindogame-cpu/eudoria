@@ -21,7 +21,7 @@ const DIAS = 30, LOG = path.join(DADOS, 'acessos.log');
 const ativo = !!SITE;
 
 /* ---------- amigos e senhas ---------- */
-const NOME_OK = /^[A-Za-z0-9_-]{2,30}$/;
+const NOME_OK = /^[A-Za-z0-9_-]{2,30}$/;   // (o login ignora maiúsculas: os nomes são guardados em minúsculas)
 function criarHash(senha) {
   const sal = crypto.randomBytes(16);
   return 'scrypt:' + sal.toString('hex') + ':' + crypto.scryptSync(String(senha), sal, 32).toString('hex');
@@ -45,7 +45,7 @@ function amigos() {   // nome -> registro (relê o arquivo só quando ele muda)
     cacheUsu = { m: -1, tam: -1, mapa, avisou: true }; return mapa;
   }
   for (const l of txt.split('\n')) {
-    const [nome, reg] = l.trim().split(/\s+/);
+    const [nomeBruto, reg] = l.trim().split(/\s+/), nome = String(nomeBruto || '').toLowerCase();
     if (nome && NOME_OK.test(nome) && /^scrypt:/.test(reg || '')) mapa.set(nome, reg);   // outras linhas (formato antigo) são ignoradas
   }
   cacheUsu = { m: st.mtimeMs, tam: st.size, mapa, avisou: false };
@@ -124,12 +124,14 @@ function lerCorpo(req, cb) {
 function login(req, res) {
   const ip = ipDe(req), seguro = String(req.headers['x-forwarded-proto'] || '') === 'https' || !!req.socket.encrypted;
   lerCorpo(req, corpo => {
-    const f = new URLSearchParams(corpo), u = String(f.get('u') || '').trim(), s = String(f.get('s') || ''), next = proxima(f.get('next'));
+    // o teclado do celular costuma pôr maiúscula na 1ª letra e espaço no fim: usuário não diferencia maiúscula/minúscula e a senha ignora espaços nas pontas
+    const f = new URLSearchParams(corpo), u = String(f.get('u') || '').trim().toLowerCase(), s = String(f.get('s') || '').trim(), next = proxima(f.get('next'));
     const nega = (cod, msg) => { res.writeHead(cod, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' }); res.end(paginaLogin(msg, next)); };
     if (bloqueado(ip)) return nega(429, 'Muitas tentativas. Espere alguns minutos e tente de novo.');
     const reg = amigos().get(u);
     // confere sempre (mesmo se o usuário não existe) para o tempo de resposta não revelar quem tem acesso
-    const certo = confere(s, reg || criarHash('x'));
+    // as senhas geradas são letras minúsculas e números: se o teclado trocou para maiúscula, tenta também em minúsculas
+    const certo = confere(s, reg || criarHash('x')) || (s !== s.toLowerCase() && confere(s.toLowerCase(), reg || criarHash('x')));
     if (!reg || !certo) { errou(ip); registrar('login-falhou', NOME_OK.test(u) ? u : null, req); return nega(401, 'Usuário ou senha incorretos.'); }
     erros.delete(ip); registrar('login', u, req);
     res.writeHead(303, { location: next, 'set-cookie': `eldoria_s=${criarCookie(u)}; Path=/; Max-Age=${DIAS * 86400}; HttpOnly; SameSite=Lax${seguro ? '; Secure' : ''}`, 'cache-control': 'no-store' });

@@ -13,7 +13,8 @@ const mapa = new Map(P.amigos());
 if (cmd === 'add') {
   if (!args.length) { console.error('Uso: add NOME [NOME2 ...]'); process.exit(1); }
   let novos = 0;
-  for (const n of args) {
+  for (const n0 of args) {
+    const n = String(n0).toLowerCase();
     if (!P.NOME_OK.test(n)) { console.log(`Nome inválido '${n}' (2 a 30 letras/números, sem espaço ou acento): pulei`); continue; }
     if (mapa.has(n)) { console.log(`Já existe '${n}': pulei. (Para trocar a senha: remover ${n} e depois add ${n})`); continue; }
     const senha = crypto.randomBytes(5).toString('hex');   // 10 caracteres
@@ -26,6 +27,9 @@ if (cmd === 'add') {
   const n = args[0];
   if (!n || !mapa.has(n)) { console.log(`Não existe '${n || ''}'.`); process.exit(1); }
   mapa.delete(n); P.gravarAmigos(mapa); console.log(`Acesso de ${n} removido (vale na hora).`);
+} else if (cmd === 'verificar') {   // verificar NOME SENHA: diz se a senha confere (para achar problema de digitação)
+  const reg = mapa.get(String(args[0] || '').toLowerCase());
+  console.log(reg ? (P.confere(String(args[1] || '').trim(), reg) ? 'CONFERE: a senha está certa.' : 'NÃO CONFERE: a senha não é essa.') : 'Esse usuário não existe. Existem: ' + ([...mapa.keys()].join(', ') || '(ninguém)'));
 } else if (cmd === 'lista') {
   console.log([...mapa.keys()].join('\n') || '(ninguém tem acesso ainda)');
 } else if (cmd === 'quem') {
@@ -35,5 +39,5 @@ if (cmd === 'add') {
     console.log(n.padEnd(14), mapa.has(n) ? '        ' : '(removido)', x ? `${String(x.paginas).padStart(4)} aberturas  último: ${new Date(x.ultimo).toLocaleString('pt-BR')}  IPs: ${[...x.ips].join(', ')}` : '   nunca entrou');
   }
 } else {
-  console.log('Uso: node amigos.cjs add NOME... | remover NOME | lista | quem');
+  console.log('Uso: node amigos.cjs add NOME... | remover NOME | verificar NOME SENHA | lista | quem');
 }
