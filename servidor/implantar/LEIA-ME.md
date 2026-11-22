@@ -81,21 +81,24 @@ curl -s https://SEU.DOMINIO.AQUI/saude    # jogadores, fila, partidas, saúde do
 | Jogo diz "Servidor indisponível" | Confira o endereço em `js/config_servidor.js` (`wss://`, sem barra no fim) e `/saude` |
 | Memória no limite | Suba o plano no painel ou reduza `MAX_PARTIDAS` no `.env` e rode `docker compose up -d` |
 
-## Jogo protegido por senha (um acesso por amigo)
+## Jogo protegido por login (um acesso por amigo)
 
-O jogo passa a abrir em `https://SEU-DOMINIO/` (ex.: `https://179-199-140-168.sslip.io/`) pedindo usuário e senha.
-O servidor de partidas, a conta e o feedback continuam abertos (o jogo precisa deles).
+O jogo abre em `https://SEU-DOMINIO/` e pede **usuário e senha numa página de login** (cookie de 30 dias: a pessoa entra uma vez só).
+Não usa a janela de senha do navegador, que em alguns celulares aparecia de novo no meio da partida.
+O servidor de partidas, a conta e o feedback continuam abertos (o jogo precisa deles). Quem faz o login e entrega os arquivos é o próprio
+servidor do jogo (`servidor/portao.cjs`); o Caddy só cuida do HTTPS.
 
 ```bash
 cd /opt/eldoria/servidor/implantar
-sudo bash amigos.sh add joao        # cria o acesso e mostra a senha UMA vez
-sudo bash amigos.sh remover joao    # corta o acesso
-sudo bash amigos.sh lista           # quem tem acesso
-sudo bash amigos.sh quem            # quem abriu o jogo, quantos pedidos, quando e de quais IPs
+sudo bash amigos.sh add joao maria pedro   # cria os acessos e mostra cada senha UMA vez (não reinicia nada)
+sudo bash amigos.sh remover joao           # corta o acesso na hora (o cookie dele deixa de valer)
+sudo bash amigos.sh lista                  # quem tem acesso
+sudo bash amigos.sh quem                   # quem abriu o jogo: aberturas, último acesso e IPs
 ```
 
-As senhas ficam em `acessos/usuarios.txt` (só o hash, fora do GitHub). Sem nenhum amigo cadastrado o jogo fica trancado.
-O Caddyfile nunca entrega `servidor/`, `tests/`, `scripts/` nem `.git`. O atualizador confere o Caddyfile antes de reiniciar.
+As senhas ficam em `acessos/usuarios.txt` (só o hash, fora do GitHub). Sem nenhum amigo cadastrado ninguém entra.
+O portão só entrega `index.html`, `css/`, `js/` e `assets/` (nunca `servidor/`, `tests/`, `scripts/`, `.git`). Senha errada 8 vezes = bloqueio de 10 min.
+Se o `amigos.sh` disser que não consegue falar com o servidor, ele está atualizando: espere uns minutos.
 
 ### Repositório privado (depois que tudo acima estiver funcionando)
 A VPS precisa de uma *deploy key* só de leitura, senão o atualizador deixa de buscar o GitHub:

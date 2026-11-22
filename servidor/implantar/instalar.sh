@@ -62,7 +62,7 @@ fi
 
 echo "==> 6/6  Subindo o servidor (a primeira vez demora alguns minutos)"
 cd "$DIR"
-[ -s acessos/usuarios.txt ] || { mkdir -p acessos; echo "trancado $(docker run --rm caddy:2 caddy hash-password --plaintext "$(head -c 24 /dev/urandom | base64)")" > acessos/usuarios.txt; }
+mkdir -p acessos; chmod 777 acessos; [ -f acessos/usuarios.txt ] || { : > acessos/usuarios.txt; chmod 666 acessos/usuarios.txt; }
 docker compose up -d --build
 
 echo "Esperando o servidor responder..."

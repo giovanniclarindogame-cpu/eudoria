@@ -25,13 +25,9 @@ partidas_ativas() {                                   # número de partidas em a
 saudavel() {
   "$DOCKER" compose -f "$DIR/docker-compose.yml" exec -T servidor node -e "fetch('http://localhost:8787/saude').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))" >/dev/null 2>&1
 }
-garantir_acessos() {                                  # o jogo é protegido por senha: sem lista de usuários o Caddy não sobe. Cria uma lista "trancada" (ninguém entra) se não houver
-  mkdir -p "$DIR/acessos"
-  if [ ! -s "$DIR/acessos/usuarios.txt" ]; then
-    local h; h=$("$DOCKER" run --rm caddy:2 caddy hash-password --plaintext "$(head -c 24 /dev/urandom | base64)" 2>>"$LOG") || return 0
-    echo "trancado $h" > "$DIR/acessos/usuarios.txt"; chmod 600 "$DIR/acessos/usuarios.txt"
-    log "criei acessos/usuarios.txt trancado: crie os amigos com  sudo bash amigos.sh add NOME"
-  fi
+garantir_acessos() {                                  # pasta dos amigos (login do jogo): o servidor do jogo escreve nela
+  mkdir -p "$DIR/acessos"; chmod 777 "$DIR/acessos" 2>/dev/null || true
+  [ -f "$DIR/acessos/usuarios.txt" ] || { : > "$DIR/acessos/usuarios.txt"; chmod 666 "$DIR/acessos/usuarios.txt" 2>/dev/null || true; }
 }
 validar_caddy() {                                     # confere o Caddyfile antes de reiniciar (um erro derrubaria o jogo inteiro)
   "$DOCKER" run --rm -e DOMINIO=validar.local -v "$DIR/Caddyfile:/etc/caddy/Caddyfile:ro" -v "$DIR/acessos:/etc/caddy/acessos:ro" caddy:2 caddy validate --config /etc/caddy/Caddyfile >> "$LOG" 2>&1

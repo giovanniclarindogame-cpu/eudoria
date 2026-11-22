@@ -200,23 +200,19 @@ body[data-screen=library] #backHome::before,body[data-screen=shop] #backHome::be
 .v40-cards{grid-template-rows:minmax(0,1fr)!important}
 .v40-card.v43-card{width:clamp(150px,calc((100vw - 56px)/var(--n,5) - 12px),300px)!important}
 
-/* v67: tela Campeões em PC grande: cartões maiores (aproveita a altura), cabeça sem cortar, nome inteiro */
-#selection .hero-card-copy strong{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;line-height:1.15}
-#selection .hero-card-art img{object-position:50% 0!important}
+/* v67: Campeões — o personagem aparece INTEIRO (sem faixa reta cortando o corpo), centralizado, com o nome embaixo sem cobrir os pés */
+#selection .hero-card-art img{object-fit:contain!important;object-position:50% 100%!important;-webkit-mask-image:none!important;mask-image:none!important;padding:6px 6px 0;box-sizing:border-box}
+#selection .hero-card-art{aspect-ratio:1/1.12!important}
+#selection .hero-card-copy{margin-top:2px!important;flex:1;justify-content:center}
+#selection .hero-card{align-self:stretch!important}
+#selection .hero-card-copy strong{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;line-height:1.15;min-height:2.9em;display:flex!important;align-items:center;justify-content:center}
 @media (min-width:900px) and (min-height:700px){
- #selection .hero-grid{grid-template-columns:repeat(5,1fr)!important;gap:clamp(14px,1.4vw,24px)!important;max-width:1600px!important;margin:0 auto!important}
- #selection .hero-card-art{aspect-ratio:1/.92!important}
- #selection .hero-card{align-self:stretch!important}
- #selection .hero-card-copy{margin-top:-14px;flex:1;justify-content:center}
- #selection .hero-card-copy strong{font-size:clamp(13px,.95vw,17px)!important;padding:5px 12px;min-height:2.4em;display:flex!important;align-items:center;justify-content:center}
+ #selection .hero-grid{grid-template-columns:repeat(5,1fr)!important;gap:clamp(12px,1.2vw,22px)!important;max-width:1560px!important;margin:0 auto!important}
+ #selection .hero-card-art{aspect-ratio:1/1!important}
+ #selection .hero-card-copy strong{font-size:clamp(13px,.95vw,17px)!important;padding:5px 12px}
 }
-
-/* v67: celular deitado — imagem mais alta (rosto inteiro), nome com altura fixa e cartões iguais; a tela rola na vertical */
 @media (max-height:500px) and (orientation:landscape){
  #selection .hero-grid{gap:10px!important;padding-bottom:18px!important}
- #selection .hero-card{align-self:stretch!important}
- #selection .hero-card-art{aspect-ratio:1/.95!important}
- #selection .hero-card-art img{object-position:50% 0!important}
- #selection .hero-card-copy{margin-top:-12px;flex:1;justify-content:center}
- #selection .hero-card-copy strong{font-size:11.5px!important;padding:3px 8px;min-height:2.3em;display:flex!important;align-items:center;justify-content:center;white-space:normal!important;overflow:visible!important;text-overflow:clip!important}
+ #selection .hero-card-art{aspect-ratio:1/1.1!important}
+ #selection .hero-card-copy strong{font-size:11.5px!important;padding:3px 8px}
 }

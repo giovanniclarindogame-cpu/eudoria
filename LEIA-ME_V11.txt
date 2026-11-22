@@ -511,3 +511,10 @@ ACESSO POR SENHA INDIVIDUAL (jogo servido pela VPS)
 - Caddyfile serve o jogo em https://DOMINIO/ com usuário/senha por amigo (acessos/usuarios.txt, fora do GitHub).
 - amigos.sh: add / remover / lista / quem (log de acessos). Passos do repositório privado em servidor/implantar/LEIA-ME.md.
 - Não testado aqui (sem Docker rodando): só a sintaxe dos scripts e o teste do atualizador. O Caddy só foi escrito, não executado.
+
+LOGIN POR COOKIE (substitui a senha do navegador) + CORREÇÕES
+- servidor/portao.cjs: página /entrar, cookie assinado (30 dias), arquivos do jogo só para quem entrou; amigos.cjs/amigos.sh: add (vários), remover (vale na hora), lista, quem.
+  Motivo: o navegador do celular pedia usuário e senha de novo no meio da partida. Agora o servidor nunca envia o desafio de senha.
+- Voltar da sala de escolha (seta) agora fecha a tela da sala e volta ao início (cancelar()/falhaSrv() zeravam o modo antes de conferir).
+- Campeões: personagem inteiro em cada cartão (PC e celular); modo PC (barra DASH 1 2 3 ULT embaixo + cursor de espada).
+- Testes novos: portao-v67, voltar-online-v67, baixar-antes-v67, tutorial-cartao. Não testado: Caddy/Docker reais e celular de verdade.

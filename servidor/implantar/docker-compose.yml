@@ -11,8 +11,12 @@ services:
       AQUECIDAS: "${AQUECIDAS:-2}"
       BUILD_MINIMO: "${BUILD_MINIMO:-1}"
       ORIGENS: "${ORIGENS:-}"
+      SITE: /site            # arquivos do jogo (index.html, css/, js/, assets/): entregues só a quem fez login
+      ACESSOS: /acessos/usuarios.txt
     volumes:
       - dados:/dados
+      - ../..:/site:ro
+      - ./acessos:/acessos
     expose:
       - "8787"
     healthcheck:
@@ -37,8 +41,6 @@ services:
       DOMINIO: "${DOMINIO:?defina DOMINIO no arquivo .env}"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - ./acessos:/etc/caddy/acessos:ro
-      - ../..:/site:ro
       - caddy_data:/data
       - caddy_config:/config
 volumes:

@@ -149,15 +149,17 @@ function reconectar(){
 // desistir da busca (ou sair da sala de escolha)
 function cancelar(){
  try{send({t:'cancelar'})}catch{}
+ const srv=S.mode==='server';   // cleanup() zera S.mode: guarda antes (senão a tela da sala nunca fechava)
  cleanup();S.procurando=false;S.fase=null;S.sala=null;S.err='';
- const el=$q('#onlineV45');if(el&&S.mode==='server'){el.hidden=true;document.body.classList.remove('v45-open')}
+ const el=$q('#onlineV45');if(el&&srv){el.hidden=true;document.body.classList.remove('v45-open')}
  avisar();
 }
 const stats0=()=>{};
 function falhaSrv(msg){
+ const srv=S.mode==='server';
  cleanup();S.procurando=false;S.fase=null;S.sala=null;S.err=msg;
  try{toast(msg)}catch{}
- const el=$q('#onlineV45');if(el&&S.mode==='server'){el.hidden=true;document.body.classList.remove('v45-open')}
+ const el=$q('#onlineV45');if(el&&srv){el.hidden=true;document.body.classList.remove('v45-open')}
  avisar();
 }
 function abrirSala(){
