@@ -477,3 +477,5 @@ setInterval(() => { for (const ws of wss.clients) { if (ws.vivo === false) { ws.
 wss.on('connection', ws => { ws.vivo = true; ws.on('pong', () => { ws.vivo = true; }); });
 servidor.listen(PORT, () => { log(`chave de leitura do feedback: ${feedback.chave()} (também em ${process.env.DADOS || 'servidor/dados'}/chave-feedback.txt)`); log(`servidor de partidas na porta ${PORT} · protocolo ${PROTO} · ${AQUECIDAS} threads aquecidas · bots após ${Math.round(ESPERA_BOT / 1000)} s`); reporAquecidas(); });
 process.on('SIGTERM', () => { log('encerrando'); process.exit(0); });
+// um erro inesperado em UMA requisição não pode derrubar o servidor de todo mundo: registra e segue
+process.on('uncaughtException', e => { stats.erros++; stats.ultimoErro = String(e && e.message).slice(0, 160); console.error('[erro não tratado]', e && e.stack || e); });

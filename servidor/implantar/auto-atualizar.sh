@@ -27,7 +27,8 @@ saudavel() {
 }
 garantir_acessos() {                                  # pasta dos amigos (login do jogo): o servidor do jogo escreve nela
   mkdir -p "$DIR/acessos"; chmod 777 "$DIR/acessos" 2>/dev/null || true
-  [ -f "$DIR/acessos/usuarios.txt" ] || { : > "$DIR/acessos/usuarios.txt"; chmod 666 "$DIR/acessos/usuarios.txt" 2>/dev/null || true; }
+  [ -f "$DIR/acessos/usuarios.txt" ] || : > "$DIR/acessos/usuarios.txt"
+  chmod 666 "$DIR/acessos/usuarios.txt" 2>/dev/null || true        # sempre: o servidor roda com outro usuário e precisa ler e gravar
 }
 validar_caddy() {                                     # confere o Caddyfile antes de reiniciar (um erro derrubaria o jogo inteiro)
   "$DOCKER" run --rm -e DOMINIO=validar.local -v "$DIR/Caddyfile:/etc/caddy/Caddyfile:ro" -v "$DIR/acessos:/etc/caddy/acessos:ro" caddy:2 caddy validate --config /etc/caddy/Caddyfile >> "$LOG" 2>&1
