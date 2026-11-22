@@ -78,7 +78,7 @@ function leagueInfo(){
 function heroLevel(){try{return window.V3Levels?.rec(currentChampion().id).lv||1}catch{return 1}}
 
 /* ---------- recompensas e eventos ---------- */
-const REWARD={liga1:'+100 moedas · +25 pts',liga2:'+200 moedas · +20 pts',ligaTrio:'+250 moedas · +30 pts',ligaCoroa:'1º lugar: +30 pts',duelo:'+100 moedas',equipes:'+200 moedas',trio:'+250 moedas',coroa:'+150 moedas',cacada:'Recompensa do chefe do dia',guardiao:'+200 moedas',cruzada:'Fase completa: +150 moedas',torneio:'Campeão: +250 moedas',dojo:'Sem custo'};
+const REWARD=(window.ELDORIA_TESTE_ON&&ELDORIA_TESTE_ON('semMoedas'))?{}:{liga1:'+100 moedas · +25 pts',liga2:'+200 moedas · +20 pts',ligaTrio:'+250 moedas · +30 pts',ligaCoroa:'1º lugar: +30 pts',duelo:'+100 moedas',equipes:'+200 moedas',trio:'+250 moedas',coroa:'+150 moedas',cacada:'Recompensa do chefe do dia',guardiao:'+200 moedas',cruzada:'Fase completa: +150 moedas',torneio:'Campeão: +250 moedas',dojo:'Sem custo'};
 function leagueNext(){
  try{const L=window.V3Liga,pts=L?L.rec('1v1').points||0:account.league?.points||0;const name=L?L.rankName(pts):LEAGUE_DIVISIONS[leagueIndex()];
   const max=75*5;if(pts>=max)return{name,pts,txt:'Divisão máxima',k:1,div:5};
@@ -185,7 +185,8 @@ document.addEventListener('click',e=>{if(e.target.closest('#v40Missions .v40-she
 function openMenu(){
  let box=$q('#v40Menu');
  if(!box){box=document.createElement('div');box.id='v40Menu';box.className='v40-sheet v40-menu';box.hidden=true;document.body.appendChild(box)}
- const items=[['library','hero','Campeões'],['shop','shop','Loja'],['training','dojo','Dojo'],['league','crown','Liga'],['modes','play','Modos de jogo'],['missions','quest','Missões'],['conta','hero','Minha conta'],['settings','gear','Configurações'],['full','full','Tela cheia']];
+ const semM=!!(window.ELDORIA_TESTE_ON&&ELDORIA_TESTE_ON('semMoedas'));   // fase de teste: sem Loja nem Missões (recompensas em moedas)
+ const items=[['library','hero','Campeões'],['shop','shop','Loja'],['training','dojo','Dojo'],['league','crown','Liga'],['modes','play','Modos de jogo'],['missions','quest','Missões'],['conta','hero','Minha conta'],['settings','gear','Configurações'],['full','full','Tela cheia']].filter(([id])=>!(semM&&(id==='shop'||id==='missions')));
  box.innerHTML=`<div class="v40-sheet-card"><header><b>Menu</b><button class="v40-round" data-v40-close aria-label="Fechar">${svg('close')}</button></header><div class="v40-menu-grid">${items.map(([id,ic,l])=>id==='league'?`<button data-v40-go="league" class="locked" aria-disabled="true">${svg('lock')}<span>${l}</span><small>em breve</small></button>`:`<button data-v40-go="${id}">${svg(ic)}<span>${l}</span></button>`).join('')}</div></div>`;
  box.hidden=false;
 }
@@ -292,6 +293,7 @@ document.addEventListener('keydown',e=>{
  const ui=$q('#homeScreen:not([hidden]) .v40-home'),go=ui?.querySelector('[data-v40-play]');if(!go)return;
  const r=go.getBoundingClientRect(),top=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);
  if(!top||!ui.contains(top))return;                   // há uma janela, a tela de carregamento ou outra coisa por cima
+ if(document.body.classList.contains('fase-teste')&&(k==='m'||k==='l'))return;   // sem Missões nem Loja na fase de teste
  const pick={enter:'[data-v40-play]',c:'[data-nav=library]',m:'[data-v40-missions]',l:'.v41-side [data-nav=shop]',d:'[data-nav=training]',t:'[data-v40-modes]'}[k.toLowerCase()];
  const el=pick&&ui.querySelector(pick);if(!el)return;
  e.preventDefault();el.click();

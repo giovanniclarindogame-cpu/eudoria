@@ -27,7 +27,7 @@ function giftModal(id){
  modal(`<span class="lj-gift-tag">🎁 PRESENTE INICIAL</span><img src="${championArt(c)}" alt="${escapeHTML(c.name)}"><h2>${escapeHTML(c.name)}</h2><p>É seu! Todo campeão novo custa ${fmt(HERO_PRICE)} moedas na Loja, e 3 campeões ficam liberados de graça a cada semana.</p><button class="gold" data-lj-close>Começar</button>`,'gift');
 }
 function claimGift(){
- if(!account.profile||!account.giftPending||ALL_HEROES_DEBUG)return false;
+ if(!account.profile||!account.giftPending||ALL_HEROES_DEBUG||(window.ELDORIA_TESTE_ON&&ELDORIA_TESTE_ON('semPresentes')))return false;
  const id=Math.floor(random01()*CHAMPIONS.length);
  account.ownedHeroes=[...new Set([...(account.ownedHeroes||[]),id])];account.giftPending=false;account.activeChampion=id;
  normalizeChampions();saveAccount();
@@ -134,7 +134,7 @@ document.addEventListener('click',e=>{
 
 window.V3Loja={buyHero,claimGift,heroesFreeThisWeek,HERO_PRICE,renderShop};
 // contas que já existiam: entrega o presente depois que a tela de entrada é fechada
-if(!ALL_HEROES_DEBUG){
+if(!ALL_HEROES_DEBUG&&!(window.ELDORIA_TESTE_ON&&ELDORIA_TESTE_ON('semPresentes'))){
  const t=setInterval(()=>{
   if(!account.giftPending){clearInterval(t);return}
   const w=$q('#welcomeScreen'),shown=w&&!w.hidden&&getComputedStyle(w).display!=='none';

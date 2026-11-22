@@ -27,7 +27,8 @@ function modal(html){
 }
 function intro(){
  const c=currentChampion();
- modal(`<span class="lj-gift-tag">TUTORIAL</span><h2>Treino com o fantoche</h2><p>Primeiro, bata no fantoche parado até ele cair. Depois ele revida, e você enfrenta de verdade! Leva uns 2 minutos e rende <b>+${REWARD} moedas</b>.</p><div class="lj-actions"><button class="ghost" data-tut-skip>Pular</button><button class="gold" data-tut-go>Começar</button></div>`);
+ const obrig=!!(window.ELDORIA_TESTE_ON&&ELDORIA_TESTE_ON('tutorialObrigatorio')),semM=!!(window.ELDORIA_TESTE_ON&&ELDORIA_TESTE_ON('semMoedas'));
+ modal(`<span class="lj-gift-tag">TUTORIAL</span><h2>Treino com o fantoche</h2><p>Primeiro, bata no fantoche parado até ele cair. Depois ele revida, e você enfrenta de verdade! Leva uns 2 minutos${semM?'':` e rende <b>+${REWARD} moedas</b>`}.${obrig?' Antes de jogar, você precisa concluir este treino.':''}</p><div class="lj-actions">${obrig?'':'<button class="ghost" data-tut-skip>Pular</button>'}<button class="gold" data-tut-go>Começar</button></div>`);
 }
 
 /* ---------- fantoche ---------- */
@@ -138,10 +139,11 @@ function retryPart2(){
 }
 function finishTutorial(){
  T.on=false;close();
- account.tutorialDone=true;account.coins=(account.coins||0)+REWARD;
+ const semM=!!(window.ELDORIA_TESTE_ON&&ELDORIA_TESTE_ON('semMoedas'));
+ account.tutorialDone=true;if(!semM)account.coins=(account.coins||0)+REWARD;
  try{saveAccount()}catch{}
  showScreen('home');
- modal(`<span class="lj-gift-tag">TUTORIAL CONCLUÍDO</span><h2>Você está pronto!</h2><p>Bom trabalho! Ganhou <b>+${REWARD} moedas</b>. Vá para a Liga, a Cruzada ou a Loja. Todo campeão novo custa 7.000 moedas, e 3 são grátis a cada semana.</p><button class="gold" data-lj-close>Vamos lá</button>`);
+ modal(semM?`<span class="lj-gift-tag">TUTORIAL CONCLUÍDO</span><h2>Você está pronto!</h2><p>Bom trabalho! Todos os campeões estão liberados na fase de teste. Escolha um modo e jogue com seus amigos.</p><button class="gold" data-lj-close>Vamos lá</button>`:`<span class="lj-gift-tag">TUTORIAL CONCLUÍDO</span><h2>Você está pronto!</h2><p>Bom trabalho! Ganhou <b>+${REWARD} moedas</b>. Vá para a Liga, a Cruzada ou a Loja. Todo campeão novo custa 7.000 moedas, e 3 são grátis a cada semana.</p><button class="gold" data-lj-close>Vamos lá</button>`);
 }
 const prevStep=step;
 step=function(dt){
@@ -179,7 +181,7 @@ showScreen=function(){if(T.on){T.on=false;close()}return prevShow.apply(this,arg
 /* ---------- cliques ---------- */
 document.addEventListener('click',e=>{
  if(e.target.closest('[data-tut-go]')){e.stopImmediatePropagation();begin();return}
- if(e.target.closest('[data-tut-skip]')){e.stopImmediatePropagation();account.tutorialDone=true;try{saveAccount()}catch{}closeLj();return}
+ if(e.target.closest('[data-tut-skip]')){e.stopImmediatePropagation();if(window.ELDORIA_TESTE_ON&&ELDORIA_TESTE_ON('tutorialObrigatorio'))return;account.tutorialDone=true;try{saveAccount()}catch{}closeLj();return}
 },true);
 
 /* ---------- oferece o tutorial depois do presente ---------- */
@@ -188,7 +190,7 @@ if(!window.ALL_HEROES_DEBUG&&!/[?&]allheroes=1/.test(location.search)){
   if(account.tutorialDone){clearInterval(t);return}
   const w=$q('#welcomeScreen'),shown=w&&!w.hidden&&getComputedStyle(w).display!=='none';
   if(!account.profile||account.giftPending||shown||$q('#ljModal')||T.on)return;
-  if(appScreen==='home'&&state==='select'){clearInterval(t);intro()}
+  if(appScreen==='home'&&state==='select'){if(!(window.ELDORIA_TESTE_ON&&ELDORIA_TESTE_ON('tutorialObrigatorio')))clearInterval(t);intro()}
  },700);
 }
 window.V3Tutorial={start:begin,state:T,REWARD};

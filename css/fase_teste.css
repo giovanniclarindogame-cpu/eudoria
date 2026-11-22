@@ -1,0 +1,7 @@
+/* Fase de teste com amigos (js/config_teste.js): esconde tudo que é moeda, Loja, Missões e presentes. */
+body.fase-teste .v40-cur,body.fase-teste .v43-wallet,body.fase-teste .lobby-wallet,body.fase-teste .royal-wallet,
+body.fase-teste .v41-gift,body.fase-teste #openDaily,
+body.fase-teste .v41-side [data-nav="shop"],body.fase-teste .v41-side [data-v40-missions],
+body.fase-teste [data-v40-go="shop"],body.fase-teste [data-v40-go="missions"],
+body.fase-teste .v43-reward i:not(.xp),
+body.fase-teste .tut-card [data-tut-skip]{display:none!important}

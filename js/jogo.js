@@ -2491,6 +2491,7 @@ normalizeChampions=function(){
  account.progVer=3;
  account.ownedHeroes=[...new Set((Array.isArray(account.ownedHeroes)?account.ownedHeroes:[]).filter(id=>Number.isInteger(id)&&CHAMPIONS[id]))];
  if(ALL_HEROES_DEBUG){account.ownedHeroes=CHAMPIONS.map(c=>c.id);account.giftPending=false}
+ if(window.ELDORIA_TESTE_ON&&ELDORIA_TESTE_ON('semPresentes'))account.giftPending=false;   // fase de teste: sem presente inicial
  account.champions=TESTE_TODOS_LIBERADOS?CHAMPIONS.map(c=>c.id):[...new Set([...account.ownedHeroes,...heroesFreeThisWeek()])];
  account.championFirstDone=true;account.championVersion=1;
  if(!Number.isInteger(account.activeChampion)||!account.champions.includes(account.activeChampion))account.activeChampion=account.champions[0]??null;

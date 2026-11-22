@@ -20,7 +20,7 @@ const ORIGENS = (process.env.ORIGENS || '').split(',').map(s => s.trim()).filter
 const TEMPO_SELECAO = +process.env.TEMPO_SELECAO || 30000;   // tempo para escolher o campeão depois de achar os rivais
 const ESPERA_BOT = process.env.ESPERA_BOT != null ? +process.env.ESPERA_BOT : 30000;   // fila sem encher: bots entram no lugar
 const TEMPO_VOLTA = +process.env.TEMPO_VOLTA || 90000;
-const ACEITA_TODOS = process.env.ACEITA_TODOS_HEROIS === '1';   // só nos testes: não confere os campeões liberados da conta
+const ACEITA_TODOS = process.env.ACEITA_TODOS_HEROIS === '1' || process.env.FASE_TESTE !== '0';   // fase de teste com amigos (padrão): todos os campeões valem; FASE_TESTE=0 volta a conferir os campeões da conta
 const PROTO = 3, BUILD_MINIMO = +process.env.BUILD_MINIMO || 1;   // jogo instalado em versão mais antiga que BUILD_MINIMO precisa atualizar
 const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a);
 
