@@ -17,6 +17,7 @@ const { Worker } = require('worker_threads');
 const contas = require('./contas.cjs');
 const feedback = require('./feedback.cjs');
 const PORT = +process.env.PORT || 8787, AQUECIDAS = process.env.AQUECIDAS != null ? +process.env.AQUECIDAS : 2, MAX_PARTIDAS = +process.env.MAX_PARTIDAS || 60;
+const crypto = require('crypto');
 const ORIGENS = (process.env.ORIGENS || '').split(',').map(s => s.trim()).filter(Boolean);
 const TEMPO_SELECAO = +process.env.TEMPO_SELECAO || 30000;   // tempo para escolher o campeão depois de achar os rivais
 const ESPERA_BOT = process.env.ESPERA_BOT != null ? +process.env.ESPERA_BOT : 30000;   // fila sem encher: bots entram no lugar
@@ -102,6 +103,8 @@ function perfilBot(ref, usados) {
 function limparReconexoes(p) { for (const [tok, r] of reconectaveis) if (r.p === p) reconectaveis.delete(tok); }
 
 function sair(j) {
+  saiuDoConvite(j);
+  if (j.contaId) setImmediate(() => presenca(j.contaId));
   for (const f of todasFilas) { const i = f.indexOf(j); if (i >= 0) f.splice(i, 1); }
   const p = j.partida; j.partida = null; jogadores.delete(j.ws);
   if (!p) return;
@@ -130,8 +133,8 @@ function entrarNaFila(j, modo) {
   for (const f of todasFilas) { const i = f.indexOf(j); if (i >= 0) f.splice(i, 1); }
   j.modo = FILAS[modo] ? modo : '1v1'; j.time = null; j.filaDesde = Date.now();
   const f = filaDe(j); f.push(j);
-  j.estado = 'fila';
-  f.forEach((x, i) => enviar(x.ws, JSON.stringify({ t: 'fila', pos: i + 1, n: f.length, precisa: TAM[j.modo], online: jogadores.size })));
+  j.estado = 'fila'; if (j.contaId) presenca(j.contaId);
+  f.forEach((x, i) => enviar(x.ws, JSON.stringify({ t: 'fila', pos: i + 1, n: f.length, precisa: TAM[j.modo], online: onlineN() })));
   tentarParear();
 }
 function tentarParear() {
@@ -178,6 +181,7 @@ function criarPartida(jog, modo) {
   const p = { id, e, modo, slots, fase: 'sel', fim: false, criada: Date.now(), pronto_sel: slots.map(s => !s.j), prontos: slots.map(s => !s.j || s.j.build < 2), iniciada: false, liberada: false, timerLiberar: null, timerSel: null, timerVazia: null };
   e.p = p; partidas.set(id, p); stats.partidasCriadas++;
   slots.forEach((s, i) => { if (s.j) { s.j.partida = p; s.j.slot = i; s.j.estado = 'partida'; } else if (modo === 'trio') s.time = [...Array(10).keys()].sort(() => Math.random() - .5).slice(0, 3); });
+  jog.forEach(x => { if (x.contaId) presenca(x.contaId); });
   const seed = (Math.random() * 4294967296) | 0;
   // o que cada jogador recebe ao começar (e ao voltar): a mesma mensagem 'match'
   p.matchObj = (slot) => {
@@ -224,7 +228,7 @@ function encerrar(p) {
   partidas.delete(p.id);
   try { p.e.w.postMessage({ k: 'parar' }); } catch {}
   setTimeout(() => { try { p.e.w.terminate(); } catch {} }, 500).unref();
-  for (const j of humanos(p)) if (j.partida === p) { j.partida = null; if (j.estado === 'partida' || j.estado === 'fim') j.estado = 'ocioso'; }
+  for (const j of humanos(p)) if (j.partida === p) { j.partida = null; if (j.estado === 'partida' || j.estado === 'fim') { j.estado = 'ocioso'; if (j.contaId) presenca(j.contaId); } }
 }
 function encerrarPorErro(e) {
   const p = e.p; if (!p || !partidas.has(p.id)) return;
@@ -245,6 +249,111 @@ function reconectar(j) {
   log(`partida ${p.id}: ${s.perfil.name} voltou`);
 }
 
+/* ---------- amigos, convites e partida entre amigos ---------- */
+const onlineN = () => { let n = 0; for (const x of jogadores.values()) if (!x.social) n++; return n; };
+function estadoDas() {   // contaId -> 'on' (conectado) | 'jogo' (em fila/partida)
+  const m = new Map();
+  for (const x of jogadores.values()) {
+    if (!x.contaId) continue;
+    const ocupado = !x.social && (x.estado === 'fila' || x.estado === 'partida');
+    if (ocupado) m.set(x.contaId, 'jogo'); else if (!m.has(x.contaId) && (x.social || x.estado === 'ocioso' || x.estado === 'fim')) m.set(x.contaId, 'on');
+  }
+  return m;
+}
+const statusDe = id => estadoDas().get(id) || 'off';
+function paraConta(id, obj) { const t = JSON.stringify(obj); for (const x of jogadores.values()) if (x.social && x.contaId === id) enviar(x.ws, t); }
+function listaPara(c) {
+  const l = contas.lista(c), st = estadoDas();
+  const nao = contas.naoLidas(c);
+  return { t: 'amigos', cod: l.cod, amigos: l.amigos.map(a => ({ ...a, st: st.get(a.id) || 'off', nao: nao[a.id] || 0 })), recebidos: l.recebidos, enviados: l.enviados };
+}
+function atualizarLista(...ids) { for (const id of new Set(ids)) { const c = contas.porId(id); if (c) paraConta(id, listaPara(c)); } }
+function presenca(id) {   // avisa os amigos conectados que esta conta mudou de estado
+  const c = contas.porId(id); if (!c) return; const st = statusDe(id);
+  for (const a of (c.amigos || [])) paraConta(a, { t: 'amigo_st', id, st });
+}
+const convites = new Map();   // cid -> { cid, de, para, modo, estado, lados: Map(contaId -> j), timer }
+function fecharConvite(cv, aviso) {
+  if (!convites.delete(cv.cid)) return; clearTimeout(cv.timer);
+  if (aviso) for (const j of cv.lados.values()) { if (j && j.estado === 'fila' && !j.partida) { j.estado = 'ocioso'; enviar(j.ws, JSON.stringify(aviso)); } }
+}
+function convidar(j, m) {
+  const eu = contas.porId(j.contaId), alvo = contas.porId(String(m.id || ''));
+  const resp = o => enviar(j.ws, JSON.stringify({ t: 'convite_res', ...o }));
+  const modo = m.tipo === 'junto' ? '2v2' : m.tipo === 'contra' ? '1v1' : null;
+  if (!eu || !alvo || !modo || !contas.saoAmigos(eu, alvo.id)) return resp({ st: 'erro', erro: 'amigo' });
+  if (partidas.size >= MAX_PARTIDAS) return resp({ st: 'erro', erro: 'cheio' });
+  const st = estadoDas();
+  if (st.get(eu.id) === 'jogo') return resp({ st: 'erro', erro: 'voce-ocupado' });
+  if (!st.has(alvo.id)) return resp({ st: 'erro', erro: 'off', quem: contas.resumo(alvo) });
+  if (st.get(alvo.id) === 'jogo') return resp({ st: 'erro', erro: 'ocupado', quem: contas.resumo(alvo) });
+  for (const cv of convites.values()) if (cv.de === eu.id && cv.para === alvo.id) fecharConvite(cv);   // novo convite substitui o anterior
+  const cid = crypto.randomBytes(5).toString('hex');
+  const cv = { cid, de: eu.id, para: alvo.id, modo, estado: 'pendente', lados: new Map() };
+  cv.timer = setTimeout(() => { if (cv.estado === 'pendente') { paraConta(cv.de, { t: 'convite_res', cid, st: 'expirou', quem: contas.resumo(alvo) }); paraConta(cv.para, { t: 'convite_fim', cid }); } fecharConvite(cv, { t: 'bye' }); }, 40000);
+  cv.timer.unref?.(); convites.set(cid, cv);
+  paraConta(alvo.id, { t: 'convite', cid, de: contas.resumo(eu), tipo: m.tipo === 'junto' ? 'junto' : 'contra', modo, ms: 40000 });
+  resp({ st: 'enviado', cid, quem: contas.resumo(alvo) });
+}
+function responderConvite(j, m) {
+  const cv = convites.get(String(m.cid || ''));
+  if (!cv || cv.para !== j.contaId || cv.estado !== 'pendente') return;
+  const eu = contas.porId(j.contaId);
+  if (!m.ok) { paraConta(cv.de, { t: 'convite_res', cid: cv.cid, st: m.ocupado ? 'ocupado' : 'recusado', quem: contas.resumo(eu) }); return fecharConvite(cv); }
+  cv.estado = 'aceito'; clearTimeout(cv.timer);
+  // os dois recebem "ir": cada um abre a conexão de jogo e pede a sala do convite (mensagem 'fila' com cid)
+  paraConta(cv.de, { t: 'ir', cid: cv.cid, modo: cv.modo, com: contas.resumo(eu) });
+  paraConta(cv.para, { t: 'ir', cid: cv.cid, modo: cv.modo, com: contas.resumo(contas.porId(cv.de)) });
+  cv.timer = setTimeout(() => fecharConvite(cv, { t: 'bye' }), 30000); cv.timer.unref?.();
+}
+function entrarNoConvite(j, m) {   // conexão de jogo de um amigo chegou: quando os dois chegam, a partida é criada (os dois juntos, bots no que faltar)
+  const cv = convites.get(String(m.cid || ''));
+  if (!cv || cv.estado !== 'aceito' || !j.contaId || (j.contaId !== cv.de && j.contaId !== cv.para) || j.social) return enviar(j.ws, JSON.stringify({ t: 'nada' }));
+  if (j.partida && !j.partida.fim) return;
+  if (m.p) { j.perfil = perfil(m.p); j.perfil.hero = heroiOk(j, j.perfil.hero); }
+  for (const f of todasFilas) { const i = f.indexOf(j); if (i >= 0) f.splice(i, 1); }
+  j.modo = cv.modo; j.estado = 'fila'; j.filaDesde = Date.now(); j.convite = cv;
+  cv.lados.set(j.contaId, j);
+  enviar(j.ws, JSON.stringify({ t: 'fila', pos: 1, n: 1, precisa: TAM[cv.modo], online: onlineN(), amigo: 1 }));
+  if (cv.lados.size === 2) {
+    const grupo = [cv.lados.get(cv.de), cv.lados.get(cv.para)];
+    convites.delete(cv.cid); clearTimeout(cv.timer); grupo.forEach(x => { x.convite = null; });
+    criarPartida(grupo, cv.modo);
+  }
+}
+function saiuDoConvite(j) { if (j.convite) { const cv = j.convite; j.convite = null; for (const [id, o] of cv.lados) if (o !== j && o.estado === 'fila' && !o.partida) { o.estado = 'ocioso'; enviar(o.ws, JSON.stringify({ t: 'bye' })); } fecharConvite(cv); } }
+function tratarAmigos(j, m) {
+  const agora = Date.now(); if (agora - (j.amigoDesde || 0) > 60000) { j.amigoDesde = agora; j.amigoMsgs = 0; }
+  if (++j.amigoMsgs > 60) return;
+  const c = contas.porId(j.contaId); if (!c) return;
+  const res = (t, o) => enviar(j.ws, JSON.stringify({ t, ...o }));
+  switch (m.t) {
+    case 'amigos': return enviar(j.ws, JSON.stringify(listaPara(c)));
+    case 'amigo_add': {
+      const r = contas.pedirAmizade(c, m.cod); if (r.erro) return res('amigo_res', { ok: 0, erro: r.erro });
+      res('amigo_res', { ok: 1, aceito: !!r.aceito, quem: r.alvo }); atualizarLista(c.id, r.alvo.id);
+      if (r.aceito) { presenca(c.id); presenca(r.alvo.id); } return;
+    }
+    case 'amigo_resp': {
+      const r = contas.responderPedido(c, String(m.id || ''), !!m.ok); if (r.erro) return res('amigo_res', { ok: 0, erro: r.erro });
+      res('amigo_res', { ok: 1, aceito: !!m.ok, resp: 1, quem: r.outro }); atualizarLista(c.id, r.outro.id); if (m.ok) { presenca(c.id); presenca(r.outro.id); } return;
+    }
+    case 'amigo_del': { const id = String(m.id || ''); const r = contas.removerAmigo(c, id); res('amigo_res', { ok: r.ok ? 1 : 0, removeu: 1 }); atualizarLista(c.id, id); return; }
+    case 'convite': return convidar(j, m);
+    case 'convite_resp': return responderConvite(j, m);
+    case 'chat_hist': { const r = contas.chatHistorico(c, String(m.id || '')); if (r.erro) return; return res('chat_hist', { id: String(m.id), msgs: r.msgs }); }
+    case 'chat_lido': { contas.chatHistorico(c, String(m.id || '')); return; }
+    case 'chat': {
+      const l = j.chatL = j.chatL && agora - j.chatL.t < 10000 ? j.chatL : { t: agora, n: 0 }; if (++l.n > 8) return res('chat_erro', { erro: 'rapido' });   // no máximo 8 mensagens a cada 10 s
+      const r = contas.chatEnviar(c, String(m.id || ''), m.texto); if (r.erro) return res('chat_erro', { erro: r.erro });
+      const eu = contas.resumo(c), msg = { t: 'chat_msg', de: c.id, nome: eu.nome, texto: r.m.t, ts: r.m.ts };
+      paraConta(c.id, { ...msg, eu: 1, id: String(m.id) });            // aparece também nos outros aparelhos de quem escreveu
+      paraConta(String(m.id), msg);                                    // e para o amigo, se estiver online
+      return;
+    }
+  }
+}
+
 /* ---------- mensagens dos jogadores ---------- */
 function tratar(j, texto) {
   let m; try { m = JSON.parse(texto); } catch { return; }
@@ -254,14 +363,22 @@ function tratar(j, texto) {
     if (m.v !== PROTO) { enviar(j.ws, JSON.stringify({ t: 'erro', m: 'versao' })); return j.ws.close(); }
     if ((+m.build || 1) < BUILD_MINIMO) { enviar(j.ws, JSON.stringify({ t: 'erro', m: 'atualizar', minimo: BUILD_MINIMO })); return j.ws.close(); }
     j.perfil = perfil(m.p); j.conta = typeof m.conta === 'string' && contas.porCodigo(m.conta) ? m.conta : null; j.perfil.hero = heroiOk(j, j.perfil.hero); j.build = +m.build || 1; j.sala = !!m.sala; j.tok = /^[A-Za-z0-9_-]{8,40}$/.test(m.tok || '') ? m.tok : null; j.estado = 'ocioso';
-    return enviar(j.ws, JSON.stringify({ t: 'hello', ok: 1, online: jogadores.size, v: PROTO, modos: ['1v1', '2v2', 'trio', 'coroa'], bots: 1, volta: 1 }));
+    { const c = j.conta ? contas.porCodigo(j.conta) : null; j.contaId = c ? c.id : null; if (c) contas.atualizarPerfil(c.id, j.perfil); }
+    if (m.social) {   // conexão "social": fica aberta para convites e para os amigos verem quem está online (não entra em fila nem em partida)
+      if (!j.contaId) { enviar(j.ws, JSON.stringify({ t: 'erro', m: 'conta' })); return j.ws.close(); }
+      j.social = true; j.estado = 'social'; j.amigoMsgs = 0; j.amigoDesde = Date.now();
+      enviar(j.ws, JSON.stringify({ t: 'hello', social: 1, ok: 1 })); presenca(j.contaId); return;
+    }
+    return enviar(j.ws, JSON.stringify({ t: 'hello', ok: 1, online: onlineN(), v: PROTO, modos: ['1v1', '2v2', 'trio', 'coroa'], bots: 1, volta: 1 }));
   }
+  if (j.social && !['ping', 'perfil', 'amigos', 'amigo_add', 'amigo_resp', 'amigo_del', 'convite', 'convite_resp', 'chat', 'chat_hist', 'chat_lido'].includes(m.t)) return;   // conexão social só fala de amigos
+  if (j.contaId && ['amigos', 'amigo_add', 'amigo_resp', 'amigo_del', 'convite', 'convite_resp', 'chat', 'chat_hist', 'chat_lido'].includes(m.t)) return tratarAmigos(j, m);
   switch (m.t) {
     case 'ping': return enviar(j.ws, JSON.stringify({ t: 'pong', at: m.at }));
     case 'perfil': j.perfil = perfil(m.p); j.perfil.hero = heroiOk(j, j.perfil.hero); return;
-    case 'fila': if (j.estado === 'fila' || (j.partida && !j.partida.fim)) return; if (m.p) { j.perfil = perfil(m.p); j.perfil.hero = heroiOk(j, j.perfil.hero); } entrarNaFila(j, m.modo); return;
+    case 'fila': if (m.cid) return entrarNoConvite(j, m); if (j.estado === 'fila' || (j.partida && !j.partida.fim)) return; if (m.p) { j.perfil = perfil(m.p); j.perfil.hero = heroiOk(j, j.perfil.hero); } entrarNaFila(j, m.modo); return;
     case 'reconectar': if (j.estado === 'fila' || j.partida) return; return reconectar(j);
-    case 'cancelar': { for (const f of todasFilas) { const i = f.indexOf(j); if (i >= 0) f.splice(i, 1); } if (j.estado === 'fila') j.estado = 'ocioso'; return enviar(j.ws, JSON.stringify({ t: 'ocioso' })); }
+    case 'cancelar': { saiuDoConvite(j); for (const f of todasFilas) { const i = f.indexOf(j); if (i >= 0) f.splice(i, 1); } if (j.estado === 'fila') { j.estado = 'ocioso'; if (j.contaId) presenca(j.contaId); } return enviar(j.ws, JSON.stringify({ t: 'ocioso' })); }
     case 'pronto': if (j.partida && !j.partida.fim) { j.partida.prontos[j.slot] = true; checarLiberar(j.partida); } return;
     case 'pick': { const p = j.partida; if (!p || p.fase !== 'sel') return; const s = p.slots[j.slot];
       if (p.modo === 'trio') { s.time = j.time = Array.isArray(m.team) ? m.team.map(x => Math.floor(+x)).filter(x => Number.isInteger(x) && x >= 0 && x <= 9).map(x => heroiOk(j, x)).filter((x, i, v) => v.indexOf(x) === i).slice(0, 3) : null; if (j.time && j.time.length) j.perfil.hero = j.time[0]; p.pronto_sel[j.slot] = false; return; }

@@ -48,7 +48,7 @@ const podeReconectar=()=>{try{return !!(window.OnlineV45&&OnlineV45.podeReconect
 function syncBusca(){
  const on=buscando(),ing=reconectando(),rec=!on&&!ing&&podeReconectar();
  document.querySelectorAll('[data-v40-play]').forEach(b=>{b.classList.toggle('buscando',on||ing);b.classList.toggle('reconectar',rec);
-  b.innerHTML=on?'<span class="v41-busca"><span class="v45-spin"></span><b>PROCURANDO RIVAIS…</b><small>toque para cancelar</small></span>':ing?'<span class="v41-busca"><span class="v45-spin"></span><b>RECONECTANDO…</b></span>':rec?'<span class="v41-busca"><b class="v41-rec">RECONECTAR</b><small>sua partida continua</small></span>':'JOGAR'+(b.classList.contains('v41-play')?'<kbd class="v41-key v41-key-play">Enter</kbd>':'')});
+  b.innerHTML=on?'<span class="v41-busca"><span class="v45-spin"></span><b>'+((window.OnlineV45&&OnlineV45.state.amigo)?'ESPERANDO O AMIGO…':'PROCURANDO RIVAIS…')+'</b><small>toque para cancelar</small></span>':ing?'<span class="v41-busca"><span class="v45-spin"></span><b>RECONECTANDO…</b></span>':rec?'<span class="v41-busca"><b class="v41-rec">RECONECTAR</b><small>sua partida continua</small></span>':'JOGAR'+(b.classList.contains('v41-play')?'<kbd class="v41-key v41-key-play">Enter</kbd>':'')});
  document.querySelectorAll('[data-v43-play]').forEach(b=>{b.classList.toggle('buscando',on||ing);b.classList.toggle('reconectar',rec);const t=b.querySelector('b'),sm=b.querySelector('small');if(t)t.textContent=on?'PROCURANDO…':ing?'RECONECTANDO…':rec?'RECONECTAR':'JOGAR';if(sm)sm.textContent=on?'toque para cancelar':rec?'sua partida continua':current().name});
 }
 document.addEventListener('eldoria-busca',syncBusca);
@@ -186,9 +186,10 @@ function openMenu(){
  let box=$q('#v40Menu');
  if(!box){box=document.createElement('div');box.id='v40Menu';box.className='v40-sheet v40-menu';box.hidden=true;document.body.appendChild(box)}
  const semM=!!(window.ELDORIA_TESTE_ON&&ELDORIA_TESTE_ON('semMoedas'));   // fase de teste: sem Loja nem Missões (recompensas em moedas)
- const items=[['library','hero','Campeões'],['shop','shop','Loja'],['training','dojo','Dojo'],['league','crown','Liga'],['modes','play','Modos de jogo'],['missions','quest','Missões'],['conta','hero','Minha conta'],['feedback','quest','Enviar feedback'],['settings','gear','Configurações'],['full','full','Tela cheia']].filter(([id])=>!(semM&&(id==='shop'||id==='missions')));
+ const items=[['library','hero','Campeões'],['shop','shop','Loja'],['training','dojo','Dojo'],['league','crown','Liga'],['modes','play','Modos de jogo'],['missions','quest','Missões'],['amigos','hero','Amigos'],['conta','hero','Minha conta'],['feedback','quest','Enviar feedback'],['settings','gear','Configurações'],['full','full','Tela cheia']].filter(([id])=>!(semM&&(id==='shop'||id==='missions')));
  box.innerHTML=`<div class="v40-sheet-card"><header><b>Menu</b><button class="v40-round" data-v40-close aria-label="Fechar">${svg('close')}</button></header><div class="v40-menu-grid">${items.map(([id,ic,l])=>id==='league'?`<button data-v40-go="league" class="locked" aria-disabled="true">${svg('lock')}<span>${l}</span><small>em breve</small></button>`:`<button data-v40-go="${id}">${svg(ic)}<span>${l}</span></button>`).join('')}</div></div>`;
  box.hidden=false;
+ try{window.AmigosV68&&AmigosV68.badge()}catch{}
 }
 function syncNav(){const on=appScreen==='home'&&!!account.profile;document.body.classList.toggle('v40-on',on);const nav=$q('#lobbyNav'),back=$q('#backHome');const hide=on||document.body.classList.contains('v40-modes-open');for(const el of [nav,back]){if(!el)continue;if(hide)el.style.setProperty('display','none','important');else el.style.removeProperty('display')}}
 function closeAll(){for(const id of ['v40Menu','v40Missions','v40Modes'])$q('#'+id)?.setAttribute('hidden','');document.body.classList.remove('v40-modes-open');try{syncNav()}catch{}}
@@ -274,6 +275,7 @@ document.addEventListener('click',e=>{
  const go=t.closest('[data-v40-go]');
  if(go&&go.dataset.v40Go==='league'){e.preventDefault();toast?.('Liga: em breve');return}
  if(go&&go.dataset.v40Go==='feedback'){e.preventDefault();closeAll();try{FeedbackV66.abrir()}catch(err){console.error(err)}return}
+ if(go&&go.dataset.v40Go==='amigos'){e.preventDefault();closeAll();try{AmigosV68.abrir()}catch(err){console.error(err)}return}
  if(go&&go.dataset.v40Go==='conta'){e.preventDefault();closeAll();try{ContaSrv.abrir()}catch(err){console.error(err)}return}
  if(go){e.preventDefault();const id=go.dataset.v40Go;closeAll();
   if(id==='modes')openModes();else if(id==='missions'){ensureMissions();$q('#v40Missions').hidden=false}

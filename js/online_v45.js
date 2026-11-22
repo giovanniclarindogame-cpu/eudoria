@@ -119,7 +119,7 @@ function abrirSocket(aoHello){
  S.aoHello=aoHello;
  return sock;
 }
-function procurar(modo){
+function procurar(modo,op){
  if(!SERVIDOR){try{toast('O servidor de partidas ainda não está configurado.')}catch{}return false}
  // v67: ao clicar em JOGAR, baixa antes a arte do seu campeão (tela de carregamento); os outros baixam por trás enquanto procura rivais
  const Cg=window.Carregamento;
@@ -127,17 +127,18 @@ function procurar(modo){
   const meu=[Number.isInteger(account?.profile?.skin)?account.profile.skin:0],todos=CHAMPIONS.map(c=>c.id);
   if(Cg.precisa(meu)){
    S.baixandoArte=true;
-   Cg.garantir(meu,{topo:'ENTRANDO NA ARENA',titulo:'BAIXANDO AS ARTES'}).catch(()=>{}).then(()=>{S.baixandoArte=false;procurarAgora(modo);Cg.segundoPlano(todos)});
+   Cg.garantir(meu,{topo:'ENTRANDO NA ARENA',titulo:'BAIXANDO AS ARTES'}).catch(()=>{}).then(()=>{S.baixandoArte=false;procurarAgora(modo,op);Cg.segundoPlano(todos)});
    return true;
   }
   setTimeout(()=>Cg.segundoPlano(todos),1500);
  }
- return procurarAgora(modo);
+ return procurarAgora(modo,op);
 }
-function procurarAgora(modo){
+function procurarAgora(modo,op){
  if(modo==='1v1'||modo==='2v2'||modo==='trio'||modo==='coroa')S.modo=modo;if(!['2v2','trio','coroa'].includes(S.modo))S.modo='1v1';
  cleanup();S.team=null;S.mode='server';S.role='guest';S.err='';S.busy='';S.qt=Date.now();S.online=0;S.fila=0;S.fase='fila';S.procurando=true;S.sala=null;S.me={...profile()};S.them=null;S.ready=S.theirReady=false;
- return !!abrirSocket(()=>send({t:'fila',p:profile(),modo:S.modo}));
+ S.amigo=op&&op.cid?String(op.amigo||'amigo'):'';   // convite de amigo: espera o amigo chegar na sala em vez de procurar rivais
+ return !!abrirSocket(()=>send({t:'fila',p:profile(),modo:S.modo,cid:op&&op.cid?op.cid:undefined}));
 }
 // volta para a partida que ficou aberta no servidor (um bot estava no seu lugar)
 function reconectar(){
@@ -150,7 +151,7 @@ function reconectar(){
 function cancelar(){
  try{send({t:'cancelar'})}catch{}
  const srv=S.mode==='server';   // cleanup() zera S.mode: guarda antes (senão a tela da sala nunca fechava)
- cleanup();S.procurando=false;S.fase=null;S.sala=null;S.err='';
+ cleanup();S.amigo='';S.procurando=false;S.fase=null;S.sala=null;S.err='';
  const el=$q('#onlineV45');if(el&&srv){el.hidden=true;document.body.classList.remove('v45-open')}
  avisar();
 }
