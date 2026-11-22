@@ -1,5 +1,32 @@
-# Caddy: pega o certificado HTTPS sozinho (Let's Encrypt) e repassa as conexões WebSocket para o servidor.
+# Caddy: HTTPS automático + (1) protege o JOGO com senha individual por amigo, (2) repassa o servidor de partidas.
+# As senhas ficam em acessos/usuarios.txt (FORA do GitHub; criadas com amigos.sh). Se o arquivo faltar, o Caddy nem sobe (fecha, não abre).
 {$DOMINIO} {
 	encode zstd gzip
-	reverse_proxy servidor:8787
+	header X-Robots-Tag "noindex, nofollow, noarchive"
+	log {
+		output file /data/acessos.log
+		format json
+	}
+
+	# servidor de partidas (WebSocket) e rotas da conta/feedback/saúde: ficam abertas (o jogo precisa delas)
+	@ws header Connection *Upgrade*
+	@api path /saude /conta/* /feedback/*
+	handle @ws {
+		reverse_proxy servidor:8787
+	}
+	handle @api {
+		reverse_proxy servidor:8787
+	}
+
+	# o jogo (arquivos do site): só com usuário e senha
+	handle {
+		basic_auth {
+			import /etc/caddy/acessos/usuarios.txt
+		}
+		# nunca entregar código do servidor, testes, histórico do git
+		@privado path /.git* /servidor/* /tests/* /scripts/*
+		respond @privado 404
+		root * /site
+		file_server
+	}
 }

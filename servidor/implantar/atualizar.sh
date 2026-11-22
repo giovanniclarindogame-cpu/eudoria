@@ -4,6 +4,7 @@ set -euo pipefail
 DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$DIR"
 git -C "$DIR" pull --ff-only
+[ -s acessos/usuarios.txt ] || { mkdir -p acessos; echo "trancado $(docker run --rm caddy:2 caddy hash-password --plaintext "$(head -c 24 /dev/urandom | base64)")" > acessos/usuarios.txt; }
 docker compose up -d --build
 docker image prune -f >/dev/null
 echo "Atualizado. Estado:"

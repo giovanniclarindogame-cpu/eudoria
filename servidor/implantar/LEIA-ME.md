@@ -80,3 +80,28 @@ curl -s https://SEU.DOMINIO.AQUI/saude    # jogadores, fila, partidas, saúde do
 | `/saude` não abre / certificado com erro | `docker compose logs caddy --tail 50`. Quase sempre é o DNS ainda não valendo ou as portas 80/443 fechadas no firewall do painel |
 | Jogo diz "Servidor indisponível" | Confira o endereço em `js/config_servidor.js` (`wss://`, sem barra no fim) e `/saude` |
 | Memória no limite | Suba o plano no painel ou reduza `MAX_PARTIDAS` no `.env` e rode `docker compose up -d` |
+
+## Jogo protegido por senha (um acesso por amigo)
+
+O jogo passa a abrir em `https://SEU-DOMINIO/` (ex.: `https://179-199-140-168.sslip.io/`) pedindo usuário e senha.
+O servidor de partidas, a conta e o feedback continuam abertos (o jogo precisa deles).
+
+```bash
+cd /opt/eldoria/servidor/implantar
+sudo bash amigos.sh add joao        # cria o acesso e mostra a senha UMA vez
+sudo bash amigos.sh remover joao    # corta o acesso
+sudo bash amigos.sh lista           # quem tem acesso
+sudo bash amigos.sh quem            # quem abriu o jogo, quantos pedidos, quando e de quais IPs
+```
+
+As senhas ficam em `acessos/usuarios.txt` (só o hash, fora do GitHub). Sem nenhum amigo cadastrado o jogo fica trancado.
+O Caddyfile nunca entrega `servidor/`, `tests/`, `scripts/` nem `.git`. O atualizador confere o Caddyfile antes de reiniciar.
+
+### Repositório privado (depois que tudo acima estiver funcionando)
+A VPS precisa de uma *deploy key* só de leitura, senão o atualizador deixa de buscar o GitHub:
+1. Na VPS: `ssh-keygen -t ed25519 -f ~/.ssh/eldoria_deploy -N ""` e `cat ~/.ssh/eldoria_deploy.pub`
+2. GitHub → repositório → Settings → Deploy keys → Add (NÃO marque "write").
+3. Na VPS: `cd /opt/eldoria && git remote set-url origin git@github.com:giovanniclarindogame-cpu/eudoria.git` e
+   `git config core.sshCommand "ssh -i ~/.ssh/eldoria_deploy -o IdentitiesOnly=yes"`; teste com `git fetch origin`.
+4. Só então: GitHub → Settings → Danger Zone → Change visibility → Private.
+Atenção: privado desliga o site do GitHub Pages (github.io); os amigos passam a usar o endereço da VPS.

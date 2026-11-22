@@ -37,6 +37,8 @@ services:
       DOMINIO: "${DOMINIO:?defina DOMINIO no arquivo .env}"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./acessos:/etc/caddy/acessos:ro
+      - ../..:/site:ro
       - caddy_data:/data
       - caddy_config:/config
 volumes:
