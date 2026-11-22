@@ -44,6 +44,13 @@ const PORT=8796,B='http://localhost:'+PORT,RAIZ=path.join(__dirname,'..');
  let bloq=false;for(let i=0;i<12;i++){const x=await post('joao','errada'+i);if(x.status===429){bloq=true;break}}
  ok(bloq,'muitas senhas erradas seguidas: bloqueia por uns minutos');
  sv.kill();await sleep(500);
+ // ---- arquivo dos amigos ilegível (ex.: sem permissão) NÃO pode derrubar o servidor ----
+ {const ruim=path.join(tmp,'ruim');fs.mkdirSync(ruim);   // uma pasta no lugar do arquivo: ler dá erro, como o EACCES da VPS
+  const env3={...env,ACESSOS:ruim,PORT:String(PORT+1)};const sv3=spawn('node',['servidor.cjs'],{cwd:path.join(RAIZ,'servidor'),env:env3,stdio:'ignore'});
+  for(let i=0;i<40;i++){try{await fetch('http://localhost:'+(PORT+1)+'/saude');break}catch{await sleep(250)}}
+  const a=await fetch('http://localhost:'+(PORT+1)+'/js/jogo.js',{redirect:'manual'});await sleep(300);
+  const b2=await fetch('http://localhost:'+(PORT+1)+'/saude');
+  ok(a.status===401&&b2.status===200,'arquivo dos amigos ilegível: o servidor continua no ar (ninguém entra, mas as partidas seguem)');sv3.kill();}
 
  // ---- navegador de verdade: login pela página e o jogo abre e conecta ----
  const out2=amigos('add','ana');const senhaAna=/senha:   (\w+)/.exec(out2)[1];

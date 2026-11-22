@@ -38,11 +38,17 @@ function amigos() {   // nome -> registro (relê o arquivo só quando ele muda)
   let st; try { st = fs.statSync(ARQ); } catch { cacheUsu = { m: -1, tam: -1, mapa: new Map() }; return cacheUsu.mapa; }
   if (st.mtimeMs === cacheUsu.m && st.size === cacheUsu.tam) return cacheUsu.mapa;
   const mapa = new Map();
-  for (const l of fs.readFileSync(ARQ, 'utf8').split('\n')) {
+  let txt = '';
+  try { txt = fs.readFileSync(ARQ, 'utf8'); }
+  catch (e) {   // sem permissão para ler (arquivo criado por outro usuário): NUNCA derruba o servidor; ninguém entra até arrumar a permissão
+    if (!cacheUsu.avisou) { console.error(`[portão] não consegui ler ${ARQ} (${e.code}). Arrume com: chmod 666 acessos/usuarios.txt`); }
+    cacheUsu = { m: -1, tam: -1, mapa, avisou: true }; return mapa;
+  }
+  for (const l of txt.split('\n')) {
     const [nome, reg] = l.trim().split(/\s+/);
     if (nome && NOME_OK.test(nome) && /^scrypt:/.test(reg || '')) mapa.set(nome, reg);   // outras linhas (formato antigo) são ignoradas
   }
-  cacheUsu = { m: st.mtimeMs, tam: st.size, mapa };
+  cacheUsu = { m: st.mtimeMs, tam: st.size, mapa, avisou: false };
   return mapa;
 }
 function gravarAmigos(mapa) {
