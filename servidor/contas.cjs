@@ -14,12 +14,13 @@ const ARQ = path.join(DIR, 'contas.json');
 const CHAVES = ['eldoria-champions-v1', 'eldoria.retencao.v1', 'eldoria.cacada.v1', 'eldoria.arcade.v1', 'eldoria-lobby-v18', 'ecos-loadout'];
 const MAX_CHAVE = 120 * 1024, MAX_TOTAL = 300 * 1024, MAX_CONTAS = +process.env.MAX_CONTAS || 20000;
 const ALFA = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';   // sem I, L, O, 0 e 1 (não se confundem ao digitar)
-let contas = {}, porHash = new Map(), sujo = false, timer = null;
+let contas = {}, porHash = new Map(), porCod = new Map(), sujo = false, timer = null;   // porCod: código de amigo -> id
 
 function carregar() {
   try { fs.mkdirSync(DIR, { recursive: true }); } catch {}
   try { const d = JSON.parse(fs.readFileSync(ARQ, 'utf8')); contas = d.contas || {}; } catch { contas = {}; }
   porHash = new Map(Object.values(contas).map(c => [c.hash, c.id]));
+  porCod = new Map(Object.values(contas).filter(c => c.cod).map(c => [c.cod, c.id]));
 }
 function gravar() {
   sujo = false;
@@ -89,5 +90,58 @@ function heroisPermitidos(c, now = Date.now()) {
   return s;
 }
 
+
+/* ---------- amigos ---------- */
+// Cada conta tem um CÓDIGO DE AMIGO público (6 letras/números, ex. K7QM2X): dá para passar para os outros. É diferente do código de recuperação
+// (que é secreto). Pedido de amizade: quem recebe aceita ou recusa. Amigos são mútuos.
+const MAX_AMIGOS = 60, MAX_PEDIDOS = 30;
+const porId = id => contas[id] || null;
+function codAmigo(c) {
+  if (c.cod) return c.cod;
+  let x; do { const b = crypto.randomBytes(6); x = ''; for (let i = 0; i < 6; i++) x += ALFA[b[i] % ALFA.length]; } while (porCod.has(x));
+  c.cod = x; porCod.set(x, c.id); agendar(); return x;
+}
+const normCod = s => String(s || '').toUpperCase().split('').filter(ch => ALFA.includes(ch)).join('');
+function garantirListas(c) { c.amigos = c.amigos || []; c.recebidos = c.recebidos || []; c.enviados = c.enviados || []; }
+function atualizarPerfil(id, p) {
+  const c = porId(id); if (!c || !p) return;
+  const novo = { name: String(p.name || '').slice(0, 16), lv: p.lv | 0, photo: String(p.photo || 'h0'), frame: String(p.frame || 'azul') };
+  if (!c.perfil || c.perfil.name !== novo.name || c.perfil.lv !== novo.lv || c.perfil.photo !== novo.photo || c.perfil.frame !== novo.frame) { c.perfil = novo; agendar(); }
+}
+const resumo = c => ({ id: c.id, nome: (c.perfil && c.perfil.name) || c.nome || 'Lutador', lv: (c.perfil && c.perfil.lv) || 1, photo: (c.perfil && c.perfil.photo) || 'h0', frame: (c.perfil && c.perfil.frame) || 'azul' });
+function lista(c) {
+  garantirListas(c);
+  const mapa = ids => ids.map(porId).filter(Boolean).map(resumo);
+  return { cod: codAmigo(c), amigos: mapa(c.amigos), recebidos: mapa(c.recebidos), enviados: mapa(c.enviados) };
+}
+const saoAmigos = (a, bId) => { garantirListas(a); return a.amigos.includes(bId); };
+function ligar(a, b) { for (const [x, y] of [[a, b], [b, a]]) { garantirListas(x); if (!x.amigos.includes(y.id)) x.amigos.push(y.id); x.recebidos = x.recebidos.filter(i => i !== y.id); x.enviados = x.enviados.filter(i => i !== y.id); } agendar(); }
+function pedirAmizade(c, cod) {
+  garantirListas(c);
+  const alvoId = porCod.get(normCod(cod)), alvo = alvoId && porId(alvoId);
+  if (!alvo) return { erro: 'cod' };
+  if (alvo.id === c.id) return { erro: 'proprio' };
+  garantirListas(alvo);
+  if (c.amigos.includes(alvo.id)) return { erro: 'ja' };
+  if (c.recebidos.includes(alvo.id)) { ligar(c, alvo); return { ok: true, aceito: true, alvo: resumo(alvo) }; }   // ele já tinha pedido: vira amizade na hora
+  if (c.enviados.includes(alvo.id)) return { erro: 'pedido' };
+  if (c.amigos.length >= MAX_AMIGOS || c.enviados.length >= MAX_PEDIDOS || alvo.recebidos.length >= MAX_PEDIDOS || alvo.amigos.length >= MAX_AMIGOS) return { erro: 'limite' };
+  c.enviados.push(alvo.id); alvo.recebidos.push(c.id); agendar();
+  return { ok: true, alvo: resumo(alvo) };
+}
+function responderPedido(c, id, aceita) {
+  garantirListas(c);
+  const o = porId(id); if (!o || !c.recebidos.includes(id)) return { erro: 'nada' };
+  if (aceita) { if (c.amigos.length >= MAX_AMIGOS) return { erro: 'limite' }; ligar(c, o); }
+  else { garantirListas(o); c.recebidos = c.recebidos.filter(i => i !== id); o.enviados = o.enviados.filter(i => i !== c.id); agendar(); }
+  return { ok: true, outro: resumo(o) };
+}
+function removerAmigo(c, id) {   // remove amizade ou cancela um pedido enviado
+  garantirListas(c); const o = porId(id); if (!o) return { erro: 'nada' }; garantirListas(o);
+  c.amigos = c.amigos.filter(i => i !== id); o.amigos = o.amigos.filter(i => i !== c.id);
+  c.enviados = c.enviados.filter(i => i !== id); o.recebidos = o.recebidos.filter(i => i !== c.id);
+  agendar(); return { ok: true };
+}
+
 carregar();
-module.exports = { criar, entrar, salvar, porCodigo, heroisPermitidos, livresDaSemana, normaliza, CHAVES, total: () => Object.keys(contas).length, gravar };
+module.exports = { porId, codAmigo, atualizarPerfil, lista, saoAmigos, pedirAmizade, responderPedido, removerAmigo, resumo, criar, entrar, salvar, porCodigo, heroisPermitidos, livresDaSemana, normaliza, CHAVES, total: () => Object.keys(contas).length, gravar };
