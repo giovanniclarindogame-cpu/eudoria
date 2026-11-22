@@ -25,3 +25,6 @@ Este arquivo é para a sessão do Claude que roda **no computador** (onde a exte
 - Arte nova convive com a antiga: o jogo volta ao desenho por código se a imagem não carregar. Não remova o desenho antigo sem pedir.
 - Cuidado com o tamanho: as imagens são baixadas no celular dos jogadores. Mire em **no máximo ~500 KB por folha**; se passar, reduza o tamanho antes.
 - Fluxo de publicação: `git add`, `git commit` e abrir um PR para a branch **`entrega-v3`** (o site se atualiza sozinho a partir dela). Rode `git fetch origin entrega-v3 && git merge origin/entrega-v3` antes de enviar, porque outras artes entram na mesma branch.
+
+## Conferir antes de enviar
+`python3 scripts/validar_folha.py ARQUIVO.webp` confere tamanho, transparência, quadros vazios, margens, laço e peso (folha de quadros). Para faixa que se repete (rastro no chão): `--faixa`. Rode e corrija até aparecer `RESULTADO: OK`.
