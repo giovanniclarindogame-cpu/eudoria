@@ -21,3 +21,7 @@ Faixa horizontal de água gerada no Canva; as pontas foram emendadas por script 
 ## Linhas que se repetem (linhaAgua, linhaPesca, rastroFogo)
 
 Faixas geradas no Canva e emendadas por script: `linhaAgua` e `linhaPesca` com transição nas pontas; `rastroFogo` cortado nas duas colunas mais parecidas (sem sobreposição). `FX39.line(chave, x1, y1, x2, y2, espessura, {scroll, phase, add, upright})` repete a textura ao longo de qualquer segmento. Usos: linha do Arpão Fisgado (`js/corsario_v3.js`), linha da Fisgada (`js/cacador_v3.js`, que primeiro estica até onde o rival estava) e rastro do Passo do Amanhecer (`js/solar_v3.js`, com a textura contínua entre os segmentos e as chamas sempre para cima).
+
+## Rastro de fogo do Passo do Amanhecer — versão v2 (Blender/pixel art)
+
+`rastroFogo.webp` agora é uma faixa 1152 × 128 em pixel art (RGBA, ~1,4 KB; a anterior, do Canva, tinha 1348 × 129 e 140 KB e está guardada em `rastroFogo_antigo.webp` como reserva — para voltar, copie-a por cima e suba o `?v=` em `js/efeitos_v39.js`). A faixa foi recortada nos dois pontos em que as chamas se repetem exatamente (`scripts/emendar_faixa.py` também faz a transição em pixels quando não existe um corte perfeito), então a repetição do jogo não mostra emenda. O código não mudou: `FX39.line('rastroFogo', …)` em `js/solar_v3.js`.
