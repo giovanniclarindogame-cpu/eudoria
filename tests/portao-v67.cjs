@@ -44,6 +44,17 @@ const PORT=8796,B='http://localhost:'+PORT,RAIZ=path.join(__dirname,'..');
  let bloq=false;for(let i=0;i<12;i++){const x=await post('joao','errada'+i);if(x.status===429){bloq=true;break}}
  ok(bloq,'muitas senhas erradas seguidas: bloqueia por uns minutos');
  sv.kill();await sleep(500);
+ // ---- tolerância do celular: maiúscula no usuário, espaço e maiúscula na senha ----
+ {const o4=amigos('add','marcos');const sm=/senha:   (\w+)/.exec(o4)[1];
+  const sv4=spawn('node',['servidor.cjs'],{cwd:path.join(RAIZ,'servidor'),env:{...env,PORT:String(PORT+2)},stdio:'ignore'});
+  for(let i=0;i<40;i++){try{await fetch('http://localhost:'+(PORT+2)+'/saude');break}catch{await sleep(250)}}
+  const tenta=async(u,sn)=>(await fetch('http://localhost:'+(PORT+2)+'/entrar',{method:'POST',redirect:'manual',headers:{'content-type':'application/x-www-form-urlencoded'},body:new URLSearchParams({u,s:sn,next:'/'}).toString()})).status;
+  ok(await tenta('Marcos',sm)===303,'usuário com maiúscula (teclado do celular) entra');
+  ok(await tenta(' marcos ',' '+sm+' ')===303,'espaços nas pontas são ignorados');
+  ok(await tenta('marcos',sm.toUpperCase())===303,'senha digitada em maiúsculas também confere');
+  ok(await tenta('marcos',sm+'x')===401,'senha realmente errada continua recusada');
+  ok(/CONFERE/.test(amigos('verificar','Marcos',sm))&&/NÃO CONFERE/.test(amigos('verificar','marcos','xxxxxxxxxx')),'amigos.cjs verificar diz se a senha confere');
+  sv4.kill();}
  // ---- arquivo dos amigos ilegível (ex.: sem permissão) NÃO pode derrubar o servidor ----
  {const ruim=path.join(tmp,'ruim');fs.mkdirSync(ruim);   // uma pasta no lugar do arquivo: ler dá erro, como o EACCES da VPS
   const env3={...env,ACESSOS:ruim,PORT:String(PORT+1)};const sv3=spawn('node',['servidor.cjs'],{cwd:path.join(RAIZ,'servidor'),env:env3,stdio:'ignore'});
