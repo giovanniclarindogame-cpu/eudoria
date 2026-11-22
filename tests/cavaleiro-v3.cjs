@@ -42,7 +42,7 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  ok(r.u100.dmg>r.u50.dmg&&r.u100.cosmo<=5,`ultimate mais forte no estágio 3 (${r.u50.dmg} / ${r.u100.dmg}) e gasta o Cosmo sem devolver`);
  ok(r.hud,'estrelas de estágio e contador de combo desenhados sobre o herói');
  ok(r.take100===r.take0,'a marca não dá mais redução de dano por guardar Cosmo');
- ok(r.mul===.55,'multiplicador de dano do herói recalibrado para o kit novo ('+r.mul+')');
+ ok(r.mul===.68,'multiplicador de dano do herói recalibrado para o kit novo ('+r.mul+')');
  ok(errs.length===0,'sem erros de JavaScript '+errs.slice(0,2));
  await br.close();
 })();
