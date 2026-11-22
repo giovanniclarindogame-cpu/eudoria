@@ -1,3 +1,7 @@
 
 # dados das contas (gerados pelo servidor)
 servidor/dados/
+
+# senhas dos amigos (nunca no GitHub)
+servidor/implantar/acessos/
+servidor/implantar/.env
