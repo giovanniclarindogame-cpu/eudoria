@@ -118,7 +118,7 @@ integratedDepth=function(){
 
 /* ---------- 4. ajuste fino de equilíbrio por herói (multiplicador de dano) ---------- */
 // multiplicador de dano por herói (índice do herói → fator), ajustado por simulação de duelos entre todos os heróis
-const DMG={0:.68,1:1.05,2:1.35,3:1.05,4:.8,5:1.9,6:.98,7:.8,8:.55,9:1.35};
+const DMG={0:.68,1:1.05,2:1.35,3:1.05,4:.8,5:1.9,6:.98,7:1.0,8:.68,9:1.65};   // 7 Corsário .8→1,0 · 8 Cavaleiro .55→.68 · 9 Alquimista 1,35→1,65 (v64, simulação todos contra todos)
 try{const q=new URLSearchParams(location.search).get('dmg');if(q)q.split(',').forEach(kv=>{const [k,v]=kv.split(':');if(+v>0)DMG[+k]=+v})}catch{}
 const TAKE={0:1,1:1,2:1,3:1,4:1,5:.8,6:1,7:1,8:1,9:1};   // dano recebido (menor = mais resistente)
 try{const q=new URLSearchParams(location.search).get('take');if(q)q.split(',').forEach(kv=>{const [k,v]=kv.split(':');if(+v>0)TAKE[+k]=+v})}catch{}
