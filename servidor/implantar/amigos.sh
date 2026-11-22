@@ -13,7 +13,7 @@ case "${1:-}" in
   add)
     N="${2:-}"; [[ "$N" =~ ^[A-Za-z0-9_-]{2,30}$ ]] || { echo "Nome: 2 a 30 letras/números (sem espaço ou acento). Ex.: joao"; exit 1; }
     grep -q "^$N " "$ARQ" && { echo "Já existe '$N'. Remova antes: bash amigos.sh remover $N"; exit 1; }
-    SENHA="$(tr -dc 'a-hjkmnp-zA-HJ-NP-Z2-9' </dev/urandom | head -c 12)"
+    SENHA="$(head -c 9 /dev/urandom | od -An -tx1 | tr -d ' \n')"
     HASH="$(cd "$DIR" && docker run --rm caddy:2 caddy hash-password --plaintext "$SENHA")"
     echo "$N $HASH" >> "$ARQ"; recarregar
     echo "Acesso criado para $N"; echo "  usuário: $N"; echo "  senha:   $SENHA   (anote agora: não dá para ver de novo)" ;;
