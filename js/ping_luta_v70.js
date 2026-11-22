@@ -1,6 +1,6 @@
 'use strict';
 /*
- * v70 — ping na luta online: uma pílula pequena (sinal + "45 ms") ao lado do botão de pausa, no topo, onde não cobre a arena nem os botões.
+ * v70 — ping na luta online: uma pílula pequena (sinal + "45 ms") no canto inferior esquerdo, colada nas bordas e perto do analógico, onde não cobre a arena nem os botões.
  * Verde < 80 ms · amarelo < 180 ms · vermelho acima disso. Só aparece em luta online; o valor vem da medição que a conexão já faz (OnlineV45.state.rtt, a cada 2 s).
  */
 (function(){
@@ -17,19 +17,20 @@
   }catch{return false}
  }
  const visivel=r=>r&&r.width>2&&r.height>2;
+ // canto inferior esquerdo, colado nas bordas, perto do analógico (sem encostar nele)
  function posicionar(){
   if(!el||el.hidden)return;
-  const rect=sel=>{const e=document.querySelector(sel);if(!e)return null;const c=getComputedStyle(e);if(c.display==='none'||c.visibility==='hidden')return null;const r=e.getBoundingClientRect();return visivel(r)?r:null};
-  const h=el.offsetHeight||20,w=el.offsetWidth||60,m=rect('#battle .mid-hud'),pa=rect('#pauseBtn'),pl=rect('#battle .fighterhud:not(.enemy)'),en=rect('#battle .fighterhud.enemy');
-  let x,y;
-  if(pa){x=pa.right+8;y=pa.top+(pa.height-h)/2}                                   // ao lado do botão de pausa (quando existe)
-  else if(m){
-   y=m.top+Math.min(6,Math.max(0,(m.height-h)/2));
-   if(!en||m.right+6+w<=en.left-4)x=m.right+6;                                      // à direita do painel do cronômetro, antes do cartão do rival
-   else if(!pl||m.left-6-w>=pl.right+4)x=m.left-6-w;                               // ou à esquerda
-   else{x=m.left+(m.width-w)/2;y=m.bottom+3}                                        // sem espaço nos lados: logo abaixo do painel
-  }else{x=innerWidth/2+44;y=8}
-  x=Math.max(4,Math.min(innerWidth-w-4,x));y=Math.max(2,y);
+  const h=el.offsetHeight||20,w=el.offsetWidth||60,M=6;
+  const st=document.getElementById('stick'),cs=st&&getComputedStyle(st);
+  const r=st&&cs.display!=='none'&&cs.visibility!=='hidden'?st.getBoundingClientRect():null;
+  const cru=(x,y)=>r&&visivel(r)&&x<r.right+3&&x+w>r.left-3&&y<r.bottom+3&&y+h>r.top-3;   // encosta no analógico?
+  let x=M,y=innerHeight-h-M;
+  if(cru(x,y)){
+   const livre=innerHeight-r.bottom;                                                    // espaço embaixo do analógico
+   if(livre>=h+4){x=Math.max(M,r.left);y=innerHeight-h-Math.max(M,(livre-h)/2)}
+   else{x=r.right+8;y=Math.min(innerHeight-h-M,r.bottom-h)}                               // senão, logo à direita dele
+  }
+  x=Math.max(2,Math.min(innerWidth-w-2,x));y=Math.max(2,Math.min(innerHeight-h-2,y));
   el.style.left=Math.round(x)+'px';el.style.top=Math.round(y)+'px';
  }
  function atualizar(){

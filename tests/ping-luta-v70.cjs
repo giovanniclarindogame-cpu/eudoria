@@ -3,6 +3,7 @@ const { chromium } = require('playwright');const { spawn } = require('child_proc
 const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else console.log('ok  -',m)};
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const PORT=8791,SRV='ws://localhost:'+PORT;
+const innerHeightOk=(r,h)=>h-(r.rect[1]+r.rect[3])<=40&&r.rect[1]>h*.7;
 (async()=>{
  const sv=spawn('node',['servidor.cjs'],{cwd:path.join(__dirname,'..','servidor'),env:{...process.env,PORT:String(PORT),TESTE:'1',AQUECIDAS:'1',ESPERA_BOT:'1500'},stdio:'ignore'});
  for(let i=0;i<50;i++){try{await fetch('http://localhost:'+PORT+'/saude');break}catch{await sleep(200)}}
@@ -29,6 +30,7 @@ const PORT=8791,SRV='ws://localhost:'+PORT;
    return{txt:e.textContent.trim(),q:e.dataset.q,rect:[a.left,a.top,a.width,a.height].map(Math.round),dentro:a.left>=0&&a.top>=0&&a.right<=innerWidth&&a.bottom<=innerHeight,batidas:[...new Set(batidas)],larg:Math.round(a.width),alt:Math.round(a.height)}});
   ok(/^\d+ ms$/.test(r.txt)&&['bom','ok','ruim'].includes(r.q),`${tag}: mostra o ping durante a luta online ("${r.txt}", ${r.q})`);
   ok(r.dentro&&r.larg<=90&&r.alt<=22,`${tag}: é pequeno (${r.larg}×${r.alt}px) e fica dentro da tela`);
+  ok(r.rect[0]<=40&&innerHeightOk(r,h),`${tag}: fica no canto inferior esquerdo, colado nas bordas (esquerda ${r.rect[0]}px, embaixo ${h-(r.rect[1]+r.rect[3])}px)`);
   ok(r.batidas.length===0,`${tag}: não cobre nenhum controle ou barra${r.batidas.length?' — cobre: '+r.batidas.join(', '):''}`);
   if(w===1280)await p.screenshot({path:'/tmp/claude-0/ping_pc.png'});else if(w===915)await p.screenshot({path:'/tmp/claude-0/ping_cel.png'});
   // some ao sair da luta
