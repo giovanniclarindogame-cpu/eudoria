@@ -98,7 +98,7 @@ rosterCard=function(c){
  let html=prevCard(c);
  const own=owned(c.id),free=freeNow(c.id);
  if(own)return html;
- const badge=free?'<span class="lj-badge free">GRÁTIS NA SEMANA</span>':`<span class="lj-badge lock">🔒 ${fmt(HERO_PRICE)} 🪙</span>`;
+ const badge=free?'<span class="lj-badge free">GRÁTIS NA SEMANA</span>':`<span class="lj-badge lock">🔒 ${fmt(HERO_PRICE)} moedas</span>`;
  html=html.replace('class="hero-card ',`class="hero-card ${free?'week-free':'locked'} `);
  const k=html.lastIndexOf('</button>');
  return k>=0?html.slice(0,k)+badge+html.slice(k):html;
@@ -115,7 +115,7 @@ openChampionDetails=function(id){
     else{
      if(head)head.textContent='🔒 Bloqueado';
      el.querySelector('[data-hero-test]')?.remove();
-     const b=el.querySelector('[data-hero-confirm]');if(b){b.textContent=`Comprar · ${fmt(HERO_PRICE)} 🪙`;b.dataset.ljBuy=id}
+     const b=el.querySelector('[data-hero-confirm]');if(b){b.textContent=`Comprar · ${fmt(HERO_PRICE)} moedas`;b.dataset.ljBuy=id}
     }
    }
   }

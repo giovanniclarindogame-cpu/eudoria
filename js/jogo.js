@@ -2485,7 +2485,7 @@ function heroesFreeThisWeek(now=Date.now()){
  return ids.slice(0,3);
 }
 function nextFreeRotation(now=Date.now()){const d=new Date(now);const days=Math.floor(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/864e5);const nextMon=(Math.floor((days+3)/7)+1)*7-3;const t=new Date(d.getFullYear(),d.getMonth(),d.getDate()+(nextMon-days));return t.getTime()}
-const heroOwned=id=>ALL_HEROES_DEBUG||(account.ownedHeroes||[]).includes(id);
+const heroOwned=id=>ALL_HEROES_DEBUG||TESTE_TODOS_LIBERADOS||(account.ownedHeroes||[]).includes(id);   // fase de teste: todos liberados (sem cadeado)
 const heroUsable=id=>account.champions.includes(id);
 normalizeChampions=function(){
  account.progVer=3;
