@@ -26,6 +26,9 @@
 		# nunca entregar código do servidor, testes, histórico do git
 		@privado path /.git* /servidor/* /tests/* /scripts/*
 		respond @privado 404
+		# imagens pesadas (~10 MB por campeão): o navegador guarda por 1 dia, então só a 1ª visita é lenta
+		@imagens path /assets/*
+		header @imagens Cache-Control "public, max-age=86400"
 		root * /site
 		file_server
 	}
