@@ -328,10 +328,13 @@ function rotaFeedback(req, res) {
   }
   responder(res, 404, { erro: 'rota' });
 }
+const portao = require('./portao.cjs');   // login por cookie + arquivos do jogo (só liga quando SITE está definido; ver portao.cjs)
 const servidor = http.createServer((req, res) => {
   if (req.url.startsWith('/conta/')) return rotaConta(req, res);
   if (req.url.startsWith('/feedback/')) return rotaFeedback(req, res);
-  if (req.url === '/saude' || req.url === '/') {
+  const ehSaude = req.url === '/saude' || (req.url === '/' && !portao.ativo);
+  if (!ehSaude && portao.tratar(req, res)) return;
+  if (ehSaude) {
     const mem = process.memoryUsage();
     res.writeHead(200, { 'content-type': 'application/json', 'access-control-allow-origin': '*' });
     return res.end(JSON.stringify({ ok: true, proto: PROTO, buildMinimo: BUILD_MINIMO, jogadores: jogadores.size, fila: fila.length, fila2: fila2.length, fila3: fila3.length, fila4: fila4.length, contas: contas.total(), partidas: partidas.size, aquecidas: aquecidas.filter(x => x.pronta).length, ...stats, tickMedio: +stats.tickMedio.toFixed(3), tickMax: +stats.tickMax.toFixed(2), memoriaMB: Math.round(mem.rss / 1048576), nucleos: os.cpus().length, uptime: Math.round(process.uptime()) }));
