@@ -280,7 +280,8 @@ function fecharConvite(cv, aviso) {
 function convidar(j, m) {
   const eu = contas.porId(j.contaId), alvo = contas.porId(String(m.id || ''));
   const resp = o => enviar(j.ws, JSON.stringify({ t: 'convite_res', ...o }));
-  const modo = m.tipo === 'junto' ? '2v2' : m.tipo === 'contra' ? '1v1' : null;
+  const TIPOS_CONVITE = { contra: '1v1', junto: '2v2', trio: 'trio', coroa: 'coroa' };   // duelo 1×1 · equipe 2×2 (juntos) · Trio de Campeões · Disputa da Coroa (bots completam as vagas)
+  const tipo = TIPOS_CONVITE[m.tipo] ? m.tipo : null, modo = tipo ? TIPOS_CONVITE[tipo] : null;
   if (!eu || !alvo || !modo || !contas.saoAmigos(eu, alvo.id)) return resp({ st: 'erro', erro: 'amigo' });
   if (partidas.size >= MAX_PARTIDAS) return resp({ st: 'erro', erro: 'cheio' });
   const st = estadoDas();
@@ -292,7 +293,7 @@ function convidar(j, m) {
   const cv = { cid, de: eu.id, para: alvo.id, modo, estado: 'pendente', lados: new Map() };
   cv.timer = setTimeout(() => { if (cv.estado === 'pendente') { paraConta(cv.de, { t: 'convite_res', cid, st: 'expirou', quem: contas.resumo(alvo) }); paraConta(cv.para, { t: 'convite_fim', cid }); } fecharConvite(cv, { t: 'bye' }); }, 40000);
   cv.timer.unref?.(); convites.set(cid, cv);
-  paraConta(alvo.id, { t: 'convite', cid, de: contas.resumo(eu), tipo: m.tipo === 'junto' ? 'junto' : 'contra', modo, ms: 40000 });
+  paraConta(alvo.id, { t: 'convite', cid, de: contas.resumo(eu), tipo, modo, ms: 40000 });
   resp({ st: 'enviado', cid, quem: contas.resumo(alvo) });
 }
 function responderConvite(j, m) {

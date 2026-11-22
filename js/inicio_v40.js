@@ -132,6 +132,7 @@ function homeMarkup(){
   <button data-v40-missions style="--i:1" title="Missões (M)"><span class="v41-ico"></span><span class="v41-lbl">Missões</span><kbd class="v41-key">M</kbd>${mb?`<i class="v41-badge">${mb}</i>`:''}</button>
   <button data-nav="shop" style="--i:2" title="Loja (L)"><span class="v41-ico"></span><span class="v41-lbl">Loja</span><kbd class="v41-key">L</kbd>${free?'<i class="v41-badge v41-badge-free">GRÁTIS</i>':''}</button>
   <button data-nav="training" style="--i:3" title="Dojo (D)"><span class="v41-ico"></span><span class="v41-lbl">Dojo</span><kbd class="v41-key">D</kbd></button>
+  <button data-v68-amigos style="--i:4" title="Amigos (A)"><span class="v41-ico v68-ico"><svg viewBox="0 0 48 48" aria-hidden="true"><g fill="#ffd45a" stroke="#3b2100" stroke-width="2" stroke-linejoin="round"><circle cx="17" cy="16" r="6.5"/><path d="M5 38c0-7 5-12 12-12s12 5 12 12z"/><circle cx="32" cy="18" r="5.2" fill="#ffe9a6"/><path d="M26 28.5c1.8-1.1 3.9-1.7 6-1.7 6.4 0 11 4.6 11 11H31.5c0-3.8-1.9-7.6-5.5-9.3z" fill="#ffe9a6"/></g></svg></span><span class="v41-lbl">Amigos</span><kbd class="v41-key">A</kbd></button>
  </nav>
  <div class="v40-go">
   <button class="v40-mode" data-v40-modes style="--cat:${cat[2]}" aria-label="Modo: ${esc(m.name)}. ${esc(REWARD[m.id]||'')}. Toque para trocar" title="Trocar de modo (T)">
@@ -165,7 +166,7 @@ function mountHome(){
  try{window.CenaV41?.mount(ui)}catch(e){console.error('[Eldoria] cenário',e)}
 }
 const prevHome=renderLobbyHome;
-renderLobbyHome=function(){prevHome.apply(this,arguments);try{mountHome();syncBusca()}catch(e){console.error('[Eldoria] início v40',e)}};
+renderLobbyHome=function(){prevHome.apply(this,arguments);try{mountHome();syncBusca();window.AmigosV68&&AmigosV68.badge()}catch(e){console.error('[Eldoria] início v40',e)}};
 const prevNav=renderLobbyNav;
 renderLobbyNav=function(){prevNav.apply(this,arguments);syncNav()};
 
@@ -186,7 +187,7 @@ function openMenu(){
  let box=$q('#v40Menu');
  if(!box){box=document.createElement('div');box.id='v40Menu';box.className='v40-sheet v40-menu';box.hidden=true;document.body.appendChild(box)}
  const semM=!!(window.ELDORIA_TESTE_ON&&ELDORIA_TESTE_ON('semMoedas'));   // fase de teste: sem Loja nem Missões (recompensas em moedas)
- const items=[['library','hero','Campeões'],['shop','shop','Loja'],['training','dojo','Dojo'],['league','crown','Liga'],['modes','play','Modos de jogo'],['missions','quest','Missões'],['amigos','hero','Amigos'],['conta','hero','Minha conta'],['feedback','quest','Enviar feedback'],['settings','gear','Configurações'],['full','full','Tela cheia']].filter(([id])=>!(semM&&(id==='shop'||id==='missions')));
+ const items=[['conta','hero','Minha conta'],['feedback','quest','Enviar feedback'],['settings','gear','Configurações'],['full','full','Tela cheia']];   // (Campeões, Dojo, Amigos e o resto ficam na tela inicial)
  box.innerHTML=`<div class="v40-sheet-card"><header><b>Menu</b><button class="v40-round" data-v40-close aria-label="Fechar">${svg('close')}</button></header><div class="v40-menu-grid">${items.map(([id,ic,l])=>id==='league'?`<button data-v40-go="league" class="locked" aria-disabled="true">${svg('lock')}<span>${l}</span><small>em breve</small></button>`:`<button data-v40-go="${id}">${svg(ic)}<span>${l}</span></button>`).join('')}</div></div>`;
  box.hidden=false;
  try{window.AmigosV68&&AmigosV68.badge()}catch{}
@@ -263,6 +264,7 @@ document.addEventListener('click',e=>{
  if(t.closest('[data-v41-gift]')){e.preventDefault();$q('#homeScreen .v40-legacy #openDaily')?.click();return}
  if(t.closest('[data-v41-hunt]')){e.preventDefault();toast?.('Caçada do Dia: em breve');return}
  if(t.closest('[data-v40-modes]')){e.preventDefault();openModes();return}
+ if(t.closest('[data-v68-amigos]')){e.preventDefault();try{AmigosV68.abrir()}catch(err){console.error(err)}return}
  if(t.closest('[data-v40-menu]')){e.preventDefault();openMenu();return}
  if(t.closest('[data-v40-missions]')){e.preventDefault();ensureMissions();$q('#v40Missions').hidden=false;return}
  if(t.closest('[data-v40-close]')){e.preventDefault();const wasModes=!!$q('#v40Modes:not([hidden])');closeAll();if(wasModes&&appScreen==='home')try{renderLobbyHome()}catch{}return}
@@ -289,7 +291,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&($q('#v40Modes:not(
 document.addEventListener('keydown',e=>{
  if(e.ctrlKey||e.metaKey||e.altKey||e.repeat)return;
  const k=e.key.length===1?e.key.toLowerCase():e.key;
- if(k!=='Enter'&&!'cmldt'.includes(k)||k.length>1&&k!=='Enter')return;
+ if(k!=='Enter'&&!'cmldta'.includes(k)||k.length>1&&k!=='Enter')return;
  if(typeof appScreen==='undefined'||appScreen!=='home')return;
  const tag=(e.target?.tagName||'');if(/INPUT|TEXTAREA|SELECT/.test(tag)||e.target?.isContentEditable)return;
  if(k==='Enter'&&/BUTTON|A/.test(tag))return;        // Enter em um botão focado faz o que o botão faz
@@ -297,7 +299,7 @@ document.addEventListener('keydown',e=>{
  const r=go.getBoundingClientRect(),top=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);
  if(!top||!ui.contains(top))return;                   // há uma janela, a tela de carregamento ou outra coisa por cima
  if(document.body.classList.contains('fase-teste')&&(k==='m'||k==='l'))return;   // sem Missões nem Loja na fase de teste
- const pick={enter:'[data-v40-play]',c:'[data-nav=library]',m:'[data-v40-missions]',l:'.v41-side [data-nav=shop]',d:'[data-nav=training]',t:'[data-v40-modes]'}[k.toLowerCase()];
+ const pick={enter:'[data-v40-play]',c:'[data-nav=library]',m:'[data-v40-missions]',l:'.v41-side [data-nav=shop]',d:'[data-nav=training]',t:'[data-v40-modes]',a:'[data-v68-amigos]'}[k.toLowerCase()];
  const el=pick&&ui.querySelector(pick);if(!el)return;
  e.preventDefault();el.click();
 });

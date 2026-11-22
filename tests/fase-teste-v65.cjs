@@ -20,7 +20,7 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  ok(!vis.moeda&&!vis.loja&&!vis.missoes&&!vis.presente&&vis.campeoes&&vis.dojo,`sem moedas, Loja, Missões e presente; Campeões e Dojo continuam (${JSON.stringify(vis)})`);
  await pg.evaluate(()=>document.querySelector('#ljModal')?.remove());
  await pg.evaluate(()=>document.querySelector('[data-v40-menu]').click());await pg.waitForTimeout(300);
- ok(await pg.evaluate(()=>!document.querySelector('[data-v40-go="shop"]')&&!document.querySelector('[data-v40-go="missions"]')&&!!document.querySelector('[data-v40-go="library"]')),'o Menu não tem Loja nem Missões');
+ ok(await pg.evaluate(()=>!document.querySelector('[data-v40-go="shop"]')&&!document.querySelector('[data-v40-go="missions"]')&&!!document.querySelector('[data-v40-go="conta"]')&&document.querySelectorAll('#v40Menu .v40-menu-grid button').length===4),'o Menu não tem Loja nem Missões (só conta, feedback, configurações e tela cheia)');
  await pg.evaluate(()=>document.querySelector('#v40Menu [data-v40-close]').click());
  // todos os campeões
  ok(await pg.evaluate(()=>account.champions.length===10&&OnlineV45.owned().length===10),'todos os 10 campeões estão liberados (também online)');

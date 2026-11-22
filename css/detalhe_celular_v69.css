@@ -1,0 +1,17 @@
+/* v69: tela do campeão no celular deitado — sobe o título e os ícones das skills (o topo da direita estava vazio) e dá mais altura à descrição, que não precisa mais rolar */
+@media (max-height:500px) and (orientation:landscape){
+ .simple-detail .hero-detail-inner .simple-kit-heading{grid-column:2;grid-row:1;align-self:center;margin:0;line-height:1.1}
+ .simple-detail .hero-detail-inner .hero-kit{grid-column:2;grid-row:2;align-self:center}
+ /* descrição: ocupa as linhas 3 e 4 (menos o quadro de nível, que fica no fim da linha 4) */
+ .simple-detail .hero-detail-inner .hero-skill-copy{grid-column:2;grid-row:3 / 5;align-self:stretch;margin-bottom:var(--v69-nv,76px);max-height:none;overflow-y:auto;-webkit-overflow-scrolling:touch}
+ .simple-detail .hero-detail-inner .nv-box{grid-column:2;grid-row:4;align-self:end}
+}
+/* texto da descrição acompanha --fs (ajustado por js/detalhe_celular_v69.js só quando a descrição não cabe) */
+@media (max-height:500px) and (orientation:landscape){
+ .simple-detail .hero-skill-copy b{font-size:calc(var(--fs,12px)*1.33)}
+ .simple-detail .hero-skill-copy p{font-size:var(--fs,12px);line-height:1.4}
+ .simple-detail .hero-skill-copy span{font-size:calc(var(--fs,12px)*.8)}
+ /* telas muito baixas: o quadro de nível mostra só a barra (os 5 números ficam para a tela cheia do campeão) */
+ #heroDetail.v69-compacto{--v69-nv:42px}
+ #heroDetail.v69-compacto .nv-stats{display:none}
+}

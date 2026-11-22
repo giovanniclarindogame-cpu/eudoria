@@ -86,6 +86,19 @@ function cli(conta,nome,{social=true,sala=false}={}){return new Promise(res=>{co
  const B2=await cli(cB,'Beto');await B2.espera('hello');B2.envia({t:'amigos'});const lb3=await B2.espera('amigos');
  ok(lb3.amigos[0].nao>=1,'mensagem enviada com o amigo offline chega como "não lida" quando ele volta');
  B2.envia({t:'chat_hist',id:lb3.amigos[0].id});const hh=await B2.espera('chat_hist');ok(hh.msgs.some(m=>m.t==='está aí?'),'e está no histórico');B2.fecha();
+ // convites Trio e Coroa (mais modos)
+ for(const [tipo,modo,n] of [['trio','trio',2],['coroa','coroa',4]]){
+  const A3=await cli(cA,'Ana'),B3=await cli(cB,'Beto');await A3.espera('hello');await B3.espera('hello');
+  A3.envia({t:'convite',id:idB,tipo});await A3.espera('convite_res');const cvm=await B3.espera('convite');
+  ok(cvm&&cvm.tipo===tipo&&cvm.modo===modo,`convite "${tipo}" chega com o modo ${modo}`);
+  B3.envia({t:'convite_resp',cid:cvm.cid,ok:1});const i1=await A3.espera('ir'),i2=await B3.espera('ir');
+  const G1=await cli(cA,'Ana',{social:false,sala:true}),G2=await cli(cB,'Beto',{social:false,sala:true});await G1.espera('hello');await G2.espera('hello');
+  G1.envia({t:'fila',modo,cid:cvm.cid});G2.envia({t:'fila',modo,cid:cvm.cid});
+  const s1=await G1.espera('sala',9000),s2=await G2.espera('sala',9000);
+  ok(i1&&i2&&s1&&s2&&s1.modo===modo&&s1.ps.length===n&&s1.slot!==s2.slot,`os dois amigos entram na sala ${modo} (${n} vagas, o resto bots)`);
+  A3.fecha();B3.fecha();G1.fecha();G2.fecha();await sleep(500);
+ }
+ A.envia({t:'convite',id:idB,tipo:'invalido'});ok((await A.espera('convite_res')).erro==='amigo','tipo de convite desconhecido é recusado');
  // a amizade sobrevive a reiniciar o servidor
  A.fecha();C.fecha();sv.kill();await sleep(800);await iniciar();
  const A2=await cli(cA,'Ana');await A2.espera('hello');A2.envia({t:'amigos'});const l2=await A2.espera('amigos');ok(l2.amigos.length===1&&l2.amigos[0].nome==='Beto'&&l2.cod===la.cod,'amizade e código continuam depois de reiniciar o servidor');

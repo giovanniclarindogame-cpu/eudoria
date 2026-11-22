@@ -216,3 +216,6 @@ body[data-screen=library] #backHome::before,body[data-screen=shop] #backHome::be
  #selection .hero-card-art{aspect-ratio:1/1.1!important}
  #selection .hero-card-copy strong{font-size:11.5px!important;padding:3px 8px}
 }
+
+/* v69: a lista de campeões rola com o dedo em QUALQUER lugar (o overflow:auto da grade prendia o gesto quando o toque começava em cima de um cartão) */
+#selection .hero-grid{overflow:visible!important}

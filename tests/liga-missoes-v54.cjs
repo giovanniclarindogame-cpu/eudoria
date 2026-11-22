@@ -12,9 +12,7 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  ok(await pg.evaluate(()=>appScreen==='home'&&document.querySelector('#leagueScreen').hidden&&/em breve/.test(document.querySelector('.v41-league').textContent)),'o chip da Liga ao lado do perfil não abre a Liga (mostra "Ranqueado em breve")');
  // menu
  await pg.evaluate(()=>document.querySelector('[data-v40-menu]').click());await pg.waitForTimeout(300);
- ok(await pg.evaluate(()=>{const b=document.querySelector('[data-v40-go="league"]');return b&&b.classList.contains('locked')&&/em breve/.test(b.textContent)}),'no menu o item Liga aparece bloqueado');
- await pg.evaluate(()=>document.querySelector('[data-v40-go="league"]').click());await pg.waitForTimeout(300);
- ok(await pg.evaluate(()=>appScreen==='home'&&document.querySelector('#leagueScreen').hidden),'tocar em Liga no menu não abre a Liga');
+ ok(await pg.evaluate(()=>!document.querySelector('[data-v40-go="league"]')),'o menu não tem mais o item Liga (o menu ficou só com conta, feedback, configurações e tela cheia)');
  await pg.evaluate(()=>{showScreen('league')});await pg.waitForTimeout(200);
  ok(await pg.evaluate(()=>appScreen==='home'),'nem pelo código (showScreen) a tela da Liga abre');
  await pg.evaluate(()=>document.querySelector('#v40Menu [data-v40-close]')?.click());await pg.waitForTimeout(200);
