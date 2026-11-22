@@ -50,13 +50,14 @@ function lado(id,rotulo,dir){
  const img=id!=null?`<img src="${esc(arte(id))}" alt="" draggable="false">`:'<span class="c51-q">?</span>';
  return `<figure class="c51-side ${dir}">${img}<figcaption>${esc(rotulo)}</figcaption></figure>`;
 }
-function mostrar(ids){
+function mostrar(ids,custom){
  const el=tela();
  let esq=null,dir=null;try{esq=Number.isInteger(p?.skin)?p.skin:null;dir=(b&&Number.isInteger(b.skin)&&Array.isArray(b.kit)&&b.kit.length===6)?b.skin:null}catch{}
+ if(custom){esq=Number.isInteger(ids[0])?ids[0]:null;dir=null}
  const rivalNome=(()=>{try{return b?.label||'Rival'}catch{return 'Rival'}})();
  el.innerHTML=`<div class="c51-bg"></div><div class="c51-wrap">
-  <header><small>${esc(rotuloModo())}</small><b>PREPARANDO A ARENA</b></header>
-  <div class="c51-vs">${lado(esq,esq!=null?nomeHeroi(esq):'Você','left')}<div class="c51-vsx"><b>VS</b></div>${lado(dir,dir!=null?nomeHeroi(dir):rivalNome,'right')}</div>
+  <header><small>${esc(custom?custom.topo:rotuloModo())}</small><b>${esc(custom?custom.titulo:'PREPARANDO A ARENA')}</b></header>
+  <div class="c51-vs">${lado(esq,esq!=null?nomeHeroi(esq):'Você','left')}<div class="c51-vsx"><b>VS</b></div>${lado(dir,dir!=null?nomeHeroi(dir):(custom?'Rival':rivalNome),'right')}</div>
   <div class="c51-bar"><i></i></div><p class="c51-msg">Carregando…</p><p class="c51-dica">${esc(DICAS[Math.floor(Math.random()*DICAS.length)])}</p></div>`;
  el.hidden=false;el.classList.remove('sai');document.body.classList.add('c51-on');
  C.on=true;
@@ -84,7 +85,7 @@ function retomar(){
 }
 
 /* ---------- preparo ---------- */
-async function preparar(ids,imgs,mostrarTela){
+async function preparar(ids,imgs,mostrarTela,livre){
  const t0=performance.now(),total=imgs.length+ids.length;let feito=0;
  const passo=msg=>{feito++;if(mostrarTela)progresso(feito/total,msg)};
  // 1) baixar
@@ -99,7 +100,7 @@ async function preparar(ids,imgs,mostrarTela){
  let limite;
  try{await Promise.race([baixar,new Promise(r=>{limite=setTimeout(r,MAX_MS)})])}
  finally{clearTimeout(limite);for(const fim of cancelar)fim()}
- if(state!=='loading'&&mostrarTela)return false;
+ if(!livre&&state!=='loading'&&mostrarTela)return false;
  // 2) decodificar (em lotes, para a tela continuar viva)
  if(mostrarTela)progresso(null,'Preparando as imagens…');
  const novas=imgs.filter(im=>pronta(im)&&!decodificadas.has(im));
@@ -159,6 +160,26 @@ async function iniciarPreparo(mostrarTela,esperar){
 // chamado pelo online quando o outro lado está pronto (ou quando chega o primeiro estado do servidor)
 C.liberar=function(){C.liberado=true;if(C.resolver){const r=C.resolver;C.resolver=null;r()}};
 C.cancelar=function(){C.resolver&&C.liberar();C.liberado=false;C.esperando=false;esconder()};
+
+/* ---------- baixar antes, no clique (v67) ---------- */
+// precisa(ids): true se ainda falta baixar/aquecer alguma arte desses campeões
+C.precisa=function(ids){
+ ids=(ids||[]).filter(id=>Number.isInteger(id)&&CHAMPIONS[id]);
+ if(!ids.length||OFF)return false;
+ return !(imagensDe(ids).every(pronta)&&ids.every(id=>C.morno.has(id)));
+};
+// garantir(ids, {topo,titulo}): mostra a tela de carregamento e baixa/prepara as artes desses campeões. Resolve quando termina (ou em MAX_MS).
+C.garantir=async function(ids,custom){
+ ids=(ids||[]).filter(id=>Number.isInteger(id)&&CHAMPIONS[id]);
+ if(!C.precisa(ids)||C.on)return false;
+ const imgs=imagensDe(ids),t0=performance.now();
+ mostrar(ids,Object.assign({topo:'ENTRANDO',titulo:'PREPARANDO O JOGO'},custom||{}));
+ try{await preparar(ids,imgs,true,true)}catch(e){console.warn('[Eldoria] preparo antecipado',e)}
+ const falta=MIN_MS-(performance.now()-t0);if(falta>0)await new Promise(r=>setTimeout(r,falta));
+ esconder();return true;
+};
+// segundoPlano(ids): começa a baixar por trás (sem tela), por exemplo enquanto procura rivais
+C.segundoPlano=function(ids){try{imagensDe((ids||[]).filter(id=>Number.isInteger(id)&&CHAMPIONS[id])).forEach(im=>{try{lazyStart(im)}catch{}})}catch{}};
 
 /* ---------- aquecedores por campeão ---------- */
 C.aquecer[4]=async function(){   // Eclipse: recorta e limpa o quadro 0 de cada folha de efeito

@@ -121,6 +121,20 @@ function abrirSocket(aoHello){
 }
 function procurar(modo){
  if(!SERVIDOR){try{toast('O servidor de partidas ainda não está configurado.')}catch{}return false}
+ // v67: ao clicar em JOGAR, baixa antes a arte do seu campeão (tela de carregamento); os outros baixam por trás enquanto procura rivais
+ const Cg=window.Carregamento;
+ if(Cg&&Cg.garantir&&!S.baixandoArte){
+  const meu=[Number.isInteger(account?.profile?.skin)?account.profile.skin:0],todos=CHAMPIONS.map(c=>c.id);
+  if(Cg.precisa(meu)){
+   S.baixandoArte=true;
+   Cg.garantir(meu,{topo:'ENTRANDO NA ARENA',titulo:'BAIXANDO AS ARTES'}).catch(()=>{}).then(()=>{S.baixandoArte=false;procurarAgora(modo);Cg.segundoPlano(todos)});
+   return true;
+  }
+  setTimeout(()=>Cg.segundoPlano(todos),1500);
+ }
+ return procurarAgora(modo);
+}
+function procurarAgora(modo){
  if(modo==='1v1'||modo==='2v2'||modo==='trio'||modo==='coroa')S.modo=modo;if(!['2v2','trio','coroa'].includes(S.modo))S.modo='1v1';
  cleanup();S.team=null;S.mode='server';S.role='guest';S.err='';S.busy='';S.qt=Date.now();S.online=0;S.fila=0;S.fase='fila';S.procurando=true;S.sala=null;S.me={...profile()};S.them=null;S.ready=S.theirReady=false;
  return !!abrirSocket(()=>send({t:'fila',p:profile(),modo:S.modo}));
