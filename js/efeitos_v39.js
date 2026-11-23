@@ -36,14 +36,24 @@ function draw(key,x,y,size,o={}){
 // linhaAgua (Arpão Fisgado), linhaPesca (Fisgada do Caçador), rastroFogo (Passo do Amanhecer).
 const LINES={linhaAgua:rwImage(ROOT+'linhaAgua.webp?v=1'),linhaPesca:rwImage(ROOT+'linhaPesca.webp?v=1'),rastroFogo:rwImage(ROOT+'rastroFogo.webp?v=3')};
 function lineReady(key){const im=LINES[key];return !!(im&&im.complete&&im.naturalWidth)}
-// line(chave, x1, y1, x2, y2, espessura, {alpha, scroll (px/s), add, phase})
+// line(chave, x1, y1, x2, y2, espessura, {alpha, scroll (px/s), add, phase, h0, h1 (altura 0..1 no começo/fim: afina as pontas do rastro)})
 function line(key,x1,y1,x2,y2,th,o={}){
  if(!lineReady(key))return false;
  const im=LINES[key],len=Math.hypot(x2-x1,y2-y1);if(len<1)return true;
  const tw=th*im.naturalWidth/im.naturalHeight,off=((o.phase||0)+clock*(o.scroll||0))%tw;
  const an=Math.atan2(y2-y1,x2-x1);ctx.save();ctx.translate(x1,y1);ctx.rotate(an);if(o.upright&&Math.cos(an)<0)ctx.scale(1,-1);ctx.globalAlpha*=o.alpha??1;if(o.add)ctx.globalCompositeOperation='lighter';
  ctx.beginPath();ctx.rect(0,-th,len,th*2);ctx.clip();ctx.imageSmoothingEnabled=true;
- for(let x=-((off%tw)+tw)%tw;x<len;x+=tw)ctx.drawImage(im,x,-th/2,tw,th);
+ const h0=o.h0??1,h1=o.h1??1;
+ if(h0>=.999&&h1>=.999){for(let x=-((off%tw)+tw)%tw;x<len;x+=tw)ctx.drawImage(im,x,-th/2,tw,th)}
+ else{   // pontas do rastro: as chamas ENCOLHEM em direção ao chão (a base fica fixa) em vez de serem cortadas. h0/h1 = altura (0 a 1) no começo e no fim deste pedaço
+  const SL=3,nw=im.naturalWidth,nh=im.naturalHeight;
+  for(let x=-((off%tw)+tw)%tw;x<len;x+=tw){
+   for(let sx=Math.max(0,x);sx<Math.min(len,x+tw);sx+=SL){
+    const w=Math.min(SL,len-sx,x+tw-sx),f=h0+(h1-h0)*Math.min(1,(sx+w/2)/len),dh=th*f;if(dh<.8)continue;
+    ctx.drawImage(im,(sx-x)/tw*nw,0,Math.max(1,w/tw*nw),nh,sx,th/2-dh,w+.6,dh);
+   }
+  }
+ }
  ctx.restore();return true;
 }
 window.FX39={draw,ready,animReady,line,lineReady,KEYS,ANIM_N};
