@@ -34,7 +34,7 @@ function draw(key,x,y,size,o={}){
 }
 // Linhas com textura que se repete sem costura (gerada no Canva, pontas emendadas por script):
 // linhaAgua (Arpão Fisgado), linhaPesca (Fisgada do Caçador), rastroFogo (Passo do Amanhecer).
-const LINES={linhaAgua:rwImage(ROOT+'linhaAgua.webp?v=1'),linhaPesca:rwImage(ROOT+'linhaPesca.webp?v=1'),rastroFogo:rwImage(ROOT+'rastroFogo.webp?v=2')};
+const LINES={linhaAgua:rwImage(ROOT+'linhaAgua.webp?v=1'),linhaPesca:rwImage(ROOT+'linhaPesca.webp?v=1'),rastroFogo:rwImage(ROOT+'rastroFogo.webp?v=3')};
 function lineReady(key){const im=LINES[key];return !!(im&&im.complete&&im.naturalWidth)}
 // line(chave, x1, y1, x2, y2, espessura, {alpha, scroll (px/s), add, phase})
 function line(key,x1,y1,x2,y2,th,o={}){
