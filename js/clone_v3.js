@@ -9,7 +9,7 @@
  */
 (function(){
 if(!window.COMBAT_V3||!window.V3API)return;
-const SCALE_BASIC=.45,SCALE_ULT=.38,CD_BASIC=1.5,CD_ULT=16,REACH=100;
+const SCALE_BASIC=.34,SCALE_ULT=.28,CD_BASIC=1.9,CD_ULT=18,REACH=100;
 const isClone=o=>o&&o.v10Clone&&o.ninja22&&o.v3smart&&o.life>0&&o.hp>0;
 
 function foeOf(o){
@@ -55,7 +55,7 @@ function dodge(o,foe){
  *  - fica sempre a até TETHER do Ninja, para a TROCA DE LUGAR (tocar de novo na habilidade) estar sempre ao alcance.
  * Morre com QUALQUER golpe (e some se o Ninja cair). Não cria outros clones. Para os rivais é igual ao Ninja; para o dono fica meio transparente.
  */
-const TETHER=270,SCALE_BACK=1.25,BACK_STUN=.35,CD_EYE=7;
+const TETHER=270,SCALE_BACK=1.25,BACK_STUN=.35,CD_EYE=9;
 function freePt(o,x,y){return typeof originalFreePoint==='function'?originalFreePoint(o,x,y):true}
 function strike(o,foe,slot,scale,ang){
  // avança um pouco e corta na direção do rival (senão o golpe sairia no vazio)
