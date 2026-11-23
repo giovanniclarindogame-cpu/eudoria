@@ -6,7 +6,7 @@
  *    o olho continua aberto como antes.
  *  - PELAS COSTAS: depois de trocar de lugar com o clone ou de uma Leitura, o próximo golpe em até 1,2 s causa +25%
  *    e atordoa por 0,35 s.
- *  - CLONE EM SINCRONIA: o clone só ataca junto com o Ninja (até 1,2 s depois de ele usar uma habilidade) — js/clone_v3.js.
+ *  - CLONE QUE PENSA SOZINHO (bot difícil): esquiva, flanqueia, ataca nas brechas, usa a Leitura e morre com qualquer golpe; tocar de novo na habilidade troca de lugar com ele — js/clone_v3.js.
  * ?ninja=0 desliga o pacote (para comparar).
  */
 (function(){
@@ -18,10 +18,9 @@ const isDot=()=>typeof originalDot!=='undefined'&&originalDot;
 
 {const f=(window.V3_DMG_MUL&&V3_DMG_MUL[H])||1;
  skills[KIT[4]].desc=`LEITURA: ative logo antes de um golpe acertar (janela de 0,45s) para sumir na fumaça, reaparecer atrás do atacante e copiar o golpe (exceto ultimates). Fora da janela, o olho fica aberto por 4s e copia o próximo especial que te acertar. Toque de novo para usar a cópia com 75% do dano.`;
- skills[KIT[1]].desc=`Cria um clone de fumaça que ataca junto com você: ele só golpeia logo depois de você usar uma habilidade. Some ao receber qualquer golpe. Toque de novo para trocar de lugar com ele: o próximo golpe em 1,2s sai PELAS COSTAS (+25% e atordoa).`;
+ skills[KIT[1]].desc=`Cria um clone de fumaça que LUTA SOZINHO (bot difícil): esquiva, flanqueia, ataca nas brechas e usa a Leitura para surgir às costas de quem vai atacar, com dano reduzido. Para os rivais ele é igual a você. Morre com qualquer golpe. Toque de novo para TROCAR DE LUGAR com ele quantas vezes quiser: o próximo golpe sai PELAS COSTAS (+25% e atordoa).`;
  for(const k of [1,4])skills[KIT[k]].v3scaled=true;
 }
-window.NINJA_V3_SYNC=SYNC_WIN;
 
 /* ---------- conjuração: abre a janela de leitura e marca o ataque (sincronia do clone) ---------- */
 const prevCast=cast;

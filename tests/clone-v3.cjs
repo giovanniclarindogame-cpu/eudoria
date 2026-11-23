@@ -11,23 +11,45 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  ok(c1.has&&c1.smart&&c1.life>1e6,'clone nasce inteligente e sem duração limitada');
  const c2=await p.evaluate(()=>{for(let i=0;i<60*14;i++){step(1/60);b.root=9999;b.x=700;b.y=H/2}return{alive:!!originalClone(p)}});
  ok(c2.alive,'clone continua vivo depois de 14 s sem receber golpe');
- // ataca em brecha
- // sincronia: sem o Ninja atacar, o clone não golpeia
- const c3a=await p.evaluate(()=>{const cl=originalClone(p);cl.x=b.x-70;cl.y=b.y;cl.cdB=0;p.v3atkAt=-9;b.actionRecovery=2;b.root=9999;const hp0=b.hp;for(let i=0;i<40;i++){step(1/60);b.actionRecovery=2;b.x=700;b.y=H/2;p.v3atkAt=-9}return{dmg:hp0-b.hp}});
- ok(c3a.dmg===0,'clone em sincronia: não ataca sozinho se o Ninja não usou habilidade');
- const c3=await p.evaluate(()=>{const cl=originalClone(p);p.x=b.x-120;p.y=b.y;cl.off=null;cl.px=p.x;cl.py=p.y;cl.x=p.x+20;cl.y=p.y-85;cl.cdB=0;b.actionRecovery=2;b.root=9999;const hp0=b.hp;p.v3atkSlot=0;p.v3atkAng=Math.atan2(b.y-cl.y,b.x-cl.x);p.v3atkSeq=(p.v3atkSeq||0)+1;for(let i=0;i<40;i++){p.v3atkAt=clock;step(1/60);b.actionRecovery=2;b.x=700;b.y=H/2}return{dmg:hp0-b.hp,alive:!!originalClone(p)}});
- ok(c3.dmg>0&&c3.alive,`o clone repete o golpe do Ninja (dano ${c3.dmg.toFixed(0)}) e não some ao atacar`);
- // dano reduzido: comparar com o golpe do próprio Ninja
- const c4=await p.evaluate(()=>{const cl=originalClone(p);p.x=b.x-120;p.y=b.y;cl.off=null;cl.px=p.x;cl.py=p.y;cl.x=p.x+20;cl.y=p.y-85;cl.cdB=0;b.actionRecovery=2;b.hp=b.max;const hp0=b.hp;p.v3atkSlot=0;p.v3atkAng=Math.atan2(b.y-cl.y,b.x-cl.x);p.v3atkSeq=(p.v3atkSeq||0)+1;cl.seenSeq=p.v3atkSeq-1;for(let i=0;i<30;i++){p.v3atkAt=clock;step(1/60);b.actionRecovery=2;b.x=700;b.y=H/2;if(b.hp<hp0)break}const cd=hp0-b.hp;
+ // reinicia o cenário: Ninja e rival frente a frente, clone vivo
+ const RESET=()=>p.evaluate(()=>{p.cd=p.cd.map(()=>0);p.hp=p.max;p.x=300;p.y=H/2;b.x=520;b.y=H/2;b.root=9999;b.hp=b.max=90000;b.rwCast=null;b.actionRecovery=0;if(!originalClone(p)){cast(p,p.kit[1],0)}for(let i=0;i<30;i++)step(1/60);const c=originalClone(p);c.inv=0;c.x=470;c.y=H/2;c.cdB=0;c.cdU=99;c.eyeCd=99;c.dodgeCd=0;c.attacks=0;return!!c});
+ // 1) ataca SOZINHO nas brechas (sem o Ninja usar nada)
+ await RESET();
+ const c3=await p.evaluate(()=>{const cl=originalClone(p);const hp0=b.hp;p.v3atkAt=-9;let atk=false;for(let i=0;i<60;i++){b.actionRecovery=2;b.x=520;b.y=H/2;step(1/60);if(cl.attacks)atk=true}return{dmg:hp0-b.hp,alive:!!originalClone(p),atk}});
+ ok(c3.dmg>0&&c3.alive&&c3.atk,`o clone ataca sozinho quando o rival está em brecha, sem o Ninja fazer nada (dano ${c3.dmg.toFixed(0)}) e não some ao atacar`);
+ // 2) dano reduzido
+ await RESET();
+ const c4=await p.evaluate(()=>{const cl=originalClone(p);const hp0=b.hp;for(let i=0;i<40;i++){b.actionRecovery=2;b.x=520;b.y=H/2;step(1/60);if(b.hp<hp0)break}const cd=hp0-b.hp;
   p.x=b.x-70;p.y=b.y;b.hp=b.max;const h1=b.hp;rwRelease(p,{id:p.kit[0],slot:0,age:0,charge:.7,snapshot:100,stage:2,health:p.hp,angle:0,duration:.5,release:.2,target:{x:b.x,y:b.y}});return{clone:cd,own:h1-b.hp}});
  ok(c4.clone>0&&c4.clone<c4.own*.8,`dano do clone é reduzido (${c4.clone.toFixed(0)} contra ${c4.own.toFixed(0)} do Ninja)`);
- // imita: anda junto com o Ninja mantendo o afastamento, olha para onde ele mira e copia a pose de andar
- const c5=await p.evaluate(()=>{const cl=originalClone(p);cl.x=p.x+10;cl.y=p.y-90;cl.off=null;step(1/60);const off0={x:cl.x-p.x,y:cl.y-p.y};const a0={x:cl.x,y:cl.y},p0=p.x;let moveOwner=0;for(let i=0;i<30;i++){p.x+=4;p.moving=true;p.a=0.7;step(1/60)}
-  const dx=cl.x-a0.x;moveOwner=p.x-p0;const off1={x:cl.x-p.x,y:cl.y-p.y};return{dx,moveOwner,dOff:Math.hypot(off1.x-off0.x,off1.y-off0.y),face:cl.a,moving:cl.moving}});
- ok(Math.abs(c5.dx-c5.moveOwner)<12&&c5.dOff<12&&Math.abs(c5.face-0.7)<.05&&c5.moving,`o clone anda junto com o Ninja (${c5.dx.toFixed(0)} de ${c5.moveOwner}), mantém o afastamento (variou ${c5.dOff.toFixed(1)}), olha para onde ele mira e copia a pose de andar`);
- // some ao receber golpe
- const c6=await p.evaluate(()=>{const cl=originalClone(p);cl.inv=0;cl.x=500;cl.y=H/2;const r=hit(cl,5,b,0,0,-1);for(let i=0;i<3;i++)step(1/60);return{alive:!!originalClone(p)}});
- ok(!c6.alive,'clone some ao receber qualquer golpe');
+ // 3) tem cabeça própria: NÃO copia os movimentos do Ninja (o Ninja foge para trás, o clone continua virado para o rival e vai atrás dele)
+ await RESET();
+ const c5=await p.evaluate(()=>{const cl=originalClone(p);b.x=520;b.y=H/2;const c0={x:cl.x,y:cl.y};let moveOwner=0;const p0=p.x;let faceFoe=0,faceOwnerAim=0,n=0;for(let i=0;i<40;i++){p.x-=2;p.moving=true;p.a=Math.PI;b.x=520;b.y=H/2;step(1/60);n++;const toFoe=Math.atan2(b.y-cl.y,b.x-cl.x);if(Math.abs(Math.atan2(Math.sin(cl.a-toFoe),Math.cos(cl.a-toFoe)))<.2)faceFoe++;if(Math.abs(Math.atan2(Math.sin(cl.a-Math.PI),Math.cos(cl.a-Math.PI)))<.2)faceOwnerAim++}
+  return{ownerDx:p.x-p0,cloneDx:cl.x-c0.x,faceFoe:faceFoe/n,faceOwnerAim:faceOwnerAim/n}});
+ ok(c5.faceFoe>.8&&c5.faceOwnerAim<.2&&Math.abs(c5.cloneDx-c5.ownerDx)>20,`o clone tem cabeça própria: olha para o rival (${Math.round(c5.faceFoe*100)}% do tempo) e não para onde o Ninja mira; o Ninja recuou ${c5.ownerDx.toFixed(0)} e o clone andou ${c5.cloneDx.toFixed(0)}`);
+ // 4) esquiva: o rival prepara um golpe perto e o clone desvia (dash invulnerável)
+ await RESET();
+ const c6e=await p.evaluate(()=>{const cl=originalClone(p);Math.random=()=>.1;cl.cdB=99;let dodged=false,inv=0;for(let i=0;i<30;i++){b.rwCast={age:0,release:.5,holding:false,slot:0};b.x=520;b.y=H/2;cl.x=Math.min(cl.x,480);step(1/60);if(cl.dodgeT>0||cl.inv>0.1){dodged=true;inv=Math.max(inv,cl.inv);break}}b.rwCast=null;return{dodged,inv}});
+ ok(c6e.dodged&&c6e.inv>0.1,`o clone esquiva quando o rival prepara um golpe (invulnerável por ${c6e.inv.toFixed(2)}s)`);
+ // 5) Leitura: golpe quase saindo -> some e reaparece ATRÁS do rival e corta pelas costas
+ await RESET();
+ const c7=await p.evaluate(()=>{const cl=originalClone(p);Math.random=()=>.1;cl.eyeCd=0;cl.dodgeCd=99;cl.cdB=0;cl.x=430;const hp0=b.hp;let tp=false,back=false;for(let i=0;i<40;i++){b.rwCast={age:.15,release:.3,holding:false,slot:0};b.x=520;b.y=H/2;const x0=cl.x;step(1/60);if(cl.x>b.x-10&&!tp)tp=true;if(cl.eyeCd>5)back=true}
+  b.rwCast=null;return{tp,back,x:cl.x,fx:b.x,eye:cl.eyeCd,dmg:hp0-b.hp}});
+ ok(c7.back&&c7.tp&&c7.dmg>0,`Leitura do clone: some e reaparece atrás do rival (x ${c7.x.toFixed(0)} contra ${c7.fx.toFixed(0)}) e golpeia (dano ${c7.dmg.toFixed(0)}), olho em recarga`);
+ // 6) fica sempre ao alcance da troca de lugar
+ await RESET();
+ const c8=await p.evaluate(()=>{const cl=originalClone(p);p.x=80;p.y=H/2;b.x=900;b.y=H/2;let max=0;for(let i=0;i<60*8;i++){b.x=900;b.y=H/2;step(1/60);max=Math.max(max,Math.hypot(cl.x-p.x,cl.y-p.y))}return{max}});
+ ok(c8.max<=340,`o clone nunca passa do alcance da troca de lugar (máximo ${c8.max.toFixed(0)} de 340)`);
+ // 7) troca de lugar quantas vezes quiser enquanto o clone viver
+ await RESET();
+ const c9=await p.evaluate(()=>{const cl=originalClone(p);const out=[];for(let k=0;k<4;k++){cl.attacks=0;const a0={x:p.x,y:p.y},c0={x:cl.x,y:cl.y};const r=cast(p,p.kit[1],0);const trocou=Math.hypot(p.x-c0.x,p.y-c0.y)<3&&Math.hypot(cl.x-a0.x,cl.y-a0.y)<3;out.push(r&&trocou);cl.dodgeT=0}return{out,alive:!!originalClone(p),back:clock<=p.v3back}});
+ ok(c9.out.every(Boolean)&&c9.alive,`tocar de novo na habilidade troca de lugar com o clone, 4 vezes seguidas, e ele continua vivo (${c9.out.join(',')})`);
+ ok(c9.back,'depois da troca o próximo golpe sai PELAS COSTAS (janela aberta)');
+ // 8) morre com qualquer golpe
+ await RESET();
+ const c10=await p.evaluate(()=>{const cl=originalClone(p);cl.inv=0;cl.x=500;cl.y=H/2;const r=hit(cl,1,b,0,0,-1);for(let i=0;i<3;i++)step(1/60);return{alive:!!originalClone(p)}});
+ ok(!c10.alive,'clone morre com qualquer golpe (até com 1 de dano)');
+ await p.evaluate(()=>{Math.random=Math.random});
  /* ---- Herdeiro ---- */
  await FIGHT(6);
  const h1=await p.evaluate(()=>{const s=reworkState(p);s.value=100;s.arm=0;p.cd=p.cd.map(()=>0);p.cast=0;p.actionRecovery=0;p.skillLock=0;p.root=0;p.hp=p.max;p.x=300;p.y=H/2;b.x=300+190;b.y=H/2;b.hp=b.max=90000;const hp0=p.hp;const r=cast(p,p.kit[5],0);for(let i=0;i<150;i++){step(1/60);b.x=490;b.y=H/2;b.root=9999}
