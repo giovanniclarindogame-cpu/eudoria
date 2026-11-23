@@ -1,6 +1,6 @@
 'use strict';
 /*
- * v71 — tela do campeão: botão "Esquiva" (o dash do combate) com ícone, nome, descrição e recarga, depois das 3 habilidades e da ultimate.
+ * v71 — tela do campeão: botão "Esquiva" (o dash do combate) com ícone, nome, descrição e recarga, ANTES de todas as habilidades; sem texto (ULT/ESQ) nos ícones.
  *  - campeões cuja esquiva é uma habilidade do kit (Astral, Ronin, Solar, Caçador, Corsário, Cavaleiro): usa o ícone, o nome e a descrição dela;
  *  - campeões com deslize próprio (Ninja, Eclipse, Herdeiro, Alquimista): texto escrito aqui, igual ao que o combate faz (js/combate_v3.js).
  */
@@ -34,8 +34,9 @@ openChampionDetails=function(id){
   const el=document.getElementById('heroDetail'),d=info(Number(id));if(!el||!d)return r;
   const kit=el.querySelector('.hero-kit');if(!kit||kit.querySelector('[data-hero-esquiva]'))return r;
   const b=document.createElement('button');b.type='button';b.className='esquiva-btn';b.dataset.heroEsquiva='1';b.setAttribute('aria-pressed','false');b.setAttribute('aria-label','Esquiva: '+d.nome);
-  b.innerHTML=(d.sid!=null?icon(d.sid):'<span class="esq-seta">'+SETA+'</span>')+'<small>ESQ</small>';
-  kit.appendChild(b);
+  b.innerHTML=d.sid!=null?icon(d.sid):'<span class="esq-seta">'+SETA+'</span>';   // sem texto no ícone
+  kit.insertBefore(b,kit.firstChild);   // a esquiva vem ANTES de todas as habilidades (como o dash na batalha)
+  kit.querySelectorAll('[data-hero-skill] small').forEach(x=>{x.textContent=''});   // sem "ULT" nem números nos ícones
  }catch(e){console.error('[Eldoria] esquiva no detalhe',e)}
  return r;
 };

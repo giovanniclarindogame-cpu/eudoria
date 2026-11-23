@@ -13,6 +13,9 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
    await p.evaluate(i=>openChampionDetails(i),id);await p.waitForTimeout(400);
    const r=await p.evaluate(()=>{const e=document.querySelector('#heroDetail [data-hero-esquiva]');return{tem:!!e,rotulo:e?.querySelector('small')?.textContent,ult:[...document.querySelectorAll('#heroDetail .hero-kit>button')].map(x=>x.dataset.heroSkill||(x.dataset.heroEsquiva?'esq':'?')).join(',')}});
    if(!r.tem){falhas.push(`${id}: sem botão`);continue}
+   const o=await p.evaluate(()=>{const bs=[...document.querySelectorAll('#heroDetail .hero-kit>button')];return{primeiro:bs[0]?.dataset.heroEsquiva==='1',textos:bs.map(x=>(x.querySelector('small')?.textContent||'').trim()).filter(Boolean)}});
+   if(!o.primeiro)falhas.push(`${id}: a esquiva não é o primeiro botão`);
+   if(o.textos.some(t=>/ULT|ESQ/i.test(t)))falhas.push(`${id}: ainda há texto ULT/ESQ nos ícones (${o.textos.join(',')})`);
    await p.evaluate(()=>document.querySelector('#heroDetail [data-hero-esquiva]').click());await p.waitForTimeout(150);
    const c=await p.evaluate(()=>{const t=document.getElementById('heroSkillCopy'),e=document.querySelector('#heroDetail [data-hero-esquiva]'),nv=document.querySelector('#heroDetail .nv-box');return{txt:t.innerText.replace(/\s+/g,' ').trim(),ativo:e.classList.contains('active')&&e.getAttribute('aria-pressed')==='true',sobra:t.scrollHeight-t.clientHeight,sobrepoe:nv?t.getBoundingClientRect().bottom>nv.getBoundingClientRect().top+1:false,outrosAtivos:document.querySelectorAll('#heroDetail [data-hero-skill].active').length}});
    nomes.push(c.txt.split('·')[1]?.trim().split(' ').slice(0,2).join(' '));
