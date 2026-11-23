@@ -518,3 +518,8 @@ LOGIN POR COOKIE (substitui a senha do navegador) + CORREÇÕES
 - Voltar da sala de escolha (seta) agora fecha a tela da sala e volta ao início (cancelar()/falhaSrv() zeravam o modo antes de conferir).
 - Campeões: personagem inteiro em cada cartão (PC e celular); modo PC (barra DASH 1 2 3 ULT embaixo + cursor de espada).
 - Testes novos: portao-v67, voltar-online-v67, baixar-antes-v67, tutorial-cartao. Não testado: Caddy/Docker reais e celular de verdade.
+
+KAKASHI: CLONE QUE PENSA SOZINHO + ESQUIVA NA TELA DO CAMPEÃO
+- O clone deixou de imitar o Ninja: agora é um bot difícil (js/clone_v3.js): esquiva (dash invulnerável) quando o rival prepara golpe ou vem projétil; Leitura (some e reaparece ATRÁS do rival e corta pelas costas, +25% e atordoa); Lâmina Rápida nas brechas; Golpe Trovão; flanqueia e contorna; fica a no máximo 270 do Ninja (troca de lugar sempre ao alcance). Dano reduzido (x0,34 / x0,28). Morre com QUALQUER golpe (mesmo com 1 de dano). Tocar de novo na habilidade troca de lugar com ele quantas vezes quiser enquanto viver (golpe pelas costas depois da troca).
+- Equilíbrio (tests/simulacao-kakashi.cjs, 3 lutas por lado e rival): antes 30 x 24; depois 34 x 20 (diferença dentro do ruído).
+- Tela do campeão: botão ESQ (esquiva/dash) nos 10 campeões com ícone, nome, descrição e recarga (js/esquiva_detalhe_v71.js).

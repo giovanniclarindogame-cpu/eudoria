@@ -57,7 +57,7 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
    reset();o.nCast=cast(p,K[4],0);run(3);const x0=p.x;o.nRead=hit(p,80,b,0,Math.PI,b.kit[0]);o.nMoved=Math.round(Math.abs(p.x-x0));o.nHp=p.hp;o.nBack=p.v3back>clock;o.nCopy=!!reworkState(p).copy;
    reset();p.v3back=-9;o.nBase=dmgOf(()=>{hit(b,60,p,0,0,K[0])});reset();p.v3back=clock+1;b.root=0;o.nBackDmg=dmgOf(()=>{hit(b,60,p,0,0,K[0])});o.nBackRoot=b.root;
    reset();p.v3readUntil=0;run(60);p.inv=0;const hp0=p.hp;hit(p,50,b,0,0,b.kit[0]);o.nLate=p.hp<hp0;
-   o.sync=window.NINJA_V3_SYNC;
+   o.cloneIA=!!(window.CloneV3&&CloneV3.isClone);o.semSync=window.NINJA_V3_SYNC===undefined;
   }
   return o});
  console.log(JSON.stringify(r));
@@ -84,7 +84,7 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  ok(r.nCast&&r.nRead===false&&r.nHp===1000&&r.nMoved>20&&r.nBack&&r.nCopy,`Ninja: Leitura esquiva, reaparece atrás do atacante e copia o golpe (moveu ${r.nMoved})`);
  ok(r.nBackDmg>r.nBase*1.2&&r.nBackRoot>=.3,`Ninja: golpe pelas costas causa +25% e atordoa (${Math.round(r.nBase)} → ${Math.round(r.nBackDmg)})`);
  ok(r.nLate,'Ninja: fora da janela de leitura, o golpe acerta normalmente');
- ok(r.sync>0,'Ninja: clone em sincronia ativo');
+ ok(r.cloneIA&&r.semSync,'Ninja: o clone pensa sozinho (IA própria, sem depender do Ninja atacar)');
  ok(errs.length===0,'sem erros de JavaScript '+errs.slice(0,3));
  await br.close();
 })();
