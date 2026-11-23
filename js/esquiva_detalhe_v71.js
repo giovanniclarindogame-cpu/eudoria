@@ -22,7 +22,8 @@ function info(id){
  if(typeof v.dash==='number'){const sid=c.kit[v.dash],s=skills[sid];if(!s)return null;
   return{sid,nome:s.name,desc:s.desc,cd:Math.min(s.cd||V3API.DASH_CD,V3API.DASH_CD),custo:s.cost||0}}
  const p=v.dash==='generico'?PROPRIA.generico[id]:PROPRIA[v.dash];
- return p?{sid:null,nome:p.nome,desc:p.desc,cd:p.cd,custo:0}:null;
+ // ícone: o MESMO do botão de dash da batalha (js/combate_v3.js): Ninja, Eclipse e Herdeiro mostram a arte da habilidade 4 do kit; o Alquimista usa a seta
+ return p?{sid:(id===1||id===4||id===6)?c.kit[3]:null,nome:p.nome,desc:p.desc,cd:p.cd,custo:0}:null;
 }
 const texto=d=>`<b>ESQUIVA · ${esc(d.nome)}</b><p>${esc(d.desc)}</p><span>${d.custo>0?d.custo+' MP':'Sem custo'} <i>·</i> ${String(d.cd).replace('.',',')} s de recarga <i>·</i> invulnerável ${INV}</span>`;
 

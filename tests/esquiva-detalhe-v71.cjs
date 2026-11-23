@@ -26,6 +26,18 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
    if(v.esq||/^ESQUIVA/.test(v.txt))falhas.push(`${id}: clicar numa habilidade não tirou a esquiva`);
   }
   ok(falhas.length===0,`${tag}: os 10 campeões têm o botão Esquiva com a descrição certa${falhas.length?' — '+falhas.slice(0,4).join(' | '):''} [${nomes.join(', ')}]`);
+  if(w===915){   // o ícone da esquiva é o MESMO do botão de dash da batalha
+   const dif=[];
+   for(let id=0;id<10;id++){
+    await p.evaluate(()=>{try{leave()}catch{}showScreen('library')});await p.waitForTimeout(150);
+    const bat=await p.evaluate(i=>{matchMode='1v1';battleActivity='training';account.activeChampion=i;selected=[...CHAMPIONS[i].kit];start();state='fight';count=0;try{V3Relayout()}catch{}return document.getElementById('attack').innerHTML.split('<small>')[0].replace(/\s+/g,' ')},id);
+    await p.evaluate(()=>{leave();showScreen('library')});await p.waitForTimeout(150);
+    await p.evaluate(i=>openChampionDetails(i),id);await p.waitForTimeout(250);
+    const det=await p.evaluate(()=>document.querySelector('#heroDetail [data-hero-esquiva]').innerHTML.split('<small>')[0].replace(/\s+/g,' '));
+    if(!(bat===det||(/v3-arrow/.test(bat)&&/esq-seta/.test(det))))dif.push(id);
+   }
+   ok(dif.length===0,`${tag}: o ícone da esquiva é o mesmo do botão de dash da batalha nos 10 campeões${dif.length?' — diferem: '+dif.join(','):''}`);
+  }
   ok(errs.length===0,`${tag}: sem erros de JavaScript ${errs.slice(0,2).join('|')}`);
   if(w===915){await p.evaluate(()=>openChampionDetails(1));await p.waitForTimeout(400);await p.evaluate(()=>document.querySelector('#heroDetail [data-hero-esquiva]').click());await p.waitForTimeout(200);await p.screenshot({path:'/tmp/claude-0/esq_cel.png'})}
   await ctx.close();
