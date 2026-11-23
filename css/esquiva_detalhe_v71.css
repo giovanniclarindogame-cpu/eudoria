@@ -1,6 +1,6 @@
 /* v71: botão "Esquiva" na tela do campeão (mesmo tamanho dos ícones das habilidades, com um filete azul para diferenciar) */
 #heroDetail .hero-kit .esquiva-btn{position:relative;border-color:#7fb8ff}
 #heroDetail .hero-kit .esquiva-btn.active{box-shadow:0 0 0 3px rgba(127,184,255,.45),0 0 16px rgba(127,184,255,.6)}
-#heroDetail .hero-kit .esquiva-btn small{background:#24408f;color:#cfe3ff;border-color:#7fb8ff}
+#heroDetail .hero-kit button small:empty{display:none}
 #heroDetail .hero-kit .esq-seta{display:grid;place-items:center;width:100%;height:100%;color:#cfe3ff;background:radial-gradient(circle at 50% 35%,#3b6fd6,#182a63)}
 #heroDetail .hero-kit .esq-seta svg{width:58%;height:58%}
