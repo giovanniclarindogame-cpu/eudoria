@@ -258,7 +258,7 @@ function reconectar(j) {
 
 /* ---------- revanche: depois do fim da luta, os mesmos jogadores jogam de novo (mesmas vagas) ---------- */
 function pedirRevanche(j) {
-  const p = j.partida; if (!p || !p.fim || p.revanchada) return;
+  const p = j.partida; if (process.env.DEBUG_REV) log(`pedido de revanche de ${j.perfil && j.perfil.name}: partida=${!!p} fim=${p && p.fim} slot=${j.slot}`); if (!p || !p.fim || p.revanchada) return;
   p.rev = p.rev || new Set(); p.rev.add(j.slot);
   const ativos = humanos(p).filter(x => x.partida === p && x.ws.readyState === 1);
   const faltam = ativos.filter(x => !p.rev.has(x.slot));
@@ -387,6 +387,7 @@ function tratarAmigos(j, m) {
 function tratar(j, texto) {
   let m; try { m = JSON.parse(texto); } catch { return; }
   if (!m || typeof m.t !== 'string') return;
+  if (process.env.DEBUG_REV && !['ping', 'in', 'act'].includes(m.t)) log('msg', m.t, j.perfil && j.perfil.name);
   if (j.estado === 'novo') {
     if (m.t !== 'hello') return;
     if (m.v !== PROTO) { enviar(j.ws, JSON.stringify({ t: 'erro', m: 'versao' })); return j.ws.close(); }

@@ -41,7 +41,7 @@ function begin(role,m){
   const mine=(x2||ffa)?m.hs[m.slot]:trio?m.teams[m.slot][0]:(role==='host'?m.hh:m.gh),foe=trio?m.teams[1-m.slot][0]:role==='host'?m.gh:m.hh;
  if(!ok(mine)||(!x2&&!ffa&&!ok(foe)))return;
  const ov=$q('#onlineV45');if(ov)ov.hidden=true;document.body.classList.remove('v45-open');
- Object.assign(M,{endFlag:false,rem:[],bySlot:{},x2,ffa,multi:x2||ffa,freeze:false,mv:0,slot:(x2||ffa)?m.slot:role==='guest'?(m.slot===0?0:1):0,on:true,role,roundDone:false,force:false,target:null,snapT:0,inT:0,input:{x:0,y:0,l:0,a:0,g:0},acts:0});
+ Object.assign(M,{rev:{eu:false,ele:false,no:false},endFlag:false,rem:[],bySlot:{},x2,ffa,multi:x2||ffa,freeze:false,mv:0,slot:(x2||ffa)?m.slot:role==='guest'?(m.slot===0?0:1):0,on:true,role,roundDone:false,force:false,target:null,snapT:0,inT:0,input:{x:0,y:0,l:0,a:0,g:0},acts:0});
  document.body.classList.add('v46-match');
  try{equipChampion(mine,false)}catch{}
  // tela de carregamento: baixa e aquece os dois campeões; cada lado avisa "pronto" e a luta só começa quando os dois estão prontos
@@ -301,11 +301,22 @@ function endGuest(m){
 // botões da tela de resultado: Revanche/Trocar voltam para a sala; Sair sai da sala
 document.addEventListener('click',e=>{
  if(!M.on)return;const t=e.target.closest?.('#rematch,#change,#resultHub,#leave');if(!t)return;
- e.stopImmediatePropagation();e.preventDefault();backToLobby(t.id==='resultHub'||t.id==='leave');
+ e.stopImmediatePropagation();e.preventDefault();
+ if(t.id==='rematch'&&S.mode==='server'){   // REVANCHE: avisa o servidor e espera o rival (contra bot começa na hora)
+  const r=M.rev||(M.rev={});if(r.eu||r.no)return;r.eu=true;try{O.send({t:'revanche'})}catch{}labels(true);return;
+ }
+ backToLobby(t.id==='resultHub'||t.id==='leave');
 },true);
 // textos da tela de resultado durante o online
-const LBL={rematch:['Jogar novamente','Revanche · voltar à sala','Procurar outro rival'],change:['Trocar campeão','Trocar campeão','Procurar outro rival'],resultHub:['Voltar ao início','Sair da sala','Sair']};
-function labels(online){const k=online?(S.mode==='server'?2:1):0;for(const [id,t] of Object.entries(LBL)){const el=document.getElementById(id);if(el&&el.textContent!==t[k])el.textContent=t[k]}}
+const LBL={rematch:['Jogar novamente','Revanche','Revanche'],change:['Trocar campeão','Trocar campeão','Procurar outro rival'],resultHub:['Voltar ao início','Sair da sala','Sair']};
+// revanche pelo servidor: os mesmos jogadores jogam de novo quando TODOS pedem (contra bots, na hora)
+function textoRevanche(){const r=M.rev||{};return r.no?'O rival saiu':r.eu?'Esperando o rival…':r.ele?'Revanche · o rival quer!':'Revanche'}
+function labels(online){
+ const k=online?(S.mode==='server'?2:1):0;
+ for(const [id,t] of Object.entries(LBL)){const el=document.getElementById(id);const txt=(id==='rematch'&&k===2)?textoRevanche():t[k];if(el&&el.textContent!==txt)el.textContent=txt}
+ const rm=document.getElementById('rematch');
+ if(rm){const r=M.rev||{};const espera=k===2&&(r.eu||r.no);rm.disabled=!!espera;rm.classList.toggle('rev-espera',k===2&&!!r.eu&&!r.no);rm.classList.toggle('rev-quer',k===2&&!!r.ele&&!r.eu&&!r.no);rm.classList.toggle('rev-saiu',k===2&&!!r.no)}
+}
 function stopMatch(){
  labels(false);try{if(window.Carregamento){Carregamento.cancelar();Carregamento.aoPreparar=null}}catch{}
  M.on=false;M.freeze=false;Q.length=0;HIST.length=0;delayedMove=null;M.remote=M.host=M.guest=M.target=M.L4=null;M.rem=[];M.bySlot={};M.x2=false;M.ffa=false;M.multi=false;document.body.classList.remove('v46-match');
@@ -329,6 +340,7 @@ function onMsg(m){
   case'in':if(M.on&&M.role==='host')M.input={x:+m.x||0,y:+m.y||0,l:+m.l||0,a:+m.a||0,g:m.g?1:0};break;
   case'snap':if(M.on&&M.role==='guest')applySnap(m);break;
   case'act':if(M.on)doAct(m);break;
+  case'rev':{const r=M.rev||(M.rev={});if(m.no)r.no=true;else if(m.eu)r.eu=true;else r.ele=true;labels(true);break}
   case'end':if(M.role==='guest'&&!M.ffa)endGuest(m);break;
   case'over':if(M.on&&M.ffa&&window.V3Crown)V3Crown.finishOnline(m);break;
   case'bot':{const E=M.bySlot&&M.bySlot[m.s];if(E){if(E.base==null)E.base=E.a.label;E.a.label=E.base+(m.on?' (bot)':'')}break}   // o jogador saiu e um bot assumiu (ou voltou)
@@ -349,5 +361,6 @@ function afterBegin(m){
  }catch(err){console.warn('[Eldoria online] estado da volta',err)}
 }
 const matchEnded=()=>{try{localStorage.removeItem(O.flag)}catch{}};
-window.OnlineV46={beginServer:m=>{begin('guest',m);afterBegin(m)},onMsg,hostGo,abort,backToLobby,hostDelay,get match(){return M}};
+function sairParaSala(){if(M.on){matchEnded();stopMatch()}}   // a revanche começa: fecha o resultado e deixa a sala de escolha aparecer
+window.OnlineV46={sairParaSala,beginServer:m=>{begin('guest',m);afterBegin(m)},onMsg,hostGo,abort,backToLobby,hostDelay,get match(){return M}};
 })();
