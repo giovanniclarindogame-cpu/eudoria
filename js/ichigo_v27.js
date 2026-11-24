@@ -59,7 +59,7 @@ function ichigo27Body(g,a,size=72,t=vfxTime){
  }else if(a.punchTime>0)frame=24+clamp(Math.floor((1-a.punchTime/.24)*6),0,5);
  else if(a.moving)frame=(Math.abs(Math.sin(angle))>.65?(Math.sin(angle)>0?12:18):6)+Math.floor(a.rwStride??a.gait??0)%6;
  else idle=true;
- const f=reg.frames[frame],k=size/72*73/reg.height;
+ if(!Number.isFinite(frame))frame=0;const f=reg.frames[frame]||reg.frames[0],k=size/72*73/reg.height;   // quadro inválido (NaN/fora da folha) não derruba o desenho
  g.save();g.imageSmoothingEnabled=false;g.scale(Math.cos(angle)<0?-1:1,1);
  // Fixed cell root: extending the sword must not recenter the fighter.
  // Breathing pivots at the soles, matching the Astral and Ninja renderers.
