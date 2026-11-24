@@ -1,0 +1,11 @@
+const { chromium } = require('playwright');
+let falhas=0;const ok=(c,m)=>{console.log((c?'ok  - ':'FALHOU - ')+m);if(!c)falhas++};
+(async()=>{const b=await chromium.launch();const p=await (await b.newContext({viewport:{width:900,height:420}})).newPage();
+ const erros=[];p.on('pageerror',e=>erros.push(e.message));
+ await p.goto('http://localhost:8000/index.html?allheroes=1');await p.waitForTimeout(900);
+ const r=await p.evaluate(()=>({t:DescricoesV72.trocadas,m:DescricoesV72.mantidas,l:CHAMPIONS.flatMap(c=>c.kit.map(s=>skills[s].desc))}));
+ ok(r.t>=40,`${r.t} descrições reescritas`);ok(r.m.length===0,'nenhuma ficou no texto antigo por falta de número '+r.m.join(','));
+ ok(r.l.every(d=>d&&d.length<=190),'nenhuma passa de 190 caracteres (maior: '+Math.max(...r.l.map(d=>d.length))+')');
+ ok(!r.l.some(d=>/undefined|NaN|\[object/.test(d)),'sem undefined/NaN');
+ ok(erros.length===0,'sem erros de JavaScript '+erros.join('|'));
+ await b.close();process.exit(falhas?1:0)})();

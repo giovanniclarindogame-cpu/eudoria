@@ -1,0 +1,45 @@
+/* v72: tela de resultado no padrão azul e dourado do jogo. Revanche é o botão principal. */
+body.v3 #battle #outcome .dialog{
+ width:min(540px,94vw)!important;max-height:calc(100*var(--dvh,1dvh) - 14px)!important;overflow:hidden!important;
+ padding:14px 18px 16px!important;display:grid!important;grid-template-columns:1fr 1fr;gap:8px 10px;align-content:center;text-align:center;
+ background:radial-gradient(ellipse at 50% 0%,#4f86ef,#24408f 58%,#182a63)!important;border:3px solid #ffd45a!important;border-radius:22px!important;
+ box-shadow:0 6px 0 #8a5a00,0 0 44px rgba(255,214,90,.4),0 18px 40px rgba(0,0,0,.5)!important;color:#fff!important;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;position:relative}
+body.v3 #battle #outcome.derrota .dialog{background:radial-gradient(ellipse at 50% 0%,#5a68a8,#2d3870 58%,#1a2150)!important;box-shadow:0 6px 0 #4a3a1a,0 0 30px rgba(120,140,255,.28),0 18px 40px rgba(0,0,0,.5)!important}
+/* etiqueta amarela */
+body.v3 #battle #outcome .dialog>.eyebrow{grid-column:1/-1;justify-self:center;margin:0!important;padding:4px 16px;border-radius:99px;background:linear-gradient(180deg,#ffe9a6,#ffc94a);color:#3b2100!important;font:900 11px/1.2 system-ui!important;letter-spacing:1.5px}
+/* título */
+body.v3 #battle #outcome .dialog>h2{grid-column:1/-1;margin:2px 0 0!important;font:900 clamp(24px,4.4vw,34px)/1.05 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif!important;color:#fff!important;text-shadow:0 3px 0 rgba(0,0,0,.35),0 0 22px rgba(255,214,90,.55)}
+body.v3 #battle #outcome.derrota .dialog>h2{text-shadow:0 3px 0 rgba(0,0,0,.35),0 0 18px rgba(150,170,255,.45)}
+/* texto curto */
+body.v3 #battle #outcome .dialog>p{grid-column:1/-1;margin:0!important;color:#dbe7ff!important;font:700 12px/1.35 system-ui!important;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+/* estatísticas em pílulas */
+body.v3 #battle #outcome .dialog>.ribbon{grid-column:1/-1;margin:2px 0 4px!important;display:flex;flex-wrap:wrap;justify-content:center;gap:6px;background:none!important;border:0!important;padding:0!important}
+body.v3 #battle #outcome .ribbon span{display:inline-flex;align-items:center;gap:4px;padding:4px 11px;border-radius:99px;background:rgba(10,20,60,.55);border:2px solid rgba(255,212,90,.55);color:#fff3c2;font:800 12px/1.2 system-ui}
+body.v3 #battle #outcome .ribbon span[data-k="xp"]{border-color:#8dff9f;color:#b9ffc6}
+body.v3 #battle #outcome .ribbon span[data-k="vazio"]{display:none}
+body.v3 #battle #outcome .ribbon span[data-k]::before{font-size:13px}
+body.v3 #battle #outcome .ribbon span[data-k="tempo"]::before{content:"⏱"}
+body.v3 #battle #outcome .ribbon span[data-k="dano"]::before{content:"⚔"}
+body.v3 #battle #outcome .ribbon span[data-k="xp"]::before{content:"✨"}
+/* botões */
+body.v3 #battle #outcome .dialog>button{margin:0!important;min-height:0;height:42px;padding:0 12px;border-radius:14px;font:900 14px/1 system-ui;cursor:pointer;border:2px solid #fff3c2;box-shadow:0 4px 0 rgba(0,0,0,.4)}
+body.v3 #battle #outcome .dialog>button:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.4)}
+body.v3 #battle #outcome .dialog>#rematch{grid-column:1/-1;order:10;height:52px;font-size:18px;color:#4a2a00;background:linear-gradient(180deg,#ffe066,#f5b800);box-shadow:0 5px 0 #8a5a00,0 0 18px rgba(255,214,90,.45)}
+body.v3 #battle #outcome .dialog>#change{order:11;color:#fff;background:linear-gradient(180deg,#6ea0ff,#3b6fd6);border-color:#cfe0ff;box-shadow:0 4px 0 #1a3a8a}
+body.v3 #battle #outcome .dialog>#shareResult{order:12;color:#fff;background:linear-gradient(180deg,#3d63c9,#27449a);border-color:#9db8ee;box-shadow:0 4px 0 #14286a}
+body.v3 #battle #outcome .dialog>#resultHub{grid-column:1/-1;order:13;height:36px;font-size:13px;color:#ffd9de;background:linear-gradient(180deg,#a8364a,#7a1f33);border-color:#ffb4bd;box-shadow:0 4px 0 #4a1020}
+body.v3 #battle #outcome .dialog>button[disabled]{opacity:.85;cursor:default}
+/* estados da revanche */
+body.v3 #battle #outcome .dialog>#rematch.rev-espera{color:#fff;background:linear-gradient(180deg,#6ea0ff,#3b6fd6);border-color:#cfe0ff;box-shadow:0 5px 0 #1a3a8a;animation:rev-pulsa 1.2s ease-in-out infinite}
+body.v3 #battle #outcome .dialog>#rematch.rev-quer{animation:rev-brilha .9s ease-in-out infinite}
+body.v3 #battle #outcome .dialog>#rematch.rev-saiu{background:linear-gradient(180deg,#8892a8,#5a647c);color:#e6ebf7;border-color:#c9d1e3;box-shadow:0 4px 0 #343c50}
+@keyframes rev-pulsa{50%{filter:brightness(1.18)}}
+@keyframes rev-brilha{50%{box-shadow:0 5px 0 #8a5a00,0 0 30px rgba(255,214,90,.95)}}
+@media (max-height:430px){
+ body.v3 #battle #outcome .dialog{padding:10px 14px 12px!important;gap:6px 8px}
+ body.v3 #battle #outcome .dialog>h2{font-size:24px!important}
+ body.v3 #battle #outcome .dialog>button{height:36px;font-size:13px}
+ body.v3 #battle #outcome .dialog>#rematch{height:44px;font-size:16px}
+ body.v3 #battle #outcome .dialog>#resultHub{height:32px}
+ body.v3 #battle #outcome .ribbon span{padding:3px 9px;font-size:11px}
+}

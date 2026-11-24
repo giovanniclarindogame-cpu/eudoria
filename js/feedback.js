@@ -61,5 +61,11 @@ function abrir(){
  <p class="conta-msg" role="status"></p></div></div>`;
  el.hidden=false;
 }
-window.FeedbackV66={abrir,contexto,erros};
+// relato automático (sem o jogador fazer nada): erro do laço do jogo. Rate limit no jogo (4 por sessão, 1 por minuto) e no servidor.
+async function relatarAuto(msg,pilha){
+ try{if(!base())return;
+  await fetch(base()+'/feedback/enviar',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({tipo:'bug',nota:0,texto:'[AUTOMÁTICO] '+String(msg).slice(0,300)+' @ '+String(pilha).slice(0,400),ctx:contexto()})});
+ }catch{}
+}
+window.FeedbackV66={relatarAuto,abrir,contexto,erros};
 })();

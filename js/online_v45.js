@@ -179,6 +179,7 @@ function onSrv(m){
   case'ocioso':break;
   case'erro':falhaSrv(m.m==='versao'||m.m==='atualizar'?'Seu jogo está desatualizado. Atualize o jogo (ou a página) e tente de novo.':'O servidor recusou a conexão.');break;
   case'sala':{
+   try{window.OnlineV46&&OnlineV46.sairParaSala&&OnlineV46.sairParaSala()}catch{}
    const ps=Array.isArray(m.ps)?m.ps:[],slot=m.slot|0,n=ps.length;
    S.fase='sala';S.procurando=false;S.ready=S.theirReady=false;S.err='';
    S.sala={slot,modo:m.modo,ps:ps.map(x=>sanitize(x)),fim:Date.now()+(+m.ms||30000),picks:{},ready:{},n};

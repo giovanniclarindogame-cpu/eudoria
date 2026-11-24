@@ -55,7 +55,7 @@ function reporAquecidas() { while (aquecidas.length < AQUECIDAS && partidas.size
 function tratarWorker(e, m) {
   if (m.k === 'pronta') { e.pronta = true; if (m.erros) log('aviso: o jogo carregou com', m.erros, 'erros'); const f = e.esperando; e.esperando = []; f.forEach(fn => fn()); }
   else if (m.k === 'send') { const p = e.p; if (!p) return; enviarPara(p, m.slot, m.m); }
-  else if (m.k === 'fim') { const p = e.p; if (!p || p.fim) return; p.fim = true; stats.partidasTerminadas++; limparReconexoes(p); setTimeout(() => encerrar(p), 20000).unref(); }
+  else if (m.k === 'fim') { const p = e.p; if (!p || p.fim) return; p.fim = true; stats.partidasTerminadas++; limparReconexoes(p); setTimeout(() => encerrar(p, true), 20000).unref(); }
   else if (m.k === 'estado') { const p = e.p; if (!p) return; const s = p.slots[m.slot]; if (s && s.j) enviar(s.j.ws, JSON.stringify({ ...p.matchObj(m.slot), t: 'volta', est: m.est })); }
   else if (m.k === 'stats') { stats.ticks += m.ticks; stats.ticksTarde += m.tarde; stats.tickMedio = stats.tickMedio * .8 + m.media * .2; stats.tickMax = Math.max(stats.tickMax * .9, m.max); }
   else if (m.k === 'erro') { stats.erros++; stats.ultimoErro = m.m; }
@@ -109,7 +109,7 @@ function sair(j) {
   const p = j.partida; j.partida = null; jogadores.delete(j.ws);
   if (!p) return;
   const s = p.slots[j.slot];
-  if (p.fim) { if (!humanos(p).some(x => x !== j && x.partida === p)) encerrar(p); return; }
+  if (p.fim) { saiuDaRevanche(p, j); if (!humanos(p).some(x => x !== j && x.partida === p)) { clearTimeout(p.timerRev); encerrar(p); } return; }
   if (p.fase === 'sel') {   // saiu na sala de escolha: avisa os outros e fecha a partida
     for (const o of humanos(p)) if (o !== j && o.partida === p) enviar(o.ws, JSON.stringify({ t: 'bye' }));
     encerrar(p); return;
@@ -129,7 +129,7 @@ function sair(j) {
   }
 }
 function entrarNaFila(j, modo) {
-  if (j.partida) { const p = j.partida; j.partida = null; if (p.fim && !humanos(p).some(x => x.partida === p)) encerrar(p); }
+  if (j.partida) { const p = j.partida; j.partida = null; if (p.fim) saiuDaRevanche(p, j); if (p.fim && !humanos(p).some(x => x.partida === p)) encerrar(p); }
   for (const f of todasFilas) { const i = f.indexOf(j); if (i >= 0) f.splice(i, 1); }
   j.modo = FILAS[modo] ? modo : '1v1'; j.time = null; j.filaDesde = Date.now();
   const f = filaDe(j); f.push(j);
@@ -168,12 +168,19 @@ function completarComBots() {
 }
 setInterval(completarComBots, 1000).unref();
 
-function criarPartida(jog, modo) {
+function criarPartida(jog, modo, fixos) {
   const id = proxId++, e = aquecidas.shift() || novoWorker(), n = TAM[modo];
   // vagas: os jogadores nas primeiras vagas, bots (IA difícil) nas que faltam
+  // (revanche: `fixos` = vaga a vaga, { j } = jogador no mesmo lugar de antes, { perfil } = o mesmo bot de antes)
   const usados = new Set(jog.map(j => j.perfil.hero));
-  const slots = jog.map(j => ({ j, perfil: j.perfil, bot: false, tok: j.tok || null }));
-  while (slots.length < n) slots.push({ j: null, perfil: perfilBot(jog[0].perfil, usados), bot: true, tok: null });
+  let slots;
+  if (fixos) {
+    for (const f of fixos) if (!f.j && f.perfil) usados.add(f.perfil.hero);
+    slots = fixos.map(f => f.j ? { j: f.j, perfil: f.j.perfil, bot: false, tok: f.j.tok || null } : { j: null, perfil: { ...(f.perfil || perfilBot(jog[0].perfil, usados)) }, bot: true, tok: null });
+  } else {
+    slots = jog.map(j => ({ j, perfil: j.perfil, bot: false, tok: j.tok || null }));
+    while (slots.length < n) slots.push({ j: null, perfil: perfilBot(jog[0].perfil, usados), bot: true, tok: null });
+  }
   const ref = slots.findIndex(s => s.bot) >= 0;
   if (ref) stats.partidasComBot++;
   // fase 'sel': os rivais já foram achados e cada um escolhe o campeão (e confirma). Depois vem a fase 'jogo': a thread cria a luta, e ela
@@ -222,12 +229,19 @@ function comecar(p) {
 }
 function checarLiberar(p) { if (!p.liberada && p.iniciada && p.prontos.every(Boolean)) liberar(p); }
 function liberar(p) { if (p.liberada) return; p.liberada = true; clearTimeout(p.timerLiberar); try { p.e.w.postMessage({ k: 'liberar' }); } catch {} }
-function encerrar(p) {
+const TEMPO_REVANCHE = +process.env.TEMPO_REVANCHE || 120000;   // depois do fim, o pedido de revanche vale por 2 minutos (a thread pesada da luta é liberada antes, em 20 s)
+function soltarRevanche(p) { clearTimeout(p.timerRev); for (const j of humanos(p)) if (j.partida === p) { j.partida = null; if (j.estado === 'fim') j.estado = 'ocioso'; if (j.contaId) presenca(j.contaId); } }
+function encerrar(p, manterRevanche) {
   if (!partidas.has(p.id)) return;
   clearTimeout(p.timerLiberar); clearTimeout(p.timerSel); clearTimeout(p.timerVazia); limparReconexoes(p);
   partidas.delete(p.id);
   try { p.e.w.postMessage({ k: 'parar' }); } catch {}
   setTimeout(() => { try { p.e.w.terminate(); } catch {} }, 500).unref();
+  if (manterRevanche && p.fim && humanos(p).some(x => x.partida === p)) {   // continua guardada só para a revanche (sem a thread da luta)
+    for (const j of humanos(p)) if (j.partida === p) j.estado = 'fim';
+    p.timerRev = setTimeout(() => soltarRevanche(p), TEMPO_REVANCHE); p.timerRev.unref?.();
+    return;
+  }
   for (const j of humanos(p)) if (j.partida === p) { j.partida = null; if (j.estado === 'partida' || j.estado === 'fim') { j.estado = 'ocioso'; if (j.contaId) presenca(j.contaId); } }
 }
 function encerrarPorErro(e) {
@@ -249,6 +263,27 @@ function reconectar(j) {
   log(`partida ${p.id}: ${s.perfil.name} voltou`);
 }
 
+/* ---------- revanche: depois do fim da luta, os mesmos jogadores jogam de novo (mesmas vagas) ---------- */
+function pedirRevanche(j) {
+  const p = j.partida; if (process.env.DEBUG_REV) log(`pedido de revanche de ${j.perfil && j.perfil.name}: partida=${!!p} fim=${p && p.fim} slot=${j.slot}`); if (!p || !p.fim || p.revanchada) return;
+  p.rev = p.rev || new Set(); p.rev.add(j.slot);
+  const ativos = humanos(p).filter(x => x.partida === p && x.ws.readyState === 1);
+  const faltam = ativos.filter(x => !p.rev.has(x.slot));
+  for (const o of ativos) if (o !== j) enviar(o.ws, JSON.stringify({ t: 'rev', s: j.slot, n: p.rev.size, de: ativos.length }));
+  enviar(j.ws, JSON.stringify({ t: 'rev', eu: 1, n: p.rev.size, de: ativos.length }));
+  if (faltam.length || ativos.length < humanos(p).length) return;     // alguém ainda não pediu (ou já saiu)
+  p.revanchada = true; clearTimeout(p.timerRev);
+  const fixos = p.slots.map(s => s.j ? { j: s.j } : { perfil: s.perfil });
+  const jog = fixos.filter(f => f.j).map(f => f.j);
+  partidas.delete(p.id); try { p.e.w.postMessage({ k: 'parar' }); } catch {} setTimeout(() => { try { p.e.w.terminate(); } catch {} }, 500).unref();   // (se a thread ainda não tinha sido liberada)
+  for (const x of jog) { x.estado = 'ocioso'; x.time = null; x.partida = null; }
+  log(`revanche (${p.modo}): ${jog.map(x => x.perfil.name).join(' × ')}`);
+  criarPartida(jog, p.modo, fixos);
+}
+function saiuDaRevanche(p, j) {   // quem esperava a revanche é avisado de que o rival não vem mais
+  if (!p || !p.fim || p.revanchada) return;
+  for (const o of humanos(p)) if (o !== j && o.partida === p) enviar(o.ws, JSON.stringify({ t: 'rev', no: 1 }));
+}
 /* ---------- amigos, convites e partida entre amigos ---------- */
 const onlineN = () => { let n = 0; for (const x of jogadores.values()) if (!x.social) n++; return n; };
 function estadoDas() {   // contaId -> 'on' (conectado) | 'jogo' (em fila/partida)
@@ -359,6 +394,7 @@ function tratarAmigos(j, m) {
 function tratar(j, texto) {
   let m; try { m = JSON.parse(texto); } catch { return; }
   if (!m || typeof m.t !== 'string') return;
+  if (process.env.DEBUG_REV && !['ping', 'in', 'act'].includes(m.t)) log('msg', m.t, j.perfil && j.perfil.name);
   if (j.estado === 'novo') {
     if (m.t !== 'hello') return;
     if (m.v !== PROTO) { enviar(j.ws, JSON.stringify({ t: 'erro', m: 'versao' })); return j.ws.close(); }
@@ -380,6 +416,7 @@ function tratar(j, texto) {
     case 'fila': if (m.cid) return entrarNoConvite(j, m); if (j.estado === 'fila' || (j.partida && !j.partida.fim)) return; if (m.p) { j.perfil = perfil(m.p); j.perfil.hero = heroiOk(j, j.perfil.hero); } entrarNaFila(j, m.modo); return;
     case 'reconectar': if (j.estado === 'fila' || j.partida) return; return reconectar(j);
     case 'cancelar': { saiuDoConvite(j); for (const f of todasFilas) { const i = f.indexOf(j); if (i >= 0) f.splice(i, 1); } if (j.estado === 'fila') { j.estado = 'ocioso'; if (j.contaId) presenca(j.contaId); } return enviar(j.ws, JSON.stringify({ t: 'ocioso' })); }
+    case 'revanche': return pedirRevanche(j);
     case 'pronto': if (j.partida && !j.partida.fim) { j.partida.prontos[j.slot] = true; checarLiberar(j.partida); } return;
     case 'pick': { const p = j.partida; if (!p || p.fase !== 'sel') return; const s = p.slots[j.slot];
       if (p.modo === 'trio') { s.time = j.time = Array.isArray(m.team) ? m.team.map(x => Math.floor(+x)).filter(x => Number.isInteger(x) && x >= 0 && x <= 9).map(x => heroiOk(j, x)).filter((x, i, v) => v.indexOf(x) === i).slice(0, 3) : null; if (j.time && j.time.length) j.perfil.hero = j.time[0]; p.pronto_sel[j.slot] = false; return; }
