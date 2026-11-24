@@ -34,7 +34,7 @@ body.v3 #battle #outcome .dialog>#rematch.rev-espera{color:#fff;background:linea
 body.v3 #battle #outcome .dialog>#rematch.rev-quer{animation:rev-brilha .9s ease-in-out infinite}
 body.v3 #battle #outcome .dialog>#rematch.rev-saiu{background:linear-gradient(180deg,#8892a8,#5a647c);color:#e6ebf7;border-color:#c9d1e3;box-shadow:0 4px 0 #343c50}
 @keyframes rev-pulsa{50%{filter:brightness(1.18)}}
-@keyframes rev-brilha{50%{box-shadow:0 5px 0 #8a5a00,0 0 30px rgba(255,214,90,.95);transform:scale(1.02)}}
+@keyframes rev-brilha{50%{box-shadow:0 5px 0 #8a5a00,0 0 30px rgba(255,214,90,.95)}}
 @media (max-height:430px){
  body.v3 #battle #outcome .dialog{padding:10px 14px 12px!important;gap:6px 8px}
  body.v3 #battle #outcome .dialog>h2{font-size:24px!important}

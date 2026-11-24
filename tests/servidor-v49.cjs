@@ -78,11 +78,11 @@ const PORT=8790,SRV='ws://localhost:'+PORT;
  if(process.env.DBG||!(await visivel(B)))console.log('DBG B:',JSON.stringify(await B.evaluate(()=>OnlineV46.match.diag)),'\nDBG B estado:',JSON.stringify(await B.evaluate(()=>({st:state,hp:[Math.round(p.hp),Math.round(b.hp)],rd:OnlineV46.match.roundDone,on:OnlineV46.match.on,out:getComputedStyle(document.querySelector('#outcome')).display,paused:document.querySelector('#pause').style.display,t:Math.round(time)}))),'| A:',JSON.stringify(await A.evaluate(()=>({st:state,out:getComputedStyle(document.querySelector('#outcome')).display}))));
  const ta=await A.evaluate(()=>document.querySelector('#resultTitle').textContent),tb=await B.evaluate(()=>document.querySelector('#resultTitle').textContent);
  ok(/é sua/.test(ta)&&/aprendizado/.test(tb),`melhor de 3 em ${rodadas} rodadas: Ana vê "${ta}" e Beto vê "${tb}"`);
- ok(await B.evaluate(()=>/XP/.test(document.querySelector('#resultText').textContent)),'o perdedor também recebe XP de conta');
+ ok(await B.evaluate(()=>/XP/.test(document.querySelector('#outcome .dialog').textContent)),'o perdedor também recebe XP de conta');
  await sleep(500);ok((await saude()).partidasTerminadas>=1,'o servidor registrou a partida como terminada');
- ok(await A.evaluate(()=>document.querySelector('#rematch').textContent==='Procurar outro rival'&&document.querySelector('#resultHub').textContent==='Sair'),'tela de resultado: "Procurar outro rival" e "Sair"');
+ ok(await A.evaluate(()=>document.querySelector('#rematch').textContent==='Revanche'&&document.querySelector('#change').textContent==='Procurar outro rival'&&document.querySelector('#resultHub').textContent==='Sair'),'tela de resultado: "Revanche", "Procurar outro rival" e "Sair"');
  // jogar de novo: os dois voltam à fila e são pareados de novo
- await A.click('#rematch');await sleep(500);await B.click('#rematch');await sleep(900);
+ await A.click('#change');await sleep(500);await B.click('#change');await sleep(900);
  ok(await A.evaluate(()=>OnlineV45.state.mode==='server'&&(OnlineV45.state.procurando||OnlineV45.state.fase==='sala'||OnlineV45.state.fase==='jogo')&&(document.querySelector('#onlineV45')?.hidden??true)!==undefined),'"Procurar outro rival" volta ao início já procurando de novo');
  await A.waitForFunction(()=>OnlineV45.state.fase==='sala'&&!(document.querySelector('#onlineV45')?.hidden??true),null,{timeout:25000});await B.waitForFunction(()=>OnlineV45.state.fase==='sala'&&!(document.querySelector('#onlineV45')?.hidden??true),null,{timeout:25000});
  await A.click('[data-v45="ready"]');await B.click('[data-v45="ready"]');
