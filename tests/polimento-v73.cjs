@@ -19,6 +19,8 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  ok(num[10].pop===1&&num[30].pop>=1&&num[45].pop>=num[30].pop&&num[120].pop>num[45].pop&&num[120].cor!==num[10].cor,`número de dano cresce com a força: ${JSON.stringify(Object.fromEntries(Object.entries(num).map(([k,v])=>[k,v.pop])))}`);
  const imp=await p.evaluate(()=>{combatHitStop=0;combatShake=0;b.hp=1000;b.inv=0;hit(b,120,p,0,0,-1);return{hs:combatHitStop,sh:combatShake}});
  ok(imp.hs>=.1&&imp.sh>=8,`golpe enorme: pausa ${imp.hs}s e tremor ${imp.sh}`);
+ const imp2=await p.evaluate(()=>{fx.length=0;b.hp=1000;b.inv=0;hit(b,120,p,0,0,-1);const i=fx.find(f=>f.kind==='impact');return i?{pw:i.power,sy:i.sy>i.y}:null});
+ ok(imp2&&imp2.pw>1.5&&imp2.sy,'golpe forte cria a faísca de contato (impacto) desenhada por cima do boneco');
  // causa do dano: pelas costas
  const costas=await p.evaluate(()=>{state='fight';p.hp=1000;p.inv=0;p.guard=false;p.st=100;p.dodgeCD=0;p.a=0;b.x=p.x-80;b.y=p.y;texts.length=0;PolimentoV73.S.causeAt=-9;hit(p,40,b,0,0,-1);return texts.map(t=>t.t).filter(t=>typeof t==='string')});
  ok(costas.includes('PELAS COSTAS'),'levar golpe de trás mostra "PELAS COSTAS": '+costas.join(','));
