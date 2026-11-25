@@ -1,0 +1,13 @@
+/* v75 — emblemas dos campeões */
+.champ-card-top.has-emblem{display:flex;align-items:center;gap:8px}
+.champ-card-top.has-emblem>span{flex:1;min-width:0}
+.champ-emblem{width:44px;height:44px;flex:none;object-fit:contain;filter:drop-shadow(0 2px 3px #0008)}
+.champ-card.active .champ-emblem{filter:drop-shadow(0 0 8px var(--champ-color,#ffd978)) drop-shadow(0 2px 3px #0008)}
+.champ-emblem-big{display:block;width:56px;height:56px;margin:-58px 0 2px;object-fit:contain;filter:drop-shadow(0 0 10px var(--champ-color,#ffd97855)) drop-shadow(0 2px 3px #0008)}
+@media (max-height:480px){.champ-emblem{width:36px;height:36px}.champ-emblem-big{width:44px;height:44px;margin:-46px 0 2px}}
+
+.hero-card{position:relative}
+.hero-emblem{position:absolute;top:6px;left:6px;z-index:4;width:36px;height:36px;object-fit:contain;pointer-events:none;filter:drop-shadow(0 2px 3px #000a)}
+.hero-card.selected .hero-emblem{filter:drop-shadow(0 0 7px var(--hero,#ffd978)) drop-shadow(0 2px 3px #000a)}
+.hero-card.locked .hero-emblem{filter:grayscale(.85) brightness(.6) drop-shadow(0 2px 3px #000a)}
+@media (max-height:480px){.hero-emblem{width:30px;height:30px;top:5px;left:5px}}
