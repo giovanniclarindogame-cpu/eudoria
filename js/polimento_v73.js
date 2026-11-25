@@ -111,6 +111,7 @@ if(typeof cast==='function'){const prevCast=cast;cast=function(a,id,m){
 function intro(){
   const old=$q('#intro73');if(old)old.remove();
   if(battleActivity==='training')return;
+  if(actors.length!==2||(window.V3Crown&&V3Crown.state&&V3Crown.state.on))return;   // 2×2 e Coroa têm título e placar próprios
   const b=$q('#battle');if(!b)return;
   const lado=(a,cls,tag)=>`<div class="i73-side ${cls}"><small>${tag}</small><b>${(a.label||'').toString().replace(/[<>&]/g,'')||'?'}</b>${champOf(a)&&champOf(a)!==(a.label||'')?`<em>${champOf(a)}</em>`:''}</div>`;
   const d=document.createElement('div');d.id='intro73';
