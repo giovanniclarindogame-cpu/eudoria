@@ -224,8 +224,8 @@ const ZorvathSprite=(()=>{
  }
  function paint(g,name,i,o={}){
   const{x=0,y=0,scale=2,flip=false,alpha=1,form=1,side=0}=o;
-  const c=external?external.frame(name,i,{form,side}):frame(name,i,{form,side});if(!c)return;
-  g.save();g.imageSmoothingEnabled=false;g.globalAlpha*=alpha;g.translate(x,y);if(flip)g.scale(-1,1);
+  let c=external?external.frame(name,i,{form,side}):null;if(!c)c=frame(name,i,{form,side});if(!c)return;
+  g.save();g.imageSmoothingEnabled=!!c.hd;/* arte pintada (folhas do ChatGPT) pede suavização; o pixel art do código não */g.globalAlpha*=alpha;g.translate(x,y);if(flip)g.scale(-1,1);
   if(o.filter)g.filter=o.filter;
   g.drawImage(c,-CX*scale,-GY*scale,S*scale,S*scale);g.restore();
  }
