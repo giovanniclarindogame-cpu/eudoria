@@ -765,7 +765,13 @@ function vfxDrawLegacy(){
     if(f.kind==='punch'){ctx.translate(f.x,f.y);ctx.rotate(f.a);vline(-18,0,18,0,f.color,4);varc(f.r*(1-f.life/f.max*.5),f.color,-1.2,1.2,2)}
     if(f.kind==='ring'){ctx.globalAlpha*=.45;outline(f.x,f.y,f.r*(1.15-f.life/f.max*.5),f.color,2)}
     if(f.kind==='spark')circle(f.x,f.y,1.8,f.color);
-    if(f.kind==='ghost'){ctx.globalAlpha*=.25;ellipse(f.x,f.y,17,22,f.color)}
+    if(f.kind==='ghost'){const k=Math.max(0,f.life/f.max);ctx.globalAlpha*=.5*k;ctx.strokeStyle=f.color;ctx.lineWidth=1.6;ctx.beginPath();ctx.ellipse(f.x,f.y,13+(1-k)*6,20,0,0,TAU);ctx.stroke()}
+    if(f.kind==='impact'){const u=1-Math.max(0,f.life/f.max),r=(f.power>1.5?22:f.power>1?17:12)*(.4+u*.9),n=f.power>1.5?10:f.power>1?8:6;
+      ctx.translate(f.x,f.y);ctx.globalAlpha=(1-u)*(1-u*.5);
+      ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(0,0,Math.max(.1,(f.power>1.5?9:6)*(1-u)),0,TAU);ctx.fill();
+      ctx.strokeStyle=f.color;ctx.lineCap='round';ctx.lineWidth=(f.power>1.5?3:2)*(1-u*.6);
+      for(let i=0;i<n;i++){const q=f.a+(i/n)*TAU+(i%2?.12:-.08),r0=r*.35,r1=r*(i%2?.8:1.15);ctx.beginPath();ctx.moveTo(Math.cos(q)*r0,Math.sin(q)*r0);ctx.lineTo(Math.cos(q)*r1,Math.sin(q)*r1);ctx.stroke()}
+      ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(0,0,r*.9,0,TAU);ctx.stroke()}
     ctx.restore();
   }
 }
@@ -1938,7 +1944,7 @@ function dojoDepthEntries(){const entries=[];let serial=0;const add=(kind,y,pain
  for(const s of shots){if(s.life<=0)continue;add('projectile',s.y,()=>{if(s.dojoBlade)dojoEffect(ctx,'blade',s.x,s.y-12,76,Math.floor((s.age||0)*32)%24);else{const all=shots;shots=[s];try{dojoKitProjectiles()}finally{shots=all}}},2);}
  for(const f of vfxEvents)add('effect',f.y??f.owner?.y,()=>vfxDrawEvent(f,false),2);
  for(const f of vfxParticles)add('particle',f.y,()=>dojoDrawParticle(f),2);
- for(const f of fx)add('impact',f.y,()=>{const all=fx;fx=[f];try{vfxDrawLegacy()}finally{fx=all}},2);
+ for(const f of fx)add('impact',f.sy??f.y,()=>{const all=fx;fx=[f];try{vfxDrawLegacy()}finally{fx=all}},2);
  if(pillarCache)for(const o of pillars){const margin=o.r+22,x=o.x-margin,y=o.y-margin;add('pillar',o.y,()=>ctx.drawImage(pillarCache,x,y,margin*2,margin*2,x,y,margin*2,margin*2));}
  return entries.sort((a,b)=>a.y-b.y||a.priority-b.priority||a.serial-b.serial);
 }

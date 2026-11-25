@@ -37,6 +37,10 @@ hit=function(t,n,o,k,an,id){
     for(let i=texts.length-1;i>=t0&&i>=0;i--){const x=texts[i];if(typeof x.t==='number'){
       if(dano>=90){x.color='#ff8a5c';x.pop=1.6;x.life=1.15}else if(dano>=50){x.color='#ffd978';x.pop=1.32;x.life=1.0}else if(dano>=25)x.pop=1.12;break}}
     if(dano>=90)combatImpact(2.2);
+    if(typeof vfxQuality==='undefined'||vfxQuality!=='low'||dano>=50){
+      const bloq=t.blockFlash>.15,ang=Number.isFinite(an)?an:Math.atan2(t.y-(o?o.y:t.y),t.x-(o?o.x:t.x)),pw=bloq?.6:dano>=90?2:dano>=45?1.3:1;
+      fx.push({kind:'impact',x:t.x-Math.cos(ang)*7,y:t.y-12-Math.sin(ang)*3,sy:t.y+3,a:ang,power:pw,color:bloq?'#bfe9ff':dano>=90?'#ff9a5c':dano>=45?'#ffd978':'#fff6d8',life:pw>1.5?.3:.22,max:pw>1.5?.3:.22});
+    }
     if(o&&dano>=20){
       const costas=Math.abs(wrap(Math.atan2(o.y-t.y,o.x-t.x)-t.a))>2.2;
       if(o===p){S.maxHit=Math.max(S.maxHit,dano);if(costas)S.backDealt++}
@@ -52,6 +56,23 @@ hit=function(t,n,o,k,an,id){
   });
   return r;
 };
+
+/* contorno de guarda e de carga na cor do campeão (desenhado atrás do boneco) */
+const COR_HEROI=['#ffd24a','#b58cff','#ff5468','#ffa23a','#9a6bff','#4de0c4','#5cff8a','#4db8ff','#9ad0ff','#d8b07a'];
+if(typeof integratedDrawActor==='function'){const prevAtor=integratedDrawActor;integratedDrawActor=function(a){
+  try{
+    if(a&&a.hp>0&&!a.boss&&!a.trainingDummy&&(a.guard||a.cast>.08)){
+      const guarda=!!a.guard,t=clock,cor=COR_HEROI[a.skin]||a.color||'#fff',pulso=.5+.5*Math.sin(t*(guarda?5:14));
+      ctx.save();ctx.translate(a.x,a.y);ctx.strokeStyle=cor;ctx.shadowColor=cor;ctx.shadowBlur=guarda?12:16;ctx.lineWidth=guarda?3:2.4;
+      const k=guarda?1:1+.1*pulso,fa=guarda?(a.blockFlash>0?.95:.55+.15*pulso):.5+.4*pulso;
+      ctx.globalAlpha=fa*.35;const gr=ctx.createRadialGradient(0,-6,6,0,-6,44*k);gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(.6,cor);gr.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=gr;ctx.beginPath();ctx.ellipse(0,-6,34*k,46*k,0,0,Math.PI*2);ctx.fill();
+      ctx.globalAlpha=fa;ctx.beginPath();ctx.ellipse(0,-6,25*k,37*k,0,0,Math.PI*2);ctx.stroke();
+      if(!guarda){ctx.globalAlpha=fa*.5;ctx.beginPath();ctx.ellipse(0,-6,33*k,45*k,0,0,Math.PI*2);ctx.stroke()}
+      ctx.restore();
+    }
+  }catch{try{ctx.restore()}catch{}}
+  return prevAtor.apply(this,arguments);
+};}
 
 /* esquiva (de qualquer campeão): guarda o instante e quais recargas ela gerou, para premiar a esquiva perfeita */
 if(typeof dodge==='function'){const prevDodge=dodge;dodge=function(a){
