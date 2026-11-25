@@ -467,12 +467,19 @@ function rotaFeedback(req, res) {
     if (limite(ipDe(req), false) || !feedback.chaveOk(k)) return responder(res, 403, { erro: 'chave' });
     return responder(res, 200, feedback.listar(n));
   }
+  const mc = /^\/feedback\/captura\/([0-9a-f]{8})\.jpg$/.exec(rota);
+  if (mc && req.method === 'GET') {
+    const k = new URLSearchParams(qs || '').get('k');
+    if (limite(ipDe(req), false) || !feedback.chaveOk(k)) return responder(res, 403, { erro: 'chave' });
+    const buf = feedback.lerCaptura(mc[1]); if (!buf) return responder(res, 404, { erro: 'sem captura' });
+    res.writeHead(200, { ...CORS, 'content-type': 'image/jpeg', 'cache-control': 'no-store' }); return res.end(buf);
+  }
   if (rota === '/feedback/enviar' && req.method === 'POST') {
     const ip = ipDe(req);
     const l = limites.get(ip + '#fb') || { t: Date.now(), n: 0 }; if (Date.now() - l.t > 60000) { l.t = Date.now(); l.n = 0; } l.n++; limites.set(ip + '#fb', l);
     if (l.n > 6) return responder(res, 429, { erro: 'muitos' });
     let corpo = '', estourou = false;
-    req.on('data', d => { corpo += d; if (corpo.length > 20 * 1024) { estourou = true; req.destroy(); } });
+    req.on('data', d => { corpo += d; if (corpo.length > 160 * 1024) { estourou = true; req.destroy(); } });
     req.on('end', () => {
       if (estourou) return;
       let m; try { m = JSON.parse(corpo || '{}'); } catch { return responder(res, 400, { erro: 'json' }); }
