@@ -137,7 +137,7 @@ function combatSound(kind='hit',power=1){
     osc.connect(gain);gain.connect(combatAudio.destination);osc.start(now);osc.stop(now+cfg[2]+.015);
   }catch(e){}
 }
-function combatImpact(power=1){combatHitStop=Math.max(combatHitStop,power>=1.6?.085:power>=1.15?.065:.045);combatShake=Math.min(10,combatShake+(power>=1.6?7:power>=1.15?4.5:2.2));}
+function combatImpact(power=1){combatHitStop=Math.max(combatHitStop,power>=2?.11:power>=1.6?.085:power>=1.15?.065:.045);combatShake=Math.min(12,combatShake+(power>=2?9:power>=1.6?7:power>=1.15?4.5:2.2));}
 function move(a,dx,dy){let steps=Math.ceil(Math.hypot(dx,dy)/7)||1;let hit=false;for(let i=0;i<steps;i++){let x=a.x+dx/steps,y=a.y+dy/steps;if(!blocked(x,a.y,a.r))a.x=x;else hit=true;if(!blocked(a.x,y,a.r))a.y=y;else hit=true}return hit}
 function ring(x,y,r,color,life=.4){fx.push({kind:'ring',x,y,r,color,life,max:life})}
 function float(x,y,t,color='#f0e1ba'){texts.push({x,y,t,color,life:.9})}
@@ -332,7 +332,7 @@ function draw(){if(!p||!cw)return;updateArenaCamera();ctx.clearRect(0,0,cw,ch);c
 dojoDrawDepthWorld();
 drawFocusMarker();for(const a of actors){try{drawActorStatus(a)}catch(e){erroDoLaco('status',e)}}
 drawAimV4();
-for(let t of texts){ctx.globalAlpha=Math.min(1,t.life*3);ctx.textAlign='center';ctx.font=(typeof t.t==='number'?'bold '+Math.round(Math.min(32,15+Math.sqrt(Math.max(0,t.t))*.95))+'px':'12px')+' system-ui';ctx.strokeStyle='#142219';ctx.lineWidth=4;ctx.strokeText(t.t,t.x,t.y);ctx.fillStyle=t.color;ctx.fillText(t.t,t.x,t.y);ctx.globalAlpha=1}ctx.restore();drawArenaMap()}
+for(let t of texts){ctx.globalAlpha=Math.min(1,t.life*3);ctx.textAlign='center';ctx.font=(typeof t.t==='number'?'bold '+Math.round(Math.min(44,(15+Math.sqrt(Math.max(0,t.t))*.95)*(t.pop?1+(t.pop-1)*Math.max(0,Math.min(1,(t.life-.55)/.3)):1)))+'px':'12px')+' system-ui';ctx.strokeStyle='#142219';ctx.lineWidth=4;ctx.strokeText(t.t,t.x,t.y);ctx.fillStyle=t.color;ctx.fillText(t.t,t.x,t.y);ctx.globalAlpha=1}ctx.restore();drawArenaMap()}
 const SKILL_ATLASES=["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""];
 const SKILL_SPRITE_SIZE=192,SKILL_SPRITE_FRAMES=24,SKILL_SPRITE_ROWS=4,SKILL_SPRITE_COLUMNS=6;
 const SKILL_CACHE_LIMIT=26,SKILL_DECODE_LIMIT=2;
@@ -1453,7 +1453,7 @@ function initArenaModes(){document.addEventListener('click',e=>{if(e.target.clos
    arena em branco) até fechar e abrir o app. Agora cada parte é isolada: o erro é registrado/relatado e o jogo segue. */
 const ERROS_LACO={n:0,lista:[],vistos:new Set(),relatos:0,ultimoRelato:0};window.__errosLaco=ERROS_LACO;
 function erroDoLaco(onde,e){
- ERROS_LACO.n++;
+ ERROS_LACO.n++;try{window.avisoErroLaco&&window.avisoErroLaco(ERROS_LACO.n)}catch{}
  const msg=onde+': '+String(e&&e.message||e).slice(0,140),pilha=String(e&&e.stack||'').split('\n').slice(1,4).map(x=>x.trim().replace(/https?:\/\/[^/]+\//,'')).join(' | '),chave=msg+pilha;
  if(ERROS_LACO.vistos.has(chave))return;
  ERROS_LACO.vistos.add(chave);ERROS_LACO.lista.push({msg,pilha,estado:typeof state==='string'?state:''});if(ERROS_LACO.lista.length>20)ERROS_LACO.lista.shift();

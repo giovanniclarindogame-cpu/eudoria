@@ -1,0 +1,34 @@
+/* v73 — polimento de combate e telas */
+#intro73{position:absolute;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;gap:clamp(14px,5vw,56px);background:linear-gradient(90deg,#0b1d3acc,#0a1224d9 50%,#3a1a0acc);animation:i73-in 1.5s ease both;pointer-events:auto}
+#intro73 .i73-side{display:flex;flex-direction:column;gap:2px;max-width:34%}
+#intro73 .i73-side.l{align-items:flex-end;text-align:right;animation:i73-l .45s ease-out both}
+#intro73 .i73-side.r{align-items:flex-start;text-align:left;animation:i73-r .45s ease-out both}
+#intro73 small{font-size:11px;letter-spacing:.2em;color:#9db4d6}
+#intro73 .i73-side.r small{color:#e8b48a}
+#intro73 b{font-size:clamp(18px,4.6vw,30px);color:#fff;text-shadow:0 2px 0 #0008;overflow-wrap:anywhere}
+#intro73 em{font-style:normal;font-size:clamp(11px,2.4vw,15px);color:#ffd978}
+#intro73 .i73-vs{font-size:clamp(26px,7vw,46px);font-weight:900;color:#ffd978;text-shadow:0 0 18px #ffb52e99,0 3px 0 #6b4300;animation:i73-vs .5s .15s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes i73-in{0%{opacity:0}12%{opacity:1}82%{opacity:1}100%{opacity:0}}
+@keyframes i73-l{from{transform:translateX(-60px);opacity:0}}
+@keyframes i73-r{from{transform:translateX(60px);opacity:0}}
+@keyframes i73-vs{from{transform:scale(2.4);opacity:0}}
+#practiceExtra{position:absolute;left:12px;top:78px;z-index:7;display:flex;flex-direction:column;gap:2px;padding:6px 9px;border-radius:8px;background:#0a1426b3;border:1px solid #ffffff22;font-size:10px;color:#cfe0ff;pointer-events:none}
+#practiceExtra[hidden]{display:none}
+#practiceExtra b{color:#ffd978}
+#falha73{position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:40;display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:10px;background:#3a1212ee;border:1px solid #ff8a7a88;color:#ffe3dc;font-size:12px}
+#falha73 button{border:0;border-radius:7px;padding:5px 9px;background:#ffd978;color:#3b2500;font-weight:700;font-size:12px}
+#falha73 button[data-f=sair],#falha73 button[data-f=x]{background:#ffffff22;color:#ffe3dc}
+#res73{margin:6px 0 4px;text-align:center;width:100%;align-self:stretch;box-sizing:border-box}
+#res73 .r73-linha{margin:0 0 5px;font-size:11px;line-height:1.3;color:#cfe0ff}
+#res73 .r73-linha b{color:#ffd978}
+#res73 .r73-xp{display:flex;align-items:center;gap:7px;justify-content:center;font-size:10px;color:#cfe0ff}
+#res73 .r73-trilho{width:46%;max-width:180px;height:7px;border-radius:5px;background:#ffffff1f;overflow:hidden}
+#res73 .r73-trilho i{display:block;height:100%;background:linear-gradient(90deg,#ffb52e,#ffe08a);border-radius:5px;transition:width .6s ease-out}
+#res73 .r73-lv.up{color:#ffd978;font-weight:800}
+#res73 small{color:#ffd978;font-weight:700}
+#c73bar{position:absolute;left:50%;top:10px;transform:translateX(-50%);z-index:60;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px;padding:7px 10px;border-radius:10px;background:#0a1426f2;border:1px solid #ffd97888;font-size:12px;color:#ffe9b0;max-width:96vw}
+#c73bar[hidden]{display:none}
+#c73bar button{border:0;border-radius:7px;padding:6px 10px;background:#ffffff22;color:#fff;font-size:12px}
+#c73bar button.ok{background:#ffd978;color:#3b2500;font-weight:800}
+body.c73-edit #stick,body.c73-edit #attack,body.c73-edit #equipped{outline:2px dashed #ffd978;outline-offset:4px;opacity:1!important;cursor:grab;touch-action:none}
+body.c73-edit #controls{z-index:55}
