@@ -15,6 +15,14 @@ championCard=function(c){
 };}
 if(typeof openChampionDetails==='function'){const prevOpen=openChampionDetails;openChampionDetails=function(id){
   const r=prevOpen.apply(this,arguments);
-  try{const t=document.querySelector('#heroDetail .hero-heading')||document.querySelector('#championTitle');if(t&&!document.querySelector('.champ-emblem-big'))t.insertAdjacentHTML(t.id?'beforebegin':'afterbegin',img(id,'champ-emblem-big'))}catch{}
+  try{
+    const root=document.querySelector('#heroDetail');if(!root)return r;
+    // o emblema vira o ícone do botão da MARCA do campeão (último botão da fileira de habilidades)
+    const poe=()=>{const btn=root.querySelector('.hero-kit>button.mark-btn');if(!btn||btn.querySelector('.champ-emblem-ult'))return;
+      btn.classList.add('has-emblem-ult');
+      for(const e of [...btn.children])if(e.tagName!=='SMALL')e.style.display='none';
+      btn.insertAdjacentHTML('afterbegin',img(Number(id),'champ-emblem-ult'))};
+    poe();new MutationObserver(poe).observe(root,{childList:true,subtree:true});
+  }catch{}
   return r};}
 })();

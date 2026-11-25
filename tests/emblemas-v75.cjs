@@ -13,7 +13,12 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
   if(off){ok(r.emb===0,'?emblemas=0 desliga os emblemas');await p.close();continue}
   ok(r.n===10&&r.emb===10&&r.carregou,`10 cartões com emblema carregado (${r.emb}/${r.n})`);ok(!r.cobreTexto,'o emblema não cobre o nome do campeão');
   const h0=await p.evaluate(()=>{document.querySelector('[data-hero-open="3"]').click();return null});await p.waitForTimeout(900);
-  const d=await p.evaluate(()=>{const e=document.querySelector('#heroDetail .champ-emblem-big'),t=document.querySelector('#heroDetail .hero-heading h1');if(!e)return null;const a=e.getBoundingClientRect(),c=t.getBoundingClientRect();return{dentro:a.top>=0&&a.left>=0&&a.bottom<=innerHeight,acima:a.bottom<=c.top+2,carregou:e.complete&&e.naturalWidth>0,src:e.getAttribute('src')}});
-  ok(d&&d.dentro&&d.acima&&d.carregou,'página do campeão: emblema dentro da tela, acima do nome '+JSON.stringify(d));
+  const d=await p.evaluate(()=>{const e=document.querySelector('#heroDetail .hero-kit button.mark-btn .champ-emblem-ult'),btn=document.querySelector('#heroDetail .hero-kit>button.mark-btn'),voltar=document.querySelector('#heroDetail [data-hero-back]');if(!e)return null;
+   const a=e.getBoundingClientRect(),v=voltar.getBoundingClientRect();
+   return{dentro:a.top>=0&&a.right<=innerWidth&&a.bottom<=innerHeight&&a.width>20,carregou:e.complete&&e.naturalWidth>0,src:e.getAttribute('src'),antigoOculto:[...btn.children].filter(x=>x.tagName!=='SMALL'&&x!==e).every(x=>x.style.display==='none'),
+    semEmblemaNoCanto:!document.querySelector('#heroDetail .champ-emblem-big'),naoCobreVoltar:!(a.right<v.left||a.left>v.right||a.bottom<v.top||a.top>v.bottom)}});
+  ok(d&&d.dentro&&d.carregou&&d.antigoOculto&&d.semEmblemaNoCanto&&!d.naoCobreVoltar,'página do campeão: emblema no botão da marca, sem emblema ao lado do voltar '+JSON.stringify(d));
+  await p.click('#heroDetail .hero-kit button[data-hero-skill="2"]');await p.waitForTimeout(300);
+  ok(await p.evaluate(()=>!!document.querySelector('#heroDetail .hero-kit button.mark-btn .champ-emblem-ult')),'o emblema continua no botão da marca depois de trocar de habilidade');
   await p.close()}
  ok(errs.length===0,'nenhum erro de JavaScript '+errs.slice(0,2).join('|'));await b.close()})();
