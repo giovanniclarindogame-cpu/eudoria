@@ -741,6 +741,17 @@ function paintBeam(B){
 function paintNova(R){
  const N=R.nova,A=R.a;if(!N)return;
  const sx=A.x,sy=A.y-78,x=sx+(N.x-sx)*N.fall,y=sy+(N.y-sy)*N.fall,rr=N.sphere*(1+.04*Math.sin(clock*30));
+ // arte pintada (folha supernova): linha 0 = carga, linha 1 = esfera em voo
+ if(window.ZorEfx&&ZorEfx.pronto('supernova')){
+  ctx.save();ctx.globalCompositeOperation='lighter';
+  if(N.fall>0){
+   const ang=Math.atan2(N.y-sy,N.x-sx);ctx.translate(x,y);ctx.rotate(ang);
+   ZorEfx.quadro(ctx,'supernova',1,Math.floor(clock*16)%6,0,0,270,.74,.5);
+  }else{
+   ZorEfx.quadro(ctx,'supernova',0,Math.floor(clock*12)%6,x,y,Math.max(30,rr*4.6));
+  }
+  ctx.restore();return;
+ }
  ctx.save();ctx.globalCompositeOperation='lighter';
  const g=ctx.createRadialGradient(x,y,2,x,y,rr*1.7);g.addColorStop(0,'#fff');g.addColorStop(.3,'#ff9ac4');g.addColorStop(.6,'#b86bff');g.addColorStop(1,'rgba(90,45,138,0)');
  ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,rr*1.7,0,TAU);ctx.fill();
@@ -748,13 +759,21 @@ function paintNova(R){
  for(let i=0;i<10;i++){const q=clock*3+i*.63,rad=rr*(1.1+.4*Math.sin(clock*5+i));ctx.globalAlpha=.7;ctx.fillStyle=i%2?VI:'#ff62a8';ctx.fillRect(x+Math.cos(q)*rad-2,y+Math.sin(q)*rad-2,4,4)}
  ctx.restore();
 }
+// explosão pintada: nasce quando a esfera some depois de cair (vale no anfitrião e no convidado online)
+function paintBoom(B){
+ const k=(clock-B.t0)/.1,i=Math.floor(k);if(i>5)return;
+ ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=i===5?clamp(1-(k-5),0,1):1;
+ ZorEfx.quadro(ctx,'supernova',2,i,B.x,B.y,B.r*2/.84);ctx.restore();
+}
 const prevDepth=integratedDepth;
 integratedDepth=function(){
  const list=prevDepth(),R=hunt();
  if(!R)return list;
  for(const g of R.ghosts)list.push({kind:'zor-ghost',y:g.y-1,priority:0,paint(){ctx.save();ctx.translate(g.x,g.y+10);ctx.globalAlpha=g.life/g.max*.5;ZorvathSprite.paint(ctx,'dodge',0,{scale:2.3,flip:Math.cos(g.face)<0,form:g.form,filter:'hue-rotate(50deg) brightness(1.5)'});ctx.restore()}});
  for(const d of R.discs)list.push({kind:'zor-disc',y:d.y,priority:3,paint(){paintDisc(d)}});
- if(R.nova)list.push({kind:'zor-nova',y:99997,priority:5,paint(){paintNova(R)}});
+ if(R.nova){R._ln={x:R.nova.x,y:R.nova.y,r:R.nova.r,f:R.nova.fall||0};list.push({kind:'zor-nova',y:99997,priority:5,paint(){paintNova(R)}})}
+ else if(R._ln){if(R._ln.f>=.35&&window.ZorEfx&&ZorEfx.pronto('supernova'))R.boom={x:R._ln.x,y:R._ln.y,r:R._ln.r,t0:clock};R._ln=null}
+ if(R.boom){if(clock-R.boom.t0>.7)R.boom=null;else{const B=R.boom;list.push({kind:'zor-boom',y:99996,priority:5,paint(){paintBoom(B)}})}}
  if(R.beam){const B=R.beam;list.push({kind:'zor-beam',y:99999,priority:6,paint(){paintBeam(B)}})}
  if(R.dying>0){const A=R.a,k=clamp(R.dying/2,0,1);list.push({kind:'zor-dying',y:A.y,priority:2,paint(){
   ctx.save();ctx.translate(A.x,A.y);ctx.fillStyle='#06100c99';ctx.beginPath();ctx.ellipse(0,12,26,9,0,0,TAU);ctx.fill();ctx.translate(0,10);
