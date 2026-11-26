@@ -8,4 +8,7 @@
  * Para a versão final: troque "ativo" para false (ou use ?teste=0 para ver o jogo normal). Fica desligada com ?allheroes=1 (testes automáticos).
  */
 window.ELDORIA_TESTE={ativo:!/[?&](allheroes=1|teste=0)/.test(location.search),semMoedas:true,semPresentes:true,todosHerois:true,tutorialObrigatorio:true};
+/* CAÇADA DO DIA (liga/desliga aqui). false = o modo aparece como "Em breve" e não abre; a missão diária da Caçada também fica de fora.
+ * Para liberar quando os chefes estiverem prontos: troque para true. Para testar antes de liberar, abra o jogo com ?cacada=1. */
+window.CACADA_LIBERADA=false||/[?&]cacada=1/.test(location.search);
 window.ELDORIA_TESTE_ON=k=>!!(window.ELDORIA_TESTE&&ELDORIA_TESTE.ativo&&ELDORIA_TESTE[k]);

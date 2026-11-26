@@ -133,6 +133,7 @@ function lobbyMarkup(def){
  </footer></div>`;
 }
 function openHuntLobby(){
+ if(!window.CACADA_LIBERADA){try{toast('Caçada do Dia: em breve')}catch{}return}
  lobbyDef=bossOfDay();save=loadSave();
  showArenaModes();appScreen='hunt';document.body.dataset.screen='hunt';
  $('#modeScreen').innerHTML=lobbyMarkup(lobbyDef);$('#modeScreen').scrollTop=0;
@@ -751,6 +752,7 @@ function startHomeArt(){
  homeRaf=requestAnimationFrame(loop);
 }
 function ensureHuntHome(){
+ if(!window.CACADA_LIBERADA)return;
  const ex=document.querySelector('.royal-explore');if(!ex)return;
  const def=bossOfDay(),sv=loadSave(),rec=sv.best[def.id],wins=sv.wins[def.id]||0;
  const card=document.createElement('section');card.className='royal-panel hunt-home';card.setAttribute('aria-label','Caçada do Dia');

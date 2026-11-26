@@ -5,7 +5,7 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
 (async()=>{const b=await chromium.launch();const errs=[];
  for(const off of [false,true]){
   const p=await (await b.newContext()).newPage();p.on('pageerror',e=>errs.push(e.message));
-  await p.goto('http://localhost:8000/index.html?allheroes=1'+(off?'&zorarte=0':''));await p.waitForTimeout(1200);
+  await p.goto('http://localhost:8000/index.html?allheroes=1&cacada=1'+(off?'&zorarte=0':''));await p.waitForTimeout(1200);
   if(off){ok(await p.evaluate(()=>typeof ZorvathArte==='undefined'),'?zorarte=0 desliga a arte nova');await p.close();continue}
   const r=await p.evaluate(async()=>{
    const itens=[];for(const [n,d] of Object.entries(ZorvathSprite.POSES))for(let i=0;i<d.n;i++)itens.push([n,i,0]);itens.push(['punch',0,1],['punch',5,1]);

@@ -31,7 +31,7 @@ const MODES=[
  {id:'trio',cat:'casual',name:'Trio de Campeões',sub:'Quem vence continua',tag:'3 campeões',art:12,run:()=>{try{if(window.OnlineV45)return OnlineV45.procurar('trio')}catch(e){console.error(e)}window.V3Kof?.open('kof')}},
  {id:'coroa',cat:'casual',name:'Disputa da Coroa',sub:'Segure a coroa por 3 minutos',tag:'4 lutadores',art:13,run:()=>{try{if(window.OnlineV45)return OnlineV45.procurar('coroa')}catch(e){console.error(e)}window.V3Kof?.open('crown')}},
  {id:'zona',cat:'casual',name:'Controle de Zona',sub:'Em reformulação',tag:'2×2',art:11,soon:true},
- {id:'cacada',cat:'desafio',name:'Caçada do Dia',sub:()=>huntName()||'Um chefe por dia',tag:'Solo ou dupla',art:6,run:()=>window.huntQA?.lobby()},
+ {id:'cacada',cat:'desafio',name:'Caçada do Dia',sub:()=>window.CACADA_LIBERADA?(huntName()||'Um chefe por dia'):'Em breve',tag:'Solo ou dupla',art:6,soon:!window.CACADA_LIBERADA,run:()=>window.huntQA?.lobby()},
  {id:'guardiao',cat:'desafio',name:'Caçada ao Guardião',sub:'Fuja das áreas vermelhas',tag:'Cooperativo',art:7,run:()=>beginArenaMode('guardian')},
  {id:'cruzada',cat:'desafio',name:'Cruzada Arcade',sub:'Fase, horda e chefe',tag:'Solo',art:8,run:()=>beginArenaMode('stage')},
  {id:'torneio',cat:'desafio',name:'Torneio dos Campeões',sub:'Chaves até a final',tag:'8 lutadores',art:9,run:()=>window.V3Tour?.open()},
