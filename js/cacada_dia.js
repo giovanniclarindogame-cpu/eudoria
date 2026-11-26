@@ -337,6 +337,9 @@ function feelHit(t,lost,angle,raw){
  }
 }
 function addTele(o){const R=hunt();R.tele.push(Object.assign({t:0,dur:1,color:PK},o))}
+// ponta do dedo do chefe quando levanta o braço para o raio (na frente do corpo, na altura da mão); depende da forma
+const MUZ={1:[46,58],2:[46,58],3:[50,62]};
+function muzzle(A,ang,form){const m=MUZ[form||hunt().shown||1]||MUZ[1],sg=Math.cos(ang)<0?-1:1;return{x:A.x+sg*m[0],y:A.y-m[1]}}
 function rayEnd(x,y,a,max=760){let d=0,px=x,py=y;while(d<max){const nx=x+Math.cos(a)*(d+10),ny=y+Math.sin(a)*(d+10);if(blocked(nx,ny,3))break;px=nx;py=ny;d+=10}return{x:px,y:py,len:d}}
 function shock(A,r,dmg,knock,r0=0,cx=A.x,cy=A.y){
  ring(cx,cy,r,PK,.55);ring(cx,cy,r*.7,VI,.45);spark(cx,cy,VI,22);combatImpact(1.7);combatSound('heavy',1.3);
@@ -405,12 +408,12 @@ ACT.s3=(dt,A,R,T,a)=>{
  a.sub+=dt;
  const ch=a.shot===0?.7:.5;
  if(a.phase==='charge'){
-  if(a.sub<ch*.6)a.ang+=wrap(ang(A,T)-a.ang)*Math.min(1,dt*6);
+  if(a.sub<ch*.6){const m0=muzzle(A,a.ang,R.shown);a.ang+=wrap(Math.atan2(T.y-m0.y,T.x-m0.x)-a.ang)*Math.min(1,dt*6)}
   A.a=a.ang;R.face=a.ang;R.glow=Math.max(R.glow,.4+a.sub/ch*.5);
   R.cannon={a:a.ang,k:a.sub/ch,locked:a.sub>=ch*.6,w:30};R.pose={name:'beam',i:a.sub<ch*.5?0:1};
   if(a.sub>=ch){
    a.phase='fire';a.sub=0;a.hit=new Set();R.cannon=null;
-   const o={x:A.x+Math.cos(a.ang)*24,y:A.y-4+Math.sin(a.ang)*24},e=rayEnd(o.x,o.y,a.ang);
+   const o=muzzle(A,a.ang,R.shown),e=rayEnd(o.x,o.y,a.ang);
    R.beam={x:o.x,y:o.y,ex:o.x+Math.cos(a.ang)*e.len,ey:o.y+Math.sin(a.ang)*e.len,a:a.ang,t:0,dur:.32,w:30};
    combatImpact(1.5);combatSound('crit',1.2);
   }
@@ -714,7 +717,7 @@ drawModeWorld=function(){
  }
  const c=R.cannon;
  if(c&&R.a.hp>0){
-  const A=R.a,o={x:A.x+Math.cos(c.a)*24,y:A.y-4+Math.sin(c.a)*24},e=rayEnd(o.x,o.y,c.a),w=c.w;
+  const A=R.a,o=muzzle(A,c.a,R.shown),e=rayEnd(o.x,o.y,c.a),w=c.w;
   ctx.save();ctx.translate(o.x,o.y);ctx.rotate(c.a);
   ctx.fillStyle=PK+(c.locked?'40':'22');ctx.fillRect(0,-w/2,e.len,w);
   ctx.globalAlpha=.6+.4*Math.sin(clock*(c.locked?32:14));ctx.strokeStyle=c.locked?'#fff':PK;ctx.lineWidth=c.locked?3:2;ctx.strokeRect(0,-w/2,e.len,w);
