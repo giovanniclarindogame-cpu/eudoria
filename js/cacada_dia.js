@@ -19,7 +19,7 @@ const ZOR={
   'Forma 1 é lenta e forte de perto: mantenha distância e castigue a recuperação dela.',
   'Saia dos círculos da Pressão Psíquica: quem é preso toma o golpe seguinte.',
   'Supernova: dê muito dano de uma só vez durante a carga para interrompê-la e atordoá-lo.',
-  'O Raio Perfurante não atravessa os pilares do centro.'
+  'Os pilares de cristal bloqueiam o Raio Perfurante: fique atrás de um para se proteger.'
  ],
  skills:[
   {id:'s0',name:'Chicote de Cauda',icon:'whip',cd:5,desc:'Giro rápido que atinge tudo ao redor dele. Na forma final, vem duas vezes. Fique longe do círculo.'},
@@ -223,7 +223,7 @@ configureArenaSize=function(){
  const hunt=arenaModeId==='guardian'&&battleActivity!=='training';
  if(hunt||lastHuntArena)groundCache=null;
  lastHuntArena=hunt;
- if(hunt)pillars=[...pillars,{x:W*.36,y:H*.5,r:27},{x:W*.64,y:H*.5,r:27}];
+ if(hunt)pillars=[...pillars,{x:W*.4,y:H*.3,r:27},{x:W*.6,y:H*.7,r:27}];   // cobertura fora do eixo central: a faixa do meio fica livre para o duelo, e os pilares servem de abrigo contra o raio
 };
 
 /* câmera: enquadra jogador e chefe juntos */
