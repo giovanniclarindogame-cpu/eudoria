@@ -187,6 +187,10 @@ function tratar(req, res) {
   if (rota === '/sair') {
     res.writeHead(303, { location: '/entrar', 'set-cookie': 'eldoria_s=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax', 'cache-control': 'no-store' }); res.end(); return true;
   }
+  if (rota === '/manutencao.json') {   // público (a página consulta antes do login): nunca em cache
+    let corpo = '{"ativo":false}'; try { corpo = fs.readFileSync(path.join(SITE, 'manutencao.json'), 'utf8'); } catch {}
+    res.writeHead(200, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', 'access-control-allow-origin': '*' }); res.end(req.method === 'HEAD' ? undefined : corpo); return true;
+  }
   if (rota === '/robots.txt') { res.writeHead(200, { 'content-type': 'text/plain' }); res.end('User-agent: *\nDisallow: /\n'); return true; }
   if (req.method !== 'GET' && req.method !== 'HEAD') { res.writeHead(405, { allow: 'GET, HEAD' }); res.end(); return true; }
   const usuario = usuarioDoCookie(req);
