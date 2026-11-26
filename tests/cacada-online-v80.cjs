@@ -26,6 +26,9 @@ const PORT=8799,SRV='ws://localhost:'+PORT;
  ok(est[0].eu===2&&est[0].ally===5&&est[1].eu===5&&est[1].ally===2,`cada tela tem o seu campeão e o do parceiro (${est.map(e=>e.eu+'+'+e.ally)})`);
  ok(est.every(e=>e.guest&&e.n===3&&e.boss===4600&&e.form===1),'os dois veem o Zorvath (vida 4600, forma 1) rodando no servidor');
  ok(est[0].nomes==='Ana/Beto'&&est[1].nomes==='Beto/Ana','nomes certos nas duas telas '+est.map(e=>e.nomes));
+ // o chefe age sozinho (sem nenhum comando de teste): anda e ataca nas duas telas
+ const nat=await Promise.all(P.map(pg=>pg.evaluate(async()=>{const R=modeRun.hunt,acts=new Set(),x0=b.x,y0=b.y;let mov=0;const t0=performance.now();while(performance.now()-t0<12000){if(R.act)acts.add(R.act.id);mov=Math.max(mov,Math.hypot(b.x-x0,b.y-y0));await new Promise(r=>setTimeout(r,200));if(acts.size>=2&&mov>120)break}return{acts:acts.size,mov:Math.round(mov)}})));
+ ok(nat.every(n=>n.acts>=2&&n.mov>120),`o chefe se move e ataca sozinho nas duas telas (${nat.map(n=>n.acts+' golpes, '+n.mov+' px')})`);
  // posições do chefe iguais nas duas telas
  const pos=await Promise.all(P.map(pg=>pg.evaluate(()=>[Math.round(b.x),Math.round(b.y)])));
  ok(Math.hypot(pos[0][0]-pos[1][0],pos[0][1]-pos[1][1])<40,`o chefe está no mesmo lugar nas duas telas (${pos.map(x=>x)})`);
