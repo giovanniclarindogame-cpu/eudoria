@@ -12,7 +12,7 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  ok(!/semana|CHEFES DA SEMANA|Dicas/i.test(await p.evaluate(()=>document.querySelector('.hunt-page').textContent)),'nenhum texto de dica/semana no lobby');
  await p.click('[data-hunt-tab=s]');await p.waitForTimeout(800);
  const ic=await p.evaluate(()=>[...document.querySelectorAll('.hunt-skill img.pint')].map(i=>i.complete&&i.naturalWidth));
- ok(ic.length===6&&ic.every(w=>w>100),'os 6 ícones pintados das habilidades carregaram ('+ic+')');
+ ok(ic.length===9&&ic.every(w=>w>100),'os 9 ícones pintados das habilidades carregaram ('+ic+')');
  await p.screenshot({path:'/tmp/claude-0/lobby_skills.png'});
  await p.click('[data-hunt-team=solo]');await p.click('[data-hunt-start]');await p.waitForTimeout(900);
  await p.waitForFunction(()=>state==='fight',null,{timeout:25000});await p.waitForTimeout(2000);

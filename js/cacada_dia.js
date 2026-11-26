@@ -30,9 +30,9 @@ const ZOR={
   {id:'s5',name:'Supernova',icon:'zv5',cd:30,desc:'Carrega uma esfera gigante e a lança sobre uma área enorme. Dano alto em tudo; interrompa com muito dano. (Forma 3)'}
  ],
  basics:[
-  {name:'Golpe do Imperador',icon:'punch',desc:'Combo de 3 golpes (4 na forma final), com cauda e punho. O último empurra.'},
-  {name:'Guarda Soberba',icon:'guard',desc:'O chefe se protege de frente e reduz o dano. Ataque pelas costas ou espere ele baixar a guarda.'},
-  {name:'Piscar',icon:'step',desc:'Teleporte curto com invulnerabilidade ao ver um golpe se formando.'}
+  {name:'Golpe do Imperador',icon:'zb0',desc:'Combo de 3 golpes (4 na forma final), com cauda e punho. O último empurra.'},
+  {name:'Guarda Soberba',icon:'zb1',desc:'O chefe se protege de frente e reduz o dano. Ataque pelas costas ou espere ele baixar a guarda.'},
+  {name:'Piscar',icon:'zb2',desc:'Teleporte curto com invulnerabilidade ao ver um golpe se formando.'}
  ]
 };
 const ROSTER=[ZOR];
@@ -56,7 +56,8 @@ function mmss(sec){sec=Math.max(0,Math.round(sec));return Math.floor(sec/60)+':'
 const iconCache={};
 function skillIcon(kind){
  if(kind&&typeof kind==='object')return BossIcons.make(kind.shape,kind.c1,kind.c2);
- if(typeof kind==='string'&&/^zv[0-5]$/.test(kind))return 'assets/chefes_v78/zorvath/icones/s'+kind[2]+'.webp?v=1';   // ícones pintados do Zorvath
+ if(typeof kind==='string'&&/^zv[0-5]$/.test(kind))return 'assets/chefes_v78/zorvath/icones/s'+kind[2]+'.webp?v=1';
+ if(typeof kind==='string'&&/^zb[0-2]$/.test(kind))return 'assets/chefes_v78/zorvath/icones/b'+kind[2]+'.webp?v=1';   // ícones pintados do Zorvath
  if(iconCache[kind])return iconCache[kind];
  const c=document.createElement('canvas');c.width=c.height=24;const g=c.getContext('2d');g.imageSmoothingEnabled=false;
  const K=ZorvathSprite,r=K.rect;
@@ -76,7 +77,7 @@ function skillIcon(kind){
  else if(kind==='forms'){for(let i=0;i<3;i++){const x=3+i*7,h=6+i*3;D(x+2,19-h/2,2+i,i===2?hot:i?vio:vioD);r(g,x,21,5,1,gold)}L(3,7,20,4,gold)}
  return iconCache[kind]=c.toDataURL();
 }
-const iconImg=(kind,cls='hunt-ico')=>`<img class="${cls}${typeof kind==='string'&&/^zv\d$/.test(kind)?' pint':''}" src="${skillIcon(kind)}" alt="" draggable="false">`;
+const iconImg=(kind,cls='hunt-ico')=>`<img class="${cls}${typeof kind==='string'&&/^z[vb]\d$/.test(kind)?' pint':''}" src="${skillIcon(kind)}" alt="" draggable="false">`;
 
 /* retrato (busto) gerado a partir do sprite */
 const bustCache={};
