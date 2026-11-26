@@ -11,7 +11,7 @@
 if(!window.CACADA_LIBERADA||/[?&]zorarte=0/.test(location.search)||typeof ZorvathSprite==='undefined')return;
 const DIR='assets/chefes_v78/zorvath/';
 // folhas existentes por forma
-const FOLHAS={1:{A:1,B:1,C:1},3:{B:1,C:1}};
+const FOLHAS={1:{A:1,B:1,C:1},3:{A:1,B:1,C:1}};
 const GEO={1:{cel:256,ax:150,ay:232,dy:15},2:{cel:320,ax:180,ay:290,dy:0},3:{cel:320,ax:180,ay:290,dy:0}};
 // pose do motor → [folha, coluna inicial, linha]; punch tem 2 variações (side)
 const MAPA={
