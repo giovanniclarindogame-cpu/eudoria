@@ -409,6 +409,10 @@ function tratar(j, texto) {
     }
     return enviar(j.ws, JSON.stringify({ t: 'hello', ok: 1, online: onlineN(), v: PROTO, modos: ['1v1', '2v2', 'trio', 'coroa', 'cacada'], bots: 1, volta: 1 }));
   }
+  if (['fila', 'convite', 'convite_resp', 'revanche'].includes(m.t) && manut.ativo() && !(j.partida && !j.partida.fim)) {   // manutenção: nada de partida nova (as em andamento seguem)
+    if (j.estado === 'fila') j.estado = 'ocioso';
+    return enviar(j.ws, JSON.stringify({ t: 'erro', m: 'manutencao', texto: manut.estado().mensagem, volta: manut.estado().volta }));
+  }
   if (j.social && !['ping', 'perfil', 'amigos', 'amigo_add', 'amigo_resp', 'amigo_del', 'convite', 'convite_resp', 'chat', 'chat_hist', 'chat_lido'].includes(m.t)) return;   // conexão social só fala de amigos
   if (j.contaId && ['amigos', 'amigo_add', 'amigo_resp', 'amigo_del', 'convite', 'convite_resp', 'chat', 'chat_hist', 'chat_lido'].includes(m.t)) return tratarAmigos(j, m);
   switch (m.t) {
@@ -493,6 +497,7 @@ function rotaFeedback(req, res) {
   }
   responder(res, 404, { erro: 'rota' });
 }
+const manut = require('./manutencao.cjs');   // modo manutenção (manutencao.json)
 const portao = require('./portao.cjs');   // login por cookie + arquivos do jogo (só liga quando SITE está definido; ver portao.cjs)
 const servidor = http.createServer((req, res) => {
   if (req.url.startsWith('/conta/')) return rotaConta(req, res);
@@ -502,7 +507,7 @@ const servidor = http.createServer((req, res) => {
   if (ehSaude) {
     const mem = process.memoryUsage();
     res.writeHead(200, { 'content-type': 'application/json', 'access-control-allow-origin': '*' });
-    return res.end(JSON.stringify({ ok: true, proto: PROTO, buildMinimo: BUILD_MINIMO, jogadores: jogadores.size, fila: fila.length, fila2: fila2.length, fila3: fila3.length, fila4: fila4.length, contas: contas.total(), partidas: partidas.size, aquecidas: aquecidas.filter(x => x.pronta).length, ...stats, tickMedio: +stats.tickMedio.toFixed(3), tickMax: +stats.tickMax.toFixed(2), memoriaMB: Math.round(mem.rss / 1048576), nucleos: os.cpus().length, uptime: Math.round(process.uptime()) }));
+    return res.end(JSON.stringify({ ok: true, manutencao: manut.ativo(), proto: PROTO, buildMinimo: BUILD_MINIMO, jogadores: jogadores.size, fila: fila.length, fila2: fila2.length, fila3: fila3.length, fila4: fila4.length, contas: contas.total(), partidas: partidas.size, aquecidas: aquecidas.filter(x => x.pronta).length, ...stats, tickMedio: +stats.tickMedio.toFixed(3), tickMax: +stats.tickMax.toFixed(2), memoriaMB: Math.round(mem.rss / 1048576), nucleos: os.cpus().length, uptime: Math.round(process.uptime()) }));
   }
   res.writeHead(404); res.end();
 });

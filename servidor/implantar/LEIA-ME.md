@@ -108,3 +108,16 @@ A VPS precisa de uma *deploy key* só de leitura, senão o atualizador deixa de 
    `git config core.sshCommand "ssh -i ~/.ssh/eldoria_deploy -o IdentitiesOnly=yes"`; teste com `git fetch origin`.
 4. Só então: GitHub → Settings → Danger Zone → Change visibility → Private.
 Atenção: privado desliga o site do GitHub Pages (github.io); os amigos passam a usar o endereço da VPS.
+
+
+## Modo manutenção (pausar o jogo sem mexer na VPS)
+O arquivo `manutencao.json` (na raiz do repositório) controla tudo:
+```json
+{ "ativo": true, "titulo": "EM MANUTENÇÃO", "mensagem": "Estamos atualizando o Boss.", "volta": "18h30" }
+```
+- **`"ativo": true`** → quem abre o jogo vê só a tela de manutenção (o jogo nem carrega) e ela se atualiza sozinha quando acabar; o servidor
+  recusa partidas novas (fila, convites, revanche) com aviso, mas deixa terminar as que estão rolando e aceita reconexão a elas.
+- **`"ativo": false`** → tudo normal. `volta` é opcional (texto livre). Arquivo ausente ou quebrado = manutenção desligada.
+- Como mudar: edite o arquivo no GitHub (pelo site ou app) na branch `entrega-v3`. A página (GitHub Pages) atualiza em 1–2 min; o servidor
+  na VPS lê o arquivo na pasta do jogo (`/site`) assim que o atualizador automático (ou `bash atualizar.sh`) o trouxer, sem reiniciar.
+- Para testar sem sair da manutenção: abra o jogo com `?semmanut=1`. `/saude` mostra `"manutencao": true/false`.

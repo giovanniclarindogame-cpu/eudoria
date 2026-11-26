@@ -177,7 +177,7 @@ function onSrv(m){
   case'fila':S.online=m.online||S.online;S.fila=m.n;S.precisa=m.precisa||2;avisar();break;
   case'cheio':S.busy='Servidor cheio: você continua na fila…';break;
   case'ocioso':break;
-  case'erro':falhaSrv(m.m==='versao'||m.m==='atualizar'?'Seu jogo está desatualizado. Atualize o jogo (ou a página) e tente de novo.':'O servidor recusou a conexão.');break;
+  case'erro':falhaSrv(m.m==='manutencao'?(m.texto||'O servidor está em manutenção.')+(m.volta?' Volta: '+m.volta+'.':'')+' Tente de novo em alguns minutos.':m.m==='versao'||m.m==='atualizar'?'Seu jogo está desatualizado. Atualize o jogo (ou a página) e tente de novo.':'O servidor recusou a conexão.');break;
   case'sala':{
    try{window.OnlineV46&&OnlineV46.sairParaSala&&OnlineV46.sairParaSala()}catch{}
    const ps=Array.isArray(m.ps)?m.ps:[],slot=m.slot|0,n=ps.length;
