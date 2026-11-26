@@ -1,9 +1,9 @@
 // Zorvath forma 1 com a arte pintada do ChatGPT: as 50 imagens existem, a base do corpo fica sempre na mesma linha (âncora do motor),
-// nada é cortado, formas 2 e 3 seguem com a arte antiga, e ?zorarte=0 desliga.
+// nada é cortado, formas 2 e 3 seguem com a arte antiga,
 const { chromium } = require('playwright');
 const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else console.log('ok  -',m)};
 (async()=>{const b=await chromium.launch();const errs=[];
- for(const off of [false,true]){
+ for(const off of [false]){
   const p=await (await b.newContext()).newPage();p.on('pageerror',e=>errs.push(e.message));
   await p.goto('http://localhost:8000/index.html?allheroes=1&cacada=1'+(off?'&zorarte=0':''));await p.waitForTimeout(1200);
   if(off){ok(await p.evaluate(()=>typeof ZorvathArte==='undefined'),'?zorarte=0 desliga a arte nova');await p.close();continue}

@@ -31,7 +31,7 @@ ARTE
 Todo o sprite foi desenhado por código em pixel art (64x64 por quadro, ampliado ~2,3x),
 sem imagens externas: js/vilao_zorvath.js, com 3 formas e 38 quadros por forma.
 Ícones, busto do HUD e arte do lobby também são gerados por código.
-PREVIA_VILAO.html mostra todas as animações (escolha a forma) e baixa a folha em PNG.
+(A PREVIA_VILAO.html, que mostrava o Zorvath em pixel art, foi removida: o chefe agora usa só a arte pintada em assets/chefes_v78/zorvath.)
 
 PARA CRIAR O PRÓXIMO CHEFE
 Adicione uma definição em ROSTER (js/cacada_dia.js), um sprite no mesmo formato e as

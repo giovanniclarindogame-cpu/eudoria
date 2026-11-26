@@ -19,7 +19,7 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
   if(ligada&&ev){await p.evaluate(()=>document.querySelector('[data-v41-hunt]').click());await p.waitForTimeout(800);ok(await p.evaluate(()=>!!document.querySelector('.hunt-page')),'ligada: tocar no cartão da tela inicial abre o lobby da Caçada')}
   if(!ligada){
    ok(r.lib===false&&!r.abriu,'desligada: o lobby da Caçada não abre');
-   ok(!r.arteNova,'desligada: a arte nova do Zorvath não carrega');
+   ok(r.arteNova,'desligada: a arte pintada do Zorvath continua sendo a única (sem pixel art antigo)');
    const m=await p.evaluate(()=>{const c=InicioV40.MODES.find(x=>x.id==='cacada'),cat=InicioV40.CATS.find(x=>x[0]==='desafio');return{soon:c.soon,sub:typeof c.sub==='function'?c.sub():c.sub,catTrancada:!!(cat&&cat[3]),choose:InicioV40.choose('cacada')}});
    ok(m.soon===true&&/em breve/i.test(m.sub)&&m.choose===false,'desligada: o modo fica "Em breve" e não pode ser escolhido '+JSON.stringify(m));
    ok(await p.evaluate(()=>{try{return !RetQA||true}catch{return true}}),'missões seguem sem a Caçada');

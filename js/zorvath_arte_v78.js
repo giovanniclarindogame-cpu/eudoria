@@ -4,11 +4,10 @@
  * Folhas em assets/chefes_v78/zorvath/: formaN_A (movimento), formaN_B (golpes), formaN_C (poderes).
  *  - forma 1: quadros de 256x256, base do corpo na linha 217 (o quadro é descido 15 px); o centro do tronco fica em x=150 (a cauda sai para a esquerda), por isso a âncora é 150
  *  - formas 2 e 3: quadros de 320x320, base do corpo em y=275 e ponta de baixo em x=180 (sobra de espaço à esquerda para a cauda)
- * Folha que ainda não existe → a pose usa a arte antiga (pixel art), só nela. ?zorarte=0 volta tudo para a arte antiga.
- * Só vale com a Caçada liberada (window.CACADA_LIBERADA, em config_teste.js) ou com ?cacada=1.
+ * Se alguma folha falhar, usa a arte pintada da forma 1 com tinta (nunca existe mais o pixel art antigo).
  */
 (function(){
-if(!window.CACADA_LIBERADA||/[?&]zorarte=0/.test(location.search)||typeof ZorvathSprite==='undefined')return;
+if(typeof ZorvathSprite==='undefined')return;
 const DIR='assets/chefes_v78/zorvath/';
 // folhas existentes por forma
 const FOLHAS={1:{A:1,B:1,C:1},2:{A:1,B:1,C:1},3:{A:1,B:1,C:1}};
