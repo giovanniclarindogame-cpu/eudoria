@@ -74,7 +74,7 @@ const PORT=8793,SRV='ws://localhost:'+PORT;
  // ---- convite Trio e Coroa pelas opções de modo ----
  for(const [tipo,modo,n] of [['trio','trio',2],['coroa','coroa',4]]){
   await A.p.waitForSelector('[data-a68-opcoes]:not([disabled])',{timeout:8000});await A.p.click('[data-a68-opcoes]');
-  ok(await A.p.evaluate(()=>document.querySelectorAll('.a68-opcoes .a68-op').length===4),'o botão "Jogar" abre as 4 opções de modo');
+  ok(await A.p.evaluate(()=>document.querySelectorAll('.a68-opcoes .a68-op').length===5),'o botão "Jogar" abre as 5 opções de modo (a Caçada é a quinta)');
   await A.p.click(`.a68-opcoes [data-tipo="${tipo}"]`);
   await B.p.waitForSelector('#amigosConv68:not([hidden]) [data-a68-aceitar]',{timeout:8000});
   ok(new RegExp(tipo==='trio'?'Trio de Campe':'Disputa da Coroa').test(await B.p.textContent('#amigosConv68')),`o convite mostra o modo certo (${tipo})`);

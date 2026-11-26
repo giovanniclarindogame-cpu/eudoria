@@ -19,6 +19,11 @@ const PORT=8799,SRV='ws://localhost:'+PORT;
  for(const pg of P)await pg.waitForFunction(()=>OnlineV45.state.fase==='sala'&&!(document.querySelector('#onlineV45')?.hidden??true),null,{timeout:40000});
  ok(await A.evaluate(()=>/CAÇADA/.test(document.querySelector('.v45-top b').textContent)&&document.querySelectorAll('.c81-slot').length===2&&!!document.querySelector('.c81-boss canvas')&&/Zorvath/.test(document.querySelector('.c81-banner').textContent)),'a sala da Caçada mostra a dupla à esquerda e o Zorvath à direita');
  await A.screenshot({path:'/tmp/claude-0/cac_sala.png'});
+ // cada um vê o campeão do parceiro assim que entra na sala, sem precisar tocar em nada (antes o parceiro aparecia como "?")
+ await sleep(800);
+ const par=await Promise.all(P.map(pg=>pg.evaluate(()=>[...document.querySelectorAll('.c81-slot canvas.v46-sprite')].map(c=>+c.dataset.skin))));
+ ok(JSON.stringify(par[0])==='[2,5]'&&JSON.stringify(par[1])==='[5,2]'||JSON.stringify(par[0].sort())==='[2,5]'&&JSON.stringify(par[1].sort())==='[2,5]','os dois campeões da dupla aparecem para os dois na sala ('+JSON.stringify(par)+')');
+ ok(await A.evaluate(()=>document.querySelectorAll('.c81-banner small').length===0&&document.querySelectorAll('.v46-q').length===0),'sem texto repetido no banner e sem "?" no parceiro');
  for(const pg of P){await pg.click('[data-v45="ready"]');await sleep(150)}
  // na contagem inicial cada um está no seu lado (a dupla à esquerda, o chefe à direita), inclusive quem entrou na vaga 1
  for(const pg of P)await pg.waitForFunction(()=>window.OnlineV46?.match.on&&state==='count',null,{timeout:60000});
