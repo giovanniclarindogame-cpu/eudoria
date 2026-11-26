@@ -22,12 +22,12 @@ const ZOR={
   'Os pilares de cristal bloqueiam o Raio Perfurante: fique atrás de um para se proteger.'
  ],
  skills:[
-  {id:'s0',name:'Chicote de Cauda',icon:'whip',cd:5,desc:'Giro rápido que atinge tudo ao redor dele. Na forma final, vem duas vezes. Fique longe do círculo.'},
-  {id:'s1',name:'Disco Cortante',icon:'disc',cd:8.5,desc:'Arremessa um disco que vai e volta, cortando nas duas passadas. Na forma final são dois discos.'},
-  {id:'s2',name:'Pressão Psíquica',icon:'mind',cd:13,desc:'Marca você com um círculo; quem estiver dentro quando fecha fica preso e leva o golpe seguinte.'},
-  {id:'s3',name:'Raio Perfurante',icon:'beam',cd:9,desc:'Raio fino que trava a mira e causa dano alto. Na forma final, dispara três vezes. Pilares bloqueiam. (Forma 2+)'},
-  {id:'s4',name:'Explosão de Poder',icon:'shock',cd:15,desc:'Onda de choque que empurra para longe. Na forma final, uma segunda onda atinge quem se afastou. (Forma 2+)'},
-  {id:'s5',name:'Supernova',icon:'nova',cd:30,desc:'Carrega uma esfera gigante e a lança sobre uma área enorme. Dano alto em tudo; interrompa com muito dano. (Forma 3)'}
+  {id:'s0',name:'Chicote de Cauda',icon:'zv0',cd:5,desc:'Giro rápido que atinge tudo ao redor dele. Na forma final, vem duas vezes. Fique longe do círculo.'},
+  {id:'s1',name:'Disco Cortante',icon:'zv1',cd:8.5,desc:'Arremessa um disco que vai e volta, cortando nas duas passadas. Na forma final são dois discos.'},
+  {id:'s2',name:'Pressão Psíquica',icon:'zv2',cd:13,desc:'Marca você com um círculo; quem estiver dentro quando fecha fica preso e leva o golpe seguinte.'},
+  {id:'s3',name:'Raio Perfurante',icon:'zv3',cd:9,desc:'Raio fino que trava a mira e causa dano alto. Na forma final, dispara três vezes. Pilares bloqueiam. (Forma 2+)'},
+  {id:'s4',name:'Explosão de Poder',icon:'zv4',cd:15,desc:'Onda de choque que empurra para longe. Na forma final, uma segunda onda atinge quem se afastou. (Forma 2+)'},
+  {id:'s5',name:'Supernova',icon:'zv5',cd:30,desc:'Carrega uma esfera gigante e a lança sobre uma área enorme. Dano alto em tudo; interrompa com muito dano. (Forma 3)'}
  ],
  basics:[
   {name:'Golpe do Imperador',icon:'punch',desc:'Combo de 3 golpes (4 na forma final), com cauda e punho. O último empurra.'},
@@ -56,6 +56,7 @@ function mmss(sec){sec=Math.max(0,Math.round(sec));return Math.floor(sec/60)+':'
 const iconCache={};
 function skillIcon(kind){
  if(kind&&typeof kind==='object')return BossIcons.make(kind.shape,kind.c1,kind.c2);
+ if(typeof kind==='string'&&/^zv[0-5]$/.test(kind))return 'assets/chefes_v78/zorvath/icones/s'+kind[2]+'.webp?v=1';   // ícones pintados do Zorvath
  if(iconCache[kind])return iconCache[kind];
  const c=document.createElement('canvas');c.width=c.height=24;const g=c.getContext('2d');g.imageSmoothingEnabled=false;
  const K=ZorvathSprite,r=K.rect;
@@ -75,7 +76,7 @@ function skillIcon(kind){
  else if(kind==='forms'){for(let i=0;i<3;i++){const x=3+i*7,h=6+i*3;D(x+2,19-h/2,2+i,i===2?hot:i?vio:vioD);r(g,x,21,5,1,gold)}L(3,7,20,4,gold)}
  return iconCache[kind]=c.toDataURL();
 }
-const iconImg=(kind,cls='hunt-ico')=>`<img class="${cls}" src="${skillIcon(kind)}" alt="" draggable="false">`;
+const iconImg=(kind,cls='hunt-ico')=>`<img class="${cls}${typeof kind==='string'&&/^zv\d$/.test(kind)?' pint':''}" src="${skillIcon(kind)}" alt="" draggable="false">`;
 
 /* retrato (busto) gerado a partir do sprite */
 const bustCache={};
@@ -116,7 +117,7 @@ function lobbyMarkup(def){
   <section class="hunt-stage"><canvas id="huntArt" width="420" height="340" aria-label="${def.name}, ${def.title}"></canvas>
    <div class="hunt-plate"><strong>${def.name}</strong><span>${def.title}</span><em>Dificuldade ${def.difficulty} <i>${stars(def.stars)}</i></em></div></section>
   <section class="hunt-info">
-   <div class="hunt-tabs" role="tablist"><button role="tab" class="on" data-hunt-tab="a" aria-selected="true">Chefe</button><button role="tab" data-hunt-tab="s" aria-selected="false">Habilidades</button><button role="tab" data-hunt-tab="b" aria-selected="false">Dicas e semana</button></div>
+   <div class="hunt-tabs" role="tablist"><button role="tab" class="on" data-hunt-tab="a" aria-selected="true">Chefe</button><button role="tab" data-hunt-tab="s" aria-selected="false">Habilidades</button></div>
    <div class="hunt-pane" data-hunt-pane="a">
    <article class="hunt-card"><span class="eyebrow">CHEFE DE HOJE</span><p>${def.story}</p>
     <div class="hunt-chips"><span>${def.generic?'2 fases':'3 formas'}</span><span>${mmss(ARENA_MODES.guardian.seconds)} de limite</span><span>◉ até ${prize} moedas</span><span>Vida ${save.team==='solo'?def.hp:def.hpDuo}</span></div></article>
@@ -126,10 +127,6 @@ function lobbyMarkup(def){
    <div class="hunt-pane" data-hunt-pane="s" hidden>
    <article class="hunt-card"><span class="eyebrow">${def.generic?'6 HABILIDADES':'6 HABILIDADES · AS NOVAS VÊM COM AS FORMAS'} · GOLPES, GUARDA E ESQUIVA DO CHEFE</span><div class="hunt-skills nine">${def.skills.map(skillBtn).join('')}<i class="hunt-sep"></i>${def.basics.map(basic).join('')}</div>
     <p class="hunt-skilldesc" id="huntSkillDesc" role="status">Toque em uma habilidade para ver como ela funciona.</p></article>
-   </div>
-   <div class="hunt-pane" data-hunt-pane="b" hidden>
-   <article class="hunt-card"><span class="eyebrow">COMO VENCER</span><ul class="hunt-tips">${def.tips.map(t=>`<li>${t}</li>`).join('')}</ul></article>
-   <article class="hunt-card"><span class="eyebrow">CHEFES DA SEMANA</span><div class="hunt-week">${weekStrip(def)}</div></article>
    </div>
   </section>
  </div>
@@ -322,9 +319,21 @@ function bossHit(t,dmg,knock,angle,opt={}){
  const R=hunt(),A=R.a;if(t.hp<=0||A.hp<=0)return false;
  const n=dmg*DMG[R.form-1]*(R.dmgScale||1);
  if(opt.breakGuard&&t.guard&&t.inv<=0)breakGuard(t);
- const ok=hit(t,n,A,knock,angle,-1);
- if(ok){R.landed++;window.BossCopy?.landed(R,t)}
+ const hp0=t.hp,ok=hit(t,n,A,knock,angle,-1);
+ if(ok){R.landed++;window.BossCopy?.landed(R,t);try{feelHit(t,hp0-t.hp,angle,n)}catch(e){}}
  return ok;
+}
+// o jogador SENTE o golpe do chefe: recuo, quadro de dor, clarão, tremor e estilhaços (golpe bloqueado fica leve)
+function feelHit(t,lost,angle,raw){
+ if(lost<=0)return;
+ const guarded=t.blockFlash>0,heavy=lost>=60&&!guarded,big=lost>=120&&!guarded;
+ if(!guarded){
+  t.hitReact=Math.max(t.hitReact||0,big?.5:heavy?.42:.3);t.hitReactA=angle;t.flash=Math.max(t.flash||0,big?.34:.26);
+  if(heavy){t.root=Math.max(t.root||0,big?.2:.12);move(t,Math.cos(angle)*(big?20:10),Math.sin(angle)*(big?20:10))}
+  ring(t.x,t.y,big?58:heavy?44:30,'#ff5c8a',.32);spark(t.x,t.y,'#ff4f7a',big?26:heavy?18:11);spark(t.x,t.y,'#ffe0f0',big?10:6);
+  if(heavy)combatImpact(big?2.2:1.6);else combatImpact(1.15);
+  if(big)float(t.x,t.y-62,'¡GOLPE FORTE!','#ff9ab8');
+ }
 }
 function addTele(o){const R=hunt();R.tele.push(Object.assign({t:0,dur:1,color:PK},o))}
 function rayEnd(x,y,a,max=760){let d=0,px=x,py=y;while(d<max){const nx=x+Math.cos(a)*(d+10),ny=y+Math.sin(a)*(d+10);if(blocked(nx,ny,3))break;px=nx;py=ny;d+=10}return{x:px,y:py,len:d}}
@@ -350,6 +359,7 @@ ACT.basic=(dt,A,R,T,a)=>{
    if(d<reach&&diff<1.0&&bossHit(t,[30,34,42,66][i],last?70:12,ang(A,t)))landed=true;
   }
   combatSound(last?'heavy':'hit',last?1.2:.9);
+  try{fx.push({kind:'slash',x:A.x,y:A.y,a:A.a,r:reach,color:last?'#ffd0ee':PK,life:.26,max:.26,arc:last?2.3:1.8})}catch(e){}
   if(!landed)a.stop=true;
  }
  return a.t>=(a.stop?st+a.k*gap+.25:dur);
@@ -360,7 +370,7 @@ ACT.s0=(dt,A,R,T,a)=>{
  if(!a.init){a.init=1;a.sweeps=R.form===3?2:1;a.n=0;a.at=w;addTele({kind:'circle',follow:A,r:R0,dur:w,color:PK})}
  R.pose={name:'whip',i:a.t<a.at-.35?0:a.t<a.at-.05?1:a.t<a.at+.25?2:3};
  if(a.n<a.sweeps&&a.t>=a.at){
-  a.n++;ring(A.x,A.y,R0,PK,.35);spark(A.x,A.y,'#ffd0ee',14);combatImpact(1.3);combatSound('heavy',1.1);
+  a.n++;try{fx.push({kind:'slash',x:A.x,y:A.y,a:0,r:R0,color:PK,life:.3,max:.3,arc:6.28})}catch(e){}ring(A.x,A.y,R0,PK,.35);spark(A.x,A.y,'#ffd0ee',14);combatImpact(1.3);combatSound('heavy',1.1);
   for(const t of foes(A))if(dist(A,t)<R0+t.r)bossHit(t,90,100,ang(A,t));
   if(a.n<a.sweeps){a.at+=.55;addTele({kind:'circle',follow:A,r:R0,dur:.5,color:PK})}
  }
@@ -619,6 +629,44 @@ function drawAura(strength,form){
  }
  ctx.restore();
 }
+// ====== animação do corpo do chefe: antecipação, golpe, recuo, tremor de carga ======
+function zorAnim(R){
+ const a=R.act,o={dx:0,dy:0,sx:1,sy:1,rot:0,ghost:0};
+ if(!a)return o;
+ const t=a.t||0,sg=Math.cos(R.face)<0?-1:1,fx=Math.cos(R.face),fy=Math.sin(R.face)*.6,k01=v=>clamp(v,0,1);
+ const mv=k=>{o.dx+=fx*k;o.dy+=fy*k},jit=k=>{o.dx+=Math.sin(clock*71)*k;o.dy+=Math.cos(clock*83)*k*.6};
+ switch(a.id){
+ case 'basic':{
+  const N=a.N||3,gap=.42;let best=0;for(let i=1;i<N;i++)if(Math.abs(t-(.2+i*gap))<Math.abs(t-(.2+best*gap)))best=i;
+  const d=t-(.2+best*gap);
+  if(d<0){const q=k01(-d/.2);mv(-9*q);o.sx=1+.05*q;o.sy=1-.06*q;o.rot=-.08*sg*q}
+  else{const q=k01(d/.22);mv(18*(1-q)-2*q);o.sx=1.12-.12*q;o.sy=.92+.08*q;o.rot=.13*sg*(1-q);o.ghost=q<.7?1:0}
+  break}
+ case 's0':{
+  const at=a.at||.55,d=t-at;
+  if(d<-.3){const q=k01(t/(at-.3));o.sy=1-.09*q;o.sx=1+.05*q;jit(1.3*q)}
+  else if(d<.25){const q=(d+.3)/.55;o.sx=Math.max(.3,Math.abs(Math.cos(q*Math.PI*2)));o.sy=1.04;o.ghost=1}
+  break}
+ case 's1':{
+  if(t<.5){const q=t/.5;mv(-8*q);o.rot=-.1*sg*q;o.sy=1-.05*q;o.sx=1+.04*q}
+  else if(t<.8){const q=(t-.5)/.3;mv(-8+22*Math.sin(Math.min(1,q*1.4)*Math.PI/2)*(1-q*.6));o.rot=.1*sg*(1-q);o.ghost=q<.6?1:0}
+  break}
+ case 's2':{o.dy-=8*k01(t/.35)+Math.sin(clock*6)*2;jit(.8);break}
+ case 's3':{
+  if(R.beam){const q=1-clamp(R.beam.t/(R.beam.dur||.32),0,1);mv(-13*q);o.sx=1+.06*q;o.sy=1-.05*q;jit(1*q)}
+  else{const k=(R.cannon&&R.cannon.k)||0;mv(-6*k);jit(1.6*k);o.sy=1-.04*k}
+  break}
+ case 's4':{
+  if(t<.7){const q=t/.7;o.sy=1-.1*q;o.sx=1+.06*q;jit(2.6*q)}
+  else{const q=k01((t-.7)/.25);o.sy=1.12-.12*q;o.sx=.94+.06*q;o.dy-=5*(1-q);o.ghost=q<.5?1:0}
+  break}
+ case 's5':{
+  const q=k01(t/1);o.dy-=17*q+Math.sin(clock*5)*2;jit(2.2*k01(t/3));
+  if(a.throw){mv(12*k01(1-(a.t2||0)/.3));o.sy=1.06}
+  break}
+ }
+ return o;
+}
 function drawZor(a){
  const R=a.hunt,pose=poseOf(a,R);
  ctx.save();ctx.translate(a.x,a.y);
@@ -628,7 +676,10 @@ function drawZor(a){
  ctx.translate(0,10);
  if(a.inv>0&&!R.act)ctx.globalAlpha=.55+Math.sin(clock*40)*.2;
  const f=a.flash>0?'brightness(2.1) saturate(.5)':R.exh>0?'saturate(.65) brightness(.92)':'';
- ZorvathSprite.paint(ctx,pose.name,pose.i,{x:0,y:0,scale:2.3,flip:Math.cos(R.face)<0,form:R.shown,side:pose.side||0,filter:f});
+ const an=zorAnim(R),fxd=Math.cos(R.face),fyd=Math.sin(R.face)*.6;
+ if(an.ghost){for(let i=2;i>=1;i--){ctx.save();ctx.globalAlpha=.3/i;ctx.translate(an.dx-fxd*13*i,an.dy-fyd*13*i);ctx.scale(an.sx,an.sy);ZorvathSprite.paint(ctx,pose.name,pose.i,{x:0,y:0,scale:2.3,flip:fxd<0,form:R.shown,side:pose.side||0,filter:'brightness(1.5) saturate(1.5) hue-rotate(-18deg)'});ctx.restore()}}
+ ctx.translate(an.dx,an.dy);ctx.rotate(an.rot);ctx.scale(an.sx,an.sy);
+ ZorvathSprite.paint(ctx,pose.name,pose.i,{x:0,y:0,scale:2.3,flip:fxd<0,form:R.shown,side:pose.side||0,filter:f});
  ctx.restore();
  // marcadores de forma sobre a cabeça
  ctx.save();ctx.translate(a.x,a.y-92);

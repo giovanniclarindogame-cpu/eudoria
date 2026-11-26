@@ -36,7 +36,7 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  ok(r.maxShake>=8,'a tela treme (tremor máximo '+r.maxShake+')');
  ok(r.maxZoom>1.1,'a câmera aproxima do chefe (zoom máximo '+r.maxZoom+'x)');
  ok(r.flash,'há um clarão forte na hora em que o corpo muda');
- ok(r.fim&&Math.abs(r.scaleFim-1)<.03,'tudo se desfaz depois (câmera volta, cena some)');
+ ok(r.fim&&r.Sz===0&&!r.Son,'tudo se desfaz depois (câmera volta, cena some)');
  ok(r.shown===2&&r.vistas===1,'o corpo mudou para a forma 2 e a cena rodou uma vez');
  await p.screenshot({path:'/tmp/claude-0/cine_fim.png'});
  ok(errs.length===0,'nenhum erro de JavaScript '+errs.slice(0,2).join('|'));await b.close()})();

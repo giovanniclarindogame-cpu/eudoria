@@ -1,0 +1,11 @@
+/* clarão vermelho nas bordas quando o chefe acerta o jogador */
+#hurt83{position:absolute;inset:0;z-index:48;pointer-events:none;opacity:0;
+ background:radial-gradient(ellipse at center,transparent 38%,rgba(255,40,90,calc(.42*var(--f,1))) 78%,rgba(120,0,40,calc(.85*var(--f,1))) 100%)}
+#hurt83.on{animation:h83 .52s ease-out}
+#hurt83.on.forte{animation:h83f .9s ease-out;box-shadow:inset 0 0 90px 18px rgba(255,30,80,.55)}
+@keyframes h83{0%{opacity:1}100%{opacity:0}}
+@keyframes h83f{0%{opacity:1}35%{opacity:.85}100%{opacity:0}}
+/* ícones pintados das habilidades do chefe: sem moldura extra, a arte já traz o medalhão */
+img.hunt-ico.pint{padding:0;border:0;background:none;image-rendering:auto;border-radius:0;filter:drop-shadow(0 2px 4px #000a)}
+.hunt-skill img.pint,.hunt-mini.pint,.botkit img.pint{image-rendering:auto;padding:0;border:0;border-radius:0;background:none}
+.botkit span:has(.pint){background:none;overflow:visible}

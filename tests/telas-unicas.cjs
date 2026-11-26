@@ -19,7 +19,6 @@ const SIZES=[[844,390],[667,375],[740,360],[932,430],[1000,450],[1280,720]];
    ['cruzada arcade: lobby',()=>{showScreen('home');beginArenaMode('stage')}],
    ['caçada: chefe',()=>beginArenaMode('guardian')],
    ['caçada: habilidades',()=>{beginArenaMode('guardian');document.querySelector('[data-hunt-tab=s]').click()}],
-   ['caçada: dicas e semana',()=>{beginArenaMode('guardian');document.querySelector('[data-hunt-tab=b]').click()}],
    ['configurações',()=>{showScreen('home');openLobbySettings()}],
    ['editar perfil',()=>{showScreen('home');document.querySelector('[data-nav="profile"]').click()}],
   ];
