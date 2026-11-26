@@ -24,6 +24,25 @@ const DICAS=[
  'Cada campeão tem um jeito próprio de lutar: teste todos no Dojo.',
  'Vencer a primeira luta do dia dá o dobro de XP de conta.'
 ];
+// ---------- Caçada: tela própria do chefe (arte do Zorvath) ----------
+const DICAS_CACADA=[
+ 'Fique longe do círculo rosa: o Chicote de Cauda atinge tudo ao redor dele.',
+ 'Pilares de cristal bloqueiam o Raio Perfurante. Use-os como cobertura.',
+ 'Na Pressão Psíquica, saia do círculo antes que ele feche.',
+ 'Supernova: cause muito dano para interromper ou saia da área.',
+ 'Depois de uma Supernova interrompida, o Zorvath fica exausto: ataque com tudo!',
+ 'Em dupla, um chama a atenção enquanto o outro ataca.'
+];
+const ehCacada=custom=>{try{return !!(custom&&custom.cacada)||!!(typeof modeRun!=='undefined'&&modeRun&&modeRun.hunt)||!!(window.OnlineV46&&OnlineV46.match&&OnlineV46.match.caca)}catch{return false}};
+const ARTE_BOSS='assets/chefes_v78/zorvath/',EXTRAS=new Map();
+function extrasCacada(){   // folhas do chefe, efeitos, arena e ícones: baixadas aqui, sob a tela de carregamento
+ const urls=[];for(const f of [1,2,3])for(const l of 'ABC')urls.push(ARTE_BOSS+'forma'+f+'_'+l+'.webp');
+ urls.push(ARTE_BOSS+'arena.webp',ARTE_BOSS+'pilar.webp');
+ for(const n of ['supernova','raio','disco','poder'])urls.push(ARTE_BOSS+'efeitos/'+n+'.webp?v='+({supernova:1,raio:1,disco:1,poder:1})[n]);
+ for(let i=0;i<6;i++)urls.push(ARTE_BOSS+'icones/s'+i+'.webp?v=1');
+ for(let i=0;i<3;i++)urls.push(ARTE_BOSS+'icones/b'+i+'.webp?v=1');
+ return urls.map(u=>{let im=EXTRAS.get(u);if(!im){im=new Image();im.src=u;EXTRAS.set(u,im)}return im});
+}
 const nomeHeroi=id=>{try{return CHAMPIONS[id].name}catch{return 'Campeão'}};
 const arte=id=>{try{return championArt(CHAMPIONS[id])}catch{return ''}};
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -54,6 +73,12 @@ function mostrar(ids,custom){
  const el=tela();
  let esq=null,dir=null;try{esq=Number.isInteger(p?.skin)?p.skin:null;dir=(b&&Number.isInteger(b.skin)&&Array.isArray(b.kit)&&b.kit.length===6)?b.skin:null}catch{}
  if(custom){esq=Number.isInteger(ids[0])?ids[0]:null;dir=null}
+ if(ehCacada(custom)){
+  el.classList.add('c51-cacada');
+  el.innerHTML=`<div class="c51-art"></div><div class="c51-wrap c51-cac"><header><small>CAÇADA DO DIA</small><b>ZORVATH</b><em>Imperador Cristalino</em></header><div class="c51-low"><div class="c51-bar"><i></i></div><p class="c51-msg">Carregando…</p><p class="c51-dica">${esc(DICAS_CACADA[Math.floor(Math.random()*DICAS_CACADA.length)])}</p></div></div>`;
+  el.hidden=false;el.classList.remove('sai');document.body.classList.add('c51-on');C.on=true;return;
+ }
+ el.classList.remove('c51-cacada');
  const rivalNome=(()=>{try{return b?.label||'Rival'}catch{return 'Rival'}})();
  el.innerHTML=`<div class="c51-bg"></div><div class="c51-wrap">
   <header><small>${esc(custom?custom.topo:rotuloModo())}</small><b>${esc(custom?custom.titulo:'PREPARANDO A ARENA')}</b></header>
@@ -136,7 +161,7 @@ async function preparar(ids,imgs,mostrarTela,livre){
 }
 async function iniciarPreparo(mostrarTela,esperar){
  if(state!=='loading'){mostrarTela=false;esperar=false}   // alguém já mudou o estado (luta que começa direto, tutorial): só prepara por baixo, sem tela por cima
- const ids=heroisDaLuta(),imgs=imagensDe(ids);
+ const ids=heroisDaLuta(),imgs=imagensDe(ids).concat(ehCacada()?extrasCacada():[]);
  const tudoPronto=imgs.every(pronta)&&ids.every(id=>C.morno.has(id));
  C.ultima={ids,imagens:imgs.length,rapido:tudoPronto};
  if(tudoPronto){C.aoPreparar&&C.aoPreparar();if(!esperar){retomar();return}}
@@ -163,16 +188,16 @@ C.cancelar=function(){C.resolver&&C.liberar();C.liberado=false;C.esperando=false
 
 /* ---------- baixar antes, no clique (v67) ---------- */
 // precisa(ids): true se ainda falta baixar/aquecer alguma arte desses campeões
-C.precisa=function(ids){
+C.precisa=function(ids,custom){
  ids=(ids||[]).filter(id=>Number.isInteger(id)&&CHAMPIONS[id]);
  if(!ids.length||OFF)return false;
- return !(imagensDe(ids).every(pronta)&&ids.every(id=>C.morno.has(id)));
+ return !(imagensDe(ids).concat(ehCacada(custom)?extrasCacada():[]).every(pronta)&&ids.every(id=>C.morno.has(id)));
 };
 // garantir(ids, {topo,titulo}): mostra a tela de carregamento e baixa/prepara as artes desses campeões. Resolve quando termina (ou em MAX_MS).
 C.garantir=async function(ids,custom){
  ids=(ids||[]).filter(id=>Number.isInteger(id)&&CHAMPIONS[id]);
- if(!C.precisa(ids)||C.on)return false;
- const imgs=imagensDe(ids),t0=performance.now();
+ if(!C.precisa(ids,custom)||C.on)return false;
+ const imgs=imagensDe(ids).concat(ehCacada(custom)?extrasCacada():[]),t0=performance.now();
  mostrar(ids,Object.assign({topo:'ENTRANDO',titulo:'PREPARANDO O JOGO'},custom||{}));
  try{await preparar(ids,imgs,true,true)}catch(e){console.warn('[Eldoria] preparo antecipado',e)}
  const falta=MIN_MS-(performance.now()-t0);if(falta>0)await new Promise(r=>setTimeout(r,falta));
