@@ -719,6 +719,10 @@ drawModeWorld=function(){
   ctx.fillStyle=PK+(c.locked?'40':'22');ctx.fillRect(0,-w/2,e.len,w);
   ctx.globalAlpha=.6+.4*Math.sin(clock*(c.locked?32:14));ctx.strokeStyle=c.locked?'#fff':PK;ctx.lineWidth=c.locked?3:2;ctx.strokeRect(0,-w/2,e.len,w);
   ctx.restore();
+  if(window.ZorEfx&&ZorEfx.pronto('raio')){   // orbe de carga na ponta do canhão (arte pintada, linha 0)
+   ctx.save();ctx.globalCompositeOperation='lighter';
+   ZorEfx.quadro(ctx,'raio',0,Math.floor(clock*14)%6,o.x,o.y,60+Math.min(1,c.k||0)*110);ctx.restore();
+  }
  }
 };
 function paintDisc(d){
@@ -730,6 +734,18 @@ function paintDisc(d){
 }
 function paintBeam(B){
  const k=B.t/B.dur,fade=k>.6?1-(k-.6)/.4:1,fl=.85+Math.random()*.3;
+ // arte pintada: faixa que se repete (linha 1), impacto no fim (linha 2) e clarão na saída (linha 0)
+ if(window.ZorEfx&&ZorEfx.pronto('raio')){
+  const len=Math.hypot(B.ex-B.x,B.ey-B.y),H=B.w*4,fr=Math.floor(clock*18)%6,off=(clock*520)%H;
+  ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=fade;ctx.translate(B.x,B.y);ctx.rotate(B.a);
+  ctx.beginPath();ctx.rect(0,-H/2,len,H);ctx.clip();
+  for(let x=-off;x<len;x+=H)ZorEfx.quadro(ctx,'raio',1,fr,x,0,H,0,.5);
+  ctx.restore();
+  ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=fade;
+  ZorEfx.quadro(ctx,'raio',2,Math.min(5,Math.floor(k*6)),B.ex,B.ey,B.w*8);
+  ZorEfx.quadro(ctx,'raio',0,fr,B.x,B.y,B.w*4.2*(1-k*.5));
+  ctx.restore();return;
+ }
  ctx.save();ctx.globalCompositeOperation='lighter';ctx.translate(B.x,B.y);ctx.rotate(B.a);
  const len=Math.hypot(B.ex-B.x,B.ey-B.y);
  for(const[m,col,al]of[[1,'#5a2d8a',.5],[.66,VI,.7],[.4,'#ff62a8',.9],[.18,'#ffffff',1]]){
