@@ -46,7 +46,7 @@ function writeSave(s){try{localStorage.setItem(KEY,JSON.stringify(s));return tru
 let save=loadSave();
 
 function dayIndex(now=new Date()){return Math.floor((now.getTime()-now.getTimezoneOffset()*60000)/864e5)}
-function dayBoss(now=new Date()){return ROSTER[dayIndex(now)%ROSTER.length]}
+function dayBoss(now=new Date()){const fx=window.CACADA_CHEFE_FIXO&&ROSTER.find(b=>b.id===window.CACADA_CHEFE_FIXO);if(fx)return fx;return ROSTER[dayIndex(now)%ROSTER.length]}
 function bossOfDay(now=new Date()){const q=new URLSearchParams(location.search).get('boss');if(q){const f=ROSTER.find(b=>b.id===q);if(f)return f}return dayBoss(now)}
 function msToMidnight(){const n=new Date(),m=new Date(n.getFullYear(),n.getMonth(),n.getDate()+1);return m-n}
 function clock3(ms){const s=Math.max(0,Math.floor(ms/1000));return[Math.floor(s/3600),Math.floor(s/60)%60,s%60].map(v=>String(v).padStart(2,'0')).join(':')}
@@ -89,8 +89,14 @@ function bust(def=bossOfDay()){
 }
 /* ============================== lobby ============================== */
 let lobbyDef=null,artRaf=0,timerInt=0,selectedSkill=null;
+// salão do trono (arte do Zorvath) como fundo do retrato no lobby
+const HALL=(()=>{const f='assets/chefes_v78/zorvath/arena.webp';return window.lazyImage?window.lazyImage(f):Object.assign(new Image(),{src:f})})();
+const hallOk=()=>window.CACADA_LIBERADA&&HALL.complete&&HALL.naturalWidth>0;
+// formas com as três folhas pintadas (só elas entram na demonstração, para não misturar estilos)
+const formasPintadas=()=>{const f=window.ZorvathArte&&window.ZorvathArte.folhas;return f?[1,2,3].filter(n=>f[n]&&f[n].A&&f[n].B&&f[n].C):[]};
 function stars(n){return '★'.repeat(n)+'☆'.repeat(5-n)}
 function weekStrip(def){
+ if(window.CACADA_CHEFE_FIXO)return `<div class="hunt-soon"><b>${def.name.split(',')[0]}</b> é o chefe da Caçada por enquanto.<br><small>Novos chefes chegam em breve, um por dia.</small></div>`;
  const names=['dom','seg','ter','qua','qui','sex','sáb'],now=new Date(),out=[];
  for(let i=0;i<7;i++){
   const d=new Date(now.getFullYear(),now.getMonth(),now.getDate()+i),boss=i===0?def:dayBoss(d);
@@ -127,7 +133,7 @@ function lobbyMarkup(def){
   </section>
  </div>
  <footer class="hunt-foot">
-  <div class="hunt-team" role="group" aria-label="Equipe"><button data-hunt-team="solo" class="${save.team==='solo'?'on':''}" aria-pressed="${save.team==='solo'}"><b>Solo</b><small>só você</small></button><button data-hunt-team="duo" class="${save.team==='duo'?'on':''}" aria-pressed="${save.team==='duo'}"><b>Dupla</b><small>com aliado bot</small></button><button class="off" disabled><b>Amigo</b><small>online · em breve</small></button></div>
+  <div class="hunt-team" role="group" aria-label="Equipe"><button data-hunt-team="solo" class="${save.team==='solo'?'on':''}" aria-pressed="${save.team==='solo'}"><b>Solo</b><small>só você</small></button><button data-hunt-team="duo" class="${save.team==='duo'?'on':''}" aria-pressed="${save.team==='duo'}"><b>Dupla</b><small>aliado bot</small></button><button data-hunt-team="amigo" class="${save.team==='amigo'?'on':''}" aria-pressed="${save.team==='amigo'}" ${window.CacadaOnline?'':'disabled'}><b>Com amigo</b><small>${window.CacadaOnline?'online · convite':'online · em breve'}</small></button></div>
   <div class="hunt-record"><small>Melhor tempo</small><b>${rec?mmss(rec):'—'}</b><small>${wins} vitória${wins===1?'':'s'} · ${tries} tentativa${tries===1?'':'s'}</small></div>
   <button class="gold hunt-go" data-hunt-start>⚔ INICIAR CAÇADA</button>
  </footer></div>`;
@@ -149,7 +155,12 @@ function startArt(){
   const g=cv.getContext('2d'),t=(now-t0)/1000;
   g.imageSmoothingEnabled=false;g.clearRect(0,0,420,340);
   // fundo do salão do chefe
+  if(!def.generic&&def.id==='zorvath'&&hallOk()){
+   g.imageSmoothingEnabled=true;g.drawImage(HALL,330,0,876,709,0,0,420,340);
+   const dk=g.createLinearGradient(0,0,0,340);dk.addColorStop(0,'rgba(10,8,40,.25)');dk.addColorStop(.55,'rgba(10,8,40,.45)');dk.addColorStop(1,'rgba(10,8,40,.8)');g.fillStyle=dk;g.fillRect(0,0,420,340);
+  }else{
   const bg=g.createRadialGradient(210,230,10,210,200,260);bg.addColorStop(0,'#3b1b5c');bg.addColorStop(.5,'#1a0f2e');bg.addColorStop(1,'#0a0714');g.fillStyle=bg;g.fillRect(0,0,420,340);
+  }
   g.fillStyle='#ffffff10';for(let i=0;i<26;i++){const x=(i*97+Math.floor(t*6*(1+i%3)))%420,y=(i*53)%200;g.fillRect(x,y,2,2)}
   // piso rúnico
   g.save();g.translate(210,300);g.scale(1,.28);g.strokeStyle='#b86bff55';g.lineWidth=5;for(const r of[150,115,80]){g.beginPath();g.arc(0,0,r,0,6.3);g.stroke()}
@@ -165,7 +176,9 @@ function startArt(){
    BossSprite.paint(g,def.look,pose,fi,{x:210,y:318,scale:6,filter:'drop-shadow(0 0 10px '+au.a+'88)'});
   }else{
   // ciclo: mostra as 3 formas e alguns golpes
-  const cyc=[['idle',2.2,1],['whip',1.4,1],['idle',1,1],['power',1.3,2],['idle',1.4,2],['beam',1.5,2],['power',1.3,3],['idle',1.3,3],['nova',2.2,3]],total=cyc.reduce((s,c)=>s+c[1],0);
+  const pint=formasPintadas(),all=[['idle',2.2,1],['whip',1.4,1],['idle',1,1],['power',1.3,2],['idle',1.4,2],['beam',1.5,2],['power',1.3,3],['idle',1.3,3],['nova',2.2,3]];
+  let cyc=pint.length?all.filter(c=>pint.includes(c[2])):all;if(pint.length&&pint.length<3)cyc=[['idle',2.2,1],['whip',1.4,1],['idle',1,1],['disc',1.4,1],['idle',1,1],['beam',1.5,1],['idle',1,1],['nova',2.2,1]].map(c=>[c[0],c[1],pint[0]]);
+  const total=cyc.reduce((s,c)=>s+c[1],0);
   let u=t%total,pose='idle',form=1,dur=1,lt=0;for(const[n,d,f]of cyc){if(u<d){pose=n;form=f;dur=d;lt=u;break}u-=d}
   const frames=ZorvathSprite.POSES[pose].n,fi=pose==='idle'?Math.floor(t*4)%frames:pose==='power'?Math.floor(t*6)%frames:Math.min(frames-1,Math.floor(lt/dur*frames));
   const power=pose==='idle'?.25:1;
