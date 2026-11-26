@@ -143,6 +143,7 @@ step=function(dt){
  if(!SRV.on)return;
  if(state==='count')SRV.roundDone=false;
  SL.forEach((a,i)=>{if(SRV.bot[i]){if(state==='fight'&&a.hp>0){try{botAI(dt,a)}catch(e){}}}else drive(a,SRV.inp[i],dt);trackVel(a,dt)});
+ if(SRV.caca&&state==='fight'&&b&&b.hp>0){try{botAI(dt,b)}catch(e){}trackVel(b,dt)}   // o chefe da Caçada pensa aqui (a IA do jogo está desligada para os jogadores, mas o chefe precisa dela)
  SRV.snapT-=dt;if(SRV.snapT<=0){SRV.snapT=1/30;snap()}
  if(state==='end'&&!SRV.over){SRV.over=true;const m={t:'over',w:SRV.coroa?-1:SRV.caca?(/derrotad/.test((document.getElementById('resultTitle')||{}).textContent||'')?0:1):winner()};if(SRV.coroa){const cw=V3Crown.pack();m.rk=V3Crown.rankSlots();m.hs=cw.hs;m.ks=cw.ks}net(-1,m)}
 };
