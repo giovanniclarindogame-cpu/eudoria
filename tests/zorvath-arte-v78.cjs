@@ -23,14 +23,14 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
    for(const [n,i,s] of lista3){const c=ZorvathArte.frame(n,i,{form:3,side:s});if(!c){res.f3.sem.push(n+i);continue}
     const d=c.getContext('2d').getImageData(0,0,c.width,c.height).data;let y1=-1,x0=1e9,x1=-1,y0=1e9;for(let y=0;y<c.height;y++)for(let x=0;x<c.width;x++)if(d[(y*c.width+x)*4+3]>40){if(y>y1)y1=y;if(y<y0)y0=y;if(x<x0)x0=x;if(x>x1)x1=x}
     if(Math.abs(y1-275)>3)res.f3.base.push(n+i+':'+y1);if(x0<2||x1>c.width-3||y0<2||y1>c.height-3)res.f3.corte.push(n+i);if(c.width!==320||c.ax!==180||c.ay!==290)res.f3.base.push(n+i+':geo')}
-   res.f3.antigaA=ZorvathArte.frame('idle',0,{form:3})===null&&ZorvathArte.frame('guard',0,{form:3})===null;
-   res.forma2=ZorvathArte.frame('idle',0,{form:2})===null&&ZorvathArte.frame('punch',0,{form:2})===null;
+   res.f3.antigaA=!!ZorvathArte.frame('idle',0,{form:3})&&ZorvathArte.frame('idle',0,{form:3}).hd&&!!ZorvathArte.frame('guard',0,{form:3});
+   res.forma2=[...Object.keys({idle:1,punch:1,disc:1,nova:1,whip:1,dead:1})].every(n=>{const c=ZorvathArte.frame(n,0,{form:2});return c&&c.hd});
    res.glide=[0,1,2,3].map(i=>!!ZorvathArte.frame('glide',i,{form:1})).every(Boolean);
    return res});
   ok(r.sem.length===0,`as ${r.n} imagens existem para a forma 1 (faltando: ${r.sem.join(',')||'nenhuma'})`);
   ok(r.baseRuim.length===0,'a base do corpo fica na mesma linha (y=232) em todos os quadros '+r.baseRuim.join(','));
   ok(r.cortado.length===0,'nenhum quadro é cortado na borda '+r.cortado.join(','));
   ok(r.f3.sem.length===0&&r.f3.base.length===0&&r.f3.corte.length===0,`forma 3 (folhas B e C): quadros presentes, base do corpo na mesma linha (y=275) e nada cortado (sem: ${r.f3.sem},base: ${r.f3.base},corte: ${r.f3.corte})`);
-  ok(r.f3.antigaA&&r.forma2&&r.glide,'formas ainda sem folha (2 inteira e a folha A da 3) usam a arte antiga, e o deslizar toca em loop');
+  ok(r.f3.antigaA&&r.forma2&&r.glide,'formas sem folha (2 inteira e a folha A da 3) usam a arte pintada da forma 1 com tinta, nunca o pixel art antigo; o deslizar toca em loop');
   await p.close()}
  ok(errs.length===0,'nenhum erro de JavaScript '+errs.slice(0,2).join('|'));await b.close()})();

@@ -126,7 +126,7 @@ function homeMarkup(){
   <div class="v41-pedestal" aria-hidden="true"><i></i><i></i></div>
   <div class="v40-hero-wrap"><span class="v40-slot-hero"></span></div>
  </section>
- ${ev.boss?`<button class="v41-event soon" data-v41-hunt aria-disabled="true" aria-label="Caçada do dia: em breve"><small>CAÇADA DO DIA</small><b>${esc(ev.boss.name.split(',')[0])}</b><em>🔒 em breve</em></button>`:''}
+ ${ev.boss?(window.CACADA_LIBERADA?`<button class="v41-event" data-v41-hunt aria-label="Caçada do dia: ${esc(ev.boss.name.split(',')[0])}. Toque para jogar"><small>CAÇADA DO DIA</small><b>${esc(ev.boss.name.split(',')[0])}</b><em>⚔ jogar agora</em></button>`:`<button class="v41-event soon" data-v41-hunt aria-disabled="true" aria-label="Caçada do dia: em breve"><small>CAÇADA DO DIA</small><b>${esc(ev.boss.name.split(',')[0])}</b><em>🔒 em breve</em></button>`):''}
  <nav class="v40-side v41-side" aria-label="Atalhos">
   <button data-nav="library" style="--i:0" title="Campeões (C)"><span class="v41-ico"></span><span class="v41-lbl">Campeões</span><kbd class="v41-key">C</kbd></button>
   <button data-v40-missions style="--i:1" title="Missões (M)"><span class="v41-ico"></span><span class="v41-lbl">Missões</span><kbd class="v41-key">M</kbd>${mb?`<i class="v41-badge">${mb}</i>`:''}</button>
@@ -262,7 +262,7 @@ document.addEventListener('click',e=>{
  const t=e.target;
  if(t.closest('[data-v40-play]')||t.closest('[data-v43-play]')){e.preventDefault();play();return}
  if(t.closest('[data-v41-gift]')){e.preventDefault();$q('#homeScreen .v40-legacy #openDaily')?.click();return}
- if(t.closest('[data-v41-hunt]')){e.preventDefault();toast?.('Caçada do Dia: em breve');return}
+ if(t.closest('[data-v41-hunt]')){e.preventDefault();if(window.CACADA_LIBERADA&&window.huntQA){try{window.huntQA.lobby()}catch(x){console.error(x)}}else toast?.('Caçada do Dia: em breve');return}
  if(t.closest('[data-v40-modes]')){e.preventDefault();openModes();return}
  if(t.closest('[data-v68-amigos]')){e.preventDefault();try{AmigosV68.abrir()}catch(err){console.error(err)}return}
  if(t.closest('[data-v40-menu]')){e.preventDefault();openMenu();return}

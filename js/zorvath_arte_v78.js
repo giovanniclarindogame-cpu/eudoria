@@ -27,17 +27,21 @@ function carregar(form,folha){
  const f=DIR+'forma'+form+'_'+folha+'.webp';
  return imgs[k]=window.lazyImage?window.lazyImage(f):Object.assign(new Image(),{src:f});
 }
+// formas sem a folha própria usam a arte pintada da forma 1, com uma tinta por forma (rosada na 2, violeta na 3): nunca voltam ao pixel art antigo
+const TINTA={2:'hue-rotate(-28deg) saturate(1.25) brightness(1.05)',3:'hue-rotate(18deg) saturate(1.1) brightness(1.12)'};
 function frame(name,i,{form=1,side=0}={}){
- const m=MAPA[name],fo=FOLHAS[form];if(!fo||!m)return null;
- const [folha,c0,row]=m;if(!fo[folha])return null;
+ const m=MAPA[name];if(!m)return null;
+ const [folha,c0,row]=m;
+ const src=(FOLHAS[form]&&FOLHAS[form][folha])?form:1;
  let k=i;if(name==='glide')k=GLIDE[i%GLIDE.length];
  k=Math.max(0,Math.min((N[name]||1)-1,k));
  let r=row;if(name==='punch')r=side?1:0;
- const col=c0+k,g=GEO[form],im=carregar(form,folha);
+ const col=c0+k,g=GEO[src],im=carregar(src,folha);
  if(!im.complete||!im.naturalWidth)return null;
- const key=form+folha+name+'|'+r+'|'+col;let c=cache.get(key);
+ const key=form+'/'+src+folha+name+'|'+r+'|'+col;let c=cache.get(key);
  if(!c){c=document.createElement('canvas');c.width=c.height=g.cel;c.hd=true;c.ax=g.ax;c.ay=g.ay;
-  c.getContext('2d').drawImage(im,col*g.cel,r*g.cel,g.cel,g.cel,0,g.dy,g.cel,g.cel);cache.set(key,c)}
+  const x=c.getContext('2d');if(src!==form&&TINTA[form]){try{x.filter=TINTA[form]}catch{}}
+  x.drawImage(im,col*g.cel,r*g.cel,g.cel,g.cel,0,g.dy,g.cel,g.cel);cache.set(key,c)}
  return c;
 }
 ZorvathSprite.useSheet({frame});
