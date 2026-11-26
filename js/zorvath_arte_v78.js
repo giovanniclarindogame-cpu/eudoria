@@ -2,7 +2,7 @@
 /*
  * Zorvath — arte pintada (gerada no ChatGPT) no lugar do pixel art por código, forma por forma e folha por folha.
  * Folhas em assets/chefes_v78/zorvath/: formaN_A (movimento), formaN_B (golpes), formaN_C (poderes).
- *  - forma 1: quadros de 256x256, base do corpo na linha 217 (o quadro é descido 15 px para a âncora do motor)
+ *  - forma 1: quadros de 256x256, base do corpo na linha 217 (o quadro é descido 15 px); o centro do tronco fica em x=150 (a cauda sai para a esquerda), por isso a âncora é 150
  *  - formas 2 e 3: quadros de 320x320, base do corpo em y=275 e ponta de baixo em x=180 (sobra de espaço à esquerda para a cauda)
  * Folha que ainda não existe → a pose usa a arte antiga (pixel art), só nela. ?zorarte=0 volta tudo para a arte antiga.
  * Só vale com a Caçada liberada (window.CACADA_LIBERADA, em config_teste.js) ou com ?cacada=1.
@@ -12,7 +12,7 @@ if(!window.CACADA_LIBERADA||/[?&]zorarte=0/.test(location.search)||typeof Zorvat
 const DIR='assets/chefes_v78/zorvath/';
 // folhas existentes por forma
 const FOLHAS={1:{A:1,B:1,C:1},3:{B:1,C:1}};
-const GEO={1:{cel:256,ax:128,ay:232,dy:15},2:{cel:320,ax:180,ay:290,dy:0},3:{cel:320,ax:180,ay:290,dy:0}};
+const GEO={1:{cel:256,ax:150,ay:232,dy:15},2:{cel:320,ax:180,ay:290,dy:0},3:{cel:320,ax:180,ay:290,dy:0}};
 // pose do motor → [folha, coluna inicial, linha]; punch tem 2 variações (side)
 const MAPA={
  idle:['A',0,0],guard:['A',4,0],glide:['A',0,1],hit:['A',4,1],dodge:['A',0,2],stun:['A',1,2],dead:['A',3,2],

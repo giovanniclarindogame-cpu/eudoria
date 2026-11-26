@@ -133,7 +133,7 @@ function lobbyMarkup(def){
   </section>
  </div>
  <footer class="hunt-foot">
-  <div class="hunt-team" role="group" aria-label="Equipe"><button data-hunt-team="solo" class="${save.team==='solo'?'on':''}" aria-pressed="${save.team==='solo'}"><b>Solo</b><small>só você</small></button><button data-hunt-team="duo" class="${save.team==='duo'?'on':''}" aria-pressed="${save.team==='duo'}"><b>Dupla</b><small>aliado bot</small></button><button data-hunt-team="amigo" class="${save.team==='amigo'?'on':''}" aria-pressed="${save.team==='amigo'}" ${window.CacadaOnline?'':'disabled'}><b>Com amigo</b><small>${window.CacadaOnline?'online · convite':'online · em breve'}</small></button></div>
+  <div class="hunt-team" role="group" aria-label="Equipe"><button data-hunt-team="solo" class="${save.team==='solo'?'on':''}" aria-pressed="${save.team==='solo'}"><b>Solo</b><small>só você</small></button><button data-hunt-team="duo" class="${save.team==='duo'?'on':''}" aria-pressed="${save.team==='duo'}"><b>Dupla</b><small>aliado bot</small></button><button data-hunt-friend class="amigo"><b>Com amigo</b><small>online · convite</small></button></div>
   <div class="hunt-record"><small>Melhor tempo</small><b>${rec?mmss(rec):'—'}</b><small>${wins} vitória${wins===1?'':'s'} · ${tries} tentativa${tries===1?'':'s'}</small></div>
   <button class="gold hunt-go" data-hunt-start>⚔ INICIAR CAÇADA</button>
  </footer></div>`;
@@ -187,7 +187,7 @@ function startArt(){
   for(let i=0;i<22;i++){const k=(t*(.45+(i%5)*.07)+i/22)%1,x=210+Math.sin(i*5.3+t*1.7)*(48+k*26),y=312-k*230,s=Math.max(2,Math.round(7*(1-k)));g.globalAlpha=(1-k)*(.3+.6*power);g.fillStyle=i%3?'#b86bff':'#ff62a8';g.fillRect(Math.round(x),Math.round(y),s,s)}
   g.restore();
   if(pose==='nova'){g.save();g.globalCompositeOperation='lighter';const rr=14+lt/dur*34,ng=g.createRadialGradient(210,92,2,210,92,rr*1.5);ng.addColorStop(0,'#fff');ng.addColorStop(.4,'#ff62a8');ng.addColorStop(1,'rgba(184,107,255,0)');g.fillStyle=ng;g.fillRect(100,0,220,200);g.restore()}
-  ZorvathSprite.paint(g,pose,fi,{x:210,y:318,scale:6,form,filter:'drop-shadow(0 0 10px #b86bff88)'});
+  ZorvathSprite.paint(g,pose,fi,{x:210,y:294,scale:5.6,form,filter:'drop-shadow(0 0 10px #b86bff88)'});
   }
   artRaf=requestAnimationFrame(loop);
  };
@@ -203,6 +203,7 @@ document.addEventListener('click',e=>{
  if(sk&&appScreen==='hunt'){const s=sk.dataset.huntSkill!==undefined?lobbyDef.skills[sk.dataset.huntSkill]:lobbyDef.basics[sk.dataset.huntBasic];
   document.querySelectorAll('.hunt-skill').forEach(b=>b.classList.toggle('on',b===sk));
   $('#huntSkillDesc').innerHTML=`<b>${s.name}</b> — ${s.desc}`+(s.cd?` <i>Recarga ${s.cd}s.</i>`:'');return}
+ if(e.target.closest('[data-hunt-friend]')&&appScreen==='hunt'){try{if(window.AmigosV68){AmigosV68.abrir()}else toast('Amigos indisponível agora')}catch{}return}
  if(e.target.closest('[data-hunt-start]')&&appScreen==='hunt'){startHunt()}
 });
 let launching=false;
@@ -268,7 +269,7 @@ const prevPrepare=prepareArenaMode;
 prepareArenaMode=function(){
  prevPrepare();
  if(arenaModeId!=='guardian'||!modeRun)return;
- const def=bossOfDay(),solo=loadSave().team==='solo';
+ const def=bossOfDay(),solo=(window.__huntTeam||loadSave().team)==='solo';
  const ally=actors.find(a=>a!==p&&a!==b&&a.team===0);
  actors=solo||!ally?[p,b]:[p,b,ally];
  time=ARENA_MODES.guardian.seconds;
@@ -526,6 +527,7 @@ const prevStepMode=stepArenaMode;
 stepArenaMode=function(dt){
  const R=hunt();if(!R)return prevStepMode(dt);
  const A=R.a;modeRun.elapsed+=dt;
+ if(R.guest){R.glow=Math.max(0,R.glow-dt*2.2);return}   // online: quem joga vê o chefe que o servidor manda (sem regras locais)
  const rate=[1,1.15,1.35][R.form-1];
  for(const k of Object.keys(R.cds))if(R.cds[k]>0)R.cds[k]-=dt*rate;
  R.rest=Math.max(-1,R.rest-dt);R.guardCD-=dt;R.dodgeCD-=dt;
@@ -784,7 +786,27 @@ window.ensureHuntHome=ensureHuntHome;
 {let q=0;new MutationObserver(()=>{if(q)return;q=requestAnimationFrame(()=>{q=0;try{if(document.querySelector('.royal-explore'))ensureHuntHome()}catch(e){console.error(e)}})}).observe(document.body,{childList:true,subtree:true})}
 document.addEventListener('click',e=>{if(e.target.closest('[data-hunt-home]'))beginArenaMode('guardian')});
 
-window.HuntAPI={makeHunt,ROSTER,register(d){d.generic=true;ROSTER.push(d)},bossOfDay,dayBoss,loadSave,writeSave,mmss,clock3,iconImg,bust,skillIcon};
+/* ---------- Caçada online (dupla com amigo): o servidor roda o chefe, os navegadores só mostram ---------- */
+function launchHunt(o={}){launching=true;try{if(o.team)window.__huntTeam=o.team;return beginArenaMode('guardian')}finally{launching=false}}
+const rr=v=>Math.round(v*10)/10;
+function packHunt(){
+ const R=hunt();if(!R)return null;
+ return{f:R.form,sh:R.shown,ex:+R.exh.toFixed(2),gl:+R.glow.toFixed(2),fc:+R.face.toFixed(2),wk:+R.walk.toFixed(2),dy:+(R.dying||0).toFixed(2),
+  ac:R.act?R.act.id:null,po:R.act&&R.pose?{name:R.pose.name,i:R.pose.i,side:R.pose.side||0}:null,
+  te:R.tele.map(t=>({x:rr(t.x),y:rr(t.y),r:Math.round(t.r),r0:t.r0?Math.round(t.r0):0,t:+t.t.toFixed(2),dur:t.dur,color:t.color,kind:t.kind})),
+  di:R.discs.map(d=>({x:rr(d.x),y:rr(d.y),r:d.r,dx:+(d.dx||0).toFixed(2),dy:+(d.dy||0).toFixed(2)})),
+  be:R.beam?{x:rr(R.beam.x),y:rr(R.beam.y),a:+R.beam.a.toFixed(3),ex:rr(R.beam.ex),ey:rr(R.beam.ey),w:R.beam.w,t:+R.beam.t.toFixed(2),dur:R.beam.dur}:null,
+  ca:R.cannon?{a:+R.cannon.a.toFixed(3),k:+(R.cannon.k||0).toFixed(2),locked:!!R.cannon.locked,w:R.cannon.w}:null,
+  no:R.nova?{x:rr(R.nova.x),y:rr(R.nova.y),r:Math.round(R.nova.r),k:+(R.nova.k||0).toFixed(2),locked:!!R.nova.locked,sphere:R.nova.sphere,fall:+(R.nova.fall||0).toFixed(2)}:null,
+  gh:R.ghosts.map(g=>({x:rr(g.x),y:rr(g.y),life:+g.life.toFixed(2),max:g.max,face:+(g.face||0).toFixed(2),form:g.form}))};
+}
+function applyHunt(h){
+ const R=hunt();if(!R||!h)return;R.guest=true;
+ R.form=h.f;R.shown=h.sh;R.exh=h.ex;R.glow=Math.max(R.glow,h.gl);R.face=h.fc;R.walk=h.wk;R.dying=h.dy;
+ R.act=h.ac?{id:h.ac,t:0}:null;R.pose=h.po;R.tele=h.te;R.discs=h.di;R.beam=h.be;R.cannon=h.ca;R.nova=h.no;R.ghosts=h.gh;
+}
+function finishOnline(m){if(!modeRun||modeRun.settled)return;try{endArenaMode(m&&m.w===0)}catch(e){console.error('[Eldoria] fim da caçada online',e)}}
+window.HuntAPI={launch:launchHunt,pack:packHunt,applyServer:applyHunt,finishOnline,makeHunt,ROSTER,register(d){d.generic=true;ROSTER.push(d)},bossOfDay,dayBoss,loadSave,writeSave,mmss,clock3,iconImg,bust,skillIcon};
 /* ganchos de teste */
 window.huntQA={get state(){return modeRun?.hunt||modeRun?.gb},bossOfDay,ROSTER,lobby:openHuntLobby,force(id){const R=hunt();if(!R)return;R.act=null;R.tele=[];R.nova=null;R.cannon=null;R.rest=0;startAct(R,id,{})},ACT};
 })();

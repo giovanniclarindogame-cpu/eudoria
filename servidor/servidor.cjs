@@ -31,8 +31,9 @@ const fila = [];                  // jogadores esperando o 1×1
 const fila2 = [];                 // jogadores esperando o 2×2
 const fila3 = [];                 // jogadores esperando o Trio de Campeões (2 jogadores, cada um com um time de 3)
 const fila4 = [];                 // jogadores esperando a Disputa da Coroa (4 jogadores, cada um por si)
-const FILAS = { '1v1': fila, '2v2': fila2, trio: fila3, coroa: fila4 };
-const TAM = { '1v1': 2, '2v2': 4, trio: 2, coroa: 4 };   // vagas de cada modo
+const fila5 = [];                 // jogadores esperando a Caçada do Dia (2 jogadores, juntos contra o chefe)
+const FILAS = { '1v1': fila, '2v2': fila2, trio: fila3, coroa: fila4, cacada: fila5 };
+const TAM = { '1v1': 2, '2v2': 4, trio: 2, coroa: 4, cacada: 2 };   // vagas de cada modo
 const filaDe = j => FILAS[j.modo] || fila;
 const todasFilas = [fila, fila2, fila3, fila4];
 const partidas = new Map();       // id -> { id, e, modo, slots: [{ j, perfil, bot, tok }], fase, fim, criada }
@@ -193,7 +194,7 @@ function criarPartida(jog, modo, fixos) {
   // o que cada jogador recebe ao começar (e ao voltar): a mesma mensagem 'match'
   p.matchObj = (slot) => {
     const me = slots[slot], hs = slots.map(s => s.perfil.hero), ps = slots.map(s => s.perfil);
-    if (modo === '2v2' || modo === 'coroa') return { t: 'match', modo, slot, seed, hs, ps };
+    if (modo === '2v2' || modo === 'coroa' || modo === 'cacada') return { t: 'match', modo, slot, seed, hs, ps };
     const o = slots[1 - slot];
     if (modo === 'trio') { const teams = slots.map(s => timeDe(s)); return { t: 'match', modo, slot, seed, teams, hh: teams[1 - slot][0], gh: teams[slot][0], them: o.perfil }; }
     return { t: 'match', slot, seed, hh: o.perfil.hero, gh: me.perfil.hero, them: o.perfil };
@@ -201,7 +202,7 @@ function criarPartida(jog, modo, fixos) {
   p.iniciar = () => {
     slots.forEach((s, i) => { if (s.j) enviar(s.j.ws, JSON.stringify(p.matchObj(i))); });
     const bots = slots.map(s => !s.j), hs = slots.map(s => s.perfil.hero), nomes = slots.map(s => s.perfil.name);
-    if (modo === '2v2' || modo === 'coroa') e.w.postMessage({ k: 'iniciar', modo, seed, h: hs, n: nomes, bots });
+    if (modo === '2v2' || modo === 'coroa' || modo === 'cacada') e.w.postMessage({ k: 'iniciar', modo, seed, h: hs, n: nomes, bots });
     else if (modo === 'trio') { const teams = slots.map(s => timeDe(s)); e.w.postMessage({ k: 'iniciar', modo, seed, h0: teams[0][0], h1: teams[1][0], teams, n0: nomes[0], n1: nomes[1], bots }); }
     else e.w.postMessage({ k: 'iniciar', seed, h0: hs[0], h1: hs[1], n0: nomes[0], n1: nomes[1], bots });
     p.iniciada = true; p.timerLiberar = setTimeout(() => liberar(p), 30000); checarLiberar(p);
@@ -315,7 +316,7 @@ function fecharConvite(cv, aviso) {
 function convidar(j, m) {
   const eu = contas.porId(j.contaId), alvo = contas.porId(String(m.id || ''));
   const resp = o => enviar(j.ws, JSON.stringify({ t: 'convite_res', ...o }));
-  const TIPOS_CONVITE = { contra: '1v1', junto: '2v2', trio: 'trio', coroa: 'coroa' };   // duelo 1×1 · equipe 2×2 (juntos) · Trio de Campeões · Disputa da Coroa (bots completam as vagas)
+  const TIPOS_CONVITE = { contra: '1v1', junto: '2v2', trio: 'trio', coroa: 'coroa', cacada: 'cacada' };   // duelo 1×1 · equipe 2×2 (juntos) · Trio de Campeões · Disputa da Coroa (bots completam as vagas)
   const tipo = TIPOS_CONVITE[m.tipo] ? m.tipo : null, modo = tipo ? TIPOS_CONVITE[tipo] : null;
   if (!eu || !alvo || !modo || !contas.saoAmigos(eu, alvo.id)) return resp({ st: 'erro', erro: 'amigo' });
   if (partidas.size >= MAX_PARTIDAS) return resp({ st: 'erro', erro: 'cheio' });
@@ -406,7 +407,7 @@ function tratar(j, texto) {
       j.social = true; j.estado = 'social'; j.amigoMsgs = 0; j.amigoDesde = Date.now();
       enviar(j.ws, JSON.stringify({ t: 'hello', social: 1, ok: 1 })); presenca(j.contaId); return;
     }
-    return enviar(j.ws, JSON.stringify({ t: 'hello', ok: 1, online: onlineN(), v: PROTO, modos: ['1v1', '2v2', 'trio', 'coroa'], bots: 1, volta: 1 }));
+    return enviar(j.ws, JSON.stringify({ t: 'hello', ok: 1, online: onlineN(), v: PROTO, modos: ['1v1', '2v2', 'trio', 'coroa', 'cacada'], bots: 1, volta: 1 }));
   }
   if (j.social && !['ping', 'perfil', 'amigos', 'amigo_add', 'amigo_resp', 'amigo_del', 'convite', 'convite_resp', 'chat', 'chat_hist', 'chat_lido'].includes(m.t)) return;   // conexão social só fala de amigos
   if (j.contaId && ['amigos', 'amigo_add', 'amigo_resp', 'amigo_del', 'convite', 'convite_resp', 'chat', 'chat_hist', 'chat_lido'].includes(m.t)) return tratarAmigos(j, m);
