@@ -82,11 +82,10 @@ const bustCache={};
 function bust(def=bossOfDay()){
  if(def.generic){if(bustCache[def.id])return bustCache[def.id];const c=document.createElement('canvas');c.width=c.height=96;const g=c.getContext('2d');g.imageSmoothingEnabled=false;const bg=g.createRadialGradient(48,40,6,48,48,70);bg.addColorStop(0,def.look.aura.a+'88');bg.addColorStop(1,'#120a22');g.fillStyle=bg;g.fillRect(0,0,96,96);g.drawImage(BossSprite.frame(def.look,'idle',0),13,8,38,38,0,0,96,96);return bustCache[def.id]=c.toDataURL()}
  if(bustCache.zorvath)return bustCache.zorvath;
- const pint=window.CACADA_LIBERADA&&window.ZorvathArte&&ZorvathArte.frame('idle',0,{form:3});   // retrato com a arte pintada da forma 3 (cabeça)
+ const pint=window.CACADA_LIBERADA&&window.ZorvathArte&&ZorvathArte.frame('idle',0,{form:1});   // retrato com a cabeça pintada da forma 1
  const c=document.createElement('canvas');c.width=c.height=96;const g=c.getContext('2d');g.imageSmoothingEnabled=false;
  const bg=g.createRadialGradient(48,40,6,48,48,70);bg.addColorStop(0,'#3d1f66');bg.addColorStop(1,'#120a22');g.fillStyle=bg;g.fillRect(0,0,96,96);
- if(pint){g.imageSmoothingEnabled=true;g.drawImage(pint,118,56,130,130,0,0,96,96);bustCache.zorvath=c.toDataURL();return bustCache.zorvath}
- g.drawImage(ZorvathSprite.frame('idle',0,{form:3}),13,6,38,38,0,0,96,96);
+ if(pint){g.imageSmoothingEnabled=true;g.drawImage(pint,98,46,112,112,0,0,96,96);bustCache.zorvath=c.toDataURL();return bustCache.zorvath}
  return c.toDataURL();   // arte pintada ainda não carregou: usa o desenho antigo agora e tenta de novo depois
 }
 /* ============================== lobby ============================== */
@@ -95,7 +94,7 @@ let lobbyDef=null,artRaf=0,timerInt=0,selectedSkill=null;
 const HALL=(()=>{const f='assets/chefes_v78/zorvath/arena.webp';return window.lazyImage?window.lazyImage(f):Object.assign(new Image(),{src:f})})();
 const hallOk=()=>window.CACADA_LIBERADA&&HALL.complete&&HALL.naturalWidth>0;
 // formas com as três folhas pintadas (só elas entram na demonstração, para não misturar estilos)
-const formasPintadas=()=>{const f=window.ZorvathArte&&window.ZorvathArte.folhas;return f?[1,2,3].filter(n=>f[n]&&f[n].A&&f[n].B&&f[n].C):[]};
+const formasPintadas=()=>{const f=window.ZorvathArte&&window.ZorvathArte.folhas;return f&&f[1]&&f[1].A&&f[1].B&&f[1].C?[1]:[]};   // no lobby só aparece a forma 1 (as outras são surpresa da luta)
 function stars(n){return '★'.repeat(n)+'☆'.repeat(5-n)}
 function weekStrip(def){
  if(window.CACADA_CHEFE_FIXO)return `<div class="hunt-soon"><b>${def.name.split(',')[0]}</b> é o chefe da Caçada por enquanto.<br><small>Novos chefes chegam em breve, um por dia.</small></div>`;
@@ -769,7 +768,7 @@ function startHomeArt(){
    const ag=g.createRadialGradient(100,100,6,100,100,95);ag.addColorStop(0,'rgba(255,98,168,.3)');ag.addColorStop(.6,'rgba(184,107,255,.2)');ag.addColorStop(1,'rgba(184,107,255,0)');g.fillStyle=ag;g.fillRect(0,0,200,200);
    for(let i=0;i<10;i++){const k=(t*(.4+(i%4)*.08)+i/10)%1,x=100+Math.sin(i*5.3+t*1.6)*(26+k*14),y=176-k*140,sz=Math.max(2,Math.round(5*(1-k)));g.globalAlpha=(1-k)*.8;g.fillStyle=i%3?'#b86bff':'#ff62a8';g.fillRect(Math.round(x),Math.round(y),sz,sz)}
    g.restore();
-   if(hd.generic)BossSprite.paint(g,hd.look,'idle',Math.floor(t*3)%4,{x:100,y:176,scale:2.7});else ZorvathSprite.paint(g,'idle',Math.floor(t*3)%4,{x:100,y:176,scale:2.7,form:3});
+   if(hd.generic)BossSprite.paint(g,hd.look,'idle',Math.floor(t*3)%4,{x:100,y:176,scale:2.7});else ZorvathSprite.paint(g,'idle',Math.floor(t*3)%4,{x:100,y:176,scale:2.7,form:1});
   }
   homeRaf=requestAnimationFrame(loop);
  };
