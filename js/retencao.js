@@ -73,7 +73,7 @@ const GOALS={
 };
 const CHEST={c:0,g:20};
 // enquanto a Caçada do Dia está bloqueada ("em breve"), as metas dela não podem aparecer: viram metas de partidas e de dano
-const CACADA_ON=false;
+const CACADA_ON=!!window.CACADA_LIBERADA;
 function semCacada(ids){const out=[];for(const id of ids){let n=id==='boss'?'matches':id==='hunt'?'damage':id;if(out.includes(n))n=['wins','matches','damage'].find(x=>!out.includes(x)&&!ids.includes(x))||['wins','matches','damage'].find(x=>!out.includes(x));out.push(n)}return out}
 function ensureGoals(){
  const t=dayIdx();

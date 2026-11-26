@@ -7,7 +7,7 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  for(const vp of [{width:844,height:390},{width:1280,height:720},{width:1920,height:1080},{width:2560,height:1440}]){
   const tag=`${vp.width}x${vp.height}`;
   const ctx=await b.newContext({viewport:vp});const p=await ctx.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
-  await p.goto('http://localhost:8000/index.html?allheroes=1&boss=zorvath&tutorial=1');await p.waitForTimeout(900);
+  await p.goto('http://localhost:8000/index.html?allheroes=1&cacada=1&boss=zorvath&tutorial=1');await p.waitForTimeout(900);
   await p.getByText('ENTRAR',{exact:true}).click();await p.fill('input','Teste');await p.getByText('Continuar',{exact:true}).click();await p.waitForTimeout(1400);
   await p.evaluate(()=>{beginArenaMode('guardian')});await p.waitForTimeout(500);await p.evaluate(()=>document.querySelector('[data-hunt-start]').click());await p.waitForTimeout(900);
   for(let i=0;i<4;i++){

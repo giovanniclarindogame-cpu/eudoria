@@ -6,7 +6,7 @@
  * Cada quadro vira um canvas 256x256 com o "chão" do chefe (ponta de baixo) em y=232 e o centro em x=128: a mesma âncora que o motor usa no desenho de 64x64.
  */
 (function(){
-if(/[?&]zorarte=0/.test(location.search)||typeof ZorvathSprite==='undefined')return;
+if(!window.CACADA_LIBERADA||/[?&]zorarte=0/.test(location.search)||typeof ZorvathSprite==='undefined')return;   // só aparece quando a Caçada do Dia for liberada (CACADA_LIBERADA em config_teste.js) ou com ?cacada=1
 const DIR='assets/chefes_v78/zorvath/',CEL=256,DY=232-217;
 const FORMAS={1:{A:'forma1_A.webp',B:'forma1_B.webp',C:'forma1_C.webp'}};
 // pose do motor → [folha, coluna inicial, linha, quantidade, colunas da folha]; punch tem 2 variações (side)
