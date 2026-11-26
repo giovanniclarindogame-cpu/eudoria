@@ -40,3 +40,11 @@
 
 .c81-boss::before{content:"";position:absolute;left:14%;right:14%;bottom:34px;height:30px;border-radius:50%;background:radial-gradient(rgba(255,90,110,.7),rgba(200,30,70,.25) 60%,transparent 72%);box-shadow:0 0 22px rgba(255,80,110,.55)}
 .c81-cv{position:relative}
+/* versão offline (Solo e Dupla com bot): a mesma sala em tela cheia */
+#caca81off{position:fixed;inset:0;z-index:1200;display:flex;flex-direction:column;background:radial-gradient(ellipse at 50% 0%,#2c4fb0,#162a6b 50%,#0a1235)}
+#caca81off .v46-sel{flex:1;min-height:0}
+body.c81-open{overflow:hidden}
+/* versão offline (Solo e Dupla com bot): a mesma sala em tela cheia */
+#caca81off{position:fixed;inset:0;z-index:1200;display:flex;flex-direction:column;background:radial-gradient(ellipse at 50% 0%,#2c4fb0,#162a6b 50%,#0a1235)}
+#caca81off .v46-sel{flex:1;min-height:0}
+body.c81-open{overflow:hidden}

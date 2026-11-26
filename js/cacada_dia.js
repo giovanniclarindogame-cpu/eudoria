@@ -141,6 +141,7 @@ function lobbyMarkup(def){
 function openHuntLobby(){
  if(!window.CACADA_LIBERADA){try{toast('Caçada do Dia: em breve')}catch{}return}
  lobbyDef=bossOfDay();save=loadSave();
+ try{window.SalaCacada&&SalaCacada.pre()}catch{}   // já baixa a arte dos campeões para a sala de escolha abrir pronta
  showArenaModes();appScreen='hunt';document.body.dataset.screen='hunt';
  $('#modeScreen').innerHTML=lobbyMarkup(lobbyDef);$('#modeScreen').scrollTop=0;
  selectedSkill=null;startArt();
@@ -208,6 +209,10 @@ document.addEventListener('click',e=>{
 });
 let launching=false;
 function startHunt(){
+ if(window.SalaCacada&&SalaCacada.abrirOffline&&!/[?&]semsala=1/.test(location.search)){SalaCacada.abrirOffline(loadSave().team,startHuntNow);return}
+ startHuntNow();
+}
+function startHuntNow(){
  save=loadSave();save.tries[lobbyDef.id]=(save.tries[lobbyDef.id]||0)+1;writeSave(save);
  cancelAnimationFrame(artRaf);clearInterval(timerInt);
  launching=true;try{beginArenaMode('guardian')}finally{launching=false}
@@ -271,6 +276,8 @@ prepareArenaMode=function(){
  if(arenaModeId!=='guardian'||!modeRun)return;
  const def=bossOfDay(),solo=(window.__huntTeam||loadSave().team)==='solo';
  const ally=actors.find(a=>a!==p&&a!==b&&a.team===0);
+ if(ally&&!solo&&window.__huntAllyHero!=null&&window.V3Modes){try{V3Modes.swapHero(ally,window.__huntAllyHero,1000)}catch{}}
+ window.__huntAllyHero=null;
  actors=solo||!ally?[p,b]:[p,b,ally];
  time=ARENA_MODES.guardian.seconds;
  b.boss=true;b.huntBoss=true;b.team=1;b.label=def.name;b.r=26;b.max=b.hp=solo?def.hp:def.hpDuo;b.a=Math.PI;b.st=100;

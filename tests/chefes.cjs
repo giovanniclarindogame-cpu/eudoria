@@ -9,13 +9,13 @@ const only=process.argv.slice(2);
  // o cartão da tela inicial cabe em qualquer tamanho, com qualquer chefe
  for(const id of (only.length?only:IDS)){
   for(const [w,h] of [[667,375],[740,360],[844,390],[1280,720]]){
-   const q=await b.newPage({viewport:{width:w,height:h}});await q.goto('http://localhost:8000/index.html?allheroes=1&cacada=1&boss='+id);await q.waitForTimeout(800);
+   const q=await b.newPage({viewport:{width:w,height:h}});await q.goto('http://localhost:8000/index.html?allheroes=1&cacada=1&semsala=1&boss='+id);await q.waitForTimeout(800);
    await q.getByText('ENTRAR',{exact:true}).click();await q.fill('input','Teste');await q.getByText('Continuar',{exact:true}).click();await q.waitForTimeout(1200);
    const m=await q.evaluate(()=>{const c=document.querySelector('.hunt-home').getBoundingClientRect(),bt=document.querySelector('.hunt-home .royal-small-gold').getBoundingClientRect(),t=document.querySelector('.hunt-home h2').getBoundingClientRect();return{ok:bt.bottom<=c.bottom+1&&bt.top>=c.top&&bt.right<=c.right+1&&t.right<=c.right+1&&c.bottom<=innerHeight+4&&c.right<=innerWidth+1}});
    ok(m.ok,`${id}: cartão da tela inicial cabe em ${w}x${h}`);await q.close();
   }
   const p=await b.newPage({viewport:{width:844,height:390}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
-  await p.goto('http://localhost:8000/index.html?allheroes=1&cacada=1&boss='+id);await p.waitForTimeout(1000);
+  await p.goto('http://localhost:8000/index.html?allheroes=1&cacada=1&semsala=1&boss='+id);await p.waitForTimeout(1000);
   await p.getByText('ENTRAR',{exact:true}).click();await p.fill('input','Teste');await p.getByText('Continuar',{exact:true}).click();await p.waitForTimeout(1300);
   await p.evaluate(()=>beginArenaMode('guardian'));await p.waitForTimeout(700);
   const lob=await p.evaluate(()=>({title:document.querySelector('.hunt-title h1')?.textContent,skills:document.querySelectorAll('.hunt-skill:not(.basic)').length,basics:document.querySelectorAll('.hunt-skill.basic').length,sys:document.querySelector('.hunt-pride p')?.textContent.length,art:(()=>{const c=document.getElementById('huntArt'),d=c.getContext('2d').getImageData(0,0,c.width,c.height).data;let n=0;for(let i=3;i<d.length;i+=4)if(d[i]>0)n++;return n})(),icons:[...document.querySelectorAll('.hunt-skill img')].every(i=>i.naturalWidth>0)}));
