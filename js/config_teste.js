@@ -9,8 +9,8 @@
  */
 window.ELDORIA_TESTE={ativo:!/[?&](allheroes=1|teste=0)/.test(location.search),semMoedas:true,semPresentes:true,todosHerois:true,tutorialObrigatorio:true};
 /* CAÇADA DO DIA (liga/desliga aqui). false = o modo aparece como "Em breve" e não abre; a missão diária da Caçada também fica de fora.
- * Para liberar quando os chefes estiverem prontos: troque para true. Para testar antes de liberar, abra o jogo com ?cacada=1. */
-window.CACADA_LIBERADA=false||/[?&]cacada=1/.test(location.search);
+ * LIBERADA (true). Para desligar de novo: troque para false aqui, ou abra o jogo com ?cacada=0 para ver sem ela. */
+window.CACADA_LIBERADA=!/[?&]cacada=0/.test(location.search);
 /* Chefe da Caçada do Dia: por enquanto é sempre este (id do chefe). Troque por null para voltar a rodar um chefe por dia. */
 window.CACADA_CHEFE_FIXO='zorvath';
 window.ELDORIA_TESTE_ON=k=>!!(window.ELDORIA_TESTE&&ELDORIA_TESTE.ativo&&ELDORIA_TESTE[k]);

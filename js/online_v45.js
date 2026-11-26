@@ -135,7 +135,7 @@ function procurar(modo,op){
  return procurarAgora(modo,op);
 }
 function procurarAgora(modo,op){
- if(modo==='1v1'||modo==='2v2'||modo==='trio'||modo==='coroa')S.modo=modo;if(!['2v2','trio','coroa'].includes(S.modo))S.modo='1v1';
+ if(modo==='1v1'||modo==='2v2'||modo==='trio'||modo==='coroa'||modo==='cacada')S.modo=modo;if(!['2v2','trio','coroa','cacada'].includes(S.modo))S.modo='1v1';
  cleanup();S.team=null;S.mode='server';S.role='guest';S.err='';S.busy='';S.qt=Date.now();S.online=0;S.fila=0;S.fase='fila';S.procurando=true;S.sala=null;S.me={...profile()};S.them=null;S.ready=S.theirReady=false;
  S.amigo=op&&op.cid?String(op.amigo||'amigo'):'';   // convite de amigo: espera o amigo chegar na sala em vez de procurar rivais
  return !!abrirSocket(()=>send({t:'fila',p:profile(),modo:S.modo,cid:op&&op.cid?op.cid:undefined}));
@@ -172,7 +172,7 @@ function abrirSala(){
 function onSrv(m){
  switch(m.t){
   case'hello':
-   if((S.modo==='2v2'||S.modo==='trio'||S.modo==='coroa')&&!(m.modos||[]).includes(S.modo)){falhaSrv('O servidor ainda está sendo atualizado para este modo. Tente de novo em alguns minutos.');break}
+   if((S.modo==='2v2'||S.modo==='trio'||S.modo==='coroa'||S.modo==='cacada')&&!(m.modos||[]).includes(S.modo)){falhaSrv('O servidor ainda está sendo atualizado para este modo. Tente de novo em alguns minutos.');break}
    S.online=m.online||0;{const f=S.aoHello;S.aoHello=null;if(f)f()}avisar();break;
   case'fila':S.online=m.online||S.online;S.fila=m.n;S.precisa=m.precisa||2;avisar();break;
   case'cheio':S.busy='Servidor cheio: você continua na fila…';break;
@@ -367,9 +367,9 @@ function updatePing(){const el=$q('#v45Ping');if(el){el.textContent=S.rtt==null?
 /* ---------- sala de espera: mesma pegada da seleção do modo offline (retratos, bonecos animados, VS, grade de rostos) ---------- */
 const faceSrc=id=>{try{return(window.v3FaceSrc&&v3FaceSrc({skin:id,kit:CHAMPIONS[id].kit}))||championArt(CHAMPIONS[id])}catch{return''}};
 const artSrc=id=>{try{return championArt(CHAMPIONS[id])}catch{return''}};
-function sideChip(p,me,ready,up){up=up===true?1:up||0;
+function sideChip(p,me,ready,up){const eu=me&&!up;up=up===true?1:up||0;
  if(!p)return `<div class="v46-chip ${me?'left':'right'} wait"><span class="v45-dots"><i></i><i></i><i></i></span><b>Esperando o amigo…</b></div>`;
- return `<div class="v46-chip ${me?'left':'right'} ${up?'up'+up:''} ${ready?'ready':''}">${avatar(p,'sm')}<span><b>${esc(p.name)}${me?' <em>(você)</em>':''}</b><small>Nv ${p.lv} · <span class="v43-rank" data-tier="${p.tier}">${esc(p.league)}</span></small></span><i class="v46-st">${ready?svg('check')+'PRONTO':'escolhendo'}</i></div>`;
+ return `<div class="v46-chip ${me?'left':'right'} ${up?'up'+up:''} ${ready?'ready':''}">${avatar(p,'sm')}<span><b>${esc(p.name)}${eu?' <em>(você)</em>':''}</b><small>Nv ${p.lv} · <span class="v43-rank" data-tier="${p.tier}">${esc(p.league)}</span></small></span><i class="v46-st">${ready?svg('check')+'PRONTO':'escolhendo'}</i></div>`;
 }
 // emblema "VS" desenhado em SVG: anel dourado, metade azul e metade vermelha, raio no meio
 const VS_SVG=`<svg viewBox="0 0 140 140" aria-hidden="true"><defs>
@@ -382,16 +382,17 @@ const VS_SVG=`<svg viewBox="0 0 140 140" aria-hidden="true"><defs>
  <circle cx="70" cy="70" r="56" fill="none" stroke="#ffe9a0" stroke-width="2.5" opacity=".7"/>
  <text x="70" y="92" text-anchor="middle" font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif" font-size="62" font-weight="900" fill="url(#vsG)" stroke="#4a2800" stroke-width="7" paint-order="stroke" stroke-linejoin="round" letter-spacing="-2">VS</text></svg>`;
 function lobbyHtml(){
-  const srv=S.mode==='server',sa=srv?S.sala:null,ffa=srv&&S.modo==='coroa'&&!!sa,x2=!!sa&&sa.n>2&&!ffa,trio=srv&&S.modo==='trio'&&!!S.team;
+  const srv=S.mode==='server',sa=srv?S.sala:null,ffa=srv&&S.modo==='coroa'&&!!sa,cac=srv&&S.modo==='cacada'&&!!sa,x2=!!sa&&sa.n>2&&!ffa,trio=srv&&S.modo==='trio'&&!!S.team;
  const me=S.me,th=S.them,mine=owned(),mc=CHAMPIONS[trio?S.team[0]:me.hero]||CHAMPIONS[0];
  const tc=(!srv&&th)?CHAMPIONS[th.hero]:null;   // pelo servidor, o campeão do rival só aparece quando a luta começa
- const mateSlot=sa?sa.slot^1:0,matePick=x2?sa.picks[mateSlot]:null;
+ const mateSlot=sa?sa.slot^1:0,matePick=(x2||cac)?sa.picks[mateSlot]:null;
  const tiles=CHAMPIONS.map(c=>{const own=mine.includes(c.id),ord=trio?S.team.indexOf(c.id):-1,on=trio?ord>=0:me.hero===c.id,foe=tc&&tc.id===c.id;return `<button class="v46-tile ${on?'on':''} ${own?'':'locked'} ${foe?'foe':''}" data-v45-hero="${c.id}" ${own&&!S.ready?'':'disabled'} aria-pressed="${on}" title="${esc(c.name)}${own?'':' · bloqueado'}" style="--hero:${c.color}"><img data-face="${c.id}" src="${esc(faceSrc(c.id))}" alt="">${ord>=0?`<b class="v46-ord">${ord+1}</b>`:''}${foe?'<i class="v46-foe-mark" aria-hidden="true">RIVAL</i>':''}</button>`}).join('');
  const spr=(id,cls='')=>`<canvas class="v46-sprite ${cls}" data-skin="${id}" width="200" height="200" aria-hidden="true"></canvas>`;
  // lado de cada jogador na sala de escolha (2×2): eu e meu parceiro à esquerda, os dois rivais à direita
  let chips;
  if(ffa){const outros=sa.ps.map((_,i)=>i).filter(i=>i!==sa.slot);
   chips=sideChip(me,true,S.ready)+outros.map((i,k)=>sideChip(sa.ps[i],false,!!sa.ready[i],k)).join('')}
+ else if(cac){chips=sideChip(me,true,S.ready)+sideChip(sa.ps[mateSlot],true,!!sa.ready[mateSlot],true)}
  else if(x2){const me0=sa.slot,foes=sa.ps.map((_,i)=>i).filter(i=>(i>>1)!==(me0>>1));
   chips=sideChip(me,true,S.ready)+sideChip(sa.ps[mateSlot],true,!!sa.ready[mateSlot],true)+sideChip(sa.ps[foes[0]],false,!!sa.ready[foes[0]])+sideChip(sa.ps[foes[1]],false,!!sa.ready[foes[1]],true)}
  else if(trio){
@@ -402,6 +403,10 @@ function lobbyHtml(){
  const mid=ffa?`<div class="v46-fighter blue"><i class="v46-plat"></i>${spr(mc.id)}</div>
     <div class="v46-vs">${VS_SVG}<small>4P</small></div>
     ${[0,1,2].map(()=>'<div class="v46-fighter red"><i class="v46-plat"></i><span class="v46-q">?</span></div>').join('')}`
+  :cac?`<div class="v46-fighter blue"><i class="v46-plat"></i>${spr(mc.id)}</div>
+    <div class="v46-fighter blue"><i class="v46-plat"></i>${matePick!=null?spr(matePick):'<span class="v46-q">?</span>'}</div>
+    <div class="v46-vs">${VS_SVG}<small>CAÇADA</small></div>
+    <div class="v46-fighter red"><i class="v46-plat"></i><span class="v46-q">Z</span></div>`
   :x2?`<div class="v46-fighter blue"><i class="v46-plat"></i>${spr(mc.id)}</div>
     <div class="v46-fighter blue"><i class="v46-plat"></i>${matePick!=null?spr(matePick):'<span class="v46-q">?</span>'}</div>
     <div class="v46-vs">${VS_SVG}<small>2×2</small></div>
@@ -413,7 +418,7 @@ function lobbyHtml(){
   <div class="v46-stage">
    <div class="v46-art left"><img src="${esc(artSrc(mc.id))}" alt=""></div>
    <div class="v46-art right ${tc?'':'empty'}">${tc?`<img src="${esc(artSrc(tc.id))}" alt="">`:''}</div>
-   <div class="v46-mid ${x2||ffa?'x2':''}">${mid}</div>
+   <div class="v46-mid ${x2||ffa||cac?'x2':''}">${mid}</div>
    ${chips}
   </div>
   <div class="v46-names"><div class="v46-name blue">${esc(mc.name)}</div><div class="v46-hint">${srv?`<span class="v46-time">⏱ <b id="v45Qt">${secs} s</b></span>`:S.ready?'Esperando o amigo ficar pronto…':''}</div><div class="v46-name red">${tc?esc(tc.name):'? ? ?'}</div></div>
@@ -481,7 +486,7 @@ function view(){
   ${S.answerCode?`<div class="v45-step"><span class="v45-num">2</span><b>Mostre este QR para o anfitrião</b><div class="v45-qr" id="v45Qr"></div><button class="v45-link" data-v45="copyAnswer">${svg('copy')}Sem câmera? Copiar código</button><p class="v45-wait"><span class="v45-dots"><i></i><i></i><i></i></span>Esperando o anfitrião ler…</p></div>`
   :`<div class="v45-step"><span class="v45-num">1</span><b>Leia o QR do anfitrião</b><div class="v45-scan" id="v45Scan"><button class="v45-btn blue" data-v45="scanOffer">${svg('cam')}Abrir câmera</button></div>
    <details class="v45-paste"><summary>Colar código</summary><textarea id="v45Paste" rows="3" placeholder="Cole aqui o código do anfitrião"></textarea><button class="v45-btn gold" data-v45="pasteOffer">Usar código</button></details></div>`}</div>`;
- case'lobby':return top(S.mode==='server'?(S.modo==='2v2'?'EQUIPES 2×2':S.modo==='trio'?'TRIO DE CAMPEÕES':S.modo==='coroa'?'DISPUTA DA COROA':'DUELO 1×1'):'SALA '+(S.mode==='near'?'PERTO':S.code),S.mode==='server'?'sair':'home')+(S.err?err:'')+lobbyHtml();
+ case'lobby':return top(S.mode==='server'?(S.modo==='2v2'?'EQUIPES 2×2':S.modo==='trio'?'TRIO DE CAMPEÕES':S.modo==='coroa'?'DISPUTA DA COROA':S.modo==='cacada'?'CAÇADA DO DIA':'DUELO 1×1'):'SALA '+(S.mode==='near'?'PERTO':S.code),S.mode==='server'?'sair':'home')+(S.err?err:'')+lobbyHtml();
  case'count':return `<div class="v45-count"><span>A luta começa em</span><b id="v45Count">3</b></div>`;
  case'wait':return `<div class="v45-count"><span class="v45-spin"></span><span>Entrando na arena…</span></div>`;
  case'stage2':return top('SALA '+(S.mode==='near'?'PERTO':S.code),'lobby')+`<div class="v45-body v45-center">

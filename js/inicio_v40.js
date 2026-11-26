@@ -16,7 +16,7 @@ const ART='assets/inicio_v40/';
 
 /* ---------- modos ---------- */
 // 4º item: categoria bloqueada por enquanto (aparece na barra de baixo com cadeado e "em breve"; o foco agora é o Casual e o Treino)
-const CATS=[['rank','Ranqueado','#f2b84b',true],['casual','Casual','#58c4f0'],['desafio','Desafios','#b58cf2',true],['treino','Treino','#7fd67a']];
+const CATS=[['rank','Ranqueado','#f2b84b',true],['casual','Casual','#58c4f0'],['desafio','Desafios','#b58cf2',!window.CACADA_LIBERADA],['treino','Treino','#7fd67a']];
 const catLocked=id=>!!CATS.find(c=>c[0]===id)?.[3];
 const liga=id=>()=>window.V3Liga?.play(id);
 const casual=(mode,kind)=>()=>{lobbyPrefs.mode=mode;try{saveLobbyPrefs()}catch{}window.V3Kof?.open(kind)};
@@ -32,9 +32,9 @@ const MODES=[
  {id:'coroa',cat:'casual',name:'Disputa da Coroa',sub:'Segure a coroa por 3 minutos',tag:'4 lutadores',art:13,run:()=>{try{if(window.OnlineV45)return OnlineV45.procurar('coroa')}catch(e){console.error(e)}window.V3Kof?.open('crown')}},
  {id:'zona',cat:'casual',name:'Controle de Zona',sub:'Em reformulação',tag:'2×2',art:11,soon:true},
  {id:'cacada',cat:'desafio',name:'Caçada do Dia',sub:()=>window.CACADA_LIBERADA?(huntName()||'Um chefe por dia'):'Em breve',tag:'Solo ou dupla',art:6,soon:!window.CACADA_LIBERADA,run:()=>window.huntQA?.lobby()},
- {id:'guardiao',cat:'desafio',name:'Caçada ao Guardião',sub:'Fuja das áreas vermelhas',tag:'Cooperativo',art:7,run:()=>beginArenaMode('guardian')},
- {id:'cruzada',cat:'desafio',name:'Cruzada Arcade',sub:'Fase, horda e chefe',tag:'Solo',art:8,run:()=>beginArenaMode('stage')},
- {id:'torneio',cat:'desafio',name:'Torneio dos Campeões',sub:'Chaves até a final',tag:'8 lutadores',art:9,run:()=>window.V3Tour?.open()},
+ {id:'guardiao',cat:'desafio',name:'Caçada ao Guardião',sub:'Em breve',tag:'Cooperativo',art:7,soon:true,run:()=>beginArenaMode('guardian')},
+ {id:'cruzada',cat:'desafio',name:'Cruzada Arcade',sub:'Em breve',tag:'Solo',art:8,soon:true,run:()=>beginArenaMode('stage')},
+ {id:'torneio',cat:'desafio',name:'Torneio dos Campeões',sub:'Em breve',tag:'8 lutadores',art:9,soon:true,run:()=>window.V3Tour?.open()},
  {id:'dojo',cat:'treino',name:'Dojo',sub:'Teste golpes no boneco',tag:'Treino livre',art:10,run:()=>showScreen('training')}
 ];
 const byId=id=>MODES.find(m=>m.id===id);

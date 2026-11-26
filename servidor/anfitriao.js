@@ -26,13 +26,18 @@ window.BOT_SIM_P=true;                 // a IA difícil também pode controlar o
 togglePause=function(){};              // sem pausa no online
 
 SRV.start=function(o){
+ const cac=o.modo==='cacada';
  const mode=o.modo==='2v2'?'2v2':'1v1',trio=o.modo==='trio'&&Array.isArray(o.teams),coroa=o.modo==='coroa'&&Array.isArray(o.h);
  const R=Math.random;Math.random=rng(o.seed);
  if(trio)V3Modes.pending='kof';   // série de 3 lutas: o duelo em rounds não entra junto
  if(coroa)V3Modes.pending='crown';   // disputa da coroa: sem rounds
- try{lobbyPrefs.mode=mode;queueMatch(mode)}finally{Math.random=R}
+ try{if(cac){window.__huntTeam='duo';HuntAPI.launch()}else{lobbyPrefs.mode=mode;queueMatch(mode)}}finally{Math.random=R}
  const hs=Array.isArray(o.h)?o.h:[o.h0,o.h1],ns=Array.isArray(o.n)?o.n:[o.n0,o.n1];
- if(coroa){V3Modes.special='crown';SL=V3Crown.setup(hs,ns,[0,1,2,3]);SRV.n=4;SRV.coroa=true}   // vaga i = i-ésimo lutador (p, b, c, d); a regra da coroa roda aqui
+ if(cac){   // Caçada do Dia: vaga 0 = p, vaga 1 = aliado; o chefe é o b e a IA dele roda aqui
+  SL=[actors[0],actors[2]];SRV.n=2;SRV.caca=true;
+  SL.forEach((a,i)=>{V3Modes.swapHero(a,hs[i],1000);a.label=String(ns[i]||'Jogador '+(i+1))});
+ }
+ else if(coroa){V3Modes.special='crown';SL=V3Crown.setup(hs,ns,[0,1,2,3]);SRV.n=4;SRV.coroa=true}   // vaga i = i-ésimo lutador (p, b, c, d); a regra da coroa roda aqui
  else{
  SL=mode==='2v2'?[actors[0],actors[2],actors[1],actors[3]]:[actors[0],actors[1]];SRV.n=SL.length;
  SL.forEach((a,i)=>{V3Modes.swapHero(a,hs[i],1000);a.label=String(ns[i]||'Jogador '+(i+1))});
@@ -121,7 +126,7 @@ const pack=a=>({vx:Math.round(a.v47?.vx||0),vy:Math.round(a.v47?.vy||0),x:r1(a.x
 // cada jogador recebe "h" = o rival e "g" = ele mesmo (é o mesmo formato que o convidado da sala recebe do anfitrião)
 function snap(){
  const c=r3(count),tm=r1(time);
- if(SRV.n>2){const m={t:'snap',st:state,c,tm,a:SL.map(pack)};if(SRV.coroa)m.cw=V3Crown.pack();net(-1,m);return}   // 2×2: a lista dos quatro (na ordem dos slots) vai igual para todos
+ if(SRV.n>2||SRV.caca){const m={t:'snap',st:state,c,tm,a:SL.map(pack)};if(SRV.coroa)m.cw=V3Crown.pack();if(SRV.caca){m.bo=pack(b);m.hu=HuntAPI.pack()}net(-1,m);return}   // 2×2: a lista dos quatro (na ordem dos slots) vai igual para todos
  const P=pack(p),B=pack(b);
  net(0,{t:'snap',st:state,c,tm,h:B,g:P});
  net(1,{t:'snap',st:state,c,tm,h:P,g:B});
@@ -139,7 +144,7 @@ step=function(dt){
  if(state==='count')SRV.roundDone=false;
  SL.forEach((a,i)=>{if(SRV.bot[i]){if(state==='fight'&&a.hp>0){try{botAI(dt,a)}catch(e){}}}else drive(a,SRV.inp[i],dt);trackVel(a,dt)});
  SRV.snapT-=dt;if(SRV.snapT<=0){SRV.snapT=1/30;snap()}
- if(state==='end'&&!SRV.over){SRV.over=true;const m={t:'over',w:SRV.coroa?-1:winner()};if(SRV.coroa){const cw=V3Crown.pack();m.rk=V3Crown.rankSlots();m.hs=cw.hs;m.ks=cw.ks}net(-1,m)}
+ if(state==='end'&&!SRV.over){SRV.over=true;const m={t:'over',w:SRV.coroa?-1:SRV.caca?(/derrotad/.test((document.getElementById('resultTitle')||{}).textContent||'')?0:1):winner()};if(SRV.coroa){const cw=V3Crown.pack();m.rk=V3Crown.rankSlots();m.hs=cw.hs;m.ks=cw.ks}net(-1,m)}
 };
 const prevFinish=finish;
 finish=function(){

@@ -20,6 +20,7 @@ const TIPOS=[
  {id:'trio',ico:'🛡',nome:'Trio de Campeões',desc:'Time de 3 contra time de 3',convite:'te chamou para o <b>Trio de Campeões</b> (um contra o outro, 3 campeões cada)'},
  {id:'coroa',ico:'👑',nome:'Disputa da Coroa',desc:'Cada um por si; bots completam',convite:'te chamou para a <b>Disputa da Coroa</b> (cada um por si, bots completam)'}
 ];
+if(window.CACADA_LIBERADA)TIPOS.push({id:'cacada',ico:'🐉',nome:'Caçada do Dia',desc:'Os dois juntos contra o chefe',convite:'te chamou para a <b>Caçada do Dia</b> (vocês dois juntos contra o chefe)'});
 const tipoDe=id=>TIPOS.find(t=>t.id===id)||TIPOS[0];
 const chipsTipo=idAmigo=>`<div class="a68-opcoes" role="group" aria-label="Escolha o modo">${TIPOS.map(t=>`<button class="a68-op" data-a68-conv="${esc(idAmigo)}" data-tipo="${t.id}"><b>${t.ico} ${t.nome}</b><small>${t.desc}</small></button>`).join('')}</div>`;
 
@@ -114,7 +115,7 @@ function irParaSala(m){
  SOC.convites=SOC.convites.filter(c=>c.cid!==m.cid);
  fechar();
  try{document.querySelectorAll('#v40Modes,#v40Menu').forEach(x=>x.hidden=true);document.body.classList.remove('v40-modes-open')}catch{}
- try{OnlineV45.procurar(['1v1','2v2','trio','coroa'].includes(m.modo)?m.modo:'1v1',{cid:m.cid,amigo:m.com?.nome})}catch(e){console.error('[Eldoria] amigos',e)}
+ try{OnlineV45.procurar(['1v1','2v2','trio','coroa','cacada'].includes(m.modo)?m.modo:'1v1',{cid:m.cid,amigo:m.com?.nome})}catch(e){console.error('[Eldoria] amigos',e)}
  redesenhar();badge();
 }
 

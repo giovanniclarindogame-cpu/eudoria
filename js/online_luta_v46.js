@@ -37,11 +37,12 @@ function begin(role,m){
  // Trio de Campeões (só pelo servidor): cada jogador leva um time de 3 e lutam um contra um, quem vence continua
  // Disputa da Coroa (só pelo servidor): 4 jogadores, cada um por si; eu sou sempre o "p" e os outros três são b, c e d
  const ffa=role==='guest'&&m.modo==='coroa'&&Array.isArray(m.hs)&&m.hs.length===4&&m.hs.every(ok)&&m.slot>=0&&m.slot<4;
+ const cac=role==='guest'&&m.modo==='cacada'&&Array.isArray(m.hs)&&m.hs.length===2&&m.hs.every(ok)&&(m.slot===0||m.slot===1);   // Caçada do Dia: dois amigos juntos contra o chefe
  const trio=role==='guest'&&m.modo==='trio'&&Array.isArray(m.teams)&&m.teams.length===2&&m.teams.every(t=>Array.isArray(t)&&t.length===3&&t.every(ok))&&(m.slot===0||m.slot===1);
-  const mine=(x2||ffa)?m.hs[m.slot]:trio?m.teams[m.slot][0]:(role==='host'?m.hh:m.gh),foe=trio?m.teams[1-m.slot][0]:role==='host'?m.gh:m.hh;
- if(!ok(mine)||(!x2&&!ffa&&!ok(foe)))return;
+  const mine=(x2||ffa||cac)?m.hs[m.slot]:trio?m.teams[m.slot][0]:(role==='host'?m.hh:m.gh),foe=trio?m.teams[1-m.slot][0]:role==='host'?m.gh:m.hh;
+ if(!ok(mine)||(!x2&&!ffa&&!cac&&!ok(foe)))return;
  const ov=$q('#onlineV45');if(ov)ov.hidden=true;document.body.classList.remove('v45-open');
- Object.assign(M,{rev:{eu:false,ele:false,no:false},endFlag:false,rem:[],bySlot:{},x2,ffa,multi:x2||ffa,freeze:false,mv:0,slot:(x2||ffa)?m.slot:role==='guest'?(m.slot===0?0:1):0,on:true,role,roundDone:false,force:false,target:null,snapT:0,inT:0,input:{x:0,y:0,l:0,a:0,g:0},acts:0});
+ Object.assign(M,{rev:{eu:false,ele:false,no:false},endFlag:false,rem:[],bySlot:{},x2,ffa,caca:cac,multi:x2||ffa||cac,freeze:false,mv:0,slot:(x2||ffa||cac)?m.slot:role==='guest'?(m.slot===0?0:1):0,on:true,role,roundDone:false,force:false,target:null,snapT:0,inT:0,input:{x:0,y:0,l:0,a:0,g:0},acts:0});
  document.body.classList.add('v46-match');
  try{equipChampion(mine,false)}catch{}
  // tela de carregamento: baixa e aquece os dois campeões; cada lado avisa "pronto" e a luta só começa quando os dois estão prontos
@@ -50,9 +51,10 @@ function begin(role,m){
  const modo=x2?'2v2':'1v1';
  if(ffa)V3Modes.pending='crown';
  if(trio)V3Modes.pending='kof';   // série de 3 lutas: o duelo em rounds não entra junto
- try{lobbyPrefs.mode=modo;queueMatch(modo)}catch(e){console.error('[Eldoria online] início',e)}finally{Math.random=R}
+ try{if(cac)HuntAPI.launch({team:'duo'});else{lobbyPrefs.mode=modo;queueMatch(modo)}}catch(e){console.error('[Eldoria online] início',e)}finally{Math.random=R}
  if(!p||!b||state==='select'){M.on=false;document.body.classList.remove('v46-match');try{toast('Não foi possível começar a luta.')}catch{}return backToLobby(false)}
  if(x2)return begin2(m);
+ if(cac)return beginCaca(m);
  if(ffa)return beginFfa(m);
  try{V3Modes.swapHero(b,foe,1000)}catch{}
  p.label=S.me?.name||'Você';b.label=S.them?.name||'Rival';
@@ -73,6 +75,20 @@ function beginFfa(m){
  M.remote=null;M.host=M.guest=null;
  for(let i=1;i<4;i++){const E={a:P[i],slot:slots[i],target:null,mv:0,pred:[]};M.rem.push(E);M.bySlot[slots[i]]=E}
  try{V3Modes.rebuildPlayerUI()}catch{}
+}
+// Caçada do Dia online: o jogo local tem [p, chefe, aliado]. Eu sou sempre o "p"; meu parceiro é o aliado; o chefe é o b (ele só mostra o que o servidor manda)
+function beginCaca(m){
+ const s=m.slot,mate=s^1,ps=Array.isArray(m.ps)?m.ps:[],ally=actors[2];
+ if(!ally||!modeRun||!modeRun.hunt){M.on=false;try{toast('Não foi possível começar a caçada.')}catch{}return backToLobby(false)}
+ if(s===1){const x=p.x,y=p.y,a=p.a;p.x=ally.x;p.y=ally.y;p.a=ally.a;ally.x=x;ally.y=y;ally.a=a}   // vaga 1 começa onde o aliado do servidor começa
+ try{V3Modes.swapHero(ally,m.hs[mate],1000)}catch{}
+ p.label=String(ps[s]?.name||S.me?.name||'Você').slice(0,16);ally.label=String(ps[mate]?.name||'Aliado').slice(0,16);
+ modeRun.hunt.guest=true;
+ M.remote=null;M.host=M.guest=null;
+ const Ea={a:ally,slot:mate,target:null,mv:0,pred:[]},Eb={a:b,slot:9,target:null,mv:0,pred:[]};
+ M.rem.push(Ea,Eb);M.bySlot[mate]=Ea;M.bossE=Eb;
+ try{V3Modes.rebuildPlayerUI()}catch{}
+ try{V3Modes.banner('CAÇADA DO DIA',`${p.label} e ${ally.label} × ${modeRun.hunt.def.name}`,2400)}catch{}
 }
 function begin2(m){
  const s=m.slot,mate=s^1,en=s<2?[2,3]:[0,1],ps=Array.isArray(m.ps)?m.ps:[];
@@ -161,6 +177,7 @@ function applySnap(m){
  if(state==='count'&&Number.isFinite(m.c))count=m.c;
  if(Number.isFinite(m.tm))time=m.tm;
  applyAll(m);
+ if(M.caca){if(m.bo)apply(b,m.bo,false);if(m.hu&&window.HuntAPI)HuntAPI.applyServer(m.hu)}
  if(m.cw&&window.V3Crown)V3Crown.applyServer(m.cw);
 }
 function applyAll(m){
@@ -319,7 +336,7 @@ function labels(online){
 }
 function stopMatch(){
  labels(false);try{if(window.Carregamento){Carregamento.cancelar();Carregamento.aoPreparar=null}}catch{}
- M.on=false;M.freeze=false;Q.length=0;HIST.length=0;delayedMove=null;M.remote=M.host=M.guest=M.target=M.L4=null;M.rem=[];M.bySlot={};M.x2=false;M.ffa=false;M.multi=false;document.body.classList.remove('v46-match');
+ M.on=false;M.freeze=false;Q.length=0;HIST.length=0;delayedMove=null;M.remote=M.host=M.guest=M.target=M.L4=null;M.rem=[];M.bySlot={};M.x2=false;M.ffa=false;M.caca=false;M.bossE=null;M.multi=false;document.body.classList.remove('v46-match');
  try{$q('#outcome').style.display='none'}catch{}
  try{leave()}catch{try{state='select';$q('#battle').style.display='none'}catch{}}
 }
@@ -342,7 +359,7 @@ function onMsg(m){
   case'act':if(M.on)doAct(m);break;
   case'rev':{const r=M.rev||(M.rev={});if(m.no)r.no=true;else if(m.eu)r.eu=true;else r.ele=true;labels(true);break}
   case'end':if(M.role==='guest'&&!M.ffa)endGuest(m);break;
-  case'over':if(M.on&&M.ffa&&window.V3Crown)V3Crown.finishOnline(m);break;
+  case'over':if(M.on&&M.ffa&&window.V3Crown)V3Crown.finishOnline(m);else if(M.on&&M.caca&&window.HuntAPI)HuntAPI.finishOnline(m);break;
   case'bot':{const E=M.bySlot&&M.bySlot[m.s];if(E){if(E.base==null)E.base=E.a.label;E.a.label=E.base+(m.on?' (bot)':'')}break}   // o jogador saiu e um bot assumiu (ou voltou)
   case'pronto':if(M.role==='host'&&window.Carregamento)Carregamento.liberar();break;   // sala entre amigos: o anfitrião só começa quando o convidado terminou de carregar
  }

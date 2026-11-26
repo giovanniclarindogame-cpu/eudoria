@@ -5,7 +5,7 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  for(const modo of ['tema','semtema','desligada']){
   const p=await (await b.newContext({viewport:{width:915,height:412}})).newPage();p.on('pageerror',e=>errs.push(e.message));
   await p.addInitScript(()=>{Element.prototype.requestFullscreen=()=>Promise.reject(new Error('x'))});
-  const q={tema:'&cacada=1',semtema:'&cacada=1&zorarena=0',desligada:''}[modo];
+  const q={tema:'&cacada=1',semtema:'&cacada=1&zorarena=0',desligada:'&cacada=0'}[modo];
   await p.goto('http://localhost:8000/index.html?allheroes=1&boss=zorvath&inicio=0'+q);await p.waitForTimeout(1200);
   await p.getByText('ENTRAR',{exact:true}).click();await p.fill('input','Teste');await p.getByText('Continuar',{exact:true}).click();await p.waitForTimeout(1500);
   if(modo==='desligada'){ok(await p.evaluate(()=>typeof ArenaZorvath==='undefined'&&typeof ZorvathArte==='undefined'),'Caçada desligada: nem a arena nem a arte do Zorvath carregam');await p.close();continue}
