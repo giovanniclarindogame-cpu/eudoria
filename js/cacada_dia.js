@@ -577,7 +577,7 @@ stepArenaMode=function(dt){
    const dx=A.x-d.x,dy=A.y-d.y,l=Math.hypot(dx,dy)||1;d.x+=dx/l*560*dt;d.y+=dy/l*560*dt;
    if(l<30||d.age>7)d.dead=true;
   }
-  for(const t of foes(A))if(!d.hits.has(t)&&dist(t,d)<t.r+d.r){d.hits.add(t);bossHit(t,85,25,Math.atan2(d.dy,d.dx))}
+  for(const t of foes(A))if(!d.hits.has(t)&&dist(t,d)<t.r+d.r){d.hits.add(t);bossHit(t,85,25,Math.atan2(d.dy,d.dx));(R.cuts=R.cuts||[]).push({x:t.x,y:t.y,t0:clock})}
  }
  R.discs=R.discs.filter(d=>!d.dead);
  if(R.beam){R.beam.t+=dt;if(R.beam.t>=R.beam.dur)R.beam=null}
@@ -729,6 +729,14 @@ drawModeWorld=function(){
  }
 };
 function paintDisc(d){
+ // arte pintada: disco girando com rastro (linha 1), apontando para onde ele está indo
+ if(window.ZorEfx&&ZorEfx.pronto('disco')){
+  let ang=Math.atan2(d.dy||0,d.dx||1);
+  if(d._px!==undefined&&Math.hypot(d.x-d._px,d.y-d._py)>.6)ang=Math.atan2(d.y-d._py,d.x-d._px);
+  d._px=d.x;d._py=d.y;
+  ctx.save();ctx.globalCompositeOperation='lighter';ctx.translate(d.x,d.y);ctx.rotate(ang);
+  ZorEfx.quadro(ctx,'disco',1,Math.floor(clock*18)%6,0,0,d.r*5.8,.7,.5);ctx.restore();return;
+ }
  ctx.save();ctx.translate(d.x,d.y);ctx.globalCompositeOperation='lighter';
  ctx.rotate(clock*18);ctx.scale(1,.42);
  for(const[rr,col,al]of[[d.r+7,VI,.35],[d.r+2,'#ff62a8',.9],[d.r-4,'#ffffff',1]]){ctx.globalAlpha=al;ctx.fillStyle=col;ctx.beginPath();ctx.arc(0,0,rr,0,TAU);ctx.fill()}
@@ -790,6 +798,7 @@ integratedDepth=function(){
  if(!R)return list;
  for(const g of R.ghosts)list.push({kind:'zor-ghost',y:g.y-1,priority:0,paint(){ctx.save();ctx.translate(g.x,g.y+10);ctx.globalAlpha=g.life/g.max*.5;ZorvathSprite.paint(ctx,'dodge',0,{scale:2.3,flip:Math.cos(g.face)<0,form:g.form,filter:'hue-rotate(50deg) brightness(1.5)'});ctx.restore()}});
  for(const d of R.discs)list.push({kind:'zor-disc',y:d.y,priority:3,paint(){paintDisc(d)}});
+ if(R.cuts&&R.cuts.length){R.cuts=R.cuts.filter(c=>clock-c.t0<.36);for(const c of R.cuts)list.push({kind:'zor-cut',y:99995,priority:5,paint(){if(!(window.ZorEfx&&ZorEfx.pronto('disco')))return;ctx.save();ctx.globalCompositeOperation='lighter';ZorEfx.quadro(ctx,'disco',2,Math.min(4,Math.floor((clock-c.t0)/.07)),c.x,c.y,170);ctx.restore()}})}
  if(R.nova){R._ln={x:R.nova.x,y:R.nova.y,r:R.nova.r,f:R.nova.fall||0};list.push({kind:'zor-nova',y:99997,priority:5,paint(){paintNova(R)}})}
  else if(R._ln){if(R._ln.f>=.35&&window.ZorEfx&&ZorEfx.pronto('supernova'))R.boom={x:R._ln.x,y:R._ln.y,r:R._ln.r,t0:clock};R._ln=null}
  if(R.boom){if(clock-R.boom.t0>.7)R.boom=null;else{const B=R.boom;list.push({kind:'zor-boom',y:99996,priority:5,paint(){paintBoom(B)}})}}
