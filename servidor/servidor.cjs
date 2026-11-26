@@ -422,8 +422,10 @@ function tratar(j, texto) {
     case 'pick': { const p = j.partida; if (!p || p.fase !== 'sel') return; const s = p.slots[j.slot];
       if (p.modo === 'trio') { s.time = j.time = Array.isArray(m.team) ? m.team.map(x => Math.floor(+x)).filter(x => Number.isInteger(x) && x >= 0 && x <= 9).map(x => heroiOk(j, x)).filter((x, i, v) => v.indexOf(x) === i).slice(0, 3) : null; if (j.time && j.time.length) j.perfil.hero = j.time[0]; p.pronto_sel[j.slot] = false; return; }
       j.perfil.hero = heroiOk(j, m.hero); p.pronto_sel[j.slot] = false;
-      if (p.modo === '2v2') { const o = p.slots[j.slot ^ 1]; if (o && o.j) enviar(o.j.ws, JSON.stringify({ t: 'pick', s: j.slot, hero: j.perfil.hero })); } return; }
-    case 'ready': { const p = j.partida; if (!p || p.fase !== 'sel') return; p.pronto_sel[j.slot] = !!m.v; avisarOutros(p, j.slot, { t: 'ready', s: j.slot, v: p.pronto_sel[j.slot] ? 1 : 0 }); if (p.pronto_sel.every(Boolean)) comecar(p); return; }
+      if (p.modo === '2v2' || p.modo === 'cacada') { const o = p.slots[j.slot ^ 1]; if (o && o.j) enviar(o.j.ws, JSON.stringify({ t: 'pick', s: j.slot, hero: j.perfil.hero })); } return; }
+    case 'ready': { const p = j.partida; if (!p || p.fase !== 'sel') return; p.pronto_sel[j.slot] = !!m.v;
+      if (m.v && (p.modo === '2v2' || p.modo === 'cacada')) { const o = p.slots[j.slot ^ 1]; if (o && o.j) enviar(o.j.ws, JSON.stringify({ t: 'pick', s: j.slot, hero: j.perfil.hero })); }   // quem fica PRONTO sem ter tocado num herói também mostra o campeão ao parceiro
+      avisarOutros(p, j.slot, { t: 'ready', s: j.slot, v: p.pronto_sel[j.slot] ? 1 : 0 }); if (p.pronto_sel.every(Boolean)) comecar(p); return; }
     case 'in': if (j.partida && !j.partida.fim && j.partida.fase === 'jogo') j.partida.e.w.postMessage({ k: 'in', slot: j.slot, m }); return;
     case 'act': if (j.partida && !j.partida.fim && j.partida.fase === 'jogo') j.partida.e.w.postMessage({ k: 'act', slot: j.slot, m }); return;
     case 'teste': if (process.env.TESTE === '1' && j.partida) j.partida.e.w.postMessage({ k: 'teste', m }); return;   // só nos testes

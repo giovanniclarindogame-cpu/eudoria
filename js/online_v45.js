@@ -185,7 +185,7 @@ function onSrv(m){
    S.sala={slot,modo:m.modo,ps:ps.map(x=>sanitize(x)),fim:Date.now()+(+m.ms||30000),picks:{},ready:{},n};
    S.them=S.sala.ps[S.modo==='coroa'?(slot+1)%4:n>2?(slot<2?2:0):1-slot]||null;
    if(S.modo==='trio'){S.team=defaultTeam();S.me={...S.me,hero:S.team[0]}}
-   S.me={...profile()};avisar();abrirSala();if(S.modo==='trio')send({t:'pick',team:S.team});break}
+   S.me={...profile()};avisar();abrirSala();if(S.modo==='trio')send({t:'pick',team:S.team});else if(S.modo==='2v2'||S.modo==='cacada')send({t:'pick',hero:S.me.hero,photo:S.me.photo});break}   // o parceiro já vê o seu campeão ao entrar na sala
   case'nada':   // a partida que ficou aberta já terminou
    try{localStorage.removeItem(FLAG)}catch{}
    S.reconectando=false;falhaSrv('Essa partida já terminou.');break;

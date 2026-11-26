@@ -19,7 +19,7 @@ function html(o){
  setTimeout(inicia,0);setTimeout(heroisLoop,0);
  return `<div class="v46-sel c81" style="--me:${mc.color}">
   <div class="c81-stage">
-   <header class="c81-banner"><small>CAÇADA DO DIA</small><b>${esc(def.name)}</b><em>${esc(def.title)} <i>${estrelas(def.stars)}</i></em></header>
+   <header class="c81-banner"><b>${esc(def.name)}</b><em>${esc(def.title)} <i>${estrelas(def.stars)}</i></em></header>
    <div class="c81-team"><span class="c81-tag">${solo?'VOCÊ':'SUA DUPLA'}</span><div class="c81-row">${carta(mc,me,ready,true,esc,artSrc)}${solo?'':carta(mateC,mate,mateReady,false,esc,artSrc)}</div></div>
    <div class="c81-vs"><i>VS</i></div>
    <div class="c81-boss"><span class="c81-tag red">O CHEFE</span><canvas class="c81-cv" width="320" height="300" aria-label="${esc(def.name)}"></canvas>
