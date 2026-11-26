@@ -342,6 +342,7 @@ const MUZ={1:[46,58],2:[46,58],3:[50,62]};
 function muzzle(A,ang,form){const m=MUZ[form||hunt().shown||1]||MUZ[1],sg=Math.cos(ang)<0?-1:1;return{x:A.x+sg*m[0],y:A.y-m[1]}}
 function rayEnd(x,y,a,max=760){let d=0,px=x,py=y;while(d<max){const nx=x+Math.cos(a)*(d+10),ny=y+Math.sin(a)*(d+10);if(blocked(nx,ny,3))break;px=nx;py=ny;d+=10}return{x:px,y:py,len:d}}
 function shock(A,r,dmg,knock,r0=0,cx=A.x,cy=A.y){
+ try{(hunt().waves=hunt().waves||[]).push({x:cx,y:cy,r,t0:clock})}catch(e){}
  ring(cx,cy,r,PK,.55);ring(cx,cy,r*.7,VI,.45);spark(cx,cy,VI,22);combatImpact(1.7);combatSound('heavy',1.3);
  for(const t of foes(A)){const d=dist({x:cx,y:cy},t);if(d<r+t.r&&d>=r0)bossHit(t,dmg,knock,Math.atan2(t.y-cy,t.x-cx),{breakGuard:true})}
 }
@@ -395,7 +396,7 @@ ACT.s1=(dt,A,R,T,a)=>{
 ACT.s2=(dt,A,R,T,a)=>{
  if(!a.init){a.init=1;a.caught=false;
   for(const f of foes(A)){const tl={kind:'psy',x:f.x,y:f.y,r:76,dur:.95,followUntil:.45,follow:f,color:'#ff62a8',target:f};
-   tl.onDone=t=>{const v=t.target;if(v.hp>0&&dist(v,t)<t.r+v.r){a.caught=true;v.root=Math.max(v.root||0,1.3);bossHit(v,60,0,ang(A,v));float(v.x,v.y-50,'PRESO','#ffd0ee');ring(v.x,v.y,60,'#ff62a8',.45)}};
+   tl.onDone=t=>{const v=t.target;if(v.hp>0&&dist(v,t)<t.r+v.r){a.caught=true;v.root=Math.max(v.root||0,1.3);(R.chains=R.chains||[]).push({v,t0:clock});bossHit(v,60,0,ang(A,v));float(v.x,v.y-50,'PRESO','#ffd0ee');ring(v.x,v.y,60,'#ff62a8',.45)}};
    R.tele.push(Object.assign({t:0},tl))}}
  R.pose={name:'psy',i:a.t<.35?0:a.t<.95?1:2};R.glow=Math.max(R.glow,.6);
  if(a.t<.95){A.a=ang(A,T);R.face=A.a}
@@ -701,7 +702,8 @@ function drawTele(t){
  ctx.fillStyle=t.color+(t.kind==='psy'?'26':'1c');ctx.fill('evenodd');
  ctx.globalAlpha=.5+.4*pulse;ctx.strokeStyle=t.color;ctx.lineWidth=3;ctx.setLineDash([10,7]);ctx.lineDashOffset=-clock*40;ctx.stroke();ctx.setLineDash([]);
  ctx.globalAlpha=.3;ctx.fillStyle=t.color;ctx.beginPath();ctx.arc(t.x,t.y,Math.max(0,t.r*k),0,TAU);if(t.r0)ctx.arc(t.x,t.y,Math.max(0,Math.min(t.r0,t.r*k)),0,TAU,true);ctx.fill('evenodd');
- if(t.kind==='psy'){ctx.globalAlpha=.9;ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(t.x-t.r*.35,t.y);ctx.lineTo(t.x+t.r*.35,t.y);ctx.moveTo(t.x,t.y-t.r*.35);ctx.lineTo(t.x,t.y+t.r*.35);ctx.stroke();ctx.beginPath();ctx.arc(t.x,t.y,t.r*.5*(1-k*.5),0,TAU);ctx.stroke()}
+ if(t.kind==='psy'&&window.ZorEfx&&ZorEfx.pronto('poder')){ctx.globalAlpha=.55+.4*k;ctx.globalCompositeOperation='lighter';ZorEfx.quadro(ctx,'poder',2,Math.floor(clock*10)%6,t.x,t.y,t.r*2/.85)}
+ else if(t.kind==='psy'){ctx.globalAlpha=.9;ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(t.x-t.r*.35,t.y);ctx.lineTo(t.x+t.r*.35,t.y);ctx.moveTo(t.x,t.y-t.r*.35);ctx.lineTo(t.x,t.y+t.r*.35);ctx.stroke();ctx.beginPath();ctx.arc(t.x,t.y,t.r*.5*(1-k*.5),0,TAU);ctx.stroke()}
  ctx.restore();
 }
 const prevWorld=drawModeWorld;
@@ -797,6 +799,11 @@ integratedDepth=function(){
  const list=prevDepth(),R=hunt();
  if(!R)return list;
  for(const g of R.ghosts)list.push({kind:'zor-ghost',y:g.y-1,priority:0,paint(){ctx.save();ctx.translate(g.x,g.y+10);ctx.globalAlpha=g.life/g.max*.5;ZorvathSprite.paint(ctx,'dodge',0,{scale:2.3,flip:Math.cos(g.face)<0,form:g.form,filter:'hue-rotate(50deg) brightness(1.5)'});ctx.restore()}});
+ if(window.ZorEfx&&ZorEfx.pronto('poder')){
+  if(R.waves&&R.waves.length){R.waves=R.waves.filter(w=>clock-w.t0<.6);for(const w of R.waves)list.push({kind:'zor-wave',y:99994,priority:4,paint(){const i=Math.min(4,Math.floor((clock-w.t0)/.1));ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=i===4?clamp(1-((clock-w.t0)-.4)/.2,0,1):1;ZorEfx.quadro(ctx,'poder',0,i,w.x,w.y+6,w.r*2/.9);ctx.restore()}})}
+  if(R.act&&R.act.id==='s4'){if(!R._c4)R._c4=clock;const e=clock-R._c4;if(e<.72){const A=R.a;list.push({kind:'zor-charge',y:A.y+30,priority:4,paint(){ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=clamp(e/.2,0,1);ZorEfx.quadro(ctx,'poder',1,Math.floor(clock*14)%6,A.x,A.y-30,110+e*230);ctx.restore()}})}}else R._c4=0;
+  if(R.chains&&R.chains.length){R.chains=R.chains.filter(c=>clock-c.t0<1.45&&c.v.hp>0);for(const c of R.chains)list.push({kind:'zor-chain',y:c.v.y+20,priority:4,paint(){const e=clock-c.t0,i=e<.13?0:e<.26?1:e<.4?2:e<1.15?3:4;ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=e>1.3?clamp(1-(e-1.3)/.15,0,1):1;ZorEfx.quadro(ctx,'poder',3,i,c.v.x,c.v.y+4,150);ctx.restore()}})}
+ }
  for(const d of R.discs)list.push({kind:'zor-disc',y:d.y,priority:3,paint(){paintDisc(d)}});
  if(R.cuts&&R.cuts.length){R.cuts=R.cuts.filter(c=>clock-c.t0<.36);for(const c of R.cuts)list.push({kind:'zor-cut',y:99995,priority:5,paint(){if(!(window.ZorEfx&&ZorEfx.pronto('disco')))return;ctx.save();ctx.globalCompositeOperation='lighter';ZorEfx.quadro(ctx,'disco',2,Math.min(4,Math.floor((clock-c.t0)/.07)),c.x,c.y,170);ctx.restore()}})}
  if(R.nova){R._ln={x:R.nova.x,y:R.nova.y,r:R.nova.r,f:R.nova.fall||0};list.push({kind:'zor-nova',y:99997,priority:5,paint(){paintNova(R)}})}
