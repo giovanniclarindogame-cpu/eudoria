@@ -1,0 +1,53 @@
+/* v80: lobby da Caçada do Dia no padrão azul e dourado do jogo (mesmo estilo da pausa e do resultado). */
+body[data-screen=hunt] #modeScreen{background:radial-gradient(ellipse at 50% 0%,#2c4fb0 0%,#162a6b 45%,#0a1235 100%)!important}
+body[data-screen=hunt] .hunt-page{color:#fff;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--boss:#ffd45a}
+/* topo */
+body[data-screen=hunt] .hunt-top{border-bottom:2px solid rgba(255,212,90,.45);background:linear-gradient(180deg,rgba(8,16,60,.55),rgba(8,16,60,.15))}
+body[data-screen=hunt] .hunt-top .ghost{height:36px;padding:0 14px;border-radius:12px;font:900 13px system-ui;color:#fff;background:linear-gradient(180deg,#6ea0ff,#3b6fd6);border:2px solid #cfe0ff;box-shadow:0 3px 0 #1a3a8a}
+body[data-screen=hunt] .hunt-title .eyebrow{font:900 10px system-ui;letter-spacing:.22em;color:#ffd45a}
+body[data-screen=hunt] .hunt-title h1{font:900 clamp(20px,3.6vw,30px)/1.05 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#fff;letter-spacing:.01em;text-shadow:0 3px 0 rgba(0,0,0,.35),0 0 18px rgba(255,214,90,.4)}
+body[data-screen=hunt] .hunt-timer{background:rgba(10,20,60,.65);border:2px solid rgba(255,212,90,.6);color:#dbe7ff;font:700 12px system-ui}
+body[data-screen=hunt] .hunt-timer b{color:#ffd45a}
+/* retrato do chefe */
+body[data-screen=hunt] .hunt-stage{border:3px solid #ffd45a;border-radius:20px;background:#0a1235;box-shadow:0 5px 0 #8a5a00,0 0 30px rgba(255,214,90,.3)}
+body[data-screen=hunt] .hunt-stage canvas{image-rendering:auto}
+body[data-screen=hunt] .hunt-plate{background:linear-gradient(transparent,rgba(8,12,44,.92) 62%)}
+body[data-screen=hunt] .hunt-plate strong{font:900 clamp(18px,3vw,26px)/1.1 system-ui;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.45),0 0 14px rgba(255,214,90,.4)}
+body[data-screen=hunt] .hunt-plate span{color:#cfe0ff;font-weight:800}
+body[data-screen=hunt] .hunt-plate em{color:#e6efff}
+body[data-screen=hunt] .hunt-plate em i{color:#ffd45a}
+/* abas */
+body[data-screen=hunt] .hunt-tabs{gap:6px}
+body[data-screen=hunt] .hunt-tabs button{min-height:36px;border-radius:12px;font:900 12px system-ui;letter-spacing:.03em;color:#cfe0ff;background:rgba(10,20,60,.6);border:2px solid rgba(255,212,90,.35);box-shadow:none}
+body[data-screen=hunt] .hunt-tabs button.on{color:#4a2a00;background:linear-gradient(180deg,#ffe066,#f5b800);border-color:#fff3c2;box-shadow:0 3px 0 #8a5a00}
+/* cartões */
+body[data-screen=hunt] .hunt-card{border:2px solid rgba(255,212,90,.55);border-radius:16px;background:linear-gradient(160deg,rgba(40,76,170,.78),rgba(18,34,96,.85));box-shadow:0 3px 0 rgba(0,0,0,.25)}
+body[data-screen=hunt] .hunt-card .eyebrow{font:900 9px system-ui;letter-spacing:.2em;color:#ffd45a}
+body[data-screen=hunt] .hunt-card p{color:#e6efff;font-size:13px;line-height:1.5}
+body[data-screen=hunt] .hunt-chips span{background:rgba(10,20,60,.6);border:2px solid rgba(255,212,90,.45);color:#fff3c2;font-weight:800}
+body[data-screen=hunt] .hunt-ico{border-color:#ffd45a;background:radial-gradient(#3c5fc0,#14295f)}
+body[data-screen=hunt] .pride-demo{border-color:rgba(255,212,90,.6);background:#0a1235}
+body[data-screen=hunt] .hunt-skill{border:2px solid rgba(255,212,90,.35);border-radius:12px;background:rgba(10,20,60,.6);color:#e6efff}
+body[data-screen=hunt] .hunt-skill:hover,body[data-screen=hunt] .hunt-skill.on{border-color:#ffd45a;background:rgba(40,76,170,.8);box-shadow:0 0 14px rgba(255,214,90,.4)}
+body[data-screen=hunt] .hunt-skilldesc{color:#e6efff!important}body[data-screen=hunt] .hunt-skilldesc b{color:#ffd45a}body[data-screen=hunt] .hunt-skilldesc i{color:#cfe0ff}
+body[data-screen=hunt] .hunt-sep{background:rgba(255,212,90,.4)}
+body[data-screen=hunt] .hunt-tips{color:#e6efff}body[data-screen=hunt] .hunt-tips li::marker{color:#ffd45a}
+body[data-screen=hunt] .hunt-soon{padding:10px;border-radius:12px;background:rgba(10,20,60,.55);border:2px dashed rgba(255,212,90,.45);color:#e6efff;font-size:13px;line-height:1.5;text-align:center}
+body[data-screen=hunt] .hunt-soon b{color:#ffd45a}body[data-screen=hunt] .hunt-soon small{color:#cfe0ff}
+/* rodapé: equipe, recorde e botão */
+body[data-screen=hunt] .hunt-foot{border-top:2px solid rgba(255,212,90,.45);background:linear-gradient(0deg,rgba(8,16,60,.6),rgba(8,16,60,.2))}
+body[data-screen=hunt] .hunt-team button{border-radius:14px;color:#fff;background:linear-gradient(180deg,#6ea0ff,#3b6fd6);border:2px solid #cfe0ff;box-shadow:0 4px 0 #1a3a8a;min-width:88px}
+body[data-screen=hunt] .hunt-team button b{font:900 13px system-ui}body[data-screen=hunt] .hunt-team button small{color:#dbe7ff;font-weight:700}
+body[data-screen=hunt] .hunt-team button.on{color:#4a2a00;background:linear-gradient(180deg,#ffe066,#f5b800);border-color:#fff3c2;box-shadow:0 4px 0 #8a5a00,0 0 16px rgba(255,214,90,.5)}
+body[data-screen=hunt] .hunt-team button.on small{color:#6a4a10}
+body[data-screen=hunt] .hunt-team button:disabled{opacity:.5;filter:grayscale(.4);box-shadow:none}
+body[data-screen=hunt] .hunt-record small{color:#cfe0ff;font-weight:700}body[data-screen=hunt] .hunt-record b{font:900 20px system-ui;color:#ffd45a}
+body[data-screen=hunt] .hunt-go{height:52px;border-radius:16px;font:900 clamp(14px,2.2vw,18px) system-ui;letter-spacing:.06em;color:#4a2a00;background:linear-gradient(180deg,#ffe066,#f5b800);border:2px solid #fff3c2;box-shadow:0 5px 0 #8a5a00,0 0 20px rgba(255,214,90,.5);text-shadow:none}
+body[data-screen=hunt] .hunt-go:active{transform:translateY(3px);box-shadow:0 2px 0 #8a5a00}
+@media (orientation:landscape){
+ body[data-screen=hunt] .hunt-go{height:44px;font-size:14px}
+ body[data-screen=hunt] .hunt-team button{min-width:76px}
+}
+/* aviso "novos chefes em breve" ocupa a largura toda; painéis rolam em telas muito baixas */
+body[data-screen=hunt] .hunt-week:has(.hunt-soon){display:block}
+body[data-screen=hunt] .hunt-pane{overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding-bottom:2px}
