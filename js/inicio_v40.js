@@ -204,7 +204,7 @@ function paintHuntBoss(root=document){
   try{const d=window.huntQA?.bossOfDay?.(),g=cv.getContext('2d');g.clearRect(0,0,cv.width,cv.height);g.imageSmoothingEnabled=false;
    const f='drop-shadow(0 0 8px #ff3b3b)';
    if(d?.look&&window.BossSprite)BossSprite.paint(g,d.look,'idle',0,{x:226,y:228,scale:3.3,flip:true,filter:f});
-   else if(window.ZorvathSprite)ZorvathSprite.paint(g,'idle',0,{x:226,y:228,scale:2.6,form:3,flip:true,filter:'drop-shadow(0 0 8px #b86bff)'});
+   else if(window.ZorvathSprite)ZorvathSprite.paint(g,'idle',0,{x:226,y:228,scale:2.6,form:1,flip:true,filter:'drop-shadow(0 0 8px #b86bff)'});
   }catch(e){}
  }
 }
