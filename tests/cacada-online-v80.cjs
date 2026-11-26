@@ -17,7 +17,7 @@ const PORT=8799,SRV='ws://localhost:'+PORT;
  const A=await player('Ana',2),B=await player('Beto',5);const P=[A,B];
  for(const pg of P){await pg.evaluate(()=>OnlineV45.procurar('cacada'));await sleep(300)}
  for(const pg of P)await pg.waitForFunction(()=>OnlineV45.state.fase==='sala'&&!(document.querySelector('#onlineV45')?.hidden??true),null,{timeout:40000});
- ok(await A.evaluate(()=>/CAÇADA/.test(document.querySelector('.v45-top b').textContent)&&document.querySelectorAll('.c81-card').length===2&&!!document.querySelector('.c81-boss canvas')&&/Zorvath/.test(document.querySelector('.c81-banner').textContent)),'a sala da Caçada mostra a dupla à esquerda e o Zorvath à direita');
+ ok(await A.evaluate(()=>/CAÇADA/.test(document.querySelector('.v45-top b').textContent)&&document.querySelectorAll('.c81-slot').length===2&&!!document.querySelector('.c81-boss canvas')&&/Zorvath/.test(document.querySelector('.c81-banner').textContent)),'a sala da Caçada mostra a dupla à esquerda e o Zorvath à direita');
  await A.screenshot({path:'/tmp/claude-0/cac_sala.png'});
  for(const pg of P){await pg.click('[data-v45="ready"]');await sleep(150)}
  for(const pg of P)await pg.waitForFunction(()=>window.OnlineV46?.match.on&&state==='fight'&&modeRun&&modeRun.hunt,null,{timeout:60000});
