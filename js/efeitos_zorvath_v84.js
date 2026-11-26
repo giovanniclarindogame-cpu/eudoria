@@ -16,5 +16,5 @@
  }
  const pronto=n=>!!(FOLHAS[n]&&FOLHAS[n].ok);
  window.ZorEfx={carregar,quadro,pronto,C};
- carregar('supernova');carregar('raio');
+ carregar('supernova');carregar('raio');carregar('disco');
 })();
