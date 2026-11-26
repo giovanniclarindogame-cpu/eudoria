@@ -82,10 +82,12 @@ const bustCache={};
 function bust(def=bossOfDay()){
  if(def.generic){if(bustCache[def.id])return bustCache[def.id];const c=document.createElement('canvas');c.width=c.height=96;const g=c.getContext('2d');g.imageSmoothingEnabled=false;const bg=g.createRadialGradient(48,40,6,48,48,70);bg.addColorStop(0,def.look.aura.a+'88');bg.addColorStop(1,'#120a22');g.fillStyle=bg;g.fillRect(0,0,96,96);g.drawImage(BossSprite.frame(def.look,'idle',0),13,8,38,38,0,0,96,96);return bustCache[def.id]=c.toDataURL()}
  if(bustCache.zorvath)return bustCache.zorvath;
+ const pint=window.CACADA_LIBERADA&&window.ZorvathArte&&ZorvathArte.frame('idle',0,{form:3});   // retrato com a arte pintada da forma 3 (cabeça)
  const c=document.createElement('canvas');c.width=c.height=96;const g=c.getContext('2d');g.imageSmoothingEnabled=false;
  const bg=g.createRadialGradient(48,40,6,48,48,70);bg.addColorStop(0,'#3d1f66');bg.addColorStop(1,'#120a22');g.fillStyle=bg;g.fillRect(0,0,96,96);
+ if(pint){g.imageSmoothingEnabled=true;g.drawImage(pint,118,56,130,130,0,0,96,96);bustCache.zorvath=c.toDataURL();return bustCache.zorvath}
  g.drawImage(ZorvathSprite.frame('idle',0,{form:3}),13,6,38,38,0,0,96,96);
- bustCache.zorvath=c.toDataURL();return bustCache.zorvath;
+ return c.toDataURL();   // arte pintada ainda não carregou: usa o desenho antigo agora e tenta de novo depois
 }
 /* ============================== lobby ============================== */
 let lobbyDef=null,artRaf=0,timerInt=0,selectedSkill=null;
