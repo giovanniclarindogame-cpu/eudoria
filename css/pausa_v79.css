@@ -1,0 +1,42 @@
+/* v79: tela de pausa (duelo e treino com o fantoche) no padrão azul e dourado do jogo, igual à tela de resultado. */
+body.v3 #battle #pause{background:radial-gradient(ellipse at 50% 30%,rgba(26,44,110,.78),rgba(6,10,34,.9))!important;-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+body.v3 #battle #pause .dialog{
+ width:min(430px,94vw)!important;max-height:calc(100*var(--dvh,1dvh) - 14px)!important;overflow:hidden!important;
+ padding:14px 18px 16px!important;display:grid!important;grid-template-columns:1fr;gap:8px 10px;align-content:center;text-align:center;
+ background:radial-gradient(ellipse at 50% 0%,#4f86ef,#24408f 58%,#182a63)!important;border:3px solid #ffd45a!important;border-radius:22px!important;
+ box-shadow:0 6px 0 #8a5a00,0 0 44px rgba(255,214,90,.4),0 18px 40px rgba(0,0,0,.5)!important;color:#fff!important;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;position:relative}
+body.v3 #battle #pause .dialog>h2{order:0;grid-column:1/-1;margin:0 0 2px!important;font:900 clamp(22px,4vw,30px)/1.05 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif!important;color:#fff!important;text-shadow:0 3px 0 rgba(0,0,0,.35),0 0 18px rgba(255,214,90,.45)}
+/* botões */
+body.v3 #battle #pause .dialog>button{margin:0!important;min-height:0;height:40px;padding:0 12px;border-radius:14px;font:900 14px/1 system-ui;cursor:pointer;color:#fff;background:linear-gradient(180deg,#6ea0ff,#3b6fd6);border:2px solid #cfe0ff;box-shadow:0 4px 0 #1a3a8a;text-shadow:0 1px 0 rgba(0,0,0,.25)}
+body.v3 #battle #pause .dialog>button:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.4)}
+body.v3 #battle #pause .dialog>#resume{order:1;grid-column:1/-1;height:50px;font-size:17px;color:#4a2a00;text-shadow:none;background:linear-gradient(180deg,#ffe066,#f5b800);border-color:#fff3c2;box-shadow:0 5px 0 #8a5a00,0 0 18px rgba(255,214,90,.55)}
+body.v3 #battle #pause .dialog>#c73Btn{order:2}
+body.v3 #battle #pause .dialog>#vfxQuality{order:3}
+body.v3 #battle #pause .dialog>#howTo{order:4}
+body.v3 #battle #pause .dialog>#leave{order:5;color:#ffd9de;background:linear-gradient(180deg,#a8364a,#7a1f33);border-color:#ffb4bd;box-shadow:0 4px 0 #4a0f1c}
+body.v3 #battle #pause .dialog>.pause-fullscreen{order:6;height:34px!important;background:linear-gradient(180deg,#3d63c9,#27449a)!important;border:2px solid #9db8ee!important;color:#fff!important;box-shadow:0 4px 0 #14286a!important}
+body.v3 #battle #pause .dialog>.pause-fullscreen svg{height:70%;width:auto}
+body.v3 #battle #pause .dialog>#trainingPause{order:7}
+/* treino: botões à esquerda, ajustes do treino num painel à direita */
+body.v3 #battle #pause .dialog:has(#trainingPause:not([hidden])){width:min(740px,96vw)!important;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr)}
+body.v3 #battle #pause .dialog:has(#trainingPause:not([hidden]))>:not(#trainingPause){grid-column:1}
+body.v3 #battle #pause .dialog:has(#trainingPause:not([hidden]))>#trainingPause{
+ grid-column:2;grid-row:1/9;margin:0!important;padding:10px 12px!important;border:2px solid rgba(255,212,90,.55)!important;border-radius:16px;text-align:left;
+ background:rgba(8,18,60,.55)!important;display:flex;flex-direction:column;gap:6px;justify-content:center}
+body.v3 #battle #pause #trainingPause h3{margin:0 0 2px!important;font:900 15px/1.1 system-ui!important;color:#ffd45a;letter-spacing:.03em}
+body.v3 #battle #pause #trainingPause .setting-label{font:700 11px/1.2 system-ui;margin:0;color:#cfe0ff}
+body.v3 #battle #pause #trainingPause .exchange-select{height:34px;padding:0 10px;margin:0;font:800 13px system-ui;color:#fff;background:#14295f;border:2px solid rgba(255,212,90,.65);border-radius:11px}
+body.v3 #battle #pause #trainingPause .practice-check{display:flex;align-items:center;gap:8px;font:700 12px/1.25 system-ui;margin:0;color:#e6efff}
+body.v3 #battle #pause #trainingPause .practice-check input{width:18px;height:18px;accent-color:#ffc94a;flex:none}
+body.v3 #battle #pause #trainingPause .setting-hint,body.v3 #battle #pause #trainingPause p{display:none}
+body.v3 #battle #pause #trainingPause button{height:34px;min-height:0;margin:0!important;padding:0 10px;border-radius:12px;font:900 12px/1 system-ui;color:#fff;background:linear-gradient(180deg,#6ea0ff,#3b6fd6);border:2px solid #cfe0ff;box-shadow:0 3px 0 #1a3a8a;cursor:pointer}
+body.v3 #battle #pause #trainingPause button:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.4)}
+body.v3 #battle #pause #trainingPause button.gold,body.v3 #battle #pause #trainingPause button[data-fill-resource]{color:#4a2a00;background:linear-gradient(180deg,#ffe066,#f5b800);border-color:#fff3c2;box-shadow:0 3px 0 #8a5a00}
+@media (max-height:430px){
+ body.v3 #battle #pause .dialog{padding:10px 14px 12px!important;gap:6px 8px}
+ body.v3 #battle #pause .dialog>h2{font-size:22px!important}
+ body.v3 #battle #pause .dialog>button{height:34px;font-size:13px}
+ body.v3 #battle #pause .dialog>#resume{height:42px;font-size:15px}
+ body.v3 #battle #pause .dialog>.pause-fullscreen{height:30px!important}
+ body.v3 #battle #pause #trainingPause button,body.v3 #battle #pause #trainingPause .exchange-select{height:30px}
+}
