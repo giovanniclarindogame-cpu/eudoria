@@ -20,6 +20,11 @@ const PORT=8799,SRV='ws://localhost:'+PORT;
  ok(await A.evaluate(()=>/CAÇADA/.test(document.querySelector('.v45-top b').textContent)&&document.querySelectorAll('.c81-slot').length===2&&!!document.querySelector('.c81-boss canvas')&&/Zorvath/.test(document.querySelector('.c81-banner').textContent)),'a sala da Caçada mostra a dupla à esquerda e o Zorvath à direita');
  await A.screenshot({path:'/tmp/claude-0/cac_sala.png'});
  for(const pg of P){await pg.click('[data-v45="ready"]');await sleep(150)}
+ // na contagem inicial cada um está no seu lado (a dupla à esquerda, o chefe à direita), inclusive quem entrou na vaga 1
+ for(const pg of P)await pg.waitForFunction(()=>window.OnlineV46?.match.on&&state==='count',null,{timeout:60000});
+ await sleep(900);
+ const ini=await Promise.all(P.map(pg=>pg.evaluate(()=>({p:p.x,b:b.x,a:actors[2].x,st:state}))));
+ ok(ini.every(i=>i.p<i.b-400&&i.a<i.b-400),`na contagem a dupla fica à esquerda e o chefe à direita nas duas telas (${ini.map(i=>Math.round(i.p)+'/'+Math.round(i.b))})`);
  for(const pg of P)await pg.waitForFunction(()=>window.OnlineV46?.match.on&&state==='fight'&&modeRun&&modeRun.hunt,null,{timeout:60000});
  await sleep(1500);
  const est=await Promise.all(P.map(pg=>pg.evaluate(()=>({eu:p.skin,ally:actors[2].skin,boss:b.max,bhp:b.hp,guest:modeRun.hunt.guest,n:actors.length,form:modeRun.hunt.form,tm:Math.round(time),nomes:[p.label,actors[2].label].join('/')}))));

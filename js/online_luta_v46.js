@@ -220,6 +220,7 @@ function smoothRemote(E,dt){
 // início de cada rodada: cada um no seu lado e virado para o rival (o jogo reinicia assumindo "eu à esquerda, olhando para a direita")
 function fixRound(){
  if(state!=='count'||!p||!b)return;
+ if(M.caca)return;   // Caçada: as posições vêm do servidor (a troca de lados do 1×1 colocava a vaga 1 no lugar do chefe)
  if(M.ffa){   // todos contra todos: cada um encara o mais perto
   for(const a of V3Crown.state.players){const f=V3Crown.state.players.filter(e=>e!==a).sort((u,v)=>Math.hypot(u.x-a.x,u.y-a.y)-Math.hypot(v.x-a.x,v.y-a.y))[0];if(f)a.a=Math.atan2(f.y-a.y,f.x-a.x)}
   return;

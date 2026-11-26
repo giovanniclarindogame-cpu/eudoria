@@ -13,6 +13,10 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
    await new Promise(r=>setTimeout(r,200));
    const antes=appScreen;try{huntQA.lobby()}catch{}await new Promise(r=>setTimeout(r,400));
    return{lib:window.CACADA_LIBERADA,tela:appScreen,abriu:!!document.querySelector('.hunt-page'),arteNova:typeof ZorvathArte!=='undefined',homeCard:!!document.querySelector('.hunt-home')}});
+  const ev=await p.evaluate(()=>{const e=document.querySelector('[data-v41-hunt]');return e?{soon:e.classList.contains('soon'),dis:e.getAttribute('aria-disabled'),txt:e.textContent}:null});
+  if(ligada)ok(!ev||(!ev.soon&&ev.dis!=='true'&&!/em breve/i.test(ev.txt)),'ligada: o cartão da Caçada na tela inicial NÃO está bloqueado '+JSON.stringify(ev));
+  else ok(!ev||ev.soon,'desligada: o cartão da tela inicial fica "em breve"');
+  if(ligada&&ev){await p.evaluate(()=>document.querySelector('[data-v41-hunt]').click());await p.waitForTimeout(800);ok(await p.evaluate(()=>!!document.querySelector('.hunt-page')),'ligada: tocar no cartão da tela inicial abre o lobby da Caçada')}
   if(!ligada){
    ok(r.lib===false&&!r.abriu,'desligada: o lobby da Caçada não abre');
    ok(!r.arteNova,'desligada: a arte nova do Zorvath não carrega');
