@@ -414,6 +414,9 @@ function lobbyHtml(){
   :`<div class="v46-fighter blue"><i class="v46-plat"></i>${spr(mc.id)}</div>
     <div class="v46-vs">${VS_SVG}<small>${trio?'3×3':'1×1'}</small></div>
     <div class="v46-fighter red"><i class="v46-plat"></i>${tc?spr(tc.id,'flip'):'<span class="v46-q">?</span>'}</div>`;
+ const bottomHtml=`<div class="v46-bottom"><span class="v45-ping">${svg('wifi')}<b id="v45Ping">${S.rtt==null?'…':S.rtt+' ms'}</b></span><div class="v46-grid" role="listbox" aria-label="Seu campeão">${tiles}</div>
+   <button class="v46-go ${S.ready?'cancel':''}" data-v45="ready" ${(trio?S.team.length===3:(srv||th))?'':'disabled'}>${S.ready?'CANCELAR':trio&&S.team.length<3?S.team.length+'/3':'PRONTO'}</button></div>`;
+ if(cac&&window.SalaCacada)return SalaCacada.html({mc,me,mate:sa.ps[mateSlot],matePick,ready:S.ready,mateReady:!!sa.ready[mateSlot],secs,bottom:bottomHtml,esc,artSrc,faceSrc});
  return `<div class="v46-sel" style="--me:${mc.color};--th:${tc?.color||'#e2264d'}">
   <div class="v46-stage">
    <div class="v46-art left"><img src="${esc(artSrc(mc.id))}" alt=""></div>
@@ -449,7 +452,7 @@ function playerCard(p,me,ready){
   <div class="v45-state">${ready?`${svg('check')} PRONTO`:'Escolhendo…'}</div></div>`;
 }
 function view(){
- const top=(title,back='home')=>`<header class="v43-top v45-top"><button class="v40-round v43-back" data-v45-back="${back}" aria-label="Voltar">${svg('back')}</button><b>${title}</b><span class="v45-tag">${S.mode==='server'&&S.modo==='2v2'?'2×2':S.mode==='server'&&S.modo==='trio'?'3×3':S.mode==='server'&&S.modo==='coroa'?'4P':'1×1'}</span></header>`;
+ const top=(title,back='home')=>`<header class="v43-top v45-top"><button class="v40-round v43-back" data-v45-back="${back}" aria-label="Voltar">${svg('back')}</button><b>${title}</b><span class="v45-tag">${S.mode==='server'&&S.modo==='2v2'?'2×2':S.mode==='server'&&S.modo==='trio'?'3×3':S.mode==='server'&&S.modo==='coroa'?'4P':S.modo==='cacada'?'DUPLA':'1×1'}</span></header>`;
  const err=S.err?`<p class="v45-err" role="alert">${esc(S.err)}</p>`:'';
  const busy=S.busy?`<p class="v45-busy"><span class="v45-spin"></span>${esc(S.busy)}</p>`:'';
  switch(S.view){
