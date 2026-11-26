@@ -8,7 +8,7 @@ const calls=p=>p.evaluate(()=>new Promise(r=>{let n=0;const o=window.step;window
  for(const vp of [{width:844,height:390},{width:1280,height:720}]){
   const tag=`${vp.width}x${vp.height}`;
   const ctx=await b.newContext({viewport:vp});const p=await ctx.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
-  await p.goto('http://localhost:8000/index.html?semcarga=1&allheroes=1&boss=zorvath&inicio=0&cacada=1');await p.waitForTimeout(900);
+  await p.goto('http://localhost:8000/index.html?semcarga=1&allheroes=1&boss=zorvath&inicio=0&cacada=1&semsala=1');await p.waitForTimeout(900);
   await p.getByText('ENTRAR',{exact:true}).click();await p.fill('input','Teste');await p.getByText('Continuar',{exact:true}).click();await p.waitForTimeout(1400);
   await p.click('#openLobbySettings');await p.waitForTimeout(300);
   ok(await p.locator('#ecoMode').count()===1,`${tag}: configurações têm o Modo economia`);
