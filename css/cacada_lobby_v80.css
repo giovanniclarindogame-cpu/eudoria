@@ -51,3 +51,12 @@ body[data-screen=hunt] .hunt-go:active{transform:translateY(3px);box-shadow:0 2p
 /* aviso "novos chefes em breve" ocupa a largura toda; painéis rolam em telas muito baixas */
 body[data-screen=hunt] .hunt-week:has(.hunt-soon){display:block}
 body[data-screen=hunt] .hunt-pane{overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+
+/* ---- lobby da Caçada mais limpo (v84): frase curta + "Ver história" recolhido ---- */
+.hunt-hook{margin:0 0 8px;font-size:15px;line-height:1.4;font-weight:600}
+.hunt-more{margin-top:8px;font-size:13px}
+.hunt-more summary{cursor:pointer;display:inline-block;padding:5px 12px;border-radius:999px;border:2px solid rgba(255,212,90,.55);background:rgba(10,20,60,.5);color:#ffe7a3;font-weight:800;font-size:12px;list-style:none}
+.hunt-more summary::-webkit-details-marker{display:none}
+.hunt-more[open] summary{margin-bottom:6px}
+.hunt-more p{margin:6px 0;line-height:1.45;color:#dbe7ff}
+.hunt-more .hunt-tips{margin-top:8px}

@@ -14,6 +14,7 @@ const ZOR={
  id:'zorvath',name:'Zorvath',title:'Imperador Cristalino',color:VI,
  hp:3600,hpDuo:4600,stars:5,difficulty:'Extrema',
  story:'Imperador de um império que devora mundos. Zorvath trata todo adversário como um inseto e luta contido, jurando que usa só uma fração do poder. Quando o desafio aperta, ele libera as formas — e não perdoa quem o fez chegar até lá.',
+ systemShort:'Muda de forma aos 70% e 35% de vida: fica mais rápido e ganha golpes novos.',
  system:['Poder Contido','Zorvath luta em 3 formas. Ao cair para 70% e 35% de vida ele se transforma, ficando mais rápido e ganhando golpes novos; cada transformação libera uma onda de choque. A forma 1 resiste mais, a final é frágil e veloz. A Supernova só vem na forma final: se você causar muito dano durante a carga, ele é interrompido e fica atordoado.'],
  tips:[
   'Forma 1 é lenta e forte de perto: mantenha distância e castigue a recuperação dela.',
@@ -97,6 +98,8 @@ const HALL=(()=>{const f='assets/chefes_v78/zorvath/arena.webp';return window.la
 const hallOk=()=>window.CACADA_LIBERADA&&HALL.complete&&HALL.naturalWidth>0;
 // formas com as três folhas pintadas (só elas entram na demonstração, para não misturar estilos)
 const formasPintadas=()=>{const f=window.ZorvathArte&&window.ZorvathArte.folhas;return f&&f[1]&&f[1].A&&f[1].B&&f[1].C?[1]:[]};   // no lobby só aparece a forma 1 (as outras são surpresa da luta)
+// primeira frase (ou corte em palavra) para mostrar só o essencial; o resto fica em "Ver história..."
+function curta(s,max=120){s=String(s||'');const f=s.split(/(?<=[.!?])\s/)[0];if(f.length<=max)return f;const c=s.slice(0,max);return c.slice(0,c.lastIndexOf(' '))+'…'}
 function stars(n){return '★'.repeat(n)+'☆'.repeat(5-n)}
 function weekStrip(def){
  if(window.CACADA_CHEFE_FIXO)return `<div class="hunt-soon"><b>${def.name.split(',')[0]}</b> é o chefe da Caçada por enquanto.<br><small>Novos chefes chegam em breve, um por dia.</small></div>`;
@@ -113,17 +116,19 @@ function lobbyMarkup(def){
  const skillBtn=(s,i)=>`<button class="hunt-skill" data-hunt-skill="${i}" aria-label="${s.name}">${iconImg(s.icon)}<span>${s.name}</span></button>`;
  const basic=(s,i)=>`<button class="hunt-skill basic" data-hunt-basic="${i}" aria-label="${s.name}">${iconImg(s.icon)}<span>${s.name}</span></button>`;
  return `<div class="hunt-page" style="--boss:${def.color}">
- <header class="hunt-top"><button class="ghost" data-open-modes>← Arenas</button><div class="hunt-title"><span class="eyebrow">CAÇADA DO DIA</span><h1>${def.name}</h1></div><div class="hunt-timer" title="O chefe muda à meia-noite, no horário do seu aparelho">⏳ Novo chefe em <b id="huntTimer">${clock3(msToMidnight())}</b></div></header>
+ <header class="hunt-top"><button class="ghost" data-nav="home">← Lobby</button><div class="hunt-title"><span class="eyebrow">CAÇADA DO DIA</span><h1>${def.name}</h1></div>${window.CACADA_CHEFE_FIXO?'':`<div class="hunt-timer" title="O chefe muda à meia-noite, no horário do seu aparelho">⏳ Novo chefe em <b id="huntTimer">${clock3(msToMidnight())}</b></div>`}</header>
  <div class="hunt-body">
   <section class="hunt-stage"><canvas id="huntArt" width="420" height="340" aria-label="${def.name}, ${def.title}"></canvas>
-   <div class="hunt-plate"><strong>${def.name}</strong><span>${def.title}</span><em>Dificuldade ${def.difficulty} <i>${stars(def.stars)}</i></em></div></section>
+   <div class="hunt-plate"><span>${def.title}</span><em>Dificuldade ${def.difficulty} <i>${stars(def.stars)}</i></em></div></section>
   <section class="hunt-info">
    <div class="hunt-tabs" role="tablist"><button role="tab" class="on" data-hunt-tab="a" aria-selected="true">Chefe</button><button role="tab" data-hunt-tab="s" aria-selected="false">Habilidades</button></div>
    <div class="hunt-pane" data-hunt-pane="a">
-   <article class="hunt-card"><span class="eyebrow">CHEFE DE HOJE</span><p>${def.story}</p>
+   <article class="hunt-card"><span class="eyebrow">CHEFE DE HOJE</span><p class="hunt-hook">${curta(def.story)}</p>
     <div class="hunt-chips"><span>${def.generic?'2 fases':'3 formas'}</span><span>${mmss(ARENA_MODES.guardian.seconds)} de limite</span><span>◉ até ${prize} moedas</span><span>Vida ${save.team==='solo'?def.hp:def.hpDuo}</span></div></article>
-   <article class="hunt-card"><span class="eyebrow">SISTEMA PRÓPRIO · ${def.system[0].toUpperCase()}</span>
-    <div class="hunt-pride">${iconImg(def.systemIcon||'forms','hunt-ico big')}<div><div class="pride-demo"><i></i></div><p>${def.system[1]}</p></div></div></article>
+   <article class="hunt-card"><span class="eyebrow">COMO ELE LUTA</span>
+    <div class="hunt-pride">${iconImg(def.systemIcon||'forms','hunt-ico big')}<div><div class="pride-demo"><i></i></div><p>${def.systemShort||curta(def.system[1],95)}</p></div></div>
+    <details class="hunt-more"><summary>Ver história e detalhes</summary>
+     <p>${def.story}</p><p>${def.system[1]}</p></details></article>
    </div>
    <div class="hunt-pane" data-hunt-pane="s" hidden>
    <article class="hunt-card"><span class="eyebrow">${def.generic?'6 HABILIDADES':'6 HABILIDADES · AS NOVAS VÊM COM AS FORMAS'} · GOLPES, GUARDA E ESQUIVA DO CHEFE</span><div class="hunt-skills nine">${def.skills.map(skillBtn).join('')}<i class="hunt-sep"></i>${def.basics.map(basic).join('')}</div>
@@ -133,7 +138,7 @@ function lobbyMarkup(def){
  </div>
  <footer class="hunt-foot">
   <div class="hunt-team" role="group" aria-label="Equipe"><button data-hunt-team="solo" class="${save.team==='solo'?'on':''}" aria-pressed="${save.team==='solo'}"><b>Solo</b><small>só você</small></button><button data-hunt-team="duo" class="${save.team==='duo'?'on':''}" aria-pressed="${save.team==='duo'}"><b>Dupla</b><small>aliado bot</small></button><button data-hunt-friend class="amigo"><b>Com amigo</b><small>online · convite</small></button></div>
-  <div class="hunt-record"><small>Melhor tempo</small><b>${rec?mmss(rec):'—'}</b><small>${wins} vitória${wins===1?'':'s'} · ${tries} tentativa${tries===1?'':'s'}</small></div>
+  <div class="hunt-record"><small>Melhor tempo</small><b>${rec?mmss(rec):'—'}</b><small>${wins} vitória${wins===1?'':'s'}${tries>wins?` · ${tries} tentativa${tries===1?'':'s'}`:''}</small></div>
   <button class="gold hunt-go" data-hunt-start>⚔ INICIAR CAÇADA</button>
  </footer></div>`;
 }
@@ -212,7 +217,6 @@ function startHunt(){
  startHuntNow();
 }
 function startHuntNow(){
- save=loadSave();save.tries[lobbyDef.id]=(save.tries[lobbyDef.id]||0)+1;writeSave(save);
  cancelAnimationFrame(artRaf);clearInterval(timerInt);
  launching=true;try{beginArenaMode('guardian')}finally{launching=false}
 }
@@ -309,12 +313,24 @@ const ang=(a,t)=>Math.atan2(t.y-a.y,t.x-a.x);
 const wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
 const foes=A=>opponents(A);
 const DMG=[1,1.1,1.2],TAKEN=[.85,1,1.12],SPEED=[100,122,152],PREF=[110,190,230];
+// Escolha de alvo: o chefe reage a QUEM está perto (jogador, aliado ou clone), a quem o está machucando e a quem está fraco ou conjurando.
+// Reavalia ~2,5x por segundo, com um pouco de "preguiça" (histerese) para não ficar trocando de alvo toda hora.
 function pickTarget(R,A){
  const list=foes(A);if(!list.length)return null;
- R.aggroT-=1/60;
- if(R.aggroT<=0||!list.includes(R.aggro)){R.aggroT=3+Math.random()*3;R.aggro=list.length>1&&Math.random()<.4?list[1]:list[0]}
- const near=list.sort((x,y)=>dist(A,x)-dist(A,y))[0];
- return dist(A,near)<110?near:R.aggro;
+ const now=modeRun?modeRun.elapsed:0,cur=R.aggro&&list.includes(R.aggro)?R.aggro:null;
+ if(cur&&now-(R.aggroAt||0)<.4)return cur;
+ const th=R.threat=R.threat||new Map();
+ let best=null,bs=-1e9;
+ for(const t of list){
+  const d=dist(A,t);let s=-d;
+  s+=Math.min(240,(th.get(t)||0)*.9);                                      // quem está machucando o chefe
+  if(!t.v10Clone)s+=(1-clamp((t.hp||0)/(t.max||1000),0,1))*70;             // pouca vida atrai
+  if(t.cast>0||t.rwCast||t.punchTime>0)s+=45;                              // quem está atacando/conjurando
+  if(t===cur)s+=70;                                                        // não troca por pouco
+  if(s>bs){bs=s;best=t}
+ }
+ for(const[k,v]of th){const n=v*.9;if(n<5||!list.includes(k))th.delete(k);else th.set(k,n)}   // a ameaça esfria com o tempo
+ R.aggro=best;R.aggroAt=now;return best;
 }
 function bossHit(t,dmg,knock,angle,opt={}){
  const R=hunt(),A=R.a;if(t.hp<=0||A.hp<=0)return false;
@@ -607,6 +623,7 @@ const prevHit=hit;
 hit=function(t,n,owner,knock=0,angle=0,id){
  const R=t?.huntBoss&&hunt();
  if(!R)return prevHit(t,n,owner,knock,angle,id);
+ if(owner){try{const th=R.threat=R.threat||new Map();let w=null,bd=70;for(const f of foes(R.a)){const d=Math.hypot(f.x-owner.x,f.y-owner.y);if(d<bd){bd=d;w=f}}if(w)th.set(w,(th.get(w)||0)+n)}catch(e){}}   // quem bate no chefe ganha "ameaça" (vale também para clones)
  n*=TAKEN[R.form-1]*(R.exh>0?1.35:1);
  if(R.act&&R.act.id==='xform'&&t.inv>0)return false;
  return prevHit(t,n,owner,knock*.25,angle,id);
@@ -842,7 +859,7 @@ endArenaMode=function(win,draw){
  const R=hunt(),first=R&&modeRun&&!modeRun.settled;
  prevEnd(win,draw);
  if(!R||!first)return;
- const id=R.def.id;save=loadSave();
+ const id=R.def.id;save=loadSave();save.tries[id]=(save.tries[id]||0)+1;   // tentativa contada ao terminar (solo, dupla ou online)
  let extra='';
  if(win){
   const sec=modeRun.elapsed;save.wins[id]=(save.wins[id]||0)+1;
