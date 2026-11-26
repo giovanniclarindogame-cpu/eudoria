@@ -1,6 +1,7 @@
 'use strict';
 // Presentation only: all casts, collisions, materials, damage and lifetimes remain owned by the combat engine.
 const ALQUIMISTA38_ROOT='assets/alquimista_v38/';
+window.V3_DASH_IMG=Object.assign(window.V3_DASH_IMG||{},{9:ALQUIMISTA38_ROOT+'icon-dash.webp?v=1'});   // ícone pintado do Deslize de Aço (tela do campeão e botão de dash)
 const ALQUIMISTA38_BODY=rwImage(ALQUIMISTA38_ROOT+'body.webp?v=38');
 const ALQUIMISTA38_SKILLS=rwImage(ALQUIMISTA38_ROOT+'skills.webp?v=38');
 const ALQUIMISTA38_ACTIVE=['block','wall','throw','impact','colossus'];
