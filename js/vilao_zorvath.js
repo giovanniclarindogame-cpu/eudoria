@@ -227,7 +227,8 @@ const ZorvathSprite=(()=>{
   let c=external?external.frame(name,i,{form,side}):null;if(!c)c=frame(name,i,{form,side});if(!c)return;
   g.save();g.imageSmoothingEnabled=!!c.hd;/* arte pintada (folhas do ChatGPT) pede suavização; o pixel art do código não */g.globalAlpha*=alpha;g.translate(x,y);if(flip)g.scale(-1,1);
   if(o.filter)g.filter=o.filter;
-  g.drawImage(c,-CX*scale,-GY*scale,S*scale,S*scale);g.restore();
+  if(c.hd){const u=S*scale/256;g.drawImage(c,-(c.ax??128)*u,-(c.ay??232)*u,c.width*u,c.height*u)}   // arte pintada: âncora (ax,ay) em pixels do próprio quadro
+  else g.drawImage(c,-CX*scale,-GY*scale,S*scale,S*scale);g.restore();
  }
  function layout(){return Object.entries(POSES).map(([name,d])=>({name,frames:d.n,variants:name==='punch'?2:1}))}
  function sheet(cols=8,form=1){
