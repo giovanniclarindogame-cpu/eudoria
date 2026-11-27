@@ -101,7 +101,7 @@ function perfilBot(ref, usados) {
   let nome = NOMES_BOT[Math.floor(Math.random() * NOMES_BOT.length)];
   for (let k = 0; k < 30 && usados.has('n:' + nome); k++) nome = NOMES_BOT[Math.floor(Math.random() * NOMES_BOT.length)];
   usados.add('n:' + nome);
-  return { name: 'Bot ' + nome, lv: Math.max(1, ref.lv + Math.floor(Math.random() * 3) - 1), frame: 'azul', photo: 'h' + hero, hero, tier: ref.tier, league: ref.league, bot: true };
+  return { name: 'Bot ' + nome, lv: Math.max(1, ref.lv + Math.floor(Math.random() * 3) - 1), frame: 'azul', photo: 'h' + hero, hero, tier: ref.tier, league: ref.league, bot: true, item: ITENS_IDS[Math.floor(Math.random() * ITENS_IDS.length)] };   // bots sorteiam um item (o jogo da partida decide quando usar)
 }
 function limparReconexoes(p) { for (const [tok, r] of reconectaveis) if (r.p === p) reconectaveis.delete(tok); }
 
