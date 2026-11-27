@@ -23,6 +23,9 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  ok(await p.evaluate(()=>{const k=document.querySelector('#heroDetail .hero-kit');const t=[...k.children].map(x=>Math.round(x.getBoundingClientRect().top));return k.children.length===7&&new Set(t).size===1}),'o slot de item fica na mesma fileira dos ícones do campeão');
  await p.click('.item85-slot');await p.waitForTimeout(300);
  ok(await p.evaluate(()=>document.querySelectorAll('.it85-cell').length===18),'a janela do acessório lista os 18 itens');
+ await p.waitForTimeout(600);
+ const dims=await p.evaluate(()=>[...document.querySelectorAll('.it85-cell img')].map(i=>[i.naturalWidth,i.naturalHeight]));
+ ok(dims.length===18&&dims.every(d=>d[0]===256&&d[1]===256),'os 18 ícones da janela são imagens 256x256 (uma folha de animação com o nome do ícone já estragou isso) ('+dims.filter(d=>d[0]!==256).length+' errados)');
  await p.click('[data-it85-item=mascara]');await p.waitForTimeout(150);
  ok(await p.evaluate(()=>/Comprar · ◉ 1500/.test(document.querySelector('.it85-acts').innerText)),'item não comprado mostra o preço');
  await p.click('[data-it85-item=licenca]');await p.waitForTimeout(150);
