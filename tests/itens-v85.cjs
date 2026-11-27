@@ -6,7 +6,8 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  const p=await (await b.newContext({viewport:{width:915,height:412},hasTouch:true,isMobile:true,deviceScaleFactor:1})).newPage();
  p.on('pageerror',e=>errs.push(e.message));p.on('console',m=>{if(m.type()==='error')errs.push('console: '+m.text())});
  await p.addInitScript(()=>{Element.prototype.requestFullscreen=()=>Promise.reject(new Error('x'))});
- await p.goto('http://localhost:8000/index.html?allheroes=1');await p.waitForTimeout(900);await p.getByText('ENTRAR',{exact:true}).click();await p.fill('#profileName','Teste');await p.getByText('Continuar',{exact:true}).click();await p.waitForTimeout(1800);
+ await p.goto('http://localhost:8000/index.html?allheroes=1&itenspagos=1');   // modo cobrando (para testar a compra)
+ await p.waitForTimeout(900);await p.getByText('ENTRAR',{exact:true}).click();await p.fill('#profileName','Teste');await p.getByText('Continuar',{exact:true}).click();await p.waitForTimeout(1800);
  await p.evaluate(()=>{const b=document.querySelector('[data-tut-go]');if(b){let e=b;while(e.parentElement&&getComputedStyle(e).position!=='fixed')e=e.parentElement;e.style.display='none'}});
 
  /* ---------- dados ---------- */
@@ -112,6 +113,24 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  ok(R.chakra[0]===0&&R.chakra[1]===0&&R.chakra[2]===9,'Pílula de Chakra: zera as habilidades normais e preserva a ultimate ('+R.chakra+')');
  ok(R.relogio===1,'Relógio de Prata: ergue uma muralha');
  ok(R.recarga[0]===false&&R.recarga[1]>=40,'itens ativos entram em recarga e não valem de novo antes ('+R.recarga+')');
+ /* ---------- liberado de graça (padrão por enquanto) ---------- */
+ const g=await (await b.newContext({viewport:{width:915,height:412},hasTouch:true,isMobile:true})).newPage();g.on('pageerror',e=>errs.push('grátis: '+e.message));
+ await g.addInitScript(()=>{Element.prototype.requestFullscreen=()=>Promise.reject(new Error('x'))});
+ await g.goto('http://localhost:8000/index.html?allheroes=1');await g.waitForTimeout(900);await g.getByText('ENTRAR',{exact:true}).click();await g.fill('#profileName','Teste');await g.getByText('Continuar',{exact:true}).click();await g.waitForTimeout(1800);
+ await g.evaluate(()=>{const b=document.querySelector('[data-tut-go]');if(b){let e=b;while(e.parentElement&&getComputedStyle(e).position!=='fixed')e=e.parentElement;e.style.display='none'}});
+ await g.evaluate(()=>{showScreen('library');account.coins=0;saveAccount()});await g.waitForTimeout(400);
+ await g.evaluate(()=>openChampionDetails(3));await g.waitForTimeout(700);
+ await g.click('.item85-slot');await g.waitForTimeout(300);
+ const G=await g.evaluate(()=>({gratis:ItensV85.GRATIS,aviso:!!document.querySelector('.it85-free'),precos:document.querySelectorAll('.it85-cell i').length,cel:document.querySelectorAll('.it85-cell.lock').length}));
+ ok(G.gratis&&G.aviso&&G.precos===0&&G.cel===0,'com os itens grátis: aviso na janela, nenhum preço e nenhum item bloqueado ('+JSON.stringify(G)+')');
+ await g.click('[data-it85-item=licenca]');await g.waitForTimeout(150);
+ ok(await g.evaluate(()=>/Equipar/.test(document.querySelector('.it85-acts').innerText)),'um item lendário aparece direto como "Equipar", sem comprar (mesmo com 0 moedas)');
+ await g.click('[data-it85=equipar]');await g.waitForTimeout(150);
+ const E=await g.evaluate(()=>({eq:ItensV85.eqDe(3),moedas:account.coins,tem:Object.keys(account.itens.tem).join()}));
+ ok(E.eq==='licenca'&&E.moedas===0,'equipar funciona sem gastar moeda ('+JSON.stringify(E)+')');
+ ok(E.tem==='pilula','a conta não grava a posse dos itens liberados (quando voltar a cobrar, só vale o que foi comprado)');
+ await g.close();
+
  /* ---------- Caçada: o item vale contra o Boss (a isca atrai o Boss) ---------- */
  const q=await (await b.newContext({viewport:{width:915,height:412},hasTouch:true,isMobile:true})).newPage();q.on('pageerror',e=>errs.push('caçada: '+e.message));
  await q.addInitScript(()=>{Element.prototype.requestFullscreen=()=>Promise.reject(new Error('x'))});

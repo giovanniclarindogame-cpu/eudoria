@@ -14,3 +14,7 @@ window.CACADA_LIBERADA=!/[?&]cacada=0/.test(location.search);
 /* Chefe da Caçada do Dia: por enquanto é sempre este (id do chefe). Troque por null para voltar a rodar um chefe por dia. */
 window.CACADA_CHEFE_FIXO='zorvath';
 window.ELDORIA_TESTE_ON=k=>!!(window.ELDORIA_TESTE&&ELDORIA_TESTE.ativo&&ELDORIA_TESTE[k]);
+
+/* ACESSÓRIOS (itens). true = TODOS os itens liberados de graça (nada é comprado nem descontado; a conta não guarda a posse, então
+ * quando voltar a cobrar é só trocar para false). ?itenspagos=1 abre o jogo cobrando (para testar a compra). */
+window.ITENS_GRATIS=true;
