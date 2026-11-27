@@ -37,10 +37,11 @@ const S={view:'home',mode:null,role:null,code:'',peer:null,conn:null,pc:null,me:
 
 /* ---------- perfil enviado ao outro jogador ---------- */
 function myHero(){try{const id=currentChampion().id,o=owned();return o.includes(id)?id:o[0]}catch{return 0}}
+const itemDe=h=>{try{return window.ItensV85?ItensV85.eqDe(h):null}catch{return null}};   // item equipado do campeão (o servidor confere se o id existe)
 function profile(){
  const C=window.ContaV42,key=C?.photoKey?.()||'auto';
  let tier=0,league='Bronze';try{const pts=V3Liga.rec('1v1').points||0;tier=V3Liga.divOf(pts);league=V3Liga.rankName(pts)}catch{}
- return{v:PROTO,name:account.profile?.name||'Lutador',lv:C?.rec?.().lv||1,frame:C?.frameId?.()||'azul',photo:key==='auto'?'h'+(S.me?.hero??myHero()):key,hero:S.me?.hero??myHero(),tier,league};
+ return{v:PROTO,name:account.profile?.name||'Lutador',lv:C?.rec?.().lv||1,frame:C?.frameId?.()||'azul',photo:key==='auto'?'h'+(S.me?.hero??myHero()):key,hero:S.me?.hero??myHero(),tier,league,item:itemDe(S.me?.hero??myHero())};
 }
 // online: só vale o que é da conta (comprados + os 3 grátis da semana). A fase de testes que libera tudo no resto do jogo não vale aqui
 function owned(){try{
@@ -185,7 +186,7 @@ function onSrv(m){
    S.sala={slot,modo:m.modo,ps:ps.map(x=>sanitize(x)),fim:Date.now()+(+m.ms||30000),picks:{},ready:{},n};
    S.them=S.sala.ps[S.modo==='coroa'?(slot+1)%4:n>2?(slot<2?2:0):1-slot]||null;
    if(S.modo==='trio'){S.team=defaultTeam();S.me={...S.me,hero:S.team[0]}}
-   S.me={...profile()};avisar();abrirSala();if(S.modo==='trio')send({t:'pick',team:S.team});else if(S.modo==='2v2'||S.modo==='cacada')send({t:'pick',hero:S.me.hero,photo:S.me.photo});break}   // o parceiro já vê o seu campeão ao entrar na sala
+   S.me={...profile()};avisar();abrirSala();if(S.modo==='trio')send({t:'pick',team:S.team});else if(S.modo==='2v2'||S.modo==='cacada')send({t:'pick',hero:S.me.hero,photo:S.me.photo,item:itemDe(S.me.hero)});break}   // o parceiro já vê o seu campeão ao entrar na sala
   case'nada':   // a partida que ficou aberta já terminou
    try{localStorage.removeItem(FLAG)}catch{}
    S.reconectando=false;falhaSrv('Essa partida já terminou.');break;
@@ -353,7 +354,7 @@ function pick(id){if(!owned().includes(id)||S.ready)return;
  if(S.mode==='server'&&S.modo==='trio'){   // Trio: até 3 campeões, a ordem é a de entrada; com 3, tocar em outro troca o último
   const t=S.team||(S.team=defaultTeam()),k=t.indexOf(id);
   if(k>=0){if(t.length>1)t.splice(k,1)}else if(t.length<3)t.push(id);else t[2]=id;
-  S.me.hero=t[0];send({t:'pick',team:t});render();return}S.me.hero=id;if(S.me.photo?.[0]==='h'&&(window.ContaV42?.photoKey?.()||'auto')==='auto')S.me.photo='h'+id;send({t:'pick',hero:id,photo:S.me.photo});render()}
+  S.me.hero=t[0];send({t:'pick',team:t});render();return}S.me.hero=id;if(S.me.photo?.[0]==='h'&&(window.ContaV42?.photoKey?.()||'auto')==='auto')S.me.photo='h'+id;send({t:'pick',hero:id,photo:S.me.photo,item:itemDe(id)});render()}
 function moveTeam(i,d){const t=S.team,j=i+d;if(S.ready||!t||j<0||j>=t.length)return;[t[i],t[j]]=[t[j],t[i]];S.me.hero=t[0];send({t:'pick',team:t});render()}
 function toggleReady(){if(!S.conn||!S.them)return;S.ready=!S.ready;send({t:'ready',v:S.ready});render();if(S.role==='host')maybeStart()}
 function maybeStart(){if(S.ready&&S.theirReady&&S.role==='host'){send({t:'start'});countdown()}}

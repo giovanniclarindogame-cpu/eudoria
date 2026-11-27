@@ -76,11 +76,13 @@ const avisarOutros = (p, slot, obj) => { const t = JSON.stringify(obj); p.slots.
 
 /* ---------- jogadores ---------- */
 const limpo = (s, n) => String(s ?? '').replace(/[\u0000-\u001f<>]/g, '').slice(0, n);
+const ITENS_IDS = require('./itens.cjs');
+const itemOk = v => (typeof v === 'string' && ITENS_IDS.includes(v)) ? v : null;
 function perfil(p = {}) {
   return {
     name: limpo(p.name || 'Lutador', 16) || 'Lutador', lv: Math.max(1, Math.min(100, +p.lv || 1)),
     frame: /^[a-z]{2,10}$/.test(p.frame) ? p.frame : 'azul', photo: /^[hs]\d+$/.test(p.photo || '') ? p.photo : 'h0',
-    hero: Math.max(0, Math.min(9, Math.floor(+p.hero) || 0)), tier: Math.max(0, Math.min(5, +p.tier || 0)), league: limpo(p.league || 'Bronze', 20),
+    hero: Math.max(0, Math.min(9, Math.floor(+p.hero) || 0)), tier: Math.max(0, Math.min(5, +p.tier || 0)), league: limpo(p.league || 'Bronze', 20), item: itemOk(p.item),
   };
 }
 // campeões que o jogador pode usar: se ele tem conta, só os da conta (comprados + grátis da semana); sem conta vale o que ele mandar
@@ -201,10 +203,10 @@ function criarPartida(jog, modo, fixos) {
   };
   p.iniciar = () => {
     slots.forEach((s, i) => { if (s.j) enviar(s.j.ws, JSON.stringify(p.matchObj(i))); });
-    const bots = slots.map(s => !s.j), hs = slots.map(s => s.perfil.hero), nomes = slots.map(s => s.perfil.name);
-    if (modo === '2v2' || modo === 'coroa' || modo === 'cacada') e.w.postMessage({ k: 'iniciar', modo, seed, h: hs, n: nomes, bots });
-    else if (modo === 'trio') { const teams = slots.map(s => timeDe(s)); e.w.postMessage({ k: 'iniciar', modo, seed, h0: teams[0][0], h1: teams[1][0], teams, n0: nomes[0], n1: nomes[1], bots }); }
-    else e.w.postMessage({ k: 'iniciar', seed, h0: hs[0], h1: hs[1], n0: nomes[0], n1: nomes[1], bots });
+    const bots = slots.map(s => !s.j), hs = slots.map(s => s.perfil.hero), nomes = slots.map(s => s.perfil.name), its = slots.map(s => s.perfil.item || null);
+    if (modo === '2v2' || modo === 'coroa' || modo === 'cacada') e.w.postMessage({ k: 'iniciar', modo, seed, h: hs, n: nomes, it: its, bots });
+    else if (modo === 'trio') { const teams = slots.map(s => timeDe(s)); e.w.postMessage({ k: 'iniciar', modo, seed, h0: teams[0][0], h1: teams[1][0], teams, n0: nomes[0], n1: nomes[1], it: its, bots }); }
+    else e.w.postMessage({ k: 'iniciar', seed, h0: hs[0], h1: hs[1], n0: nomes[0], n1: nomes[1], it: its, bots });
     p.iniciada = true; p.timerLiberar = setTimeout(() => liberar(p), 30000); checarLiberar(p);
   };
   log(`partida ${id} (${modo}): ${slots.map(s => s.perfil.name).join(' × ')} (ativas: ${partidas.size})`);
@@ -425,7 +427,7 @@ function tratar(j, texto) {
     case 'pronto': if (j.partida && !j.partida.fim) { j.partida.prontos[j.slot] = true; checarLiberar(j.partida); } return;
     case 'pick': { const p = j.partida; if (!p || p.fase !== 'sel') return; const s = p.slots[j.slot];
       if (p.modo === 'trio') { s.time = j.time = Array.isArray(m.team) ? m.team.map(x => Math.floor(+x)).filter(x => Number.isInteger(x) && x >= 0 && x <= 9).map(x => heroiOk(j, x)).filter((x, i, v) => v.indexOf(x) === i).slice(0, 3) : null; if (j.time && j.time.length) j.perfil.hero = j.time[0]; p.pronto_sel[j.slot] = false; return; }
-      j.perfil.hero = heroiOk(j, m.hero); p.pronto_sel[j.slot] = false;
+      j.perfil.hero = heroiOk(j, m.hero); j.perfil.item = itemOk(m.item); p.pronto_sel[j.slot] = false;
       if (p.modo === '2v2' || p.modo === 'cacada') { const o = p.slots[j.slot ^ 1]; if (o && o.j) enviar(o.j.ws, JSON.stringify({ t: 'pick', s: j.slot, hero: j.perfil.hero })); } return; }
     case 'ready': { const p = j.partida; if (!p || p.fase !== 'sel') return; p.pronto_sel[j.slot] = !!m.v;
       if (m.v && (p.modo === '2v2' || p.modo === 'cacada')) { const o = p.slots[j.slot ^ 1]; if (o && o.j) enviar(o.j.ws, JSON.stringify({ t: 'pick', s: j.slot, hero: j.perfil.hero })); }   // quem fica PRONTO sem ter tocado num herói também mostra o campeão ao parceiro

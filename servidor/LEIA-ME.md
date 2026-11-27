@@ -30,6 +30,14 @@ jogo instalado), `ORIGENS` (lista separada por vírgula; vazio = qualquer). `TES
   `pronto` (terminei de carregar), `snap` (estado), `end` (fim de rodada), `over` (fim do duelo), `bye` (rival saiu), `erro` (`versao`/`atualizar`).
   A luta só começa (thread recebe `liberar`) quando os dois mandam `pronto` ou em 30 s; build < 2 conta como pronto.
 
+## Acessórios (itens)
+Cada campeão leva 1 item (pool único de 18, qualquer campeão usa qualquer item). O jogo manda o id do item no perfil (`hello`/`perfil`/`fila`, campo
+`item`) e na escolha (`pick`, campo `item`); o servidor só aceita ids da lista `itens.cjs` (a MESMA ordem de `js/itens_v85.js`; o teste
+`tests/itens-v85.cjs` confere) e guarda em `perfil.item`. Na partida, cada vaga recebe o item do seu perfil (`SRV.start`, parâmetro `it`).
+Usar o item é a ação `itemUse` (argumento = índice do item), conferida e executada no servidor e espelhada para os outros, como o dash: só vale
+para quem tem item equipado, consumível só 1 vez por luta e ativo respeita a recarga. O servidor não tem inventário: confia no id que o
+perfil diz (ok para amigos; antes de ranking valendo prêmio, é preciso guardar a compra no servidor).
+
 ## Versões diferentes do jogo instalado
 O servidor roda o código da pasta do jogo que está junto dele. Quem está com versão antiga na mão simula a luta com regras antigas
 (só para a resposta imediata; o resultado vem do servidor). Por isso: aumente `window.ELDORIA_BUILD` em `js/config_servidor.js` quando

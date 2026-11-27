@@ -43,6 +43,7 @@ SRV.start=function(o){
  SL.forEach((a,i)=>{V3Modes.swapHero(a,hs[i],1000);a.label=String(ns[i]||'Jogador '+(i+1))});
  }
  if(trio)V3Kof.setup(o.teams[0],o.teams[1]);   // slot 0 = time "meu" do servidor, slot 1 = time do rival
+ if(window.ItensV85)SL.forEach((a,i)=>ItensV85.equip(a,(o.it&&o.it[i])||null));   // acessório de cada vaga (vem do perfil; o servidor confere o id)
  SRV.bot=SL.map((_,i)=>!!(o.bots&&o.bots[i]));SL.forEach((a,i)=>{a.cwBot=SRV.bot[i]&&!!coroa;if(SRV.bot[i])a.oldBot=false});
  SRV.on=true;SRV.over=false;SRV.roundDone=false;SRV.snapT=0;
  return state;
@@ -75,7 +76,7 @@ function drive(a,i,dt){
 }
 
 /* ---------- ações ---------- */
-const OK={basic:1,cast:1,rwBeginCharge:1,rwReleaseCharge:1,dodge:1,dash:1};
+const OK={basic:1,cast:1,rwBeginCharge:1,rwReleaseCharge:1,dodge:1,dash:1,itemUse:1};
 const cleanArg=v=>{
  if(typeof v==='number')return Number.isFinite(v)?v:0;
  if(v&&typeof v==='object'){const o={};for(const k of ['pointAim','angle','x','y','charge']){if(k in v)o[k]=k==='pointAim'?!!v[k]:num(v[k],-10000,10000)}return o}

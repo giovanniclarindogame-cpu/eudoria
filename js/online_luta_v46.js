@@ -236,7 +236,7 @@ function fixRound(){
 }
 
 /* ---------- ações repetidas no outro aparelho ---------- */
-const MIRROR=['basic','cast','rwBeginCharge','rwReleaseCharge','dodge'];
+const MIRROR=['basic','cast','rwBeginCharge','rwReleaseCharge','dodge','itemUse'];
 const clean=v=>{try{return JSON.parse(JSON.stringify(v??null))}catch{return null}};
 for(const f of MIRROR){
  const prev=window[f];if(typeof prev!=='function')continue;
