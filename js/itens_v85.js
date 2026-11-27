@@ -68,7 +68,15 @@ function mod(a,k){let v=1;const M=a&&a.ix&&a.ix.mods;if(M)for(const q of Object.
 function modSum(a,k){let v=0;const M=a&&a.ix&&a.ix.mods;if(M)for(const q of Object.values(M))if(q.k===k&&q.t>0)v+=q.m;return v}
 function depois(a,t,fn){const X=a.ix||(a.ix={});(X.later=X.later||[]).push({t,fn})}
 const foeNear=(a,r)=>{let best=null,bd=r;for(const e of opponents(a)){if(e.hp<=0||e.itemDecoy||e.v10Clone)continue;const d=dist(a,e);if(d<=bd){bd=d;best=e}}return best};
-const usaFx=(a,cor,txt)=>{try{ring(a.x,a.y,36,cor,.45);spark(a.x,a.y,cor,10);if(txt)float(a.x,a.y-52,txt,cor)}catch{}};
+// ---- arte pintada dos efeitos (folhas 6 colunas, quadros de 320 px): auras de categoria e o Boneco Kon ----
+const IMG={},CEL=320;
+function img(n){let o=IMG[n];if(!o){o=IMG[n]={im:new Image(),ok:false};o.im.onload=()=>{o.ok=o.im.naturalWidth>0};o.im.src='assets/itens_v85/'+n+'.webp?v=1'}return o}
+try{if(typeof Image!=='undefined'){img('auras');img('kon')}}catch{}
+function quadro(n,linha,col,cx,cy,lado,ax=.5,ay=.5){const o=IMG[n];if(!o||!o.ok)return false;ctx.drawImage(o.im,col*CEL,linha*CEL,CEL,CEL,cx-lado*ax,cy-lado*ay,lado,lado);return true}
+const AUR=[],GONE=[],LINHA={cura:0,defesa:1,ataque:2,util:3};
+let CUR=null;   // categoria do item que está sendo usado agora (para a aura)
+function aura(a,cat){const o=IMG.auras;if(!o||!o.ok||LINHA[cat]==null)return false;AUR.push({a,row:LINHA[cat],t0:clock});return true}
+const usaFx=(a,cor,txt,cat=CUR)=>{try{const arte=cat&&aura(a,cat);if(!arte)ring(a.x,a.y,36,cor,.45);spark(a.x,a.y,cor,arte?6:10);if(txt)float(a.x,a.y-52,txt,cor)}catch{}};
 const DEC=[];   // iscas (Boneco Kon)
 
 const EF={
@@ -117,7 +125,7 @@ function usar(a){
  if(d.tipo==='reativo')return false;
  if(d.tipo==='uso'&&it.used)return false;
  if(it.cd>0)return false;
- let ok=false;try{ok=EF[d.id](a,it)}catch(e){console.error('[Eldoria] item',d.id,e);return false}
+ let ok=false;CUR=d.cat;try{ok=EF[d.id](a,it)}catch(e){console.error('[Eldoria] item',d.id,e);return false}finally{CUR=null}
  if(!ok)return false;
  if(d.tipo==='uso')it.used=true;else it.cd=d.cd;
  try{combatSound('hit',.6)}catch{}
@@ -188,7 +196,7 @@ function tick(a,dt){
   if(X.later)for(let i=X.later.length-1;i>=0;i--){const q=X.later[i];q.t-=dt;if(q.t<=0){X.later.splice(i,1);try{q.fn()}catch{}}}
   // Brasa Eterna: dispara sozinha abaixo de 30% de vida
   if(it&&it.id==='brasa'&&it.armed&&a.hp>0&&a.hp<=a.max*.3){
-   it.armed=false;it.used=true;addMod(a,'dmg','brasa',1.2,6);X.burn={t:6,c:0};usaFx(a,'#ff7a2a','BRASA ETERNA');
+   it.armed=false;it.used=true;addMod(a,'dmg','brasa',1.2,6);X.burn={t:6,c:0};usaFx(a,'#ff7a2a','BRASA ETERNA','ataque');
    try{if(a===p)toast('Brasa Eterna acesa!')}catch{}
   }
   if(X.burn){X.burn.t-=dt;X.burn.c-=dt;if(X.burn.c<=0){X.burn.c=.5;for(const e of opponents(a))if(e.hp>0&&!e.itemDecoy&&dist(a,e)<120){try{hit(e,9,a,0,0)}catch{}}try{ring(a.x,a.y,110,'#ff7a2a',.3)}catch{}}if(X.burn.t<=0)X.burn=null}
@@ -202,7 +210,29 @@ function tick(a,dt){
  if(X.mods){for(const k of Object.keys(X.mods)){X.mods[k].t-=dt;if(X.mods[k].t<=0)delete X.mods[k]}}
 }
 function tickDec(dt){
- for(let i=DEC.length-1;i>=0;i--){const d=DEC[i];d.life-=dt;d.age+=dt;if(d.life<=0||d.hp<=0||!actors.includes(d.owner)||(state!=='fight'&&state!=='count'))DEC.splice(i,1)}
+ for(let i=DEC.length-1;i>=0;i--){
+  const d=DEC[i];d.life-=dt;d.age+=dt;
+  try{let best=null,bd=1e9;for(const e of opponents(d.owner)){if(e.itemDecoy||e.hp<=0)continue;const dd=Math.abs(e.x-d.x);if(dd<bd){bd=dd;best=e}}if(best)d.flip=best.x<d.x}catch{}   // a isca olha para o rival mais próximo
+  const fim=d.life<=0||d.hp<=0;
+  if(fim||!actors.includes(d.owner)||(state!=='fight'&&state!=='count')){if(fim&&IMG.kon&&IMG.kon.ok)GONE.push({x:d.x,y:d.y,flip:d.flip,t0:clock});DEC.splice(i,1)}
+ }
+ for(let i=GONE.length-1;i>=0;i--)if(clock-GONE[i].t0>.62)GONE.splice(i,1);
+ for(let i=AUR.length-1;i>=0;i--)if(clock-AUR[i].t0>.8)AUR.splice(i,1);
+}
+// Boneco Kon pintado: aparece (linha 1), fica parado (0), leva golpe (3) e some (2); olha para o rival
+function paintKon(d,gone){
+ const o=IMG.kon;
+ if(!o||!o.ok){   // enquanto a arte não carrega: cópia transparente do herói
+  if(gone)return;ctx.save();ctx.translate(d.x,d.y);ctx.globalAlpha=.55*Math.min(1,d.age/.15,d.life/.3);try{drawAnimatedFighter(ctx,d,72)}catch{}ctx.restore();return;
+ }
+ let row=0,col=Math.floor(clock*7)%6;
+ if(gone){row=2;col=Math.min(5,Math.floor((clock-d.t0)/.1))}
+ else if(d.hitAt!=null&&clock-d.hitAt<.6){row=3;col=Math.min(5,Math.floor((clock-d.hitAt)/.1))}
+ else if(d.age<.6){row=1;col=Math.min(5,Math.floor(d.age/.1))}
+ ctx.save();ctx.translate(d.x,d.y+14);
+ if(!gone||col<3){ctx.fillStyle='rgba(0,0,0,.25)';ctx.beginPath();ctx.ellipse(0,0,18,6,0,0,6.2832);ctx.fill()}
+ if(d.flip)ctx.scale(-1,1);
+ quadro('kon',row,col,0,0,132,.5,.88);ctx.restore();
 }
 
 /* ---------------------------------------------------------------- ganchos no motor */
@@ -228,7 +258,7 @@ hit=function(t,n,owner,knock=0,angle=0,id){
  if(!t)return prevHit.apply(this,arguments);
  if(t.itemDecoy){   // a isca só perde vida (não passa pelas regras de morte dos modos)
   if(t.hp<=0||state!=='fight'||(owner&&owner.team===t.team))return false;
-  n=Math.round(n);t.hp-=n;try{float(t.x,t.y-30,n,'#f0e1ba');spark(t.x,t.y,'#e9b86a',6)}catch{}
+  n=Math.round(n);t.hp-=n;t.hitAt=clock;try{float(t.x,t.y-30,n,'#f0e1ba');spark(t.x,t.y,'#e9b86a',6)}catch{}
   if(t.hp<=0)t.life=0;return true;
  }
  const ow=owner&&owner.ix,tx=t.ix;let noKnock=null;
@@ -253,7 +283,7 @@ hit=function(t,n,owner,knock=0,angle=0,id){
  }
  if(arm&&t.hp<=0){
   t.hp=Math.max(1,Math.round(t.max*.08));t.inv=Math.max(t.inv||0,1.5);t.root=0;t.hitReact=0;
-  t.item.armed=false;t.item.used=true;t.ix.noUlt=3;usaFx(t,'#ffd45a','LICENÇA DE HUNTER');
+  t.item.armed=false;t.item.used=true;t.ix.noUlt=3;usaFx(t,'#ffd45a','LICENÇA DE HUNTER','defesa');
   try{if(t===p)toast('Licença de Hunter! Você sobreviveu.')}catch{}
  }
  return r;
@@ -278,7 +308,9 @@ const prevDepth=integratedDepth;
 integratedDepth=function(){
  const list=prevDepth.apply(this,arguments);
  try{
-  for(const d of DEC)list.push({kind:'itemdecoy',y:d.y,priority:1,paint(){ctx.save();ctx.translate(d.x,d.y);ctx.globalAlpha=.55*Math.min(1,d.age/.15,d.life/.3);try{drawAnimatedFighter(ctx,d,72)}catch{}ctx.restore();ctx.save();ctx.font='700 11px system-ui';ctx.textAlign='center';ctx.fillStyle='#ffe7a3';ctx.fillText('🧸 Kon',d.x,d.y-36);ctx.restore()}});
+  for(const d of DEC)list.push({kind:'itemdecoy',y:d.y,priority:1,paint(){paintKon(d,false)}});
+  for(const g of GONE)list.push({kind:'itemgone',y:g.y,priority:1,paint(){paintKon(g,true)}});
+  for(const u of AUR){const a=u.a;if(!a||a.hp<=0)continue;list.push({kind:'itemaura',y:a.y+3,priority:3,paint(){const f=Math.min(5,Math.floor((clock-u.t0)/.13));ctx.save();ctx.globalCompositeOperation='lighter';quadro('auras',u.row,f,a.x,a.y+12,230,.5,.6);ctx.restore()}})}
   for(const a of actors){
    const X=a.ix;if(!X||a.hp<=0)continue;
    if(X.logs)for(const L of X.logs)list.push({kind:'itemlog',y:L.y,priority:1,paint(){ctx.save();ctx.translate(L.x,L.y);ctx.globalAlpha=Math.min(1,L.t/.4);ctx.fillStyle='#6b4a2b';ctx.fillRect(-14,-6,28,12);ctx.fillStyle='#8a6338';ctx.fillRect(-14,-6,28,3);ctx.fillStyle='#4a321c';ctx.fillRect(-14,3,28,3);ctx.restore()}});
@@ -397,5 +429,5 @@ document.addEventListener('click',e=>{
 },true);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$q('#itens85'))fechar()});
 
-window.ItensV85={ITENS,BY,RAR,conta,tem,eqDe,equipar,comprar,equip,usar,use:usar,abrir,fechar,mod,DEC,sorteia,botDesejo,IDS:ITENS.map(d=>d.id),icone};
+window.ItensV85={ITENS,BY,RAR,conta,tem,eqDe,equipar,comprar,equip,usar,use:usar,abrir,fechar,mod,DEC,AUR,GONE,sorteia,botDesejo,IDS:ITENS.map(d=>d.id),icone};
 })();
