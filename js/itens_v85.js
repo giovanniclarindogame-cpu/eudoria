@@ -361,7 +361,7 @@ function detalhe(){
  else if(account.coins>=d.preco)acao=`<button class="it85-btn2 buy" data-it85="comprar">Comprar · ◉ ${d.preco}</button>`;
  else acao=`<button class="it85-btn2 off" disabled>Faltam ◉ ${d.preco-account.coins}</button>`;
  const tipo=d.tipo==='ativo'?`Ativo · recarga ${d.cd} s`:TIPO[d.tipo];
- D.innerHTML=`<div class="it85-head">${icone(d,'big')}<div><b>${esc(d.n)}</b><small>${esc(d.o)}</small></div></div>
+ D.innerHTML=`<div class="it85-head">${icone(d,'big')}<div><b>${esc(d.n)}</b></div></div>
   <div class="it85-chips"><span style="--c:${d.cor}">${RAR[d.rar].n}</span><span>${esc(CAT[d.cat])}</span><span>${esc(tipo)}</span></div>
   <p class="it85-desc">${esc(d.d)}</p><div class="it85-acts">${acao}</div>`;
 }
