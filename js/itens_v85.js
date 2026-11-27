@@ -33,7 +33,7 @@ const ITENS=[
 ];
 ITENS.forEach((d,i)=>{d.idx=i;d.preco=RAR[d.rar].preco;d.cor=RAR[d.rar].cor});
 const BY=Object.fromEntries(ITENS.map(d=>[d.id,d]));
-const ARTE=new Set(window.ITENS_ARTE||[]);   // ids que já têm arte pintada em assets/itens_v85/<id>.webp (os outros usam o emoji)
+const ARTE=new Set(ITENS.map(d=>d.id));   // todos têm arte pintada em assets/itens_v85/<id>.webp (se faltar algum, tire o id daqui e ele usa o emoji)
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const $q=s=>document.querySelector(s);
 const SERVIDOR=()=>!!window.__SRV;
@@ -126,9 +126,52 @@ function usar(a){
 // ação espelhada no online (o argumento é o índice do item; só os aparelhos de quem ASSISTE equipam por ele — o servidor usa o item do perfil)
 window.itemUse=function(a,idx){
  if(!a)return false;
- if(!a.item&&!a.itemNone&&!SERVIDOR()&&Number.isInteger(idx)&&ITENS[idx])equip(a,ITENS[idx].id);
+ // no aparelho de quem ASSISTE, o item usado pelo outro (humano ou bot do servidor) vale o índice que chegou
+ if(!SERVIDOR()&&a!==(typeof p!=='undefined'?p:null)&&Number.isInteger(idx)&&ITENS[idx]&&(!a.item||a.item.def.idx!==idx))equip(a,ITENS[idx].id);
  return usar(a);
 };
+
+/* ---------------------------------------------------------------- bots: item sorteado + decisão de uso */
+const sorteia=()=>ITENS[Math.floor(Math.random()*ITENS.length)].id;
+const online=()=>{try{return !!(window.OnlineV46&&OnlineV46.match&&OnlineV46.match.on)}catch{return false}};
+// onde os rivais controlados pelo jogo usam item: duelos, equipes, liga, torneio, espelho, desafio, zona e a Caçada (o aliado). Não no Treino/Dojo nem na Sobrevivência.
+const modoOk=()=>{try{if(battleActivity==='training')return false;if(modeRun&&!(modeRun.hunt||['tournament','mirror','daily','zone'].includes(modeRun.id)))return false}catch{}return true};
+const botBase=a=>!!a&&a!==(typeof p!=='undefined'?p:null)&&!a.itemDecoy&&!a.huntBoss&&!a.boss&&!a.mob&&!a.rmob&&!a.trainingDummy&&Array.isArray(a.kit)&&a.kit.length===6&&a.hp>0;
+const botCtl=a=>{if(!botBase(a))return false;if(SERVIDOR())return !!a.srvBot;if(online())return false;return modoOk()};
+function botDesejo(a){
+ const it=a.item,d=it.def;
+ if(d.tipo==='reativo')return false;
+ if(d.tipo==='uso'&&it.used)return false;
+ if(it.cd>0)return false;
+ const e=foeNear(a,900);if(!e)return false;
+ const dd=dist(a,e),hp=a.hp/a.max,eh=e.hp/(e.max||1000),agindo=e.cast>0||e.punchTime>0||!!e.rwCast;
+ const ocupadas=(a.kit||[]).slice(0,5).filter(k=>a.cd[k]>2).length;
+ switch(d.id){
+  case 'pilula':return hp<.42;
+  case 'doce':return hp<.6;
+  case 'carne':return hp<.5;
+  case 'sangue':return dd<220&&hp<.85&&eh>.2;
+  case 'escudo':return dd<300&&agindo;
+  case 'chapeu':return dd<220&&hp<.75;
+  case 'tronco':return dd<170&&hp<.5;
+  case 'cantil':return a.root>.3||a.slow>0||a.guardBreak>0;
+  case 'pesos':return dd>240&&dd<600&&hp>.35;
+  case 'mascara':return dd<260&&hp>.55&&eh<.9;
+  case 'caderno':return dd<480&&eh>.5;
+  case 'kon':return dd<320&&hp<.6;
+  case 'carta':return dd<270&&(agindo||eh<.5);
+  case 'venda':return ocupadas>=2&&dd<500;
+  case 'chakra':return ocupadas>=3;
+  case 'relogio':return dd>90&&dd<420&&(agindo||hp<.5);
+ }
+ return false;
+}
+function botAI(a,dt){
+ const X=a.ix;if(!X||!a.item||a.hp<=0||state!=='fight')return;
+ X.ai=(X.ai||0)-dt;if(X.ai>0)return;
+ X.ai=.25+Math.random()*.3;                       // pensa ~3x por segundo e nem sempre age na hora (reação humana)
+ if(botDesejo(a)&&Math.random()<.7)window.itemUse(a,a.item.def.idx);
+}
 
 /* ---------------------------------------------------------------- tempo (a cada passo) */
 function tick(a,dt){
@@ -175,6 +218,7 @@ opponents=function(a){const r=prevOpp.apply(this,arguments);if(!DEC.length||!a)r
 const prevEnemy=enemy;
 enemy=function(a){
  const e=prevEnemy.apply(this,arguments);if(!DEC.length||!a)return e;
+ if(a===(typeof p!=='undefined'?p:null))return e&&e.itemDecoy?(foeNear(a,1e9)||e):e;   // a isca atrai os bots; o foco do jogador (a variável b) continua sendo o rival de verdade (como no clone do Kakashi)
  let best=null,bd=1e9;for(const d of DEC){if(d.hp>0&&d.life>0&&d.team!==a.team){const dd=dist(a,d);if(dd<bd){bd=dd;best=d}}}
  return best&&bd<320&&(!e||bd<dist(a,e)+140)?best:e;
 };
@@ -221,7 +265,8 @@ step=function(dt){
  const r=prevStep.apply(this,arguments);
  try{
   if(!SERVIDOR()&&typeof p!=='undefined'&&p&&(p.itemFor!==p.skin||(p.itemFor===undefined&&!p.itemNone))){equip(p,eqDe(p.skin))}
-  for(const a of actors)if(a.ix)tick(a,dt);
+  if(!SERVIDOR()&&!online()&&modoOk())for(const a of actors)if(botBase(a)&&a.itemFor!==a.skin)equip(a,sorteia());   // os bots sorteiam o item
+  for(const a of actors)if(a.ix){tick(a,dt);if(botCtl(a))botAI(a,dt)}
   tickDec(dt);
   hud();
  }catch(e){console.error('[Eldoria] itens',e)}
@@ -352,5 +397,5 @@ document.addEventListener('click',e=>{
 },true);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$q('#itens85'))fechar()});
 
-window.ItensV85={ITENS,BY,RAR,conta,tem,eqDe,equipar,comprar,equip,usar,use:usar,abrir,fechar,mod,DEC,IDS:ITENS.map(d=>d.id),icone};
+window.ItensV85={ITENS,BY,RAR,conta,tem,eqDe,equipar,comprar,equip,usar,use:usar,abrir,fechar,mod,DEC,sorteia,botDesejo,IDS:ITENS.map(d=>d.id),icone};
 })();

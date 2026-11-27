@@ -44,14 +44,14 @@ SRV.start=function(o){
  }
  if(trio)V3Kof.setup(o.teams[0],o.teams[1]);   // slot 0 = time "meu" do servidor, slot 1 = time do rival
  if(window.ItensV85)SL.forEach((a,i)=>ItensV85.equip(a,(o.it&&o.it[i])||null));   // acessório de cada vaga (vem do perfil; o servidor confere o id)
- SRV.bot=SL.map((_,i)=>!!(o.bots&&o.bots[i]));SL.forEach((a,i)=>{a.cwBot=SRV.bot[i]&&!!coroa;if(SRV.bot[i])a.oldBot=false});
+ SRV.bot=SL.map((_,i)=>!!(o.bots&&o.bots[i]));SL.forEach((a,i)=>{a.cwBot=SRV.bot[i]&&!!coroa;a.srvBot=SRV.bot[i];if(SRV.bot[i])a.oldBot=false});   // srvBot: o jogo decide quando o bot usa o item
  SRV.on=true;SRV.over=false;SRV.roundDone=false;SRV.snapT=0;
  return state;
 };
 // vaga que vira bot (jogador saiu) ou volta a ser jogador (voltou)
 SRV.setBot=function(slot,on){
  if(!(slot>=0&&slot<SRV.n))return;
- SRV.bot[slot]=!!on;const a=SL[slot];if(a){a.cwBot=!!on&&!!SRV.coroa;if(on){a.bot=null;a.guard=false}}
+ SRV.bot[slot]=!!on;const a=SL[slot];if(a){a.srvBot=!!on;a.cwBot=!!on&&!!SRV.coroa;if(on){a.bot=null;a.guard=false}}
  if(!on){const i=SRV.inp[slot];i.x=i.y=i.l=i.g=0}
 };
 // o que um jogador que volta precisa saber (placar dos rounds, time do Trio...)
@@ -103,7 +103,7 @@ SRV.act=function(slot,m){
  * mas sem golpes nem efeitos. "depth" evita repetir as chamadas internas que uma habilidade faz. */
 let depthBot=0;
 const botSlot=a=>{const i=SL.indexOf(a);return i>=0&&SRV.bot[i]?i:-1};
-for(const f of ['cast','rwBeginCharge','rwReleaseCharge']){
+for(const f of ['cast','rwBeginCharge','rwReleaseCharge','itemUse']){
  const prev=window[f];if(typeof prev!=='function')continue;
  window[f]=function(a,...args){
   const i=depthBot===0?botSlot(a):-1;
@@ -162,6 +162,7 @@ finish=function(){
 SRV.tick=function(dt){step(dt)};
 // só nos testes (TESTE=1 no servidor): ajusta a vida para acabar a rodada rápido
 SRV.debug=function(m){
+ if(m.item&&SL[m.item[0]]&&window.ItensV85)ItensV85.equip(SL[m.item[0]],m.item[1]||null);   // (testes) define o item de uma vaga
  if(m.tp){const a=SL[m.tp[0]];if(a){a.x=m.tp[1];a.y=m.tp[2]}}   // teleporta uma vaga (testes)
  if(m.kill!=null&&SL[m.kill]){const v=SL[m.kill];v.lastHitBy=m.by!=null?SL[m.by]:null;v.hp=0}
  if(m.time!=null)time=+m.time;if(m.hp0!=null)p.hp=+m.hp0;if(m.hp1!=null)b.hp=+m.hp1;if(m.hps)SL.forEach((a,i)=>{if(m.hps[i]!=null)a.hp=+m.hps[i]})};
