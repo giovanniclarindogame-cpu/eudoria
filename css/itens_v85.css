@@ -69,3 +69,7 @@
 /* a fileira de ícones do campeão ganhou o 7º botão (o item): deixa a fileira um pouco mais larga */
 #heroDetail .hero-kit:has(.item85-slot){grid-template-columns:repeat(7,minmax(0,1fr));max-width:460px;gap:9px}
 #heroDetail .hero-kit .item85-slot small{bottom:-7px}
+
+/* aviso de itens grátis */
+.it85-free{padding:3px 10px;border-radius:999px;border:2px solid #7dff9a;background:rgba(20,80,50,.55);font:900 10px/1.4 system-ui;letter-spacing:.06em;color:#bfffd0;white-space:nowrap}
+@media (max-height:430px){.it85-free{font-size:9px;padding:2px 8px}}

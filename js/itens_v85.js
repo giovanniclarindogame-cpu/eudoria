@@ -39,6 +39,7 @@ const $q=s=>document.querySelector(s);
 const SERVIDOR=()=>!!window.__SRV;
 
 /* ---------------------------------------------------------------- conta */
+const GRATIS=window.ITENS_GRATIS===true&&!/[?&]itenspagos=1/.test(location.search);   // liberado de graça por enquanto (config_teste.js); não grava posse na conta
 function conta(){
  if(typeof account==='undefined'||!account)return null;
  let I=account.itens;if(!I||typeof I!=='object'){I=account.itens={tem:{},eq:{}}}
@@ -47,11 +48,11 @@ function conta(){
  return I;
 }
 const salvar=()=>{try{saveAccount()}catch{}};
-const tem=id=>{const I=conta();return !!(I&&I.tem[id])};
-function eqDe(hero){const I=conta();const id=I&&I.eq[hero];return id&&BY[id]&&I.tem[id]?id:null}
-function equipar(hero,id){const I=conta();if(!I)return false;if(id==null){delete I.eq[hero];salvar();return true}if(!BY[id]||!I.tem[id])return false;I.eq[hero]=id;salvar();return true}
+const tem=id=>{if(GRATIS)return !!BY[id];const I=conta();return !!(I&&I.tem[id])};
+function eqDe(hero){const I=conta();const id=I&&I.eq[hero];return id&&BY[id]&&tem(id)?id:null}
+function equipar(hero,id){const I=conta();if(!I)return false;if(id==null){delete I.eq[hero];salvar();return true}if(!BY[id]||!tem(id))return false;I.eq[hero]=id;salvar();return true}
 function comprar(id){
- const I=conta(),d=BY[id];if(!I||!d||I.tem[id])return false;
+ const I=conta(),d=BY[id];if(!I||!d||GRATIS||I.tem[id])return false;
  if(account.coins<d.preco)return false;
  account.coins-=d.preco;I.tem[id]=true;salvar();return true;
 }
@@ -423,7 +424,7 @@ function detalhe(){
  const D=$q('#it85Det');if(!D)return;
  const d=itemSel&&BY[itemSel];
  if(!d){D.innerHTML='<p class="it85-hint">Toque em um item para ver o efeito.</p>';return}
- const I=conta(),eq=eqDe(heroSel)===d.id,tm=!!I.tem[d.id];
+ const eq=eqDe(heroSel)===d.id,tm=tem(d.id);
  let acao;
  if(eq)acao='<button class="it85-btn2 sec" data-it85="remover">Remover do campeão</button>';
  else if(tm)acao=`<button class="it85-btn2 go" data-it85="equipar">Equipar</button>`;
@@ -436,7 +437,7 @@ function detalhe(){
 }
 function grade(){
  const I=conta(),G=$q('#itens85 .it85-grid');if(!G)return;
- G.innerHTML=ITENS.map(d=>{const tm=!!I.tem[d.id],eq=eqDe(heroSel)===d.id;
+ G.innerHTML=ITENS.map(d=>{const tm=tem(d.id),eq=eqDe(heroSel)===d.id;
   return `<button type="button" class="it85-cell ${d.rar} ${tm?'tem':'lock'} ${eq?'eq':''} ${itemSel===d.id?'sel':''}" data-it85-item="${d.id}" aria-label="${esc(d.n)}">${icone(d)}<small>${esc(d.n)}</small>${tm?'':`<i>◉ ${d.preco}</i>`}${eq?'<em>✓</em>':''}</button>`}).join('');
  const m=$q('#itens85 .it85-coin');if(m)m.textContent='◉ '+account.coins;
 }
@@ -445,7 +446,7 @@ function abrir(hero){
  let M=$q('#itens85');if(M)M.remove();
  M=document.createElement('div');M.id='itens85';M.className='it85';M.setAttribute('role','dialog');M.setAttribute('aria-modal','true');M.setAttribute('aria-label','Acessório do campeão');
  let nome='';try{nome=CHAMPIONS[heroSel].name}catch{}
- M.innerHTML=`<div class="it85-box"><header><b>ACESSÓRIO · ${esc(nome)}</b><span class="it85-coin"></span><button type="button" class="it85-x" data-it85="fechar" aria-label="Fechar">✕</button></header>
+ M.innerHTML=`<div class="it85-box"><header><b>ACESSÓRIO · ${esc(nome)}</b>${GRATIS?'<span class="it85-free">🎁 TODOS GRÁTIS POR ENQUANTO</span>':''}<span class="it85-coin"></span><button type="button" class="it85-x" data-it85="fechar" aria-label="Fechar">✕</button></header>
   <div class="it85-body"><div class="it85-grid"></div><aside id="it85Det"></aside></div></div>`;
  document.body.appendChild(M);grade();detalhe();
 }
@@ -466,5 +467,5 @@ document.addEventListener('click',e=>{
 },true);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$q('#itens85'))fechar()});
 
-window.ItensV85={ITENS,BY,RAR,conta,tem,eqDe,equipar,comprar,equip,usar,use:usar,abrir,fechar,mod,DEC,AUR,GONE,BRK,SMK,sorteia,botDesejo,IDS:ITENS.map(d=>d.id),icone};
+window.ItensV85={GRATIS,ITENS,BY,RAR,conta,tem,eqDe,equipar,comprar,equip,usar,use:usar,abrir,fechar,mod,DEC,AUR,GONE,BRK,SMK,sorteia,botDesejo,IDS:ITENS.map(d=>d.id),icone};
 })();
