@@ -71,12 +71,14 @@ const foeNear=(a,r)=>{let best=null,bd=r;for(const e of opponents(a)){if(e.hp<=0
 // ---- arte pintada dos efeitos (folhas 6 colunas, quadros de 320 px): auras de categoria e o Boneco Kon ----
 const IMG={},CEL=320;
 function img(n){let o=IMG[n];if(!o){o=IMG[n]={im:new Image(),ok:false};o.im.onload=()=>{o.ok=o.im.naturalWidth>0};o.im.src='assets/itens_v85/'+n+'.webp?v=1'}return o}
-try{if(typeof Image!=='undefined'){img('auras');img('kon');img('escudo')}}catch{}
+try{if(typeof Image!=='undefined'){img('auras');img('kon');img('escudo');img('tronco')}}catch{}
 function quadro(n,linha,col,cx,cy,lado,ax=.5,ay=.5){const o=IMG[n];if(!o||!o.ok)return false;ctx.drawImage(o.im,col*CEL,linha*CEL,CEL,CEL,cx-lado*ax,cy-lado*ay,lado,lado);return true}
+const LOG_T=1.8,SMK=[];   // o tronco dura 1,8 s: aparece (0,55 s), fica parado e some em fumaça (últimos 0,6 s)
 const AUR=[],GONE=[],BRK=[],LINHA={cura:0,defesa:1,ataque:2,util:3};
 let CUR=null;   // categoria do item que está sendo usado agora (para a aura)
 function aura(a,cat){const o=IMG.auras;if(!o||!o.ok||LINHA[cat]==null)return false;AUR.push({a,row:LINHA[cat],t0:clock});return true}
-const usaFx=(a,cor,txt,cat=CUR)=>{try{const arte=cat&&aura(a,cat);if(!arte)ring(a.x,a.y,36,cor,.45);spark(a.x,a.y,cor,arte?6:10);if(txt)float(a.x,a.y-52,txt,cor)}catch{}};
+const usaFx=(a,cor,txt,cat=CUR)=>{try{if(cat===false){if(txt)float(a.x,a.y-52,txt,cor);return}   // cat=false: o item tem efeito visual próprio (ex.: a fumaça do Tronco)
+ const arte=cat&&aura(a,cat);if(!arte)ring(a.x,a.y,36,cor,.45);spark(a.x,a.y,cor,arte?6:10);if(txt)float(a.x,a.y-52,txt,cor)}catch{}};
 const DEC=[];   // iscas (Boneco Kon)
 
 const EF={
@@ -89,7 +91,7 @@ const EF={
  tronco(a){
   const e=foeNear(a,600),ang=e?Math.atan2(a.y-e.y,a.x-e.x):(a.a||0)+Math.PI,x0=a.x,y0=a.y;
   a.inv=Math.max(a.inv||0,.6);a.root=0;move(a,Math.cos(ang)*150,Math.sin(ang)*150);
-  (a.ix.logs=a.ix.logs||[]).push({x:x0,y:y0,t:1.4});usaFx(a,'#c9a46a','SUBSTITUIÇÃO');return true;
+  (a.ix.logs=a.ix.logs||[]).push({x:x0,y:y0,t:LOG_T,t0:clock});SMK.push({x:a.x,y:a.y,t0:clock});usaFx(a,'#c9a46a','SUBSTITUIÇÃO',IMG.tronco&&IMG.tronco.ok?false:undefined);return true;   // o tronco fica onde o herói estava; a fumaça de chegada aparece onde ele pousou
  },
  cantil(a){a.root=0;a.slow=0;a.guardBreak=0;a.knockedDown=false;addMod(a,'taken','cantil',.7,2);usaFx(a,'#ffb35a','CANTIL');return true},
  pesos(a){addMod(a,'spd','pesos',1.25,5);addMod(a,'dmg','pesos',1.15,5);depois(a,5,()=>addMod(a,'spd','cansado',.8,1.5));usaFx(a,'#ffd45a','SEM PESOS');return true},
@@ -219,6 +221,7 @@ function tickDec(dt){
  for(let i=GONE.length-1;i>=0;i--)if(clock-GONE[i].t0>.62)GONE.splice(i,1);
  for(let i=AUR.length-1;i>=0;i--)if(clock-AUR[i].t0>.8)AUR.splice(i,1);
  for(let i=BRK.length-1;i>=0;i--)if(clock-BRK[i].t0>.65)BRK.splice(i,1);
+ for(let i=SMK.length-1;i>=0;i--)if(clock-SMK[i].t0>.65)SMK.splice(i,1);
 }
 // Escudo do Dragão pintado: surge (linha 0), fica ativo em loop (1), pisca ao absorver golpe (2) e quebra (3); a folha olha para a direita e gira com o herói
 const ESC_L=172;
@@ -241,6 +244,16 @@ function paintQuebra(g){
  else{ctx.globalAlpha=Math.max(0,1-age/.3);quadro('escudo',1,Math.floor(clock*7)%6,0,0,ESC_L)}
  ctx.restore();
 }
+// Tronco de Substituição pintado: cai em fumaça (linha 0), parado (1), some em fumaça (2); a fumaça de chegada (3) aparece onde o herói pousa
+function paintTronco(L){
+ const o=IMG.tronco;
+ if(!o||!o.ok){ctx.save();ctx.translate(L.x,L.y);ctx.globalAlpha=Math.min(1,L.t/.4);ctx.fillStyle='#6b4a2b';ctx.fillRect(-14,-6,28,12);ctx.fillStyle='#8a6338';ctx.fillRect(-14,-6,28,3);ctx.restore();return}
+ const age=clock-L.t0;let row=1,col=Math.floor(clock*6)%6;
+ if(age<.55){row=0;col=Math.min(5,Math.floor(age/.092))}
+ else if(L.t<.6){row=2;col=Math.min(5,Math.floor((.6-L.t)/.1))}
+ ctx.save();ctx.translate(L.x,L.y+14);quadro('tronco',row,col,0,0,128,.5,.88);ctx.restore();
+}
+function paintFumaca(s){ctx.save();ctx.translate(s.x,s.y+10);quadro('tronco',3,Math.min(5,Math.floor((clock-s.t0)/.1)),0,0,128,.5,.7);ctx.restore()}
 // Boneco Kon pintado: aparece (linha 1), fica parado (0), leva golpe (3) e some (2); olha para o rival
 function paintKon(d,gone){
  const o=IMG.kon;
@@ -331,12 +344,13 @@ integratedDepth=function(){
  const list=prevDepth.apply(this,arguments);
  try{
   for(const d of DEC)list.push({kind:'itemdecoy',y:d.y,priority:1,paint(){paintKon(d,false)}});
+  for(const s of SMK)list.push({kind:'itemsmoke',y:s.y+2,priority:3,paint(){paintFumaca(s)}});
   for(const g of BRK)list.push({kind:'itembreak',y:g.y+1,priority:3,paint(){paintQuebra(g)}});
   for(const g of GONE)list.push({kind:'itemgone',y:g.y,priority:1,paint(){paintKon(g,true)}});
   for(const u of AUR){const a=u.a;if(!a||a.hp<=0)continue;list.push({kind:'itemaura',y:a.y+3,priority:3,paint(){const f=Math.min(5,Math.floor((clock-u.t0)/.13));ctx.save();ctx.globalCompositeOperation='lighter';quadro('auras',u.row,f,a.x,a.y+12,230,.5,.6);ctx.restore()}})}
   for(const a of actors){
    const X=a.ix;if(!X||a.hp<=0)continue;
-   if(X.logs)for(const L of X.logs)list.push({kind:'itemlog',y:L.y,priority:1,paint(){ctx.save();ctx.translate(L.x,L.y);ctx.globalAlpha=Math.min(1,L.t/.4);ctx.fillStyle='#6b4a2b';ctx.fillRect(-14,-6,28,12);ctx.fillStyle='#8a6338';ctx.fillRect(-14,-6,28,3);ctx.fillStyle='#4a321c';ctx.fillRect(-14,3,28,3);ctx.restore()}});
+   if(X.logs)for(const L of X.logs)list.push({kind:'itemlog',y:L.y,priority:1,paint(){paintTronco(L)}});
    if(X.barrier&&X.barrier.hp>0)list.push({kind:'itembarrier',y:a.y+1,priority:3,paint(){paintEscudo(a,X.barrier)}});
    if(X.mods&&X.mods['taken:caderno']&&X.mods['taken:caderno'].t>0)list.push({kind:'itemmark',y:a.y+2,priority:3,paint(){ctx.save();ctx.translate(a.x,a.y-6);ctx.strokeStyle='#ff9ad0';ctx.globalAlpha=.6+.3*Math.sin(clock*10);ctx.lineWidth=2;ctx.setLineDash([6,5]);ctx.lineDashOffset=-clock*30;ctx.beginPath();ctx.arc(0,0,30,0,6.2832);ctx.stroke();ctx.restore()}});
    if(X.burn)list.push({kind:'itemburn',y:a.y,priority:3,paint(){ctx.save();ctx.translate(a.x,a.y);ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.25;ctx.fillStyle='#ff7a2a';ctx.beginPath();ctx.arc(0,0,110,0,6.2832);ctx.fill();ctx.restore()}});
@@ -452,5 +466,5 @@ document.addEventListener('click',e=>{
 },true);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$q('#itens85'))fechar()});
 
-window.ItensV85={ITENS,BY,RAR,conta,tem,eqDe,equipar,comprar,equip,usar,use:usar,abrir,fechar,mod,DEC,AUR,GONE,BRK,sorteia,botDesejo,IDS:ITENS.map(d=>d.id),icone};
+window.ItensV85={ITENS,BY,RAR,conta,tem,eqDe,equipar,comprar,equip,usar,use:usar,abrir,fechar,mod,DEC,AUR,GONE,BRK,SMK,sorteia,botDesejo,IDS:ITENS.map(d=>d.id),icone};
 })();
