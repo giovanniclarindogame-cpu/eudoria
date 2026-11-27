@@ -11,7 +11,7 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  await p.waitForFunction(()=>state==='fight',null,{timeout:25000});await p.waitForTimeout(1500);
  ok(await p.evaluate(()=>new Promise(r=>{const t=setInterval(()=>{const ok=[...document.images].length>=0;r(true)},50)})),'(preparo) luta em andamento');
  // espia o desenho das folhas
- await p.evaluate(()=>{window.__rows={};const od=CanvasRenderingContext2D.prototype.drawImage;CanvasRenderingContext2D.prototype.drawImage=function(im,sx,sy){if(im&&im.src){const m=/itens_v85\/(auras|kon)\.webp/.exec(im.src);if(m){const k=m[1];(window.__rows[k]=window.__rows[k]||{});const r=Math.round(sy/320),c=Math.round(sx/320);(window.__rows[k][r]=window.__rows[k][r]||new Set()).add(c)}}return od.apply(this,arguments)}});
+ await p.evaluate(()=>{window.__rows={};const od=CanvasRenderingContext2D.prototype.drawImage;CanvasRenderingContext2D.prototype.drawImage=function(im,sx,sy){if(im&&im.src){const m=/itens_v85\/(auras|kon|escudo)\.webp/.exec(im.src);if(m){const k=m[1];(window.__rows[k]=window.__rows[k]||{});const r=Math.round(sy/320),c=Math.round(sx/320);(window.__rows[k][r]=window.__rows[k][r]||new Set()).add(c)}}return od.apply(this,arguments)}});
  const prep=async id=>{await p.evaluate(id=>{ItensV85.equip(p,id);ItensV85.equip(b,null);p.hp=p.max=1000;p.inv=999;p.x=300;p.y=300;b.x=640;b.y=300;p.cd.fill(0)},id)};
  const usa=async id=>{await prep(id);await p.evaluate(id=>window.itemUse(p,ItensV85.BY[id].idx),id);await p.waitForTimeout(950)};
  // auras: uma por categoria
@@ -45,5 +45,24 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  ok(kon[3]>=2,'Kon reage ao golpe (linha 3)');
  ok(kon[2]>=3,'Kon some em fumaça no fim (linha 2)');
  ok(await p.evaluate(()=>ItensV85.DEC.length===0&&ItensV85.GONE.length===0),'tudo é limpo depois que ele some');
+ // Escudo do Dragão
+ await p.evaluate(()=>{window.__rows={}});
+ await prep('escudo');await p.evaluate(()=>{p.a=0;window.itemUse(p,ItensV85.BY.escudo.idx)});await p.waitForTimeout(800);
+ await p.screenshot({path:'/tmp/claude-0/arte_esc0.png',clip:{x:150,y:120,width:400,height:220}});
+ await p.evaluate(()=>{p.inv=0;hit(p,40,b,0,0);p.inv=999});await p.waitForTimeout(200);
+ await p.screenshot({path:'/tmp/claude-0/arte_esc1.png',clip:{x:150,y:120,width:400,height:220}});
+ await p.waitForTimeout(500);
+ const ativo=await p.evaluate(()=>!!(p.ix.barrier&&p.ix.barrier.hp>0));
+ await p.evaluate(()=>{p.inv=0;hit(p,300,b,0,0);p.inv=999});await p.waitForTimeout(250);
+ await p.screenshot({path:'/tmp/claude-0/arte_esc2.png',clip:{x:150,y:120,width:400,height:220}});
+ await p.waitForTimeout(900);
+ const esc=await p.evaluate(()=>Object.fromEntries(Object.entries(window.__rows.escudo||{}).map(([k,v])=>[k,[...v].length])));
+ console.log('ESCUDO',JSON.stringify(esc),'ativo após 1º golpe:',ativo);
+ ok(ativo,'o escudo continua de pé depois de absorver um golpe leve');
+ ok(esc[0]>=3,'o escudo surge desenhando o arco (linha 0)');
+ ok(esc[1]>=3,'o escudo fica ativo em loop (linha 1)');
+ ok(esc[2]>=2,'o escudo brilha ao absorver um golpe (linha 2)');
+ ok(esc[3]>=3,'o escudo se estilhaça quando a proteção acaba (linha 3)');
+ ok(await p.evaluate(()=>ItensV85.BRK.length===0&&!p.ix.barrier),'tudo é limpo depois da quebra');
  ok(errs.length===0,'nenhum erro de JavaScript '+errs.slice(0,2));
  await b.close()})();
