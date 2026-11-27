@@ -11,7 +11,7 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  await p.waitForFunction(()=>state==='fight',null,{timeout:25000});await p.waitForTimeout(1500);
  ok(await p.evaluate(()=>new Promise(r=>{const t=setInterval(()=>{const ok=[...document.images].length>=0;r(true)},50)})),'(preparo) luta em andamento');
  // espia o desenho das folhas
- await p.evaluate(()=>{window.__rows={};const od=CanvasRenderingContext2D.prototype.drawImage;CanvasRenderingContext2D.prototype.drawImage=function(im,sx,sy){if(im&&im.src){const m=/itens_v85\/(auras|kon|escudo)\.webp/.exec(im.src);if(m){const k=m[1];(window.__rows[k]=window.__rows[k]||{});const r=Math.round(sy/320),c=Math.round(sx/320);(window.__rows[k][r]=window.__rows[k][r]||new Set()).add(c)}}return od.apply(this,arguments)}});
+ await p.evaluate(()=>{window.__rows={};const od=CanvasRenderingContext2D.prototype.drawImage;CanvasRenderingContext2D.prototype.drawImage=function(im,sx,sy){if(im&&im.src){const m=/itens_v85\/(auras|kon|escudo|tronco)\.webp/.exec(im.src);if(m){const k=m[1];(window.__rows[k]=window.__rows[k]||{});const r=Math.round(sy/320),c=Math.round(sx/320);(window.__rows[k][r]=window.__rows[k][r]||new Set()).add(c)}}return od.apply(this,arguments)}});
  const prep=async id=>{await p.evaluate(id=>{ItensV85.equip(p,id);ItensV85.equip(b,null);p.hp=p.max=1000;p.inv=999;p.x=300;p.y=300;b.x=640;b.y=300;p.cd.fill(0)},id)};
  const usa=async id=>{await prep(id);await p.evaluate(id=>window.itemUse(p,ItensV85.BY[id].idx),id);await p.waitForTimeout(950)};
  // auras: uma por categoria
@@ -64,5 +64,17 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  ok(esc[2]>=2,'o escudo brilha ao absorver um golpe (linha 2)');
  ok(esc[3]>=3,'o escudo se estilhaça quando a proteção acaba (linha 3)');
  ok(await p.evaluate(()=>ItensV85.BRK.length===0&&!p.ix.barrier),'tudo é limpo depois da quebra');
+ // Tronco de Substituição
+ await p.evaluate(()=>{window.__rows={}});
+ await prep('tronco');await p.evaluate(()=>window.itemUse(p,ItensV85.BY.tronco.idx));await p.waitForTimeout(350);
+ await p.screenshot({path:'/tmp/claude-0/arte_tr0.png',clip:{x:60,y:120,width:480,height:220}});
+ await p.waitForTimeout(1800);
+ const tr=await p.evaluate(()=>Object.fromEntries(Object.entries(window.__rows.tronco||{}).map(([k,v])=>[k,[...v].length])));
+ console.log('TRONCO',JSON.stringify(tr));
+ ok(tr[0]>=4,'o tronco cai em fumaça (linha 0)');
+ ok(tr[1]>=2,'o tronco fica parado, com a folha e a fumaça mexendo (linha 1)');
+ ok(tr[2]>=4,'o tronco some em fumaça (linha 2)');
+ ok(tr[3]>=4,'a fumaça de chegada aparece onde o herói pousou (linha 3)');
+ ok(await p.evaluate(()=>(p.ix.logs||[]).length===0&&ItensV85.SMK.length===0),'tudo é limpo depois');
  ok(errs.length===0,'nenhum erro de JavaScript '+errs.slice(0,2));
  await b.close()})();
