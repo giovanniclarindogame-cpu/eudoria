@@ -71,9 +71,9 @@ const foeNear=(a,r)=>{let best=null,bd=r;for(const e of opponents(a)){if(e.hp<=0
 // ---- arte pintada dos efeitos (folhas 6 colunas, quadros de 320 px): auras de categoria e o Boneco Kon ----
 const IMG={},CEL=320;
 function img(n){let o=IMG[n];if(!o){o=IMG[n]={im:new Image(),ok:false};o.im.onload=()=>{o.ok=o.im.naturalWidth>0};o.im.src='assets/itens_v85/'+n+'.webp?v=1'}return o}
-try{if(typeof Image!=='undefined'){img('auras');img('kon')}}catch{}
+try{if(typeof Image!=='undefined'){img('auras');img('kon');img('escudo')}}catch{}
 function quadro(n,linha,col,cx,cy,lado,ax=.5,ay=.5){const o=IMG[n];if(!o||!o.ok)return false;ctx.drawImage(o.im,col*CEL,linha*CEL,CEL,CEL,cx-lado*ax,cy-lado*ay,lado,lado);return true}
-const AUR=[],GONE=[],LINHA={cura:0,defesa:1,ataque:2,util:3};
+const AUR=[],GONE=[],BRK=[],LINHA={cura:0,defesa:1,ataque:2,util:3};
 let CUR=null;   // categoria do item que está sendo usado agora (para a aura)
 function aura(a,cat){const o=IMG.auras;if(!o||!o.ok||LINHA[cat]==null)return false;AUR.push({a,row:LINHA[cat],t0:clock});return true}
 const usaFx=(a,cor,txt,cat=CUR)=>{try{const arte=cat&&aura(a,cat);if(!arte)ring(a.x,a.y,36,cor,.45);spark(a.x,a.y,cor,arte?6:10);if(txt)float(a.x,a.y-52,txt,cor)}catch{}};
@@ -84,7 +84,7 @@ const EF={
  doce(a){const X=a.ix;X.hot={rate:a.max*.2/5,t:5};usaFx(a,'#ffb6e0','DOCE');return true},
  carne(a){heal(a,a.max*.15);addMod(a,'spd','carne',1.1,5);usaFx(a,'#e9a46a','CARNE');return true},
  sangue(a){addMod(a,'ls','sangue',.08,8);usaFx(a,'#ff6a7a','VAMPIRISMO');return true},
- escudo(a){a.ix.barrier={hp:150,t:2};usaFx(a,'#8fd2ff','ESCUDO');return true},
+ escudo(a){a.ix.barrier={hp:150,t:2,t0:clock,hitAt:null};usaFx(a,'#8fd2ff','ESCUDO');return true},
  chapeu(a){addMod(a,'taken','chapeu',.85,4);addMod(a,'noknock','chapeu',0,4);a.guardBreak=0;usaFx(a,'#ffd45a','CHAPÉU');return true},
  tronco(a){
   const e=foeNear(a,600),ang=e?Math.atan2(a.y-e.y,a.x-e.x):(a.a||0)+Math.PI,x0=a.x,y0=a.y;
@@ -188,7 +188,7 @@ function tick(a,dt){
  if(state==='fight'){
   if(it&&it.cd>0)it.cd=Math.max(0,it.cd-dt);
   if(X.hot){const d=Math.min(dt,X.hot.t);heal(a,X.hot.rate*d);X.hot.t-=dt;if(X.hot.t<=0)X.hot=null}
-  if(X.barrier){X.barrier.t-=dt;if(X.barrier.t<=0||X.barrier.hp<=0)X.barrier=null}
+  if(X.barrier){X.barrier.t-=dt;if(X.barrier.t<=0||X.barrier.hp<=0){const B=X.barrier;if(IMG.escudo&&IMG.escudo.ok)BRK.push({x:a.x,y:a.y,ang:a.a||0,t0:clock,broke:B.hp<=0});X.barrier=null}}
   if(X.ccImune>0)X.ccImune-=dt;
   if(X.noUlt>0)X.noUlt-=dt;
   const cdr=mod(a,'cd')-1;
@@ -218,6 +218,28 @@ function tickDec(dt){
  }
  for(let i=GONE.length-1;i>=0;i--)if(clock-GONE[i].t0>.62)GONE.splice(i,1);
  for(let i=AUR.length-1;i>=0;i--)if(clock-AUR[i].t0>.8)AUR.splice(i,1);
+ for(let i=BRK.length-1;i>=0;i--)if(clock-BRK[i].t0>.65)BRK.splice(i,1);
+}
+// Escudo do Dragão pintado: surge (linha 0), fica ativo em loop (1), pisca ao absorver golpe (2) e quebra (3); a folha olha para a direita e gira com o herói
+const ESC_L=172;
+function paintEscudo(a,B){
+ const o=IMG.escudo;
+ if(!o||!o.ok){ctx.save();ctx.translate(a.x,a.y);ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.35+.35*Math.sin(clock*18);ctx.strokeStyle='#8fd2ff';ctx.lineWidth=5;ctx.beginPath();ctx.arc(0,0,34,(a.a||0)-1.1,(a.a||0)+1.1);ctx.stroke();ctx.lineWidth=2;ctx.strokeStyle='#fff';ctx.stroke();ctx.restore();return}
+ const age=clock-B.t0,fim=B.t<.3?Math.max(0,B.t/.3):1;
+ let row=1,col=Math.floor(clock*7)%6,hit=B.hitAt!=null&&clock-B.hitAt<.6;
+ if(age<.5){row=0;col=Math.min(5,Math.floor(age/.083))}
+ else if(hit){row=2;col=Math.min(5,Math.floor((clock-B.hitAt)/.1))}
+ ctx.save();ctx.translate(a.x,a.y);ctx.rotate(a.a||0);
+ ctx.globalAlpha=.9*fim;quadro('escudo',row,col,0,0,ESC_L);
+ ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.4*fim;quadro('escudo',row,col,0,0,ESC_L);   // brilho de energia por cima
+ if(hit){const k=(clock-B.hitAt)/.6,x=ESC_L*.455,g=ctx.createRadialGradient(x,0,1,x,0,26+k*26);g.addColorStop(0,'rgba(255,255,230,'+(.9*(1-k))+')');g.addColorStop(.5,'rgba(150,255,210,'+(.5*(1-k))+')');g.addColorStop(1,'rgba(150,255,210,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,0,52,0,6.2832);ctx.fill()}
+ ctx.restore();
+}
+function paintQuebra(g){
+ const age=clock-g.t0;ctx.save();ctx.translate(g.x,g.y);ctx.rotate(g.ang);
+ if(g.broke){quadro('escudo',3,Math.min(5,Math.floor(age/.1)),0,0,ESC_L)}
+ else{ctx.globalAlpha=Math.max(0,1-age/.3);quadro('escudo',1,Math.floor(clock*7)%6,0,0,ESC_L)}
+ ctx.restore();
 }
 // Boneco Kon pintado: aparece (linha 1), fica parado (0), leva golpe (3) e some (2); olha para o rival
 function paintKon(d,gone){
@@ -268,7 +290,7 @@ hit=function(t,n,owner,knock=0,angle=0,id){
   const B=tx.barrier;
   if(B&&B.hp>0&&B.t>0&&owner&&typeof t.a==='number'){
    const inc=Math.atan2(owner.y-t.y,owner.x-t.x),front=Math.abs(Math.atan2(Math.sin(inc-t.a),Math.cos(inc-t.a)))<1.3;
-   if(front){const ab=Math.min(n,B.hp);B.hp-=ab;n-=ab;try{float(t.x,t.y-46,'ESCUDO '+Math.round(ab),'#8fd2ff');ring(t.x+Math.cos(t.a)*22,t.y+Math.sin(t.a)*22,26,'#8fd2ff',.25)}catch{}if(n<=0.5)return true}
+   if(front){const ab=Math.min(n,B.hp);B.hp-=ab;B.hitAt=clock;n-=ab;try{float(t.x,t.y-46,'ESCUDO '+Math.round(ab),'#8fd2ff');ring(t.x+Math.cos(t.a)*22,t.y+Math.sin(t.a)*22,26,'#8fd2ff',.25)}catch{}if(n<=0.5)return true}
   }
  }
  // Licença de Hunter: ganha uma vida extra "de mentira" enquanto o golpe é calculado; se ela acabar, o golpe era fatal
@@ -309,12 +331,13 @@ integratedDepth=function(){
  const list=prevDepth.apply(this,arguments);
  try{
   for(const d of DEC)list.push({kind:'itemdecoy',y:d.y,priority:1,paint(){paintKon(d,false)}});
+  for(const g of BRK)list.push({kind:'itembreak',y:g.y+1,priority:3,paint(){paintQuebra(g)}});
   for(const g of GONE)list.push({kind:'itemgone',y:g.y,priority:1,paint(){paintKon(g,true)}});
   for(const u of AUR){const a=u.a;if(!a||a.hp<=0)continue;list.push({kind:'itemaura',y:a.y+3,priority:3,paint(){const f=Math.min(5,Math.floor((clock-u.t0)/.13));ctx.save();ctx.globalCompositeOperation='lighter';quadro('auras',u.row,f,a.x,a.y+12,230,.5,.6);ctx.restore()}})}
   for(const a of actors){
    const X=a.ix;if(!X||a.hp<=0)continue;
    if(X.logs)for(const L of X.logs)list.push({kind:'itemlog',y:L.y,priority:1,paint(){ctx.save();ctx.translate(L.x,L.y);ctx.globalAlpha=Math.min(1,L.t/.4);ctx.fillStyle='#6b4a2b';ctx.fillRect(-14,-6,28,12);ctx.fillStyle='#8a6338';ctx.fillRect(-14,-6,28,3);ctx.fillStyle='#4a321c';ctx.fillRect(-14,3,28,3);ctx.restore()}});
-   if(X.barrier&&X.barrier.hp>0)list.push({kind:'itembarrier',y:a.y+1,priority:3,paint(){ctx.save();ctx.translate(a.x,a.y);ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.35+.35*Math.sin(clock*18);ctx.strokeStyle='#8fd2ff';ctx.lineWidth=5;ctx.beginPath();ctx.arc(0,0,34,(a.a||0)-1.1,(a.a||0)+1.1);ctx.stroke();ctx.lineWidth=2;ctx.strokeStyle='#fff';ctx.stroke();ctx.restore()}});
+   if(X.barrier&&X.barrier.hp>0)list.push({kind:'itembarrier',y:a.y+1,priority:3,paint(){paintEscudo(a,X.barrier)}});
    if(X.mods&&X.mods['taken:caderno']&&X.mods['taken:caderno'].t>0)list.push({kind:'itemmark',y:a.y+2,priority:3,paint(){ctx.save();ctx.translate(a.x,a.y-6);ctx.strokeStyle='#ff9ad0';ctx.globalAlpha=.6+.3*Math.sin(clock*10);ctx.lineWidth=2;ctx.setLineDash([6,5]);ctx.lineDashOffset=-clock*30;ctx.beginPath();ctx.arc(0,0,30,0,6.2832);ctx.stroke();ctx.restore()}});
    if(X.burn)list.push({kind:'itemburn',y:a.y,priority:3,paint(){ctx.save();ctx.translate(a.x,a.y);ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.25;ctx.fillStyle='#ff7a2a';ctx.beginPath();ctx.arc(0,0,110,0,6.2832);ctx.fill();ctx.restore()}});
   }
@@ -429,5 +452,5 @@ document.addEventListener('click',e=>{
 },true);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$q('#itens85'))fechar()});
 
-window.ItensV85={ITENS,BY,RAR,conta,tem,eqDe,equipar,comprar,equip,usar,use:usar,abrir,fechar,mod,DEC,AUR,GONE,sorteia,botDesejo,IDS:ITENS.map(d=>d.id),icone};
+window.ItensV85={ITENS,BY,RAR,conta,tem,eqDe,equipar,comprar,equip,usar,use:usar,abrir,fechar,mod,DEC,AUR,GONE,BRK,sorteia,botDesejo,IDS:ITENS.map(d=>d.id),icone};
 })();
