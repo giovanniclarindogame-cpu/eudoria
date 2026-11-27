@@ -27,6 +27,7 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  ok(await p.evaluate(()=>/Comprar · ◉ 1500/.test(document.querySelector('.it85-acts').innerText)),'item não comprado mostra o preço');
  await p.click('[data-it85-item=licenca]');await p.waitForTimeout(150);
  ok(await p.evaluate(()=>/Faltam ◉ 1500/.test(document.querySelector('.it85-acts').innerText)),'sem moedas suficientes o botão avisa quanto falta');
+ ok(await p.evaluate(()=>{const t=document.querySelector('#it85Det').innerText;return !/Bleach|Naruto|Dragon Ball|One Piece|Jujutsu|Hunter x Hunter|Fullmetal|Boku no Hero|Cavaleiros do Zodíaco/i.test(t.split('\n').slice(0,2).join(' '))}),'a janela não mostra o nome do anime embaixo do item');
  await p.click('[data-it85-item=mascara]');await p.click('[data-it85=comprar]');await p.waitForTimeout(150);
  const c1=await p.evaluate(()=>({coins:account.coins,tem:ItensV85.tem('mascara'),btn:document.querySelector('.it85-acts').innerText}));
  ok(c1.coins===500&&c1.tem&&/Equipar/.test(c1.btn),'comprar desconta as moedas e libera o item ('+JSON.stringify(c1)+')');
