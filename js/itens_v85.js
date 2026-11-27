@@ -70,7 +70,7 @@ function depois(a,t,fn){const X=a.ix||(a.ix={});(X.later=X.later||[]).push({t,fn
 const foeNear=(a,r)=>{let best=null,bd=r;for(const e of opponents(a)){if(e.hp<=0||e.itemDecoy||e.v10Clone)continue;const d=dist(a,e);if(d<=bd){bd=d;best=e}}return best};
 // ---- arte pintada dos efeitos (folhas 6 colunas, quadros de 320 px): auras de categoria e o Boneco Kon ----
 const IMG={},CEL=320;
-function img(n){let o=IMG[n];if(!o){o=IMG[n]={im:new Image(),ok:false};o.im.onload=()=>{o.ok=o.im.naturalWidth>0};o.im.src='assets/itens_v85/'+n+'.webp?v=1'}return o}
+function img(n){let o=IMG[n];if(!o){o=IMG[n]={im:new Image(),ok:false};o.im.onload=()=>{o.ok=o.im.naturalWidth>0};o.im.src='assets/itens_v85/'+(n==='auras'?'auras':'fx_'+n)+'.webp?v=2'}return o}   // folhas de animação: fx_<nome>.webp (NUNCA o mesmo nome do ícone do item: <id>.webp)
 try{if(typeof Image!=='undefined'){img('auras');img('kon');img('escudo');img('tronco')}}catch{}
 function quadro(n,linha,col,cx,cy,lado,ax=.5,ay=.5){const o=IMG[n];if(!o||!o.ok)return false;ctx.drawImage(o.im,col*CEL,linha*CEL,CEL,CEL,cx-lado*ax,cy-lado*ay,lado,lado);return true}
 const LOG_T=1.8,SMK=[];   // o tronco dura 1,8 s: aparece (0,55 s), fica parado e some em fumaça (últimos 0,6 s)
