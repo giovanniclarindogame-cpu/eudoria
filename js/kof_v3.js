@@ -143,11 +143,29 @@ function setup(mine,foes){
 const hud=$q('#battle .hud');
 function mkStrip(cls){const d=document.createElement('div');d.className='kof-strip '+cls;d.hidden=true;hud?.appendChild(d);return d}
 const sM=mkStrip('mine'),sF=mkStrip('foe');
+function updateStrip(strip,ids,hps,current){
+ while(strip.children.length>ids.length)strip.lastElementChild.remove();
+ ids.forEach((id,i)=>{
+  let slot=strip.children[i];
+  if(!slot){
+   slot=document.createElement('span');
+   const img=document.createElement('img');img.alt='';
+   slot.append(img,document.createElement('i'));strip.appendChild(slot);
+  }
+  const image=slot.firstElementChild,src=faceOf(id);
+  if(image.getAttribute('src')!==src)image.src=src;
+  hudAttr(slot,'title',CHAMPIONS[id].name);
+  slot.classList.toggle('cur',i===current);
+  slot.classList.toggle('dead',hps[i]<=0);
+  slot.lastElementChild.style.width=Math.max(0,Math.min(100,hps[i]/10))+'%';
+ });
+}
 function drawStrips(){
  const on=M.special==='kof'&&K;
- sM.hidden=sF.hidden=!on;if(!on)return;
- const mk=(ids,hps,cur)=>ids.map((id,i)=>`<span class="${i===cur?'cur':''} ${hps[i]<=0?'dead':''}" title="${CHAMPIONS[id].name}"><img src="${faceOf(id)}" alt=""><i style="width:${Math.max(0,Math.min(100,hps[i]/10))}%"></i></span>`).join('');
- sM.innerHTML=mk(K.mine,K.hpM,K.iM);sF.innerHTML=mk(K.foes,K.hpF,K.iF);
+ hudHidden(sM,!on);hudHidden(sF,!on);
+ if(!on)return;
+ updateStrip(sM,K.mine,K.hpM,K.iM);
+ updateStrip(sF,K.foes,K.hpF,K.iF);
 }
 const prevUI=updateUI;
 updateUI=function(){prevUI();if(M.special==='kof'&&K){K.hpM[K.iM]=Math.max(0,p.hp);K.hpF[K.iF]=Math.max(0,b.hp);drawStrips()}else if(!sM.hidden)drawStrips()};
