@@ -198,7 +198,8 @@ function apply(a,d,local){
  else{a.mp=d.mp;d.cd?.forEach((v,i)=>{const id=a.kit[i];if(id!=null)a.cd[id]=v})}
  if(local){
   const e=Math.hypot(d.x-a.x,d.y-a.y);let still=true;try{still=movement().len<.06}catch{}
-  if(e>90){a.x=d.x;a.y=d.y}else if(still&&e>3){a.x+=(d.x-a.x)*.3;a.y+=(d.y-a.y)*.3}
+  // parado: encaixa rápido na posição do servidor; andando: só corrige diferença grande, e deslizando (sem teleporte visível)
+  if(e>150){a.x=d.x;a.y=d.y}else if(still&&e>3){a.x+=(d.x-a.x)*.3;a.y+=(d.y-a.y)*.3}else if(!still&&e>55){const k=e>100?.25:.12;a.x+=(d.x-a.x)*k;a.y+=(d.y-a.y)*k}
  }else{
   const lead=Math.min(.18,(S.rtt||80)/2000+.02),vx=d.mv?d.vx||0:0,vy=d.mv?d.vy||0:0;
   const T={x:d.x+vx*lead,y:d.y+vy*lead,vx,vy,age:0};if(E)E.target=T;a.a=d.a;a.guard=!!d.g;a.moving=!!d.mv;
@@ -209,7 +210,7 @@ function smoothRemote(E,dt){
  const a=E.a,t=E.target;if(!a||!t)return;
  const x0=a.x,y0=a.y;
  if(t.age<.25){t.x+=(t.vx||0)*dt;t.y+=(t.vy||0)*dt;t.age+=dt}   // continua andando entre um pacote e outro
- const k=Math.min(1,dt*18);a.x+=(t.x-a.x)*k;a.y+=(t.y-a.y)*k;
+ const k=Math.min(1,dt*14);a.x+=(t.x-a.x)*k;a.y+=(t.y-a.y)*k;   // um pouco mais macio: absorve a oscilação de chegada dos pacotes
  // a animação de andar do rival depende de "moving": vem da velocidade real do boneco a cada quadro (o valor do pacote chega 30×/s e é
  // zerado pelo jogo entre um pacote e outro, o que fazia o rival deslizar sem animação)
  const sp=Math.hypot(a.x-x0,a.y-y0)/Math.max(dt,.001);
@@ -381,4 +382,16 @@ function afterBegin(m){
 const matchEnded=()=>{try{localStorage.removeItem(O.flag)}catch{}};
 function sairParaSala(){if(M.on){matchEnded();stopMatch()}}   // a revanche começa: fecha o resultado e deixa a sala de escolha aparecer
 window.OnlineV46={sairParaSala,beginServer:m=>{begin('guest',m);afterBegin(m)},onMsg,hostGo,abort,backToLobby,hostDelay,get match(){return M}};
+})();
+/* v86 — celular mais leve na luta online: em telas de toque, a luta online desenha com resolução 1,5× (em vez de 2×), o que
+ * alivia bastante a placa de vídeo sem diferença visível no celular. Volta ao normal quando a luta online acaba. */
+(function(){
+ let antes=null,ativo=false;
+ setInterval(()=>{
+  try{
+   const on=!!(window.OnlineV46&&OnlineV46.match&&OnlineV46.match.on),toque=matchMedia('(pointer:coarse)').matches;
+   if(on&&toque&&!ativo&&!window.ecoMode){ativo=true;antes=window.renderCap;if(!(window.renderCap<=1.5)){window.renderCap=1.5;if(typeof resize==='function')resize()}}
+   else if(!on&&ativo){ativo=false;if(!window.ecoMode){window.renderCap=antes;if(typeof resize==='function')resize()}}
+  }catch{}
+ },1000);
 })();

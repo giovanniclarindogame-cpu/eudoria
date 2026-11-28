@@ -83,7 +83,7 @@ function attach(conn){
  conn.onData=d=>onMsg(d);
  S.me={...profile()};S.ready=false;S.theirReady=false;S.them=null;
  send({t:'hello',p:profile()});
- clearInterval(S.pingT);S.pingT=setInterval(()=>send({t:'ping',at:performance.now()}),2000);
+ clearInterval(S.pingT);S.rtts=[];S.pingT=setInterval(()=>send({t:'ping',at:performance.now()}),1000);
  go('lobby');
 }
 function peerConnAdapter(c){const a={pc:()=>c.peerConnection,send:o=>c.send(o),close:()=>c.close()};c.on('data',d=>a.onData?.(d));c.on('close',()=>lost('O outro jogador saiu da sala.'));c.on('error',()=>lost('A conexão caiu.'));return a}
@@ -112,7 +112,7 @@ function abrirSocket(aoHello){
   try{await window.ContaSrv?.garantir?.()}catch{}
   if(S.ws!==sock||sock.readyState!==1)return;
   sock.send(JSON.stringify({t:'hello',v:PROTO_SRV,build:window.ELDORIA_BUILD||1,sala:1,tok:TOK,conta:window.ContaSrv?.codigo?.()||undefined,p:profile()}));
-  S.pingT=setInterval(()=>send({t:'ping',at:performance.now()}),2000);
+  S.rtts=[];S.pingT=setInterval(()=>send({t:'ping',at:performance.now()}),1000);
  };
  sock.onmessage=e=>{let m;try{m=JSON.parse(e.data)}catch{return}if(S.ws===sock)onSrv(m)};
  sock.onclose=()=>{clearTimeout(timer);if(S.ws!==sock)return;if(S.conn)lost('Conexão com o servidor perdida.');else falhaSrv('Não foi possível conectar ao servidor.')};
@@ -212,7 +212,9 @@ function onMsg(m){
   case'ready':S.theirReady=!!m.v;render();if(S.role==='host')maybeStart();break;
   case'start':countdown();break;
   case'ping':send({t:'pong',at:m.at});break;
-  case'pong':S.rtt=Math.max(1,Math.round(performance.now()-m.at));updatePing();break;
+  case'pong':{   // ping = mediana das últimas 5 medidas (uma travadinha do celular não vira pico no número)
+   const v=Math.max(1,Math.round(performance.now()-m.at));(S.rtts=S.rtts||[]).push(v);if(S.rtts.length>5)S.rtts.shift();
+   const o=[...S.rtts].sort((x,y)=>x-y);S.rtt=o[o.length>>1];updatePing();break}
   case'full':S.err='Essa sala já está cheia.';cleanup();go('join');break;
   case'bye':lost(S.mode==='server'?'O rival saiu da partida.':'O outro jogador saiu da sala.');break;
   default:try{window.OnlineV46?.onMsg(m)}catch(e){console.error('[Eldoria online] luta',e)}

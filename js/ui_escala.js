@@ -34,6 +34,7 @@
  setInterval(()=>{
   if(window.ecoMode||typeof state==='undefined'||state!=='fight'||document.hidden||typeof vfxFrameCost!=='number')return;
   const cap=window.renderCap||2;
-  if(vfxFrameCost>26&&cap>1){if(++slow>=3){slow=0;window.renderCap=cap>1.5?1.5:1;if(typeof resize==='function')resize()}}else slow=0;
+  const online=!!(window.OnlineV46&&OnlineV46.match&&OnlineV46.match.on),lim=online?20:26;   // no online o limite é menor: travada do celular também atrasa o ping
+  if(vfxFrameCost>lim&&cap>1){if(++slow>=3){slow=0;window.renderCap=cap>1.5?1.5:1;if(typeof resize==='function')resize()}}else slow=0;
  },1000);
 })();
