@@ -157,9 +157,13 @@ let lastIn='';
 function sendInput(force){
  let m={x:0,y:0,len:0};try{m=movement()}catch{}
  const o={t:'in',x:r3(m.x),y:r3(m.y),l:r3(m.len),a:Math.round((p?.a||0)*100)/100,g:(p?.guard||defendHeld)?1:0};
- const k=o.x+','+o.y+','+o.a+','+o.g;
+ const k=o.x+','+o.y+','+o.l+','+o.a+','+o.g;
  if(k===lastIn&&!force)return;
- lastIn=k;M.inT=.1;(O.sendFast||O.send)(o);
+ // O servidor mantém o último comando recebido pelo WebSocket (ordenado e confiável).
+ // O canal de sala pode perder pacotes e precisa dos reenvios curtos.
+ if((O.sendFast||O.send)(o)!==false){
+  lastIn=k;M.inT=S.ws?.readyState===1 ? 0.5 : 0.1;
+ }
 }
 function trackVel(a,dt){
  if(!a||!(dt>0))return;const v=a.v47||(a.v47={x:a.x,y:a.y,vx:0,vy:0});

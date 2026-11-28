@@ -789,8 +789,8 @@ function updateTeamHud(){
     teamHudSignature=signature;
     container.innerHTML=members.map((a,i)=>`<div class="team-mini ${a.team!==p.team?'enemy-mini':''}" id="teamMini${i}">${skinPortrait(a.skin)}<div class="team-mini-data"><div class="team-mini-title"><b>${a===ally?'Aliado':'Rival '+(actors.indexOf(a)===1?'1':'2')}</b><span id="teamHp${i}"></span></div><div class="team-mini-bar"><i id="teamBar${i}"></i></div></div></div>`).join('');
   }
-  members.forEach((a,i)=>{$('#teamHp'+i).textContent=a.hp>0?Math.ceil(a.hp)+' HP':'CAIU';$('#teamBar'+i).style.width=100*Math.max(0,a.hp)/a.max+'%';$('#teamMini'+i).classList.toggle('fallen',a.hp<=0)});
-  $('#spectating').hidden=p.hp>0||state==='end';
+  members.forEach((a,i)=>{hudText($('#teamHp'+i),a.hp>0?Math.ceil(a.hp)+' HP':'CAIU');$('#teamBar'+i).style.width=100*Math.max(0,a.hp)/a.max+'%';$('#teamMini'+i).classList.toggle('fallen',a.hp<=0)});
+  hudHidden($('#spectating'),p.hp>0||state==='end');
 }
 function skillControlState(a,s){
   const cooldown=Math.max(0,a.cd[s.id]||0),recovery=Math.max(a.skillLock,a.actionRecovery,a.cast,a.punchTime);
@@ -2484,7 +2484,13 @@ function aimTargetV4(a,q,range,r=0){const angle=q.aimPoint?Math.atan2(q.aimPoint
 function gameControlV4(node){return node instanceof Element&&!!node.closest('.skill,#attack,#defend,#dodge,#stick,#arena');}
 for(const type of ['contextmenu','dragstart','selectstart'])document.addEventListener(type,e=>{if(gameControlV4(e.target))e.preventDefault();},{capture:true});
 document.addEventListener('touchstart',e=>{if(state==='fight'&&gameControlV4(e.target))e.preventDefault();},{capture:true,passive:false});
-const updateBeforeAimV4=updateUI;updateUI=function(){updateBeforeAimV4();document.querySelectorAll('.skill').forEach(el=>{el.removeAttribute('title');el.querySelectorAll('img').forEach(im=>im.draggable=false);});};
+const updateBeforeAimV4=updateUI;
+updateUI=function(){
+ updateBeforeAimV4();
+ document.querySelectorAll('.skill[title],.skill img:not([draggable="false"])').forEach(el=>{
+  if(el.matches('.skill'))el.removeAttribute('title');else el.draggable=false;
+ });
+};
 
 const wallBeforeAimV4=dojoWallPlan;
 dojoWallPlan=function(a,angle){const wall=wallBeforeAimV4(a,angle),c=aimCastContextV4;if(c?.actor===a&&c.selected.profile.wall){wall.x=c.selected.x;wall.y=c.selected.y;}return wall;};

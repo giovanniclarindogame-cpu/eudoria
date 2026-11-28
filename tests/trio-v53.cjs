@@ -14,7 +14,8 @@ const PORT=8793,SRV='ws://localhost:'+PORT;
   await pg.evaluate(h=>equipChampion(h,false),hero);return pg}
  const A=await player('Ana',2),B=await player('Beto',4);
  for(const pg of [A,B]){await pg.evaluate(()=>{InicioV40.choose('trio');showScreen('home')});await sleep(500)}
- await A.click('[data-v40-play]');await sleep(700);
+ await A.click('[data-v40-play]');
+ for(let i=0;i<50&&(await saude()).fila3!==1;i++)await sleep(100);
  ok((await saude()).fila3===1&&await A.evaluate(()=>OnlineV45.state.modo==='trio'),'o Trio entra na fila própria (fila3)');
  await B.click('[data-v40-play]');
  for(const pg of [A,B])await pg.waitForFunction(()=>OnlineV45.state.fase==='sala'&&!(document.querySelector('#onlineV45')?.hidden??true),null,{timeout:30000});
@@ -36,6 +37,11 @@ const PORT=8793,SRV='ws://localhost:'+PORT;
  ok(ka.mine.join()===timeA2.join()&&ka.foes.join()===timeB.join()&&kb.mine.join()===timeB.join()&&kb.foes.join()===timeA2.join(),`cada tela tem o seu time e o do rival (Ana ${ka.mine} × Beto ${kb.mine})`);
  ok(ka.p===ka.mine[0]&&ka.b===ka.foes[0]&&kb.p===kb.mine[0]&&kb.b===kb.foes[0],'a 1ª luta é o 1º de cada time');
  ok(await A.evaluate(()=>document.querySelectorAll('.kof-strip span').length===6&&!document.querySelector('#roundPips:not([hidden])')),'as faixas dos times (3 + 3) aparecem e o placar de rounds do duelo não entra');
+ ok(await A.evaluate(()=>{
+  const before=[...document.querySelectorAll('.kof-strip img')];updateUI();
+  const after=[...document.querySelectorAll('.kof-strip img')];
+  return before.length===6&&before.every((el,i)=>el===after[i]);
+ }),'os seis retratos são reaproveitados ao atualizar o placar');
  // derrota o 1º de Beto (slot 1): entra o 2º de Beto; Ana continua com o mesmo lutador e a vida que tinha
  await sleep(1500);
  await A.evaluate(()=>OnlineV45.send({t:'teste',hp1:0}));
