@@ -1,7 +1,7 @@
 'use strict';
 const KI_ORB_IMAGE=rwImage('assets/reforged_v10/ki-orb.webp');
 const ASTRAL_COMBO_VFX=rwImage('assets/reforged_v10/astral-combo-vfx.webp');
-const ASTRAL_WAVE_ART=Object.fromEntries(['charge','beam','impact'].map(k=>[k,rwImage('assets/reforged_v10/'+(/[?&]onda3d=1/.test(location.search)?'wave3d-':'wave-')+k+'.webp')]));   // ?onda3d=1: prévia da Onda feita em 3D no Blender
+const ASTRAL_WAVE_ART=Object.fromEntries(['charge','beam','impact'].map(k=>[k,rwImage('assets/reforged_v10/'+(/[?&]onda3d=1/.test(location.search)?'wave3d-':'wave-')+k+'.webp'+(/[?&]onda3d=1/.test(location.search)?'?v=2':''))]));   // ?onda3d=1: prévia da Onda feita em 3D no Blender
 const ASTRAL14_ART=Object.fromEntries(['body','blink','aura','solar','blast'].map(k=>[k,rwImage('assets/reforged_v10/astral14-'+k+'.webp')]));
 CHAMPION_HEROES.astral='assets/astral_v18/portrait.webp';
 const astralPreviousChampionArt=championArt;
