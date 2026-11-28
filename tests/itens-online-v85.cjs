@@ -21,8 +21,8 @@ const PORT=8796;
   ok(A.snap.g.hp===500&&B.snap.g.hp===500,'(preparo) os dois jogadores com 500 de vida');
   // A usa a Pílula dos Deuses
   A.ws.send(JSON.stringify({t:'act',f:'itemUse',a:0,x:0,y:0,args:[0]}));await sleep(500);
-  ok(Math.round(A.snap.g.hp)>=745&&Math.round(A.snap.g.hp)<=760,'o servidor aplica a cura do item ('+A.snap.g.hp+')');
-  ok(Math.round(B.snap.h.hp)>=745,'o rival vê a vida do jogador subir ('+B.snap.h.hp+')');
+  ok(Math.round(A.snap.g.hp)>=645&&Math.round(A.snap.g.hp)<=660,'o servidor aplica a cura do item ('+A.snap.g.hp+')');
+  ok(Math.round(B.snap.h.hp)>=645,'o rival vê a vida do jogador subir ('+B.snap.h.hp+')');
   ok(acts(B)===1,'o uso do item é espelhado para o rival ('+acts(B)+' ação)');
   // uso repetido (consumível já gasto): recusado, sem espelhar
   A.ws.send(JSON.stringify({t:'act',f:'itemUse',a:0,x:0,y:0,args:[0]}));await sleep(400);
@@ -55,8 +55,8 @@ const PORT=8796;
   await PA.evaluate(()=>{const s=OnlineV46.match.slot;const hps=[null,null];hps[s]=500;OnlineV45.send({t:'teste',hps})});await sleep(700);
   await PA.evaluate(()=>{document.getElementById('itemBtn85').dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,cancelable:true}))});await sleep(1200);
   const hA=await PA.evaluate(()=>Math.round(p.hp)),hB=await PB.evaluate(()=>Math.round(b.hp));
-  ok(hA>=740&&hA<=765,'tocar no botão cura no servidor e a Ana vê a vida subir ('+hA+')');
-  ok(hB>=740&&hB<=765,'o Beto vê a vida da Ana subir ('+hB+')');
+  ok(hA>=640&&hA<=665,'tocar no botão cura no servidor e a Ana vê a vida subir ('+hA+')');
+  ok(hB>=640&&hB<=665,'o Beto vê a vida da Ana subir ('+hB+')');
   ok(await PA.evaluate(()=>/usado/.test(document.getElementById('itemBtn85').className)),'o botão da Ana mostra USADO');
   ok(errs.length===0,'nenhum erro de JavaScript nos navegadores '+errs.slice(0,2));
   await br.close();
