@@ -6,7 +6,7 @@ let sanctuaryGround=null;
 for(const [key,file] of Object.entries({scene:'santuario',dummy:'fantoche',lantern:'lanterna'})){
  const im=new Image();SANCTUARY_ART[key]=im;
  im.onload=()=>{if(key!=='dummy'&&p){groundCache=null;buildArenaBackground();}};
- im.src='assets/arena_v15/'+(key==='dummy'&&/[?&]fantoche3d=1/.test(location.search)?'fantoche3d':file)+'.webp?v=2';   // ?fantoche3d=1: prévia do fantoche renderizado em 3D (Blender)
+ im.src='assets/arena_v15/'+(key==='dummy'&&/[?&]fantoche3d=1/.test(location.search)?'fantoche3d':file)+'.webp?v=3';   // ?fantoche3d=1: prévia do fantoche renderizado em 3D (Blender)
 }
 const sanctuaryBackgroundFallback=buildArenaBackground;
 buildArenaBackground=function(){
