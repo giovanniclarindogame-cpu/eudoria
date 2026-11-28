@@ -12,24 +12,24 @@ const RAR={comum:{n:'COMUM',cor:'#9fc3ff',preco:600},raro:{n:'RARO',cor:'#c58bff
 const TIPO={uso:'Consumível · 1 uso por luta',ativo:'Ativo',reativo:'Automático · 1 vez por luta'};
 const CAT={cura:'Cura',defesa:'Defesa',ataque:'Ataque',util:'Utilidade'};
 const ITENS=[
- {id:'pilula',n:'Pílula dos Deuses',o:'Dragon Ball',cat:'cura',tipo:'uso',rar:'comum',e:'💊',d:'Recupera 25% da vida na hora.'},
- {id:'doce',n:'Doce do Mestre',o:'Jujutsu Kaisen',cat:'cura',tipo:'uso',rar:'comum',e:'🍬',d:'Cura 20% da vida ao longo de 5 segundos.'},
- {id:'carne',n:'Carne com Osso',o:'One Piece',cat:'cura',tipo:'uso',rar:'comum',e:'🍖',d:'Cura 15% da vida e dá +10% de velocidade por 5 s.'},
- {id:'sangue',n:'Sangue de Atena',o:'Cavaleiros do Zodíaco',cat:'cura',tipo:'ativo',cd:60,rar:'raro',e:'🩸',d:'Por 8 s, cada golpe seu cura 8% do dano causado.'},
+ {id:'pilula',n:'Pílula dos Deuses',o:'Dragon Ball',cat:'cura',tipo:'uso',rar:'comum',e:'💊',d:'Recupera 15% da vida na hora.'},
+ {id:'doce',n:'Doce do Mestre',o:'Jujutsu Kaisen',cat:'cura',tipo:'uso',rar:'comum',e:'🍬',d:'Cura 18% da vida devagar, ao longo de 8 segundos (mais que a Pílula, porém lento).'},
+ {id:'carne',n:'Carne com Osso',o:'One Piece',cat:'cura',tipo:'uso',rar:'comum',e:'🍖',d:'Para 1 s para comer (fica parado e sem atacar) e cura 35% da vida. Se levar um golpe enquanto come, não cura.'},
+ {id:'sangue',n:'Sangue de Atena',o:'Cavaleiros do Zodíaco',cat:'cura',tipo:'ativo',cd:60,rar:'raro',e:'🩸',d:'Por 8 s, cada golpe seu cura 35% do dano causado.'},
  {id:'escudo',n:'Escudo do Dragão',o:'Cavaleiros do Zodíaco',cat:'defesa',tipo:'ativo',cd:50,rar:'comum',e:'🛡️',d:'2 s de barreira de frente que absorve até 150 de dano.'},
- {id:'chapeu',n:'Chapéu de Palha',o:'One Piece',cat:'defesa',tipo:'ativo',cd:55,rar:'raro',e:'👒',d:'Por 4 s: não é empurrado, não tem a guarda quebrada e recebe 15% menos dano.'},
+ {id:'chapeu',n:'Chapéu de Palha',o:'One Piece',cat:'defesa',tipo:'ativo',cd:55,rar:'raro',e:'👒',d:'Por 5 s: não é empurrado, não tem a guarda quebrada e recebe 25% menos dano.'},
  {id:'tronco',n:'Tronco de Substituição',o:'Naruto',cat:'defesa',tipo:'ativo',cd:45,rar:'comum',e:'🌳',d:'0,6 s de invulnerável e um salto de 150 para trás, deixando um tronco.'},
- {id:'cantil',n:'Cantil do Amanhecer',o:'Fogo',cat:'defesa',tipo:'uso',rar:'raro',e:'🍶',d:'Remove lentidão, prisão e guarda quebrada e dá 2 s com 30% menos dano.'},
- {id:'licenca',n:'Licença de Hunter',o:'Hunter x Hunter',cat:'defesa',tipo:'reativo',rar:'lendario',e:'🪪',d:'Se levar um golpe fatal, fica com 8% de vida e 1,5 s de invulnerável. A ultimate fica bloqueada por 3 s.'},
+ {id:'cantil',n:'Cantil do Amanhecer',o:'Fogo',cat:'defesa',tipo:'ativo',cd:45,rar:'raro',e:'🍶',d:'Remove lentidão, prisão e guarda quebrada e dá 4 s com 35% menos dano.'},
+ {id:'licenca',n:'Licença de Hunter',o:'Hunter x Hunter',cat:'defesa',tipo:'reativo',rar:'lendario',e:'🪪',d:'Se levar um golpe fatal, sobrevive com 1 de vida e 0,6 s de invulnerável. A ultimate fica bloqueada por 5 s.'},
  {id:'pesos',n:'Pesos de Treino',o:'Dragon Ball',cat:'ataque',tipo:'ativo',cd:60,rar:'comum',e:'🏋️',d:'Tira os pesos: 5 s de +25% de velocidade e +15% de dano, depois 1,5 s cansado.'},
- {id:'mascara',n:'Máscara Oca',o:'Bleach',cat:'ataque',tipo:'ativo',cd:70,rar:'raro',e:'👹',d:'Por 5 s: +20% de dano, mas você recebe +15% de dano.'},
- {id:'caderno',n:'Caderno de Análise',o:'Boku no Hero',cat:'ataque',tipo:'ativo',cd:60,rar:'raro',e:'📓',d:'Marca o rival mais próximo por 6 s: ele sofre +15% de dano de todas as fontes.'},
+ {id:'mascara',n:'Máscara Oca',o:'Bleach',cat:'ataque',tipo:'ativo',cd:50,rar:'raro',e:'👹',d:'Por 6 s: +30% de dano, mas você recebe +5% de dano.'},
+ {id:'caderno',n:'Caderno de Análise',o:'Boku no Hero',cat:'ataque',tipo:'ativo',cd:60,rar:'raro',e:'📓',d:'Marca o rival mais próximo por 8 s: ele sofre +15% de dano de todas as fontes.'},
  {id:'brasa',n:'Brasa Eterna',o:'Fogo',cat:'ataque',tipo:'reativo',rar:'lendario',e:'🔥',d:'Abaixo de 30% de vida: por 6 s, +20% de dano e queima quem está perto.'},
- {id:'kon',n:'Boneco Kon',o:'Bleach',cat:'util',tipo:'ativo',cd:50,rar:'raro',e:'🧸',d:'Solta uma isca que atrai os rivais por 3 s.'},
- {id:'carta',n:'Carta de Contenção',o:'Hunter x Hunter',cat:'util',tipo:'ativo',cd:60,rar:'lendario',e:'🃏',d:'Prende o rival mais próximo por 0,8 s (no máximo 0,3 s em chefes). Não prende de novo por 3 s.'},
- {id:'venda',n:'Venda Retirada',o:'Jujutsu Kaisen',cat:'util',tipo:'ativo',cd:70,rar:'raro',e:'🕶️',d:'Por 5 s, as recargas das habilidades correm 40% mais rápido.'},
- {id:'chakra',n:'Pílula de Chakra',o:'Naruto',cat:'util',tipo:'uso',rar:'lendario',e:'🌀',d:'Zera a recarga das habilidades normais (não a ultimate).'},
- {id:'relogio',n:'Relógio de Prata',o:'Fullmetal Alchemist',cat:'util',tipo:'ativo',cd:55,rar:'raro',e:'⌚',d:'Ergue uma muralha de pedra à frente por 3 s, que bloqueia movimento e projéteis.'}
+ {id:'kon',n:'Boneco Kon',o:'Bleach',cat:'util',tipo:'ativo',cd:50,rar:'raro',e:'🧸',d:'Solta uma isca que atrai os rivais por 3 s. Quando ela some ou é destruída, estoura em fumaça e deixa lento quem está perto por 2 s.'},
+ {id:'carta',n:'Carta de Contenção',o:'Hunter x Hunter',cat:'util',tipo:'ativo',cd:60,rar:'lendario',e:'🃏',d:'Prende o rival mais próximo por 1 s e causa 60 de dano (no máximo 0,3 s preso em chefes). Não prende de novo por 3 s.'},
+ {id:'venda',n:'Venda Retirada',o:'Jujutsu Kaisen',cat:'util',tipo:'ativo',cd:60,rar:'raro',e:'🕶️',d:'Por 5 s, as recargas das habilidades correm no dobro da velocidade.'},
+ {id:'chakra',n:'Pílula de Chakra',o:'Naruto',cat:'util',tipo:'ativo',cd:50,rar:'lendario',e:'🌀',d:'Zera a recarga das habilidades normais (não a ultimate).'},
+ {id:'relogio',n:'Relógio de Prata',o:'Fullmetal Alchemist',cat:'util',tipo:'ativo',cd:40,rar:'raro',e:'⌚',d:'Ergue uma muralha de pedra à frente por 4 s, que bloqueia movimento e projéteis. Quem estiver onde ela surge é empurrado e leva 50 de dano.'}
 ];
 ITENS.forEach((d,i)=>{d.idx=i;d.preco=RAR[d.rar].preco;d.cor=RAR[d.rar].cor});
 const BY=Object.fromEntries(ITENS.map(d=>[d.id,d]));
@@ -83,21 +83,21 @@ const usaFx=(a,cor,txt,cat=CUR)=>{try{if(cat===false){if(txt)float(a.x,a.y-52,tx
 const DEC=[];   // iscas (Boneco Kon)
 
 const EF={
- pilula(a){heal(a,a.max*.25);usaFx(a,'#9be37a','PÍLULA');return true},
- doce(a){const X=a.ix;X.hot={rate:a.max*.2/5,t:5};usaFx(a,'#ffb6e0','DOCE');return true},
- carne(a){heal(a,a.max*.15);addMod(a,'spd','carne',1.1,5);usaFx(a,'#e9a46a','CARNE');return true},
- sangue(a){addMod(a,'ls','sangue',.08,8);usaFx(a,'#ff6a7a','VAMPIRISMO');return true},
+ pilula(a){heal(a,a.max*.15);usaFx(a,'#9be37a','PÍLULA');return true},
+ doce(a){const X=a.ix;X.hot={rate:a.max*.18/8,t:8};usaFx(a,'#ffb6e0','DOCE');return true},
+ carne(a){a.root=Math.max(a.root||0,1);a.ix.comer={t:1,hp0:a.hp};usaFx(a,'#e9a46a','COMENDO…');return true},   // 1 s parado comendo; cura no fim se não apanhar
+ sangue(a){addMod(a,'ls','sangue',.35,8);usaFx(a,'#ff6a7a','VAMPIRISMO');return true},
  escudo(a){a.ix.barrier={hp:150,t:2,t0:clock,hitAt:null};usaFx(a,'#8fd2ff','ESCUDO');return true},
- chapeu(a){addMod(a,'taken','chapeu',.85,4);addMod(a,'noknock','chapeu',0,4);a.guardBreak=0;usaFx(a,'#ffd45a','CHAPÉU');return true},
+ chapeu(a){addMod(a,'taken','chapeu',.75,5);addMod(a,'noknock','chapeu',0,5);a.guardBreak=0;usaFx(a,'#ffd45a','CHAPÉU');return true},
  tronco(a){
   const e=foeNear(a,600),ang=e?Math.atan2(a.y-e.y,a.x-e.x):(a.a||0)+Math.PI,x0=a.x,y0=a.y;
   a.inv=Math.max(a.inv||0,.6);a.root=0;move(a,Math.cos(ang)*150,Math.sin(ang)*150);
   (a.ix.logs=a.ix.logs||[]).push({x:x0,y:y0,t:LOG_T,t0:clock});SMK.push({x:a.x,y:a.y,t0:clock});usaFx(a,'#c9a46a','SUBSTITUIÇÃO',IMG.tronco&&IMG.tronco.ok?false:undefined);return true;   // o tronco fica onde o herói estava; a fumaça de chegada aparece onde ele pousou
  },
- cantil(a){a.root=0;a.slow=0;a.guardBreak=0;a.knockedDown=false;addMod(a,'taken','cantil',.7,2);usaFx(a,'#ffb35a','CANTIL');return true},
+ cantil(a){a.root=0;a.slow=0;a.guardBreak=0;a.knockedDown=false;addMod(a,'taken','cantil',.65,4);usaFx(a,'#ffb35a','CANTIL');return true},
  pesos(a){addMod(a,'spd','pesos',1.25,5);addMod(a,'dmg','pesos',1.15,5);depois(a,5,()=>addMod(a,'spd','cansado',.8,1.5));usaFx(a,'#ffd45a','SEM PESOS');return true},
- mascara(a){addMod(a,'dmg','mascara',1.2,5);addMod(a,'taken','mascara',1.15,5);usaFx(a,'#ff5a5a','MÁSCARA');return true},
- caderno(a){const e=foeNear(a,520);if(!e)return false;const X=e.ix||(e.ix={});addMod(e,'taken','caderno',1.15,6);usaFx(e,'#ff9ad0','MARCADO');return true},
+ mascara(a){addMod(a,'dmg','mascara',1.3,6);addMod(a,'taken','mascara',1.05,6);usaFx(a,'#ff5a5a','MÁSCARA');return true},
+ caderno(a){const e=foeNear(a,520);if(!e)return false;const X=e.ix||(e.ix={});addMod(e,'taken','caderno',1.15,8);usaFx(e,'#ff9ad0','MARCADO');return true},
  kon(a){
   const e=foeNear(a,700),ang=e?Math.atan2(e.y-a.y,e.x-a.x):(a.a||0);
   const x=clamp(a.x+Math.cos(ang)*120,50,W-50),y=clamp(a.y+Math.sin(ang)*120,50,H-50);
@@ -109,15 +109,20 @@ const EF={
   const e=foeNear(a,300);if(!e)return false;
   const X=e.ix||(e.ix={});if(X.ccImune>0)return false;
   const boss=!!(e.huntBoss||e.boss);
-  e.root=Math.max(e.root||0,boss?.3:.8);X.ccImune=(boss?.3:.8)+3;
+  e.root=Math.max(e.root||0,boss?.3:1);X.ccImune=(boss?.3:1)+3;try{hit(e,60,a,0,0)}catch{}
   usaFx(e,'#ffd45a','PRESO');return true;
  },
- venda(a){addMod(a,'cd','venda',1.4,5);usaFx(a,'#cfe3ff','SEIS OLHOS');return true},
+ venda(a){addMod(a,'cd','venda',2,5);usaFx(a,'#cfe3ff','SEIS OLHOS');return true},
  chakra(a){for(let i=0;i<a.kit.length-1;i++)a.cd[a.kit[i]]=0;usaFx(a,'#7fb8ff','CHAKRA');return true},
  relogio(a){
   const ang=a.a||0,x=clamp(a.x+Math.cos(ang)*100,70,W-70),y=clamp(a.y+Math.sin(ang)*100,70,H-70),vertical=Math.abs(Math.cos(ang))>.7;
-  const w={kind:'wall',x,y,w:vertical?22:135,h:vertical?135:22,owner:a,life:3,color:a.color};
-  if(actors.some(o=>o.hp>0&&Math.abs(o.x-x)<w.w/2+o.r&&Math.abs(o.y-y)<w.h/2+o.r))return false;
+  const w={kind:'wall',x,y,w:vertical?22:135,h:vertical?135:22,owner:a,life:4,color:a.color};
+  const em=actors.filter(o=>o.hp>0&&Math.abs(o.x-x)<w.w/2+o.r&&Math.abs(o.y-y)<w.h/2+o.r);
+  if(em.some(o=>o.team===a.team))return false;
+  for(const e of em){   // a pedra surge debaixo do rival: empurra para fora e machuca
+   try{hit(e,50,a,0,0)}catch{}
+   if(vertical)e.x=clamp(e.x<x?x-w.w/2-e.r-4:x+w.w/2+e.r+4,40,W-40);else e.y=clamp(e.y<y?y-w.h/2-e.r-4:y+w.h/2+e.r+4,40,H-40);
+  }
   objects.push(w);usaFx(a,'#cfd6e6','MURALHA');return true;
  }
 };
@@ -160,20 +165,20 @@ function botDesejo(a){
  switch(d.id){
   case 'pilula':return hp<.42;
   case 'doce':return hp<.6;
-  case 'carne':return hp<.5;
+  case 'carne':return hp<.55&&dd>260&&!agindo;   // só come longe do rival
   case 'sangue':return dd<220&&hp<.85&&eh>.2;
   case 'escudo':return dd<300&&agindo;
   case 'chapeu':return dd<220&&hp<.75;
   case 'tronco':return dd<170&&hp<.5;
-  case 'cantil':return a.root>.3||a.slow>0||a.guardBreak>0;
+  case 'cantil':return a.root>.3||a.slow>0||a.guardBreak>0||(hp<.6&&dd<200&&agindo);
   case 'pesos':return dd>240&&dd<600&&hp>.35;
   case 'mascara':return dd<260&&hp>.55&&eh<.9;
   case 'caderno':return dd<480&&eh>.5;
   case 'kon':return dd<320&&hp<.6;
   case 'carta':return dd<270&&(agindo||eh<.5);
   case 'venda':return ocupadas>=2&&dd<500;
-  case 'chakra':return ocupadas>=3;
-  case 'relogio':return dd>90&&dd<420&&(agindo||hp<.5);
+  case 'chakra':return ocupadas>=2&&dd<450;
+  case 'relogio':return (dd>90&&dd<420&&(agindo||hp<.5))||(dd>70&&dd<130&&Math.abs(Math.atan2(e.y-a.y,e.x-a.x)-(a.a||0))<.5);   // também ergue a muralha EMBAIXO do rival que está bem na frente
  }
  return false;
 }
@@ -191,6 +196,10 @@ function tick(a,dt){
  if(state==='fight'){
   if(it&&it.cd>0)it.cd=Math.max(0,it.cd-dt);
   if(X.hot){const d=Math.min(dt,X.hot.t);heal(a,X.hot.rate*d);X.hot.t-=dt;if(X.hot.t<=0)X.hot=null}
+  if(X.comer){   // Carne com Osso: apanhou enquanto comia = perde a refeição
+   if(a.hp<X.comer.hp0-1){X.comer=null;try{float(a.x,a.y-52,'INTERROMPIDO','#ffb3a0')}catch{}}
+   else{X.comer.t-=dt;a.root=Math.max(a.root||0,.05);if(X.comer.t<=0){X.comer=null;heal(a,a.max*.35);try{spark(a.x,a.y,'#9be37a',12)}catch{}}}
+  }
   if(X.barrier){X.barrier.t-=dt;if(X.barrier.t<=0||X.barrier.hp<=0){const B=X.barrier;if(IMG.escudo&&IMG.escudo.ok)BRK.push({x:a.x,y:a.y,ang:a.a||0,t0:clock,broke:B.hp<=0});X.barrier=null}}
   if(X.ccImune>0)X.ccImune-=dt;
   if(X.noUlt>0)X.noUlt-=dt;
@@ -206,7 +215,7 @@ function tick(a,dt){
   if(X.logs)for(let i=X.logs.length-1;i>=0;i--){X.logs[i].t-=dt;if(X.logs[i].t<=0)X.logs.splice(i,1)}
  }else if(state==='count'||state==='end'){
   // entre os rounds: efeitos temporários somem e as recargas voltam (o consumível já gasto continua gasto na luta toda)
-  X.mods=null;X.hot=null;X.barrier=null;X.later=null;X.burn=null;X.logs=null;X.ccImune=0;X.noUlt=0;
+  X.mods=null;X.hot=null;X.comer=null;X.barrier=null;X.later=null;X.burn=null;X.logs=null;X.ccImune=0;X.noUlt=0;
   if(it&&it.def.tipo==='ativo')it.cd=0;
   if(it&&it.def.id==='brasa'&&!it.used)it.armed=true;
  }
@@ -217,6 +226,9 @@ function tickDec(dt){
   const d=DEC[i];d.life-=dt;d.age+=dt;
   try{let best=null,bd=1e9;for(const e of opponents(d.owner)){if(e.itemDecoy||e.hp<=0)continue;const dd=Math.abs(e.x-d.x);if(dd<bd){bd=dd;best=e}}if(best)d.flip=best.x<d.x}catch{}   // a isca olha para o rival mais próximo
   const fim=d.life<=0||d.hp<=0;
+  if(fim&&state==='fight'){   // estoura em fumaça: quem está perto fica lento (vale também contra pessoas, que não caem na isca)
+   try{for(const e of opponents(d.owner)){if(e.itemDecoy||e.hp<=0)continue;if(dist(e,d)<150+(e.r||0)){e.slow=Math.max(e.slow||0,2);float(e.x,e.y-40,'LENTO','#cfd6e6')}}ring(d.x,d.y,150,'#e9e3d0',.4)}catch{}
+  }
   if(fim||!actors.includes(d.owner)||(state!=='fight'&&state!=='count')){if(fim&&IMG.kon&&IMG.kon.ok)GONE.push({x:d.x,y:d.y,flip:d.flip,t0:clock});DEC.splice(i,1)}
  }
  for(let i=GONE.length-1;i>=0;i--)if(clock-GONE[i].t0>.62)GONE.splice(i,1);
@@ -318,8 +330,8 @@ hit=function(t,n,owner,knock=0,angle=0,id){
   if(owner&&owner.ix&&owner.ix.mods&&dealt>0){const ls=modSum(owner,'ls');if(ls>0)heal(owner,dealt*ls)}
  }
  if(arm&&t.hp<=0){
-  t.hp=Math.max(1,Math.round(t.max*.08));t.inv=Math.max(t.inv||0,1.5);t.root=0;t.hitReact=0;
-  t.item.armed=false;t.item.used=true;t.ix.noUlt=3;usaFx(t,'#ffd45a','LICENÇA DE HUNTER','defesa');
+  t.hp=1;t.inv=Math.max(t.inv||0,.6);t.root=0;t.hitReact=0;
+  t.item.armed=false;t.item.used=true;t.ix.noUlt=5;usaFx(t,'#ffd45a','LICENÇA DE HUNTER','defesa');
   try{if(t===p)toast('Licença de Hunter! Você sobreviveu.')}catch{}
  }
  return r;

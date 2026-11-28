@@ -27,7 +27,7 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
  await p.evaluate(()=>{matchMode='1v1';battleActivity='casual';start()});
  await p.waitForFunction(()=>state==='fight',null,{timeout:25000});await p.waitForTimeout(800);
  const CASOS={
-  pilula:{hp:300},doce:{hp:450},carne:{hp:350},sangue:{d:160,hp:700},escudo:{d:260,agindo:1},chapeu:{d:180,hp:600},tronco:{d:140,hp:400},
+  pilula:{hp:300},doce:{hp:450},carne:{d:340,hp:350},sangue:{d:160,hp:700},escudo:{d:260,agindo:1},chapeu:{d:180,hp:600},tronco:{d:140,hp:400},
   cantil:{root:2},pesos:{d:420},mascara:{d:200,hp:900,php:600},caderno:{d:300},kon:{d:240,hp:500},carta:{d:200,agindo:1},
   venda:{cds:2},chakra:{cds:3},relogio:{d:300,hp:400},licenca:{reativo:'licenca'},brasa:{reativo:'brasa'}};
  const R=await p.evaluate(async(CASOS)=>{
@@ -80,7 +80,7 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
   await sleep(3500);
   const uso=msgs.filter(m=>m.t==='act'&&m.f==='itemUse'&&m.s===sb);
   ok(uso.length===1,'o bot usa o item e a ação chega para o jogador ('+uso.length+')');
-  ok(snap&&snap.h.hp>=420,'o bot curou no servidor (200 → '+(snap&&Math.round(snap.h.hp))+')');
+  ok(snap&&snap.h.hp>=340,'o bot curou no servidor (200 → '+(snap&&Math.round(snap.h.hp))+')');
   ws.close();
  }finally{sv.kill()}
 })();

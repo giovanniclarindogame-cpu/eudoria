@@ -53,7 +53,7 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
  await p.evaluate(()=>{p.hp=500;b.x=p.x+400;b.y=p.y});
  await p.evaluate(()=>{document.getElementById('itemBtn85').dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,cancelable:true}))});await p.waitForTimeout(200);
  const u=await p.evaluate(()=>({hp:Math.round(p.hp),usado:p.item.used,cls:document.getElementById('itemBtn85').className,lb:document.querySelector('#itemBtn85 .lb').textContent}));
- ok(u.hp===750&&u.usado,'tocar no botão usa a Pílula dos Deuses: +25% da vida (500 → '+u.hp+')');
+ ok(u.hp===650&&u.usado,'tocar no botão usa a Pílula dos Deuses: +15% da vida (500 → '+u.hp+')');
  ok(/usado/.test(u.cls)&&u.lb==='USADO','depois do uso o botão mostra USADO');
  await p.evaluate(()=>{p.hp=300});
  ok(await p.evaluate(()=>window.itemUse(p,0)===false&&Math.round(p.hp)===300),'consumível só vale 1 vez por luta');
@@ -69,8 +69,9 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
   const base=dmgOn(b,p);
   // cura
   reset('pilula');p.hp=500;itemUse(p,idx('pilula'));out.pilula=Math.round(p.hp);
-  reset('doce');p.hp=500;itemUse(p,idx('doce'));p.inv=99;b.root=99;steps(5.2);out.doce=Math.round(p.hp);   // (sem golpes do rival durante a medida)
-  reset('carne');p.hp=500;itemUse(p,idx('carne'));out.carne=[Math.round(p.hp),+ItensV85.mod(p,'spd').toFixed(2)];
+  reset('doce');p.hp=500;itemUse(p,idx('doce'));p.inv=99;b.root=99;steps(4);out.doceMeio=Math.round(p.hp);steps(4.3);out.doce=Math.round(p.hp);   // (sem golpes do rival durante a medida)
+  reset('carne');p.hp=500;itemUse(p,idx('carne'));p.inv=99;b.root=99;out.carneParado=p.root>0;steps(1.2);out.carne=Math.round(p.hp);
+  reset('carne');p.hp=500;itemUse(p,idx('carne'));steps(.3);p.inv=0;hit(p,50,b,0,0);p.inv=99;b.root=99;steps(1);out.carneInterrompida=Math.round(p.hp);
   reset('sangue');itemUse(p,idx('sangue'));p.hp=500;const d=dmgOn(b,p);out.sangue=[Math.round(p.hp-500),d];
   // defesa
   reset('escudo');p.a=0;itemUse(p,idx('escudo'));out.escudo=+(dmgOn(p,b,200)/kb).toFixed(1);   // golpe vindo da frente (b está à direita, p olha para a direita)
@@ -78,40 +79,44 @@ const ok=(c,m)=>{if(!c){console.error('FALHOU:',m);process.exitCode=1}else conso
   reset('chapeu');itemUse(p,idx('chapeu'));const x0=p.x;p.inv=0;hit(p,100,b,60,Math.PI);out.chapeu=[+((1000-p.hp)/kb).toFixed(1),Math.round(Math.abs(p.x-x0))];
   reset('tronco');itemUse(p,idx('tronco'));out.tronco=[Math.round(Math.hypot(p.x-400,p.y-300)),p.inv>0];
   reset('cantil');p.root=2;p.slow=2;p.guardBreak=1;itemUse(p,idx('cantil'));out.cantil=[p.root,p.slow,p.guardBreak,+(dmgOn(p,b,100)/kb).toFixed(1)];
-  reset('licenca');p.hp=30;ItensV85.equip(p,'licenca');p.hp=30;hit(p,900,b,0,0);out.licenca=[Math.round(p.hp),p.inv>1,p.item.used,canUseUltimate(p)];
+  reset('licenca');p.hp=30;ItensV85.equip(p,'licenca');p.hp=30;hit(p,900,b,0,0);out.licenca=[Math.round(p.hp),p.inv>=.55,p.item.used,canUseUltimate(p)];
   // ataque
   reset('pesos');itemUse(p,idx('pesos'));out.pesos=[+(dmgOn(b,p)/base).toFixed(2),+ItensV85.mod(p,'spd').toFixed(2)];steps(5.2);out.pesosFim=+ItensV85.mod(p,'spd').toFixed(2);steps(1.6);out.pesosFim2=+ItensV85.mod(p,'spd').toFixed(2);
   reset('mascara');itemUse(p,idx('mascara'));out.mascara=[+(dmgOn(b,p)/base).toFixed(2),+(dmgOn(p,b,100)/kb).toFixed(1)];
   reset('caderno');itemUse(p,idx('caderno'));out.caderno=+(dmgOn(b,p)/base).toFixed(2);
   reset('brasa');p.hp=250;steps(.2);b.hp=1000;out.brasa=[p.item.armed,+(dmgOn(b,p)/base).toFixed(2)];steps(1.2);out.brasaQueima=1000-b.hp>0;
   // utilidade
-  reset('kon');itemUse(p,idx('kon'));out.kon=[ItensV85.DEC.length,enemy(b)===ItensV85.DEC[0],opponents(b).includes(ItensV85.DEC[0])];steps(3.3);out.konFim=ItensV85.DEC.length;
-  reset('carta');itemUse(p,idx('carta'));out.carta=[b.root>=.79,itemUse(p,idx('carta'))];
+  reset('kon');itemUse(p,idx('kon'));out.kon=[ItensV85.DEC.length,enemy(b)===ItensV85.DEC[0],opponents(b).includes(ItensV85.DEC[0])];{const d0=ItensV85.DEC[0];b.x=d0.x+60;b.y=d0.y;b.root=99;b.slow=0}steps(3.3);out.konFim=ItensV85.DEC.length;out.konLento=b.slow>0;
+  reset('carta');const hc=b.hp;itemUse(p,idx('carta'));out.carta=[b.root>=.99,itemUse(p,idx('carta')),Math.round(hc-b.hp)];
   reset('venda');const k0=p.kit[0];p.cd[k0]=10;itemUse(p,idx('venda'));steps(5);out.venda=+p.cd[k0].toFixed(1);
   reset('chakra');for(let i=0;i<6;i++)p.cd[p.kit[i]]=9;itemUse(p,idx('chakra'));out.chakra=[p.cd[p.kit[0]],p.cd[p.kit[4]],p.cd[p.kit[5]]];
   reset('relogio');const n0=objects.filter(o=>o.kind==='wall').length;itemUse(p,idx('relogio'));out.relogio=objects.filter(o=>o.kind==='wall').length-n0;
+  reset('relogio');b.x=p.x+100;b.y=p.y;b.inv=0;const n1=objects.filter(o=>o.kind==='wall').length,hr=b.hp;itemUse(p,idx('relogio'));const wl=objects.filter(o=>o.kind==='wall').slice(-1)[0];out.relogioEmpurra=[objects.filter(o=>o.kind==='wall').length-n1,Math.round(hr-b.hp),wl?Math.abs(b.x-wl.x)>=wl.w/2+b.r:false];
   // recarga dos ativos
   reset('tronco');itemUse(p,idx('tronco'));out.recarga=[itemUse(p,idx('tronco')),Math.round(p.item.cd)];
   out.base=base;return out});
  console.log('EFEITOS',JSON.stringify(R));
- ok(R.pilula===750,'Pílula dos Deuses: +25% da vida');
- ok(R.doce>=690&&R.doce<=710,'Doce do Mestre: +20% da vida em 5 s ('+R.doce+')');
- ok(R.carne[0]===650&&R.carne[1]===1.1,'Carne com Osso: +15% da vida e +10% de velocidade');
- ok(R.sangue[0]>0&&Math.abs(R.sangue[0]-R.sangue[1]*.08)<2,'Sangue de Atena: cura 8% do dano causado ('+R.sangue+')');
+ ok(R.pilula===650,'Pílula dos Deuses: +15% da vida');
+ ok(R.doce>=670&&R.doce<=690&&R.doceMeio<R.doce-50,'Doce do Mestre: +18% da vida, devagar, em 8 s ('+R.doceMeio+' no meio → '+R.doce+')');
+ ok(R.carneParado&&R.carne===850,'Carne com Osso: para 1 s comendo e cura 35% ('+R.carne+')');
+ ok(R.carneInterrompida<=460,'Carne com Osso: apanhar enquanto come cancela a cura ('+R.carneInterrompida+')');
+ ok(R.sangue[0]>0&&Math.abs(R.sangue[0]-R.sangue[1]*.35)<2,'Sangue de Atena: cura 35% do dano causado ('+R.sangue+')');
  ok(Math.abs(R.escudo-50)<2&&Math.abs(R.escudoCostas-200)<2,'Escudo do Dragão: absorve 150 de frente e não protege pelas costas ('+R.escudo+'/'+R.escudoCostas+')');
- ok(Math.abs(R.chapeu[0]-85)<2&&R.chapeu[1]===0,'Chapéu de Palha: 15% menos dano e sem empurrão ('+R.chapeu+')');
+ ok(Math.abs(R.chapeu[0]-75)<2&&R.chapeu[1]===0,'Chapéu de Palha: 25% menos dano e sem empurrão ('+R.chapeu+')');
  ok(R.tronco[0]>=140&&R.tronco[0]<=160&&R.tronco[1],'Tronco de Substituição: salta ~150 e fica invulnerável ('+R.tronco+')');
- ok(R.cantil[0]===0&&R.cantil[1]===0&&R.cantil[2]===0&&Math.abs(R.cantil[3]-70)<2,'Cantil do Amanhecer: limpa controle e dá 30% menos dano ('+R.cantil+')');
- ok(R.licenca[0]===80&&R.licenca[1]&&R.licenca[2]&&!R.licenca[3],'Licença de Hunter: sobrevive com 8%, fica invulnerável e a ultimate bloqueia ('+R.licenca+')');
+ ok(R.cantil[0]===0&&R.cantil[1]===0&&R.cantil[2]===0&&Math.abs(R.cantil[3]-65)<2,'Cantil do Amanhecer: limpa controle e dá 35% menos dano ('+R.cantil+')');
+ ok(R.licenca[0]===1&&R.licenca[1]&&R.licenca[2]&&!R.licenca[3],'Licença de Hunter: sobrevive com 1 de vida, fica invulnerável e a ultimate bloqueia ('+R.licenca+')');
  ok(R.pesos[0]===1.15&&R.pesos[1]===1.25&&R.pesosFim===.8&&R.pesosFim2===1,'Pesos de Treino: +15% dano, +25% velocidade e depois cansaço ('+R.pesos+' '+R.pesosFim+' '+R.pesosFim2+')');
- ok(Math.abs(R.mascara[0]-1.2)<.03&&Math.abs(R.mascara[1]-115)<2,'Máscara Oca: +20% de dano e +15% de dano recebido ('+R.mascara+')');
+ ok(Math.abs(R.mascara[0]-1.3)<.03&&Math.abs(R.mascara[1]-105)<2,'Máscara Oca: +30% de dano e +5% de dano recebido ('+R.mascara+')');
  ok(R.caderno===1.15,'Caderno de Análise: o rival marcado sofre +15% ('+R.caderno+')');
  ok(R.brasa[0]===false&&Math.abs(R.brasa[1]-1.2)<.03&&R.brasaQueima,'Brasa Eterna: acende sozinha abaixo de 30%, +20% de dano e queima ('+R.brasa+')');
  ok(R.kon[0]===1&&R.kon[1]&&R.kon[2]&&R.konFim===0,'Boneco Kon: isca vira alvo dos rivais e some em 3 s ('+R.kon+' '+R.konFim+')');
- ok(R.carta[0]&&R.carta[1]===false,'Carta de Contenção: prende ~0,8 s e não prende de novo em seguida ('+R.carta+')');
- ok(R.venda>=2.5&&R.venda<=3.5,'Venda Retirada: recarga 40% mais rápida (10 → '+R.venda+' em 5 s)');
+ ok(R.konLento,'Boneco Kon: ao sumir, estoura em fumaça e deixa lento quem está perto');
+ ok(R.carta[0]&&R.carta[1]===false&&R.carta[2]>0,'Carta de Contenção: prende 1 s, causa dano e não prende de novo em seguida ('+R.carta+')');
+ ok(R.venda<=.5,'Venda Retirada: recargas no dobro da velocidade (10 → '+R.venda+' em 5 s)');
  ok(R.chakra[0]===0&&R.chakra[1]===0&&R.chakra[2]===9,'Pílula de Chakra: zera as habilidades normais e preserva a ultimate ('+R.chakra+')');
  ok(R.relogio===1,'Relógio de Prata: ergue uma muralha');
+ ok(R.relogioEmpurra[0]===1&&R.relogioEmpurra[1]>0&&R.relogioEmpurra[2],'Relógio de Prata: a pedra surge debaixo do rival, empurra para fora e machuca ('+R.relogioEmpurra+')');
  ok(R.recarga[0]===false&&R.recarga[1]>=40,'itens ativos entram em recarga e não valem de novo antes ('+R.recarga+')');
  /* ---------- liberado de graça (padrão por enquanto) ---------- */
  const g=await (await b.newContext({viewport:{width:915,height:412},hasTouch:true,isMobile:true})).newPage();g.on('pageerror',e=>errs.push('grátis: '+e.message));
